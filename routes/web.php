@@ -54,6 +54,12 @@ Route::get('/periode/edit', [PeriodeController::class, 'edit'])
 Route::get('/verifikasi', [VerifikasiController::class, 'index'])
     ->name('verifikasi.index');
 
+Route::get('/verifikasi/{id}', [VerifikasiController::class, 'show'])
+    ->name('verifikasi.show');
+
+Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])
+    ->name('verifikasi.update');
+
 
 /*
 |--------------------------------------------------------------------------
