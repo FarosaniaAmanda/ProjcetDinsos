@@ -9,17 +9,68 @@ use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Admin\MonitoringController;
 
 
-Route::get('/',[LoginController::class,'index']);
+/*
+|--------------------------------------------------------------------------
+| Login
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/dashboard',[DashboardController::class,'index']);
+Route::get('/', [LoginController::class, 'index'])
+    ->name('login');
 
-Route::get('/periode',[PeriodeController::class,'index']);
 
-Route::get('/periode/tambah',[PeriodeController::class,'create']);
+/*
+|--------------------------------------------------------------------------
+| Dashboard
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/periode/edit',[PeriodeController::class,'edit']);
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->name('dashboard');
+
+
+/*
+|--------------------------------------------------------------------------
+| Periode
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/periode', [PeriodeController::class, 'index'])
+    ->name('periode.index');
+
+Route::get('/periode/tambah', [PeriodeController::class, 'create'])
+    ->name('periode.create');
+
+Route::get('/periode/edit', [PeriodeController::class, 'edit'])
+    ->name('periode.edit');
+
+
+/*
+|--------------------------------------------------------------------------
+| Verifikasi
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/verifikasi', [VerifikasiController::class, 'index'])
     ->name('verifikasi.index');
 
-Route::get('/monitoring',[MonitoringController::class,'index']);
+
+/*
+|--------------------------------------------------------------------------
+| Monitoring
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/monitoring', [MonitoringController::class, 'index'])
+    ->name('monitoring.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| Master
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/master', function () {
+    return view('admin.master.index');
+})->name('master.index');

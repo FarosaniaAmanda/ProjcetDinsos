@@ -6,22 +6,32 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('opsi_jawabans', function (Blueprint $table) {
+        Schema::create('opsi_jawaban', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('kuesioner_id')
+                ->constrained('kuesioner')
+                ->cascadeOnDelete();
+
+            $table->string('kode_opsi');
+
+            $table->string('opsi_jawaban');
+
+            $table->unsignedInteger('urutan')->default(1);
+
             $table->timestamps();
+
+            $table->unique([
+                'kuesioner_id',
+                'kode_opsi'
+            ]);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('opsi_jawabans');
+        Schema::dropIfExists('opsi_jawaban');
     }
 };

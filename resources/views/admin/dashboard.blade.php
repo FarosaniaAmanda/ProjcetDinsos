@@ -629,8 +629,7 @@ Laporan
 
 
 
-<a>
-
+<a href="{{ route('master.index') }}">
 Master
 
 </a>

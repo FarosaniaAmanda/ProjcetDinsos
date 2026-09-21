@@ -6,22 +6,40 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('kuesioners', function (Blueprint $table) {
+        Schema::create('kuesioner', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('periode_id')
+                ->constrained('periode')
+                ->cascadeOnDelete();
+
+            $table->string('kode_pertanyaan');
+
+            $table->text('pertanyaan');
+
+            $table->enum('jenis_jawaban', [
+                'pilihan_ganda',
+                'multiple_choice',
+                'jawaban_singkat'
+            ]);
+
+            $table->boolean('is_active')->default(true);
+
+            $table->unsignedInteger('urutan')->default(1);
+
             $table->timestamps();
+
+            $table->unique([
+                'periode_id',
+                'kode_pertanyaan'
+            ]);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('kuesioners');
+        Schema::dropIfExists('kuesioner');
     }
 };
