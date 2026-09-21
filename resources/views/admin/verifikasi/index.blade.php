@@ -1,1699 +1,1934 @@
-@extends('admin.layouts.app')
+<!DOCTYPE html>
+<html lang="id">
 
-@section('content')
+<head>
+    <meta charset="UTF-8">
 
-<style>
-    :root {
-        --primary: #252A86;
-        --primary-dark: #1b1f68;
-        --primary-soft: #eef0ff;
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-        --secondary: #55B5D5;
-        --success: #299447;
-        --success-soft: #eaf7ee;
+    <title>Verifikasi Data | Sistem Pendataan Sensus</title>
 
-        --warning: #F5C928;
-        --warning-soft: #fff8d9;
-
-        --danger: #D9364F;
-        --danger-soft: #fff0f2;
-
-        --text: #222222;
-        --text-soft: #6b7280;
-        --border: #e5e7eb;
-        --bg: #f6f8fc;
-        --white: #ffffff;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-
-    /* =====================================================
-       PAGE WRAPPER
-    ====================================================== */
-
-    .monitoring-page {
-        width: 100%;
-        color: var(--text);
-    }
-
-    /* =====================================================
-       PAGE HEADER
-    ====================================================== */
-
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 24px;
-        margin-bottom: 28px;
-    }
-
-    .page-heading {
-        min-width: 0;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN LABEL
-    |--------------------------------------------------------------------------
-    */
-
-    .page-kicker {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-
-        margin: 0 0 8px;
-
-        color: var(--primary);
-        font-size: 12px;
-        font-weight: 800;
-
-        letter-spacing: .08em;
-        text-transform: uppercase;
-    }
-
-    .page-kicker::before {
-        content: "";
-
-        width: 7px;
-        height: 7px;
-
-        border-radius: 50%;
-        background: var(--secondary);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | MAIN TITLE
-    |--------------------------------------------------------------------------
-    */
-
-    .page-title {
-        margin: 0;
-
-        color: var(--primary);
-
-        font-size: 30px;
-        line-height: 1.2;
-        font-weight: 800;
-
-        letter-spacing: -.02em;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SUBTITLE
-    |--------------------------------------------------------------------------
-    */
-
-    .page-description {
-        margin: 8px 0 0;
-
-        color: var(--text-soft);
-
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    /* =====================================================
-       SEARCH
-    ====================================================== */
-
-    .search-area {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-shrink: 0;
-    }
-
-    .search-box {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-        width: 290px;
-        height: 44px;
-
-        padding: 0 14px;
-
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-
-        box-shadow: 0 3px 12px rgba(15, 23, 42, .04);
-
-        transition: .2s ease;
-    }
-
-    .search-box:focus-within {
-        border-color: var(--primary);
-
-        box-shadow:
-            0 0 0 3px rgba(37, 42, 134, .08);
-    }
-
-    .search-icon {
-        color: var(--text-soft);
-
-        font-size: 16px;
-
-        flex-shrink: 0;
-    }
-
-    .search-box input {
-        width: 100%;
-
-        border: 0;
-        outline: 0;
-
-        background: transparent;
-
-        color: var(--text);
-
-        font-size: 13px;
-    }
-
-    .search-box input::placeholder {
-        color: #9ca3af;
-    }
-
-    .btn-search {
-        height: 44px;
-
-        padding: 0 18px;
-
-        border: 0;
-        border-radius: 10px;
-
-        background: var(--primary);
-        color: var(--white);
-
-        font-size: 13px;
-        font-weight: 700;
-
-        cursor: pointer;
-
-        transition: .2s ease;
-
-        box-shadow:
-            0 4px 10px rgba(37, 42, 134, .16);
-    }
-
-    .btn-search:hover {
-        background: var(--primary-dark);
-
-        transform: translateY(-1px);
-    }
-
-    /* =====================================================
-       STATISTICS
-    ====================================================== */
-
-    .stats-grid {
-        display: grid;
-
-        grid-template-columns:
-            repeat(6, minmax(0, 1fr));
-
-        gap: 14px;
-
-        margin-bottom: 24px;
-    }
-
-    .stat-card {
-        position: relative;
-
-        min-height: 118px;
-
-        padding: 18px;
-
-        background: var(--white);
-
-        border: 1px solid var(--border);
-        border-radius: 14px;
-
-        box-shadow:
-            0 4px 16px rgba(15, 23, 42, .035);
-
-        overflow: hidden;
-
-        transition: .2s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-2px);
-
-        box-shadow:
-            0 8px 22px rgba(15, 23, 42, .07);
-    }
-
-    .stat-card::after {
-        content: "";
-
-        position: absolute;
-
-        right: -20px;
-        bottom: -30px;
-
-        width: 80px;
-        height: 80px;
-
-        border-radius: 50%;
-
-        background: rgba(37, 42, 134, .04);
-    }
-
-    .stat-label {
-        position: relative;
-        z-index: 1;
-
-        margin-bottom: 13px;
-
-        color: var(--text-soft);
-
-        font-size: 12px;
-        line-height: 1.4;
-        font-weight: 600;
-    }
-
-    .stat-value {
-        position: relative;
-        z-index: 1;
-
-        color: var(--primary);
-
-        font-size: 28px;
-        line-height: 1;
-
-        font-weight: 800;
-
-        letter-spacing: -.02em;
-    }
-
-    .stat-card.success .stat-value {
-        color: var(--success);
-    }
-
-    .stat-card.warning .stat-value {
-        color: #b28a00;
-    }
-
-    .stat-card.danger .stat-value {
-        color: var(--danger);
-    }
-
-    .stat-card.info .stat-value {
-        color: #287e9d;
-    }
-
-    /* =====================================================
-       DATA PANEL
-    ====================================================== */
-
-    .data-panel {
-        background: var(--white);
-
-        border: 1px solid var(--border);
-        border-radius: 16px;
-
-        box-shadow:
-            0 5px 20px rgba(15, 23, 42, .04);
-
-        overflow: hidden;
-    }
-
-    .panel-header {
-        display: flex;
-
-        justify-content: space-between;
-        align-items: center;
-
-        gap: 20px;
-
-        padding: 22px 24px;
-
-        border-bottom: 1px solid var(--border);
-    }
-
-    .panel-heading h2 {
-        margin: 0;
-
-        color: var(--primary);
-
-        font-size: 18px;
-        line-height: 1.3;
-
-        font-weight: 800;
-    }
-
-    .panel-heading p {
-        margin: 5px 0 0;
-
-        color: var(--text-soft);
-
-        font-size: 12px;
-        line-height: 1.5;
-    }
-
-    /* =====================================================
-       FILTER
-    ====================================================== */
-
-    .filter-area {
-        display: flex;
-
-        align-items: center;
-
-        gap: 10px;
-    }
-
-    .filter-label {
-        color: var(--text-soft);
-
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    .filter-select {
-        min-width: 150px;
-        height: 40px;
-
-        padding: 0 34px 0 12px;
-
-        border: 1px solid var(--border);
-        border-radius: 9px;
-
-        background: var(--white);
-        color: var(--text);
-
-        font-size: 12px;
-        font-weight: 600;
-
-        outline: none;
-
-        cursor: pointer;
-    }
-
-    .filter-select:focus {
-        border-color: var(--primary);
-
-        box-shadow:
-            0 0 0 3px rgba(37, 42, 134, .07);
-    }
-
-    /* =====================================================
-       TABLE
-    ====================================================== */
-
-    .table-container {
-        width: 100%;
-
-        overflow-x: auto;
-    }
-
-    .data-table {
-        width: 100%;
-
-        min-width: 1180px;
-
-        border-collapse: collapse;
-    }
-
-    .data-table thead th {
-        padding: 13px 14px;
-
-        background: #f7f8ff;
-
-        border-bottom: 1px solid var(--border);
-
-        color: #4b5563;
-
-        font-size: 11px;
-        line-height: 1.3;
-
-        font-weight: 800;
-
-        text-align: left;
-
-        text-transform: uppercase;
-
-        letter-spacing: .045em;
-
-        white-space: nowrap;
-    }
-
-    .data-table tbody td {
-        padding: 15px 14px;
-
-        border-bottom: 1px solid #edf0f4;
-
-        color: #374151;
-
-        font-size: 13px;
-        line-height: 1.4;
-
-        vertical-align: middle;
-    }
-
-    .data-table tbody tr {
-        transition: background .15s ease;
-    }
-
-    .data-table tbody tr:hover {
-        background: #fafbff;
-    }
-
-    .data-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-    .number-cell {
-        width: 45px;
-
-        color: #9ca3af !important;
-
-        font-weight: 700;
-
-        text-align: center;
-    }
-
-    .family-head {
-        color: #1f2937 !important;
-
-        font-weight: 700;
-
-        white-space: nowrap;
-    }
-
-    .number-data {
-        font-variant-numeric: tabular-nums;
-
-        white-space: nowrap;
-    }
-
-    .center {
-        text-align: center;
-    }
-
-    .date-cell {
-        color: #6b7280 !important;
-
-        white-space: nowrap;
-    }
-
-    /* =====================================================
-       STATUS BADGES
-    ====================================================== */
-
-    .status-badge {
-        display: inline-flex;
-
-        align-items: center;
-
-        gap: 6px;
-
-        padding: 6px 10px;
-
-        border-radius: 999px;
-
-        font-size: 11px;
-        line-height: 1;
-
-        font-weight: 700;
-
-        white-space: nowrap;
-    }
-
-    .status-badge::before {
-        content: "";
-
-        width: 6px;
-        height: 6px;
-
-        border-radius: 50%;
-
-        background: currentColor;
-    }
-
-    .status-open {
-        background: #edf8fc;
-
-        color: #287e9d;
-    }
-
-    .status-draft {
-        background: var(--warning-soft);
-
-        color: #9b7600;
-    }
-
-    .status-submit {
-        background: var(--primary-soft);
-
-        color: var(--primary);
-    }
-
-    .status-reject {
-        background: var(--danger-soft);
-
-        color: var(--danger);
-    }
-
-    .status-approved {
-        background: var(--success-soft);
-
-        color: var(--success);
-    }
-
-    /* =====================================================
-       ACTION
-    ====================================================== */
-
-    .action-cell {
-        display: flex;
-
-        align-items: center;
-
-        gap: 8px;
-
-        white-space: nowrap;
-    }
-
-    .btn-action {
-        display: inline-flex;
-
-        align-items: center;
-        justify-content: center;
-
-        gap: 6px;
-
-        min-height: 34px;
-
-        padding: 0 12px;
-
-        border-radius: 8px;
-
-        font-size: 11px;
-
-        font-weight: 700;
-
-        line-height: 1;
-
-        text-decoration: none;
-
-        cursor: pointer;
-
-        transition: all .18s ease;
-    }
-
-    .btn-action svg {
-        width: 14px;
-        height: 14px;
-
-        flex-shrink: 0;
-    }
-
-    /* DETAIL */
-
-    .btn-detail {
-        border: 1px solid #dbe3ea;
-
-        background: #f8fafc;
-
-        color: #475569;
-    }
-
-    .btn-detail:hover {
-        background: #eef2f6;
-
-        border-color: #cbd5e1;
-
-        color: #1e293b;
-
-        transform: translateY(-1px);
-    }
-
-    /* EDIT */
-
-    .btn-edit {
-        border: 1px solid #d9dded;
-
-        background: var(--primary-soft);
-
-        color: var(--primary);
-    }
-
-    .btn-edit:hover {
-        background: var(--primary);
-
-        border-color: var(--primary);
-
-        color: var(--white);
-
-        transform: translateY(-1px);
-    }
-
-    /* =====================================================
-       RESPONSIVE
-    ====================================================== */
-
-    @media (max-width: 1400px) {
-
-        .stats-grid {
-            grid-template-columns:
-                repeat(3, minmax(0, 1fr));
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-    }
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f6fa;
+            color: #252525;
+            min-height: 100vh;
+        }
 
-    @media (max-width: 900px) {
+        /* =====================================================
+           SIDEBAR
+        ====================================================== */
 
-        .page-header {
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+
+            width: 260px;
+            height: 100vh;
+
+            background: #252A86;
+            color: #ffffff;
+
+            display: flex;
             flex-direction: column;
 
-            align-items: stretch;
+            z-index: 1000;
+
+            overflow-y: auto;
         }
 
-        .search-area {
+        .sidebar-logo {
+            height: 90px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 15px 20px;
+
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .sidebar-logo img {
+            width: 50px;
+            height: 50px;
+
+            object-fit: contain;
+
+            border-radius: 8px;
+
+            background: #ffffff;
+        }
+
+        .sidebar-logo-text {
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .sidebar-menu {
+            padding: 20px 14px;
+
+            flex: 1;
+        }
+
+        .menu-title {
+            font-size: 11px;
+            font-weight: 700;
+
+            color: rgba(255,255,255,0.55);
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            margin: 8px 10px 12px;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            width: 100%;
+
+            padding: 12px 14px;
+
+            margin-bottom: 5px;
+
+            border-radius: 9px;
+
+            color: rgba(255,255,255,0.82);
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            transition: all .2s ease;
+        }
+
+        .menu-link:hover {
+            background: rgba(255,255,255,0.10);
+            color: #ffffff;
+        }
+
+        .menu-link.active {
+            background: #ffffff;
+            color: #252A86;
+
+            font-weight: 700;
+
+            box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+        }
+
+        .sidebar-footer {
+            padding: 15px 14px;
+
+            border-top: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            width: 100%;
+
+            padding: 12px 14px;
+
+            border-radius: 9px;
+
+            color: rgba(255,255,255,0.85);
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            transition: all .2s ease;
+        }
+
+        .logout-link:hover {
+            background: rgba(255,255,255,0.10);
+            color: #ffffff;
+        }
+
+
+        /* =====================================================
+           MAIN
+        ====================================================== */
+
+        .main {
+            margin-left: 260px;
+
+            min-height: 100vh;
+
+            width: calc(100% - 260px);
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .header {
+            height: 75px;
+
+            background: #ffffff;
+
+            border-bottom: 1px solid #e8e9ef;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 30px;
+
+            position: sticky;
+            top: 0;
+
+            z-index: 900;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+
+            gap: 14px;
+        }
+
+        .header-logo {
+            width: 42px;
+            height: 42px;
+
+            object-fit: contain;
+
+            border-radius: 7px;
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 700;
+
+            color: #252A86;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+
+            color: #777;
+
+            margin-top: 3px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .admin-info {
+            text-align: right;
+        }
+
+        .admin-name {
+            font-size: 13px;
+            font-weight: 700;
+
+            color: #333;
+        }
+
+        .admin-role {
+            font-size: 11px;
+
+            color: #888;
+
+            margin-top: 2px;
+        }
+
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            background: #252A86;
+
+            color: #ffffff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           CONTENT
+        ====================================================== */
+
+        .content {
+            padding: 30px;
+        }
+
+
+        /* =====================================================
+           PAGE HEADER
+        ====================================================== */
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-kicker {
+            font-size: 12px;
+
+            color: #252A86;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            margin-bottom: 7px;
+        }
+
+        .page-title {
+            font-size: 28px;
+
+            color: #222;
+
+            font-weight: 700;
+
+            margin-bottom: 7px;
+        }
+
+        .page-description {
+            font-size: 14px;
+
+            color: #777;
+
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           SEARCH
+        ====================================================== */
+
+        .search-panel {
+            background: #ffffff;
+
+            border: 1px solid #e7e8ee;
+
+            border-radius: 12px;
+
+            padding: 18px;
+
+            margin-bottom: 22px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .search-form {
+            display: flex;
+
+            gap: 12px;
+
             width: 100%;
         }
 
         .search-box {
             flex: 1;
 
-            width: auto;
+            position: relative;
         }
 
-        .panel-header {
-            align-items: flex-start;
-
-            flex-direction: column;
-        }
-
-        .filter-area {
+        .search-box input {
             width: 100%;
 
-            justify-content: space-between;
+            height: 44px;
+
+            border: 1px solid #dfe1e8;
+
+            border-radius: 8px;
+
+            padding: 0 15px;
+
+            font-size: 13px;
+
+            outline: none;
+
+            transition: .2s ease;
         }
 
-        .filter-select {
-            flex: 1;
+        .search-box input:focus {
+            border-color: #252A86;
+
+            box-shadow: 0 0 0 3px rgba(37,42,134,0.08);
         }
 
-    }
+        .btn-search {
+            height: 44px;
 
-    @media (max-width: 650px) {
+            padding: 0 22px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #252A86;
+
+            color: #ffffff;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: .2s ease;
+        }
+
+        .btn-search:hover {
+            background: #1e236f;
+        }
+
+
+        /* =====================================================
+           STATISTICS
+        ====================================================== */
 
         .stats-grid {
-            grid-template-columns:
-                repeat(2, minmax(0, 1fr));
+            display: grid;
 
-            gap: 10px;
+            grid-template-columns: repeat(6, 1fr);
+
+            gap: 14px;
+
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            min-height: 105px;
+            background: #ffffff;
 
-            padding: 15px;
+            border: 1px solid #e7e8ee;
+
+            border-radius: 12px;
+
+            padding: 18px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+
+            transition: transform .2s ease,
+                        box-shadow .2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+        }
+
+        .stat-label {
+            font-size: 11px;
+
+            color: #777;
+
+            margin-bottom: 8px;
+
+            line-height: 1.4;
         }
 
         .stat-value {
             font-size: 24px;
+
+            font-weight: 700;
+
+            color: #252A86;
         }
 
-        .page-title {
-            font-size: 25px;
+
+        /* =====================================================
+           DATA PANEL
+        ====================================================== */
+
+        .data-panel {
+            background: #ffffff;
+
+            border: 1px solid #e7e8ee;
+
+            border-radius: 12px;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+
+            overflow: hidden;
         }
 
-        .search-area {
-            flex-direction: column;
+        .data-panel-header {
+            padding: 20px 22px;
 
-            align-items: stretch;
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            border-bottom: 1px solid #ececf1;
         }
 
-        .search-box,
-        .btn-search {
-            width: 100%;
+        .data-panel-title {
+            font-size: 17px;
+
+            font-weight: 700;
+
+            color: #252525;
         }
 
-        .panel-header {
-            padding: 18px;
-        }
+        .data-panel-description {
+            font-size: 12px;
 
-        .filter-area {
-            align-items: flex-start;
+            color: #888;
 
-            flex-direction: column;
+            margin-top: 4px;
         }
 
         .filter-select {
+            height: 40px;
+
+            min-width: 170px;
+
+            border: 1px solid #dfe1e8;
+
+            border-radius: 8px;
+
+            padding: 0 12px;
+
+            background: #ffffff;
+
+            color: #444;
+
+            font-size: 12px;
+
+            outline: none;
+
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            border-color: #252A86;
+
+            box-shadow: 0 0 0 3px rgba(37,42,134,0.08);
+        }
+
+
+        /* =====================================================
+           TABLE
+        ====================================================== */
+
+        .table-wrapper {
             width: 100%;
+
+            overflow-x: auto;
         }
 
-    }
+        .data-table {
+            width: 100%;
 
-    @media (max-width: 420px) {
+            min-width: 1250px;
 
-        .stats-grid {
-            grid-template-columns: 1fr;
+            border-collapse: collapse;
         }
 
-        .page-title {
-            font-size: 23px;
+        .data-table th {
+            background: #f8f8fb;
+
+            color: #666;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            text-align: left;
+
+            padding: 13px 14px;
+
+            border-bottom: 1px solid #e7e8ee;
+
+            white-space: nowrap;
         }
 
-        .page-description {
-            font-size: 13px;
+        .data-table td {
+            padding: 14px;
+
+            font-size: 12px;
+
+            color: #444;
+
+            border-bottom: 1px solid #eeeeF3;
+
+            vertical-align: middle;
+
+            white-space: nowrap;
         }
 
-    }
+        .data-table tbody tr {
+            transition: background .15s ease;
+        }
 
-</style>
+        .data-table tbody tr:hover {
+            background: #fafaff;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
 
 
-<div class="monitoring-page">
+        /* =====================================================
+           STATUS
+        ====================================================== */
+
+        .status {
+            display: inline-flex;
+
+            align-items: center;
+
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+        .status-warning {
+            background: #fff7df;
+
+            color: #a87900;
+        }
+
+        .status-draft {
+            background: #f1f2f5;
+
+            color: #686b73;
+        }
+
+        .status-info {
+            background: #eaf0ff;
+
+            color: #3d5ab8;
+        }
+
+        .status-success {
+            background: #e8f7ee;
+
+            color: #21864a;
+        }
+
+        .status-danger {
+            background: #fdecec;
+
+            color: #c74343;
+        }
+
+
+        /* =====================================================
+           ACTION BUTTON
+        ====================================================== */
+
+        .action-group {
+            display: flex;
+
+            gap: 6px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            height: 32px;
+
+            padding: 0 10px;
+
+            border-radius: 6px;
+
+            text-decoration: none;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            border: 1px solid transparent;
+
+            transition: .2s ease;
+        }
+
+        .btn-detail {
+            background: #eef0ff;
+
+            color: #252A86;
+
+            border-color: #dfe3ff;
+        }
+
+        .btn-detail:hover {
+            background: #e2e5ff;
+        }
+
+        .btn-edit {
+            background: #fff8e5;
+
+            color: #a47a00;
+
+            border-color: #f3e4b5;
+        }
+
+        .btn-edit:hover {
+            background: #fff1c7;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ====================================================== */
+
+        @media (max-width: 1200px) {
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+                width: 220px;
+            }
+
+            .main {
+                margin-left: 220px;
+
+                width: calc(100% - 220px);
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 0 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+
+            .sidebar {
+                position: relative;
+
+                width: 100%;
+
+                height: auto;
+            }
+
+            .sidebar-logo {
+                height: 75px;
+            }
+
+            .sidebar-menu {
+                padding: 12px;
+            }
+
+            .sidebar-footer {
+                display: none;
+            }
+
+            .main {
+                margin-left: 0;
+
+                width: 100%;
+            }
+
+            .header {
+                position: relative;
+
+                height: auto;
+
+                min-height: 70px;
+
+                padding: 12px 16px;
+            }
+
+            .header-subtitle {
+                display: none;
+            }
+
+            .admin-info {
+                display: none;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .page-title {
+                font-size: 23px;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .btn-search {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-panel-header {
+                align-items: flex-start;
+
+                flex-direction: column;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
 
     <!-- =====================================================
-         PAGE HEADER
+         SIDEBAR
     ====================================================== -->
 
-    <div class="page-header">
+    <aside class="sidebar">
 
-        <div class="page-heading">
+        <div class="sidebar-logo">
 
-            <!-- ADMIN -->
+            <img
+                src="{{ asset('images/dinsos.png') }}"
+                alt="Logo"
+            >
 
-            <p class="page-kicker">
-                ADMIN
-            </p>
-
-            <!-- JUDUL -->
-
-            <h1 class="page-title">
-                Sistem Verifikasi
-            </h1>
-
-            <!-- SUBJUDUL -->
-
-            <p class="page-description">
-                Kelola, periksa, dan perbarui data hasil pendataan responden.
-            </p>
+            <div class="sidebar-logo-text">
+                Sistem Pendataan<br>
+                Sensus
+            </div>
 
         </div>
 
 
-        <!-- =================================================
-             SEARCH
-        ================================================== -->
+        <nav class="sidebar-menu">
 
-        <div class="search-area">
+            <div class="menu-title">
+                Menu Utama
+            </div>
 
-            <div class="search-box">
 
-                <span
-                    class="search-icon"
-                    aria-hidden="true"
-                >
-                    🔎
+            <!-- Dashboard -->
+
+            <a
+                href="/dashboard"
+                class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                    </svg>
+
                 </span>
 
-                <input
-                    type="text"
-                    placeholder="Cari nama, NIK, atau No. KK..."
-                    aria-label="Cari data responden"
-                >
+                <span>Dashboard</span>
 
-            </div>
+            </a>
 
 
-            <button
-                type="button"
-                class="btn-search"
+            <!-- Periode -->
+
+            <a
+                href="/periode"
+                class="menu-link {{ request()->is('periode*') ? 'active' : '' }}"
             >
-                Cari Data
-            </button>
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <rect
+                            x="3"
+                            y="4"
+                            width="18"
+                            height="17"
+                            rx="2"
+                        ></rect>
+
+                        <line
+                            x1="16"
+                            y1="2"
+                            x2="16"
+                            y2="6"
+                        ></line>
+
+                        <line
+                            x1="8"
+                            y1="2"
+                            x2="8"
+                            y2="6"
+                        ></line>
+
+                        <line
+                            x1="3"
+                            y1="10"
+                            x2="21"
+                            y2="10"
+                        ></line>
+                    </svg>
+
+                </span>
+
+                <span>Periode</span>
+
+            </a>
+
+
+            <!-- Petugas -->
+
+            <a
+                href="#"
+                class="menu-link"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                        ></path>
+
+                        <circle
+                            cx="9"
+                            cy="7"
+                            r="4"
+                        ></circle>
+
+                        <path
+                            d="M22 21v-2a4 4 0 0 0-3-3.87"
+                        ></path>
+
+                        <path
+                            d="M16 3.13a4 4 0 0 1 0 7.75"
+                        ></path>
+                    </svg>
+
+                </span>
+
+                <span>Petugas</span>
+
+            </a>
+
+
+            <!-- Responden -->
+
+            <a
+                href="#"
+                class="menu-link"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                        ></path>
+
+                        <circle
+                            cx="12"
+                            cy="7"
+                            r="4"
+                        ></circle>
+                    </svg>
+
+                </span>
+
+                <span>Responden</span>
+
+            </a>
+
+
+            <!-- Kuisioner -->
+
+            <a
+                href="#"
+                class="menu-link"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        ></path>
+
+                        <polyline
+                            points="14 2 14 8 20 8"
+                        ></polyline>
+
+                        <line
+                            x1="8"
+                            y1="13"
+                            x2="16"
+                            y2="13"
+                        ></line>
+
+                        <line
+                            x1="8"
+                            y1="17"
+                            x2="16"
+                            y2="17"
+                        ></line>
+                    </svg>
+
+                </span>
+
+                <span>Kuisioner</span>
+
+            </a>
+
+
+            <!-- Verifikator -->
+
+            <a
+                href="{{ route('verifikasi.index') }}"
+                class="menu-link {{ request()->is('verifikasi*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M9 11l3 3L22 4"></path>
+
+                        <path
+                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+                        ></path>
+                    </svg>
+
+                </span>
+
+                <span>Verifikasi</span>
+
+            </a>
+
+
+            <!-- Monitoring -->
+
+            <a
+                href="/monitoring"
+                class="menu-link {{ request()->is('monitoring*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <polyline
+                            points="3 3 3 21 21 21"
+                        ></polyline>
+
+                        <polyline
+                            points="7 16 11 12 14 15 21 8"
+                        ></polyline>
+                    </svg>
+
+                </span>
+
+                <span>Monitoring</span>
+
+            </a>
+
+
+            <!-- Laporan -->
+
+            <a
+                href="#"
+                class="menu-link"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        ></path>
+
+                        <polyline
+                            points="14 2 14 8 20 8"
+                        ></polyline>
+
+                        <line
+                            x1="8"
+                            y1="13"
+                            x2="16"
+                            y2="13"
+                        ></line>
+
+                        <line
+                            x1="8"
+                            y1="17"
+                            x2="16"
+                            y2="17"
+                        ></line>
+                    </svg>
+
+                </span>
+
+                <span>Laporan</span>
+
+            </a>
+
+
+            <!-- Master -->
+
+            <a
+                href="#"
+                class="menu-link"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                        ></circle>
+
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06a1.65 1.65 0 0 0 1.82.33h.01A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                        ></path>
+                    </svg>
+
+                </span>
+
+                <span>Master</span>
+
+            </a>
+
+        </nav>
+
+
+        <!-- =====================================================
+             LOGOUT
+        ====================================================== -->
+
+        <div class="sidebar-footer">
+
+            <a
+                href="/logout"
+                class="logout-link"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path
+                            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                        ></path>
+
+                        <polyline
+                            points="16 17 21 12 16 7"
+                        ></polyline>
+
+                        <line
+                            x1="21"
+                            y1="12"
+                            x2="9"
+                            y2="12"
+                        ></line>
+                    </svg>
+
+                </span>
+
+                <span>Keluar</span>
+
+            </a>
 
         </div>
 
-    </div>
+    </aside>
 
 
     <!-- =====================================================
-         STATISTICS
+         MAIN
     ====================================================== -->
 
-    <div class="stats-grid">
+    <div class="main">
 
-        <!-- TOTAL RESPONDEN -->
 
-        <div class="stat-card">
+        <!-- =====================================================
+             HEADER
+        ====================================================== -->
 
-            <div class="stat-label">
-                Total Responden
+        <header class="header">
+
+            <div class="header-left">
+
+                <div>
+
+                    <div class="header-title">
+                        Sistem Pendataan Dinas Sosial Kota Pasuruan
+                    </div>
+
+                    <div class="header-subtitle">
+                        Panel Administrasi
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="stat-value">
-                1.245
+
+            <div class="admin-profile">
+
+                <div class="admin-info">
+
+                    <div class="admin-name">
+                        Operator
+                    </div>
+
+                    <div class="admin-role">
+                        Admin
+                    </div>
+
+                </div>
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
             </div>
 
-        </div>
+        </header>
 
 
-        <!-- SUDAH DIDATA -->
+        <!-- =====================================================
+             CONTENT
+        ====================================================== -->
 
-        <div class="stat-card info">
-
-            <div class="stat-label">
-                Sudah Didata
-            </div>
-
-            <div class="stat-value">
-                980
-            </div>
-
-        </div>
+        <main class="content">
 
 
-        <!-- BELUM DIDATA -->
+            <!-- PAGE HEADER -->
 
-        <div class="stat-card warning">
+            <div class="page-header">
 
-            <div class="stat-label">
-                Belum Didata
-            </div>
+                <div class="page-kicker">
+                    ADMIN
+                </div>
 
-            <div class="stat-value">
-                265
-            </div>
+                <h1 class="page-title">
+                    Sistem Verifikasi
+                </h1>
 
-        </div>
-
-
-        <!-- MENUNGGU VERIFIKASI -->
-
-        <div class="stat-card warning">
-
-            <div class="stat-label">
-                Menunggu Verifikasi
-            </div>
-
-            <div class="stat-value">
-                118
-            </div>
-
-        </div>
-
-
-        <!-- DISETUJUI -->
-
-        <div class="stat-card success">
-
-            <div class="stat-label">
-                Disetujui
-            </div>
-
-            <div class="stat-value">
-                742
-            </div>
-
-        </div>
-
-
-        <!-- DITOLAK -->
-
-        <div class="stat-card danger">
-
-            <div class="stat-label">
-                Ditolak
-            </div>
-
-            <div class="stat-value">
-                83
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         DATA PANEL
-    ====================================================== -->
-
-    <div class="data-panel">
-
-
-        <!-- =================================================
-             PANEL HEADER
-        ================================================== -->
-
-        <div class="panel-header">
-
-            <div class="panel-heading">
-
-                <h2>
-                    Data Hasil Pendataan
-                </h2>
-
-                <p>
-                    Daftar responden yang telah dikumpulkan dan diproses oleh petugas.
+                <p class="page-description">
+                    Kelola, periksa, dan perbarui data hasil pendataan responden.
                 </p>
 
             </div>
 
 
             <!-- =================================================
-                 FILTER
+                 SEARCH
             ================================================== -->
 
-            <div class="filter-area">
+            <div class="search-panel">
 
-                <span class="filter-label">
-                    Filter Status
-                </span>
-
-                <select
-                    class="filter-select"
-                    aria-label="Filter berdasarkan status"
+                <form
+                    action="{{ route('verifikasi.index') }}"
+                    method="GET"
+                    class="search-form"
                 >
 
-                    <option value="">
-                        Semua Status
-                    </option>
+                    <div class="search-box">
 
-                    <option value="open">
-                        Belum Diproses
-                    </option>
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            placeholder="Cari berdasarkan nama, NIK, atau No. KK..."
+                        >
 
-                    <option value="draft">
-                        Draft
-                    </option>
+                    </div>
 
-                    <option value="submit">
-                        Menunggu Verifikasi
-                    </option>
+                    <button
+                        type="submit"
+                        class="btn-search"
+                    >
+                        Cari Data
+                    </button>
 
-                    <option value="reject">
-                        Ditolak
-                    </option>
-
-                    <option value="approved">
-                        Disetujui
-                    </option>
-
-                </select>
+                </form>
 
             </div>
 
-        </div>
+
+            <!-- =================================================
+                 STATISTICS
+            ================================================== -->
+
+            <div class="stats-grid">
 
 
-        <!-- =================================================
-             TABLE
-        ================================================== -->
+                <div class="stat-card">
 
-        <div class="table-container">
+                    <div class="stat-label">
+                        Total Responden
+                    </div>
 
-            <table class="data-table">
+                    <div class="stat-value">
+                        1.245
+                    </div>
 
-                <thead>
-
-                    <tr>
-
-                        <th class="center">
-                            No.
-                        </th>
-
-                        <th>
-                            No. KK
-                        </th>
-
-                        <th>
-                            NIK
-                        </th>
-
-                        <th>
-                            Nama Kepala Keluarga
-                        </th>
-
-                        <th class="center">
-                            Jumlah Anggota
-                        </th>
-
-                        <th>
-                            Status
-                        </th>
-
-                        <th>
-                            Wilayah Pendataan
-                        </th>
-
-                        <th>
-                            Petugas
-                        </th>
-
-                        <th>
-                            Tanggal Pendataan
-                        </th>
-
-                        <th>
-                            Aksi
-                        </th>
-
-                    </tr>
-
-                </thead>
+                </div>
 
 
-                <tbody>
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Sudah Didata
+                    </div>
+
+                    <div class="stat-value">
+                        980
+                    </div>
+
+                </div>
 
 
-                    <!-- =================================================
-                         DATA 1
-                    ================================================== -->
+                <div class="stat-card">
 
-                    <tr>
+                    <div class="stat-label">
+                        Belum Didata
+                    </div>
 
-                        <td class="number-cell">
-                            1
-                        </td>
+                    <div class="stat-value">
+                        265
+                    </div>
 
-                        <td class="number-data">
-                            3201012345678901
-                        </td>
+                </div>
 
-                        <td class="number-data">
-                            3201011708990001
-                        </td>
 
-                        <td class="family-head">
-                            Andi Pratama
-                        </td>
+                <div class="stat-card">
 
-                        <td class="center">
-                            4
-                        </td>
+                    <div class="stat-label">
+                        Menunggu Verifikasi
+                    </div>
 
-                        <td>
+                    <div class="stat-value">
+                        118
+                    </div>
 
-                            <span class="status-badge status-submit">
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Disetujui
+                    </div>
+
+                    <div class="stat-value">
+                        742
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <div class="stat-label">
+                        Ditolak
+                    </div>
+
+                    <div class="stat-value">
+                        83
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 DATA PANEL
+            ================================================== -->
+
+            <div class="data-panel">
+
+
+                <div class="data-panel-header">
+
+                    <div>
+
+                        <div class="data-panel-title">
+                            Data Hasil Pendataan
+                        </div>
+
+                        <div class="data-panel-description">
+                            Daftar data responden yang telah masuk ke sistem.
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        action="{{ route('verifikasi.index') }}"
+                        method="GET"
+                    >
+
+                        @if(request('search'))
+
+                            <input
+                                type="hidden"
+                                name="search"
+                                value="{{ request('search') }}"
+                            >
+
+                        @endif
+
+                        <select
+                            name="status"
+                            class="filter-select"
+                            onchange="this.form.submit()"
+                        >
+
+                            <option value="">
+                                Semua Status
+                            </option>
+
+                            <option
+                                value="menunggu"
+                                {{ request('status') == 'menunggu' ? 'selected' : '' }}
+                            >
                                 Menunggu Verifikasi
-                            </span>
+                            </option>
 
-                        </td>
-
-                        <td>
-                            Bandung
-                        </td>
-
-                        <td>
-                            Rina
-                        </td>
-
-                        <td class="date-cell">
-                            10 September 2026
-                        </td>
-
-
-                        <!-- AKSI -->
-
-                        <td>
-
-                            <div class="action-cell">
-
-                                <!-- DETAIL -->
-
-                                <a
-                                    href="/monitoring/1"
-                                    class="btn-action btn-detail"
-                                    title="Lihat detail data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z"
-                                        />
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                        />
-
-                                    </svg>
-
-                                    Detail
-
-                                </a>
-
-
-                                <!-- EDIT -->
-
-                                <a
-                                    href="/monitoring/1/edit"
-                                    class="btn-action btn-edit"
-                                    title="Edit data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="m16.862 3.487 3.651 3.651M4.5 19.5l1.04-4.16a2.25 2.25 0 0 1 .58-1.01l9.742-9.742a2.25 2.25 0 0 1 3.182 3.182L9.302 17.512a2.25 2.25 0 0 1-1.01.58L4.5 19.5Z"
-                                        />
-
-                                    </svg>
-
-                                    Edit
-
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    <!-- =================================================
-                         DATA 2
-                    ================================================== -->
-
-                    <tr>
-
-                        <td class="number-cell">
-                            2
-                        </td>
-
-                        <td class="number-data">
-                            3201012345678902
-                        </td>
-
-                        <td class="number-data">
-                            3201011005980002
-                        </td>
-
-                        <td class="family-head">
-                            Siti Rahma
-                        </td>
-
-                        <td class="center">
-                            5
-                        </td>
-
-                        <td>
-
-                            <span class="status-badge status-draft">
+                            <option
+                                value="draft"
+                                {{ request('status') == 'draft' ? 'selected' : '' }}
+                            >
                                 Draft
-                            </span>
+                            </option>
 
-                        </td>
-
-                        <td>
-                            Jakarta Barat
-                        </td>
-
-                        <td>
-                            Dedi
-                        </td>
-
-                        <td class="date-cell">
-                            11 September 2026
-                        </td>
-
-
-                        <!-- AKSI -->
-
-                        <td>
-
-                            <div class="action-cell">
-
-                                <!-- DETAIL -->
-
-                                <a
-                                    href="/monitoring/2"
-                                    class="btn-action btn-detail"
-                                    title="Lihat detail data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12Z"
-                                        />
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                        />
-
-                                    </svg>
-
-                                    Detail
-
-                                </a>
-
-
-                                <!-- EDIT -->
-
-                                <a
-                                    href="/monitoring/2/edit"
-                                    class="btn-action btn-edit"
-                                    title="Edit data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="m16.862 3.487 3.651 3.651M4.5 19.5l1.04-4.16a2.25 2.25 0 0 1 .58-.01l9.742-9.742a2.25 2.25 0 0 1 3.182 3.182L9.302 17.512a2.25 2.25 0 0 1-1.01.58L4.5 19.5Z"
-                                        />
-
-                                    </svg>
-
-                                    Edit
-
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    <!-- =================================================
-                         DATA 3
-                    ================================================== -->
-
-                    <tr>
-
-                        <td class="number-cell">
-                            3
-                        </td>
-
-                        <td class="number-data">
-                            3201012345678903
-                        </td>
-
-                        <td class="number-data">
-                            3201010507970003
-                        </td>
-
-                        <td class="family-head">
-                            Rizki Wardana
-                        </td>
-
-                        <td class="center">
-                            3
-                        </td>
-
-                        <td>
-
-                            <span class="status-badge status-open">
+                            <option
+                                value="belum"
+                                {{ request('status') == 'belum' ? 'selected' : '' }}
+                            >
                                 Belum Diproses
-                            </span>
+                            </option>
 
-                        </td>
-
-                        <td>
-                            Semarang
-                        </td>
-
-                        <td>
-                            Nanda
-                        </td>
-
-                        <td class="date-cell">
-                            12 September 2026
-                        </td>
-
-
-                        <!-- AKSI -->
-
-                        <td>
-
-                            <div class="action-cell">
-
-                                <!-- DETAIL -->
-
-                                <a
-                                    href="/monitoring/3"
-                                    class="btn-action btn-detail"
-                                    title="Lihat detail data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75-6.75-9.75 6.75S2.25 12 2.25 12Z"
-                                        />
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                        />
-
-                                    </svg>
-
-                                    Detail
-
-                                </a>
-
-
-                                <!-- EDIT -->
-
-                                <a
-                                    href="/monitoring/3/edit"
-                                    class="btn-action btn-edit"
-                                    title="Edit data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="m16.862 3.487 3.651 3.651M4.5 19.5l1.04-4.16a2.25 2.25 0 0 1 .58-1.01l9.742-9.742a2.25 2.25 0 0 1 3.182 3.182L9.302 17.512a2.25 2.25 0 0 1-1.01.58L4.5 19.5Z"
-                                        />
-
-                                    </svg>
-
-                                    Edit
-
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    <!-- =================================================
-                         DATA 4
-                    ================================================== -->
-
-                    <tr>
-
-                        <td class="number-cell">
-                            4
-                        </td>
-
-                        <td class="number-data">
-                            3201012345678904
-                        </td>
-
-                        <td class="number-data">
-                            3201010209940004
-                        </td>
-
-                        <td class="family-head">
-                            Yuni Ariska
-                        </td>
-
-                        <td class="center">
-                            6
-                        </td>
-
-                        <td>
-
-                            <span class="status-badge status-approved">
+                            <option
+                                value="disetujui"
+                                {{ request('status') == 'disetujui' ? 'selected' : '' }}
+                            >
                                 Disetujui
-                            </span>
+                            </option>
 
-                        </td>
-
-                        <td>
-                            Surabaya
-                        </td>
-
-                        <td>
-                            Fitra
-                        </td>
-
-                        <td class="date-cell">
-                            13 September 2026
-                        </td>
-
-
-                        <!-- AKSI -->
-
-                        <td>
-
-                            <div class="action-cell">
-
-                                <!-- DETAIL -->
-
-                                <a
-                                    href="/monitoring/4"
-                                    class="btn-action btn-detail"
-                                    title="Lihat detail data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75-6.75-9.75-6.75S2.25 12 2.25 12Z"
-                                        />
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                        />
-
-                                    </svg>
-
-                                    Detail
-
-                                </a>
-
-
-                                <!-- EDIT -->
-
-                                <a
-                                    href="/monitoring/4/edit"
-                                    class="btn-action btn-edit"
-                                    title="Edit data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="m16.862 3.487 3.651 3.651M4.5 19.5l1.04-4.16a2.25 2.25 0 0 1 .58-.01l9.742-9.742a2.25 2.25 0 0 1 3.182 3.182L9.302 17.512a2.25 2.25 0 0 1-1.01.58L4.5 19.5Z"
-                                        />
-
-                                    </svg>
-
-                                    Edit
-
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-
-                    <!-- =================================================
-                         DATA 5
-                    ================================================== -->
-
-                    <tr>
-
-                        <td class="number-cell">
-                            5
-                        </td>
-
-                        <td class="number-data">
-                            3201012345678905
-                        </td>
-
-                        <td class="number-data">
-                            3201010806910005
-                        </td>
-
-                        <td class="family-head">
-                            Bayu Santoso
-                        </td>
-
-                        <td class="center">
-                            2
-                        </td>
-
-                        <td>
-
-                            <span class="status-badge status-reject">
+                            <option
+                                value="ditolak"
+                                {{ request('status') == 'ditolak' ? 'selected' : '' }}
+                            >
                                 Ditolak
-                            </span>
+                            </option>
 
-                        </td>
+                        </select>
 
-                        <td>
-                            Bandung
-                        </td>
+                    </form>
 
-                        <td>
-                            Putri
-                        </td>
-
-                        <td class="date-cell">
-                            14 September 2026
-                        </td>
+                </div>
 
 
-                        <!-- AKSI -->
+                <div class="table-wrapper">
 
-                        <td>
+                    <table class="data-table">
 
-                            <div class="action-cell">
+                        <thead>
 
-                                <!-- DETAIL -->
+                            <tr>
 
-                                <a
-                                    href="/monitoring/5"
-                                    class="btn-action btn-detail"
-                                    title="Lihat detail data"
-                                >
+                                <th>No.</th>
 
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
+                                <th>No. KK</th>
 
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75-6.75S2.25 12 2.25 12Z"
-                                        />
+                                <th>NIK</th>
 
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-                                        />
+                                <th>Nama Kepala Keluarga</th>
 
-                                    </svg>
+                                <th>Jumlah Anggota</th>
 
-                                    Detail
+                                <th>Status</th>
 
-                                </a>
+                                <th>Wilayah Pendataan</th>
+
+                                <th>Petugas</th>
+
+                                <th>Tanggal Pendataan</th>
+
+                                <th>Aksi</th>
+
+                            </tr>
+
+                        </thead>
 
 
-                                <!-- EDIT -->
-
-                                <a
-                                    href="/monitoring/5/edit"
-                                    class="btn-action btn-edit"
-                                    title="Edit data"
-                                >
-
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke-width="1.8"
-                                        stroke="currentColor"
-                                    >
-
-                                        <path
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            d="m16.862 3.487 3.651 3.651M4.5 19.5l1.04-4.16a2.25 2.25 0 0 1 .58-.01l9.742-9.742a2.25 2.25 0 0 1 3.182 3.182L9.302 17.512a2.25 2.25 0 0 1-1.01.58L4.5 19.5Z"
-                                        />
-
-                                    </svg>
-
-                                    Edit
-
-                                </a>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
+                        <tbody>
 
 
-                </tbody>
+                            <!-- DATA 1 -->
 
-            </table>
+                            <tr>
 
-        </div>
+                                <td>1</td>
+
+                                <td>3575010101010001</td>
+
+                                <td>3575010101010001</td>
+
+                                <td>
+                                    Budi Santoso
+                                </td>
+
+                                <td>
+                                    4 Orang
+                                </td>
+
+                                <td>
+
+                                    <span class="status status-warning">
+                                        Menunggu Verifikasi
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    Bugul Kidul
+                                </td>
+
+                                <td>
+                                    Ahmad
+                                </td>
+
+                                <td>
+                                    20 September 2026
+                                </td>
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        <a
+                                            href="/monitoring/1"
+                                            class="btn-action btn-detail"
+                                        >
+                                            Detail
+                                        </a>
+
+                                        <a
+                                            href="/monitoring/1/edit"
+                                            class="btn-action btn-edit"
+                                        >
+                                            Edit
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- DATA 2 -->
+
+                            <tr>
+
+                                <td>2</td>
+
+                                <td>3575010101010002</td>
+
+                                <td>3575010101010002</td>
+
+                                <td>
+                                    Siti Aminah
+                                </td>
+
+                                <td>
+                                    3 Orang
+                                </td>
+
+                                <td>
+
+                                    <span class="status status-draft">
+                                        Draft
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    Purworejo
+                                </td>
+
+                                <td>
+                                    Rina
+                                </td>
+
+                                <td>
+                                    20 September 2026
+                                </td>
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        <a
+                                            href="/monitoring/2"
+                                            class="btn-action btn-detail"
+                                        >
+                                            Detail
+                                        </a>
+
+                                        <a
+                                            href="/monitoring/2/edit"
+                                            class="btn-action btn-edit"
+                                        >
+                                            Edit
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- DATA 3 -->
+
+                            <tr>
+
+                                <td>3</td>
+
+                                <td>3575010101010003</td>
+
+                                <td>3575010101010003</td>
+
+                                <td>
+                                    Agus Setiawan
+                                </td>
+
+                                <td>
+                                    5 Orang
+                                </td>
+
+                                <td>
+
+                                    <span class="status status-info">
+                                        Belum Diproses
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    Gadingrejo
+                                </td>
+
+                                <td>
+                                    Dimas
+                                </td>
+
+                                <td>
+                                    19 September 2026
+                                </td>
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        <a
+                                            href="/monitoring/3"
+                                            class="btn-action btn-detail"
+                                        >
+                                            Detail
+                                        </a>
+
+                                        <a
+                                            href="/monitoring/3/edit"
+                                            class="btn-action btn-edit"
+                                        >
+                                            Edit
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- DATA 4 -->
+
+                            <tr>
+
+                                <td>4</td>
+
+                                <td>3575010101010004</td>
+
+                                <td>3575010101010004</td>
+
+                                <td>
+                                    Dewi Lestari
+                                </td>
+
+                                <td>
+                                    2 Orang
+                                </td>
+
+                                <td>
+
+                                    <span class="status status-success">
+                                        Disetujui
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    Panggungrejo
+                                </td>
+
+                                <td>
+                                    Sari
+                                </td>
+
+                                <td>
+                                    18 September 2026
+                                </td>
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        <a
+                                            href="/monitoring/4"
+                                            class="btn-action btn-detail"
+                                        >
+                                            Detail
+                                        </a>
+
+                                        <a
+                                            href="/monitoring/4/edit"
+                                            class="btn-action btn-edit"
+                                        >
+                                            Edit
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- DATA 5 -->
+
+                            <tr>
+
+                                <td>5</td>
+
+                                <td>3575010101010005</td>
+
+                                <td>3575010101010005</td>
+
+                                <td>
+                                    Eko Prasetyo
+                                </td>
+
+                                <td>
+                                    6 Orang
+                                </td>
+
+                                <td>
+
+                                    <span class="status status-danger">
+                                        Ditolak
+                                    </span>
+
+                                </td>
+
+                                <td>
+                                    Bugul Kidul
+                                </td>
+
+                                <td>
+                                    Andi
+                                </td>
+
+                                <td>
+                                    17 September 2026
+                                </td>
+
+                                <td>
+
+                                    <div class="action-group">
+
+                                        <a
+                                            href="/monitoring/5"
+                                            class="btn-action btn-detail"
+                                        >
+                                            Detail
+                                        </a>
+
+                                        <a
+                                            href="/monitoring/5/edit"
+                                            class="btn-action btn-edit"
+                                        >
+                                            Edit
+                                        </a>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </main>
 
     </div>
 
-</div>
+</body>
 
-@endsection
+</html>

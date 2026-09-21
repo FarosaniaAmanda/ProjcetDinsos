@@ -19,6 +19,7 @@ Route::get('/periode/tambah',[PeriodeController::class,'create']);
 
 Route::get('/periode/edit',[PeriodeController::class,'edit']);
 
-Route::get('/verifikasi',[VerifikasiController::class,'index']);
+Route::get('/verifikasi', [VerifikasiController::class, 'index'])
+    ->name('verifikasi.index');
 
 Route::get('/monitoring',[MonitoringController::class,'index']);

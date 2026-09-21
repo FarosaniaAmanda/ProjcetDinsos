@@ -515,11 +515,9 @@ Kuisioner
 </a>
 
 
-
-<a>
-
-Verifikator
-
+<a href="{{ route('verifikasi.index') }}">
+    <i class="fa-solid fa-user-check"></i>
+    <span>Verifikasi</span>
 </a>
 
 
