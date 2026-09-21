@@ -191,11 +191,11 @@
             Kuisioner
         </a>
 
-        <a>
+        <a href="/verifikasi">
             Verifikasi
         </a>
 
-        <a>
+        <a href="/monitoring">
             Monitoring
         </a>
 
