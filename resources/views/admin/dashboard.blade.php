@@ -4,7 +4,7 @@
 <head>
 
 <title>
-Sistem Pendataan Sensus
+Sistem Pendataan Dinas Sosial Kota Pasuruan
 </title>
 
 
@@ -237,7 +237,98 @@ body{
 
 }
 
+@media (max-width: 900px) {
+    .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
 
+    .main {
+        margin-left: 0;
+    }
+
+    .header {
+        padding: 12px 16px;
+        height: auto;
+        min-height: 70px;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    .sidebar {
+        overflow: visible;
+    }
+
+    .menu {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px 12px 12px;
+    }
+
+    .sidebar a {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 120px;
+        padding: 12px 14px;
+        text-align: center;
+        border-radius: 8px;
+    }
+
+    .sidebar .active {
+        margin: 0;
+    }
+
+    .header {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .header-left {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .header-title {
+        font-size: 15px;
+        line-height: 1.4;
+    }
+
+    .header-subtitle {
+        font-size: 12px;
+    }
+
+    .welcome-banner {
+        height: auto;
+        padding: 24px 20px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .welcome-title {
+        font-size: 28px;
+    }
+
+    .welcome-subtitle {
+        font-size: 16px;
+    }
+
+    .banner-image {
+        display: none;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
 
 
@@ -462,7 +553,7 @@ Sistem Pendataan
 
 <br>
 
-Sensus
+Dinas Sosial Kota Pasuruan
 
 </div>
 
@@ -587,25 +678,19 @@ Logout
 <div class="header-left">
 
 
-<img 
-src="{{ asset('images/logopemerinta.jpg') }}"
-class="header-logo">
-
-
-
 <div>
 
 
 <div class="header-title">
 
-Pemerintah Kota Pasuruan
+Sistem Pendataan Dinas Sosial Kota Pasuruan
 
 </div>
 
 
 <div class="header-subtitle">
 
-Sistem Pendataan Dinsos
+Panel Administrasi
 
 </div>
 

@@ -3,11 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Verifikasi Data | Sistem Pendataan Sensus</title>
+    <title>Verifikasi Data | Sistem Pendataan Dinas Sosial Kota Pasuruan</title>
 
     <style>
         * {
@@ -44,6 +42,7 @@
             z-index: 1000;
 
             overflow-y: auto;
+            transition: transform .3s ease;
         }
 
         .sidebar-logo {
@@ -221,15 +220,6 @@
             align-items: center;
 
             gap: 14px;
-        }
-
-        .header-logo {
-            width: 42px;
-            height: 42px;
-
-            object-fit: contain;
-
-            border-radius: 7px;
         }
 
         .header-title {
@@ -727,6 +717,56 @@
 
 
         /* =====================================================
+           MOBILE MENU BUTTON
+        ====================================================== */
+
+        .mobile-menu-btn {
+            display: none;
+
+            width: 42px;
+            height: 42px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #f1f2f8;
+
+            cursor: pointer;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-direction: column;
+
+            gap: 5px;
+
+            flex-shrink: 0;
+        }
+
+        .mobile-menu-btn span {
+            display: block;
+
+            width: 20px;
+            height: 2px;
+
+            background: #252A86;
+
+            border-radius: 2px;
+
+            transition: all .25s ease;
+        }
+
+
+        /* =====================================================
+           SIDEBAR OVERLAY
+        ====================================================== */
+
+        .sidebar-overlay {
+            display: none;
+        }
+
+
+        /* =====================================================
            RESPONSIVE
         ====================================================== */
 
@@ -735,54 +775,67 @@
             .stats-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
+
         }
+
+
+        /* =====================================================
+           TABLET
+        ====================================================== */
 
         @media (max-width: 900px) {
 
             .sidebar {
-                width: 220px;
+                position: fixed;
+
+                top: 0;
+                left: 0;
+
+                width: 270px;
+                height: 100vh;
+
+                transform: translateX(-100%);
+
+                transition: transform .3s ease;
+
+                z-index: 1100;
+
+                overflow-y: auto;
             }
 
-            .main {
-                margin-left: 220px;
-
-                width: calc(100% - 220px);
+            .sidebar.active {
+                transform: translateX(0);
             }
 
-            .content {
-                padding: 20px;
+
+            /* OVERLAY */
+
+            .sidebar-overlay {
+                display: block;
+
+                position: fixed;
+
+                inset: 0;
+
+                background: rgba(0, 0, 0, .40);
+
+                opacity: 0;
+
+                visibility: hidden;
+
+                transition: all .3s ease;
+
+                z-index: 1050;
             }
 
-            .header {
-                padding: 0 20px;
+            .sidebar-overlay.active {
+                opacity: 1;
+
+                visibility: visible;
             }
 
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
 
-        @media (max-width: 700px) {
-
-            .sidebar {
-                position: relative;
-
-                width: 100%;
-
-                height: auto;
-            }
-
-            .sidebar-logo {
-                height: 75px;
-            }
-
-            .sidebar-menu {
-                padding: 12px;
-            }
-
-            .sidebar-footer {
-                display: none;
-            }
+            /* MAIN */
 
             .main {
                 margin-left: 0;
@@ -790,22 +843,97 @@
                 width: 100%;
             }
 
+
+            /* HEADER */
+
             .header {
-                position: relative;
+                height: 70px;
 
-                height: auto;
+                padding: 0 20px;
 
-                min-height: 70px;
+                position: sticky;
 
-                padding: 12px 16px;
+                top: 0;
+
+                z-index: 900;
+            }
+
+
+            /* HAMBURGER */
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .header-left {
+                gap: 12px;
+            }
+
+            .header-title {
+                font-size: 15px;
             }
 
             .header-subtitle {
                 display: none;
             }
 
+
+            /* CONTENT */
+
+            .content {
+                padding: 20px;
+            }
+
+
+            /* STATISTICS */
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
+
+        @media (max-width: 600px) {
+
+            .header {
+                height: 64px;
+
+                min-height: 64px;
+
+                padding: 0 14px;
+            }
+
+            .mobile-menu-btn {
+                width: 38px;
+
+                height: 38px;
+            }
+
+            .mobile-menu-btn span {
+                width: 18px;
+            }
+
+            .header-title {
+                font-size: 13px;
+
+                line-height: 1.3;
+            }
+
             .admin-info {
                 display: none;
+            }
+
+            .admin-avatar {
+                width: 34px;
+
+                height: 34px;
+
+                font-size: 13px;
             }
 
             .content {
@@ -813,7 +941,11 @@
             }
 
             .page-title {
-                font-size: 23px;
+                font-size: 22px;
+            }
+
+            .page-description {
+                font-size: 13px;
             }
 
             .search-form {
@@ -826,18 +958,53 @@
 
             .stats-grid {
                 grid-template-columns: 1fr;
+
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
             }
 
             .data-panel-header {
                 align-items: flex-start;
 
                 flex-direction: column;
+
+                gap: 12px;
             }
 
             .filter-select {
                 width: 100%;
             }
+
         }
+
+
+        /* =====================================================
+           SMALL MOBILE
+        ====================================================== */
+
+        @media (max-width: 400px) {
+
+            .header-title {
+                font-size: 12px;
+            }
+
+            .content {
+                padding: 12px;
+            }
+
+            .page-title {
+                font-size: 20px;
+            }
+
+            .sidebar {
+                width: 250px;
+            }
+
+        }
+
     </style>
 </head>
 
@@ -858,7 +1025,7 @@
 
             <div class="sidebar-logo-text">
                 Sistem Pendataan<br>
-                Sensus
+                Dinas Sosial Kota Pasuruan
             </div>
 
         </div>
@@ -889,8 +1056,11 @@
                         stroke-width="2"
                     >
                         <rect x="3" y="3" width="7" height="7"></rect>
+
                         <rect x="14" y="3" width="7" height="7"></rect>
+
                         <rect x="3" y="14" width="7" height="7"></rect>
+
                         <rect x="14" y="14" width="7" height="7"></rect>
                     </svg>
 
@@ -1080,7 +1250,7 @@
             </a>
 
 
-            <!-- Verifikator -->
+            <!-- Verifikasi -->
 
             <a
                 href="{{ route('verifikasi.index') }}"
@@ -1228,9 +1398,7 @@
         </nav>
 
 
-        <!-- =====================================================
-             LOGOUT
-        ====================================================== -->
+        <!-- LOGOUT -->
 
         <div class="sidebar-footer">
 
@@ -1276,18 +1444,37 @@
     </aside>
 
 
-    <!-- =====================================================
-         MAIN
-    ====================================================== -->
+    <!-- OVERLAY MOBILE -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- MAIN -->
 
     <div class="main">
 
 
-        <!-- =====================================================
-             HEADER
-        ====================================================== -->
+        <!-- HEADER -->
 
         <header class="header">
+
+            <!-- HAMBURGER MOBILE -->
+
+            <button
+                class="mobile-menu-btn"
+                id="mobileMenuBtn"
+                type="button"
+                aria-label="Buka menu"
+                aria-expanded="false"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
 
             <div class="header-left">
 
@@ -1329,9 +1516,7 @@
         </header>
 
 
-        <!-- =====================================================
-             CONTENT
-        ====================================================== -->
+        <!-- CONTENT -->
 
         <main class="content">
 
@@ -1355,9 +1540,7 @@
             </div>
 
 
-            <!-- =================================================
-                 SEARCH
-            ================================================== -->
+            <!-- SEARCH -->
 
             <div class="search-panel">
 
@@ -1390,12 +1573,9 @@
             </div>
 
 
-            <!-- =================================================
-                 STATISTICS
-            ================================================== -->
+            <!-- STATISTICS -->
 
             <div class="stats-grid">
-
 
                 <div class="stat-card">
 
@@ -1404,7 +1584,7 @@
                     </div>
 
                     <div class="stat-value">
-                        1.245
+                        100
                     </div>
 
                 </div>
@@ -1417,7 +1597,7 @@
                     </div>
 
                     <div class="stat-value">
-                        980
+                        10
                     </div>
 
                 </div>
@@ -1477,12 +1657,9 @@
             </div>
 
 
-            <!-- =================================================
-                 DATA PANEL
-            ================================================== -->
+            <!-- DATA PANEL -->
 
             <div class="data-panel">
-
 
                 <div class="data-panel-header">
 
@@ -1601,321 +1778,128 @@
 
                         <tbody>
 
+                            @forelse($data as $item)
 
-                            <!-- DATA 1 -->
+                                <tr>
 
-                            <tr>
+                                    <td>
+                                        {{ $loop->iteration }}
+                                    </td>
 
-                                <td>1</td>
+                                    <td>
+                                        {{ $item['no_kk'] }}
+                                    </td>
 
-                                <td>3575010101010001</td>
+                                    <td>
+                                        {{ $item['nik'] }}
+                                    </td>
 
-                                <td>3575010101010001</td>
+                                    <td>
+                                        {{ $item['nama'] }}
+                                    </td>
 
-                                <td>
-                                    Budi Santoso
-                                </td>
+                                    <td>
+                                        {{ $item['anggota'] }} Orang
+                                    </td>
 
-                                <td>
-                                    4 Orang
-                                </td>
+                                    <td>
 
-                                <td>
+                                        @if($item['status'] === 'menunggu')
 
-                                    <span class="status status-warning">
-                                        Menunggu Verifikasi
-                                    </span>
+                                            <span class="status status-warning">
+                                                {{ $item['status_label'] }}
+                                            </span>
 
-                                </td>
+                                        @elseif($item['status'] === 'draft')
 
-                                <td>
-                                    Bugul Kidul
-                                </td>
+                                            <span class="status status-draft">
+                                                {{ $item['status_label'] }}
+                                            </span>
 
-                                <td>
-                                    Ahmad
-                                </td>
+                                        @elseif($item['status'] === 'belum')
 
-                                <td>
-                                    20 September 2026
-                                </td>
+                                            <span class="status status-info">
+                                                {{ $item['status_label'] }}
+                                            </span>
 
-                                <td>
+                                        @elseif($item['status'] === 'disetujui')
 
-                                    <div class="action-group">
+                                            <span class="status status-success">
+                                                {{ $item['status_label'] }}
+                                            </span>
 
-                                        <a
-                                            href="/monitoring/1"
-                                            class="btn-action btn-detail"
-                                        >
-                                            Detail
-                                        </a>
+                                        @elseif($item['status'] === 'ditolak')
 
-                                        <a
-                                            href="/monitoring/1/edit"
-                                            class="btn-action btn-edit"
-                                        >
-                                            Edit
-                                        </a>
+                                            <span class="status status-danger">
+                                                {{ $item['status_label'] }}
+                                            </span>
 
-                                    </div>
+                                        @endif
 
-                                </td>
+                                    </td>
 
-                            </tr>
+                                    <td>
+                                        {{ $item['wilayah'] }}
+                                    </td>
 
+                                    <td>
+                                        {{ $item['petugas'] }}
+                                    </td>
 
-                            <!-- DATA 2 -->
+                                    <td>
+                                        {{ $item['tanggal'] }}
+                                    </td>
 
-                            <tr>
+                                    <td>
 
-                                <td>2</td>
+                                        <div class="action-group">
 
-                                <td>3575010101010002</td>
+                                            <a
+                                                href="/monitoring/{{ $item['no'] }}"
+                                                class="btn-action btn-detail"
+                                            >
+                                                Detail
+                                            </a>
 
-                                <td>3575010101010002</td>
+                                            <a
+                                                href="/monitoring/{{ $item['no'] }}/edit"
+                                                class="btn-action btn-edit"
+                                            >
+                                                Edit
+                                            </a>
 
-                                <td>
-                                    Siti Aminah
-                                </td>
+                                        </div>
 
-                                <td>
-                                    3 Orang
-                                </td>
+                                    </td>
 
-                                <td>
+                                </tr>
 
-                                    <span class="status status-draft">
-                                        Draft
-                                    </span>
+                            @empty
 
-                                </td>
+                                <tr>
 
-                                <td>
-                                    Purworejo
-                                </td>
+                                    <td
+                                        colspan="10"
+                                        style="text-align: center; padding: 40px; color: #888;"
+                                    >
 
-                                <td>
-                                    Rina
-                                </td>
+                                        @if($search)
 
-                                <td>
-                                    20 September 2026
-                                </td>
+                                            Data dengan kata pencarian
+                                            "<strong>{{ $search }}</strong>"
+                                            tidak ditemukan.
 
-                                <td>
+                                        @else
 
-                                    <div class="action-group">
+                                            Tidak ada data.
 
-                                        <a
-                                            href="/monitoring/2"
-                                            class="btn-action btn-detail"
-                                        >
-                                            Detail
-                                        </a>
+                                        @endif
 
-                                        <a
-                                            href="/monitoring/2/edit"
-                                            class="btn-action btn-edit"
-                                        >
-                                            Edit
-                                        </a>
+                                    </td>
 
-                                    </div>
+                                </tr>
 
-                                </td>
-
-                            </tr>
-
-
-                            <!-- DATA 3 -->
-
-                            <tr>
-
-                                <td>3</td>
-
-                                <td>3575010101010003</td>
-
-                                <td>3575010101010003</td>
-
-                                <td>
-                                    Agus Setiawan
-                                </td>
-
-                                <td>
-                                    5 Orang
-                                </td>
-
-                                <td>
-
-                                    <span class="status status-info">
-                                        Belum Diproses
-                                    </span>
-
-                                </td>
-
-                                <td>
-                                    Gadingrejo
-                                </td>
-
-                                <td>
-                                    Dimas
-                                </td>
-
-                                <td>
-                                    19 September 2026
-                                </td>
-
-                                <td>
-
-                                    <div class="action-group">
-
-                                        <a
-                                            href="/monitoring/3"
-                                            class="btn-action btn-detail"
-                                        >
-                                            Detail
-                                        </a>
-
-                                        <a
-                                            href="/monitoring/3/edit"
-                                            class="btn-action btn-edit"
-                                        >
-                                            Edit
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-
-                            <!-- DATA 4 -->
-
-                            <tr>
-
-                                <td>4</td>
-
-                                <td>3575010101010004</td>
-
-                                <td>3575010101010004</td>
-
-                                <td>
-                                    Dewi Lestari
-                                </td>
-
-                                <td>
-                                    2 Orang
-                                </td>
-
-                                <td>
-
-                                    <span class="status status-success">
-                                        Disetujui
-                                    </span>
-
-                                </td>
-
-                                <td>
-                                    Panggungrejo
-                                </td>
-
-                                <td>
-                                    Sari
-                                </td>
-
-                                <td>
-                                    18 September 2026
-                                </td>
-
-                                <td>
-
-                                    <div class="action-group">
-
-                                        <a
-                                            href="/monitoring/4"
-                                            class="btn-action btn-detail"
-                                        >
-                                            Detail
-                                        </a>
-
-                                        <a
-                                            href="/monitoring/4/edit"
-                                            class="btn-action btn-edit"
-                                        >
-                                            Edit
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-
-                            <!-- DATA 5 -->
-
-                            <tr>
-
-                                <td>5</td>
-
-                                <td>3575010101010005</td>
-
-                                <td>3575010101010005</td>
-
-                                <td>
-                                    Eko Prasetyo
-                                </td>
-
-                                <td>
-                                    6 Orang
-                                </td>
-
-                                <td>
-
-                                    <span class="status status-danger">
-                                        Ditolak
-                                    </span>
-
-                                </td>
-
-                                <td>
-                                    Bugul Kidul
-                                </td>
-
-                                <td>
-                                    Andi
-                                </td>
-
-                                <td>
-                                    17 September 2026
-                                </td>
-
-                                <td>
-
-                                    <div class="action-group">
-
-                                        <a
-                                            href="/monitoring/5"
-                                            class="btn-action btn-detail"
-                                        >
-                                            Detail
-                                        </a>
-
-                                        <a
-                                            href="/monitoring/5/edit"
-                                            class="btn-action btn-edit"
-                                        >
-                                            Edit
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
+                            @endforelse
 
                         </tbody>
 
@@ -1928,6 +1912,103 @@
         </main>
 
     </div>
+
+
+    <!-- =====================================================
+         MOBILE SIDEBAR SCRIPT
+    ====================================================== -->
+
+    <script>
+
+        const mobileMenuBtn =
+            document.getElementById('mobileMenuBtn');
+
+        const sidebar =
+            document.querySelector('.sidebar');
+
+        const sidebarOverlay =
+            document.getElementById('sidebarOverlay');
+
+
+        /* BUKA / TUTUP SIDEBAR */
+
+        mobileMenuBtn.addEventListener('click', function () {
+
+            const isOpen =
+                sidebar.classList.toggle('active');
+
+            sidebarOverlay.classList.toggle('active');
+
+            mobileMenuBtn.setAttribute(
+                'aria-expanded',
+                isOpen ? 'true' : 'false'
+            );
+
+        });
+
+
+        /* TUTUP SAAT OVERLAY DIKLIK */
+
+        sidebarOverlay.addEventListener('click', function () {
+
+            sidebar.classList.remove('active');
+
+            sidebarOverlay.classList.remove('active');
+
+            mobileMenuBtn.setAttribute(
+                'aria-expanded',
+                'false'
+            );
+
+        });
+
+
+        /* TUTUP SIDEBAR SETELAH MEMILIH MENU */
+
+        document
+            .querySelectorAll('.sidebar .menu-link')
+            .forEach(function (link) {
+
+                link.addEventListener('click', function () {
+
+                    if (window.innerWidth <= 900) {
+
+                        sidebar.classList.remove('active');
+
+                        sidebarOverlay.classList.remove('active');
+
+                        mobileMenuBtn.setAttribute(
+                            'aria-expanded',
+                            'false'
+                        );
+
+                    }
+
+                });
+
+            });
+
+
+        /* RESET SAAT KEMBALI KE DESKTOP */
+
+        window.addEventListener('resize', function () {
+
+            if (window.innerWidth > 900) {
+
+                sidebar.classList.remove('active');
+
+                sidebarOverlay.classList.remove('active');
+
+                mobileMenuBtn.setAttribute(
+                    'aria-expanded',
+                    'false'
+                );
+
+            }
+
+        });
+
+    </script>
 
 </body>
 
