@@ -1,531 +1,955 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
 
-<title>
-Sistem Pendataan Dinas Sosial Kota Pasuruan
-</title>
+    <meta charset="UTF-8">
 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
+    <title>Dashboard | Sistem Pendataan perlindungan Dinas Sosial</title>
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
-}
+    <style>
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-body{
+        html,
+        body {
+            min-height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f6fa;
+            color: #1f2937;
+        }
 
-    background:#f5f8ff;
+        body {
+            overflow-x: hidden;
+        }
 
-}
 
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
 
+        .sidebar {
 
-/* SIDEBAR */
+            position: fixed;
 
-.sidebar{
+            top: 0;
+            left: 0;
 
-    position:fixed;
+            width: 260px;
+            height: 100vh;
 
-    left:0;
+            background: #252A86;
 
-    top:0;
+            z-index: 1000;
 
-    width:260px;
+            overflow-y: auto;
 
-    height:100vh;
+            transition: transform 0.3s ease;
+        }
 
-    background:#252A86;
 
-    color:white;
+        .sidebar-logo {
 
-    overflow-y:auto;
+            height: 105px;
 
-}
+            display: flex;
 
+            align-items: center;
 
+            justify-content: center;
 
-/* scrollbar sidebar */
+            padding: 15px;
+        }
 
-.sidebar::-webkit-scrollbar{
 
-    width:6px;
+        .sidebar-logo img {
 
-}
+            max-width: 95px;
 
+            max-height: 75px;
 
-.sidebar::-webkit-scrollbar-thumb{
+            object-fit: contain;
+        }
 
-    background:#6670d8;
 
-    border-radius:10px;
+        .sidebar-menu {
 
-}
+            padding: 10px 14px 25px;
+        }
 
 
+        .menu-link {
 
-/* LOGO */
+            display: flex;
 
-.logo{
+            align-items: center;
 
-    text-align:center;
+            gap: 12px;
 
-    padding:35px 10px;
+            width: 100%;
 
-    font-size:20px;
+            padding: 12px 13px;
 
-    font-weight:bold;
+            margin-bottom: 4px;
 
-    line-height:1.4;
+            border-radius: 7px;
 
-}
+            color: rgba(255, 255, 255, 0.88);
 
+            text-decoration: none;
 
+            font-size: 13px;
 
-.logo img{
+            font-weight: 500;
 
-    width:70px;
+            transition: all 0.2s ease;
+        }
 
-    height:70px;
 
-    object-fit:contain;
+        .menu-link:hover {
 
-    margin-bottom:10px;
+            background: rgba(255, 255, 255, 0.10);
 
-}
+            color: #ffffff;
+        }
 
 
+        .menu-link.active {
 
-/* MENU */
+            background: #ffffff;
 
-.sidebar a{
+            color: #252A86;
 
-    display:block;
+            font-weight: 700;
+        }
 
-    padding:16px 30px;
 
-    color:white;
+        .menu-icon {
 
-    text-decoration:none;
+            width: 19px;
 
-    font-size:16px;
+            min-width: 19px;
 
-}
+            text-align: center;
 
+            font-size: 14px;
 
+            line-height: 1;
+        }
 
-.sidebar a:hover{
 
-    background:#3448b8;
+        /* =====================================================
+           MASTER DROPDOWN
+        ===================================================== */
 
-}
+        .master-menu {
 
+            margin-bottom: 4px;
+        }
 
 
-.sidebar .active{
+        .master-toggle {
 
-    background:#3448b8;
+            display: flex;
 
-    margin:0 12px;
+            align-items: center;
 
-    border-radius:10px;
+            justify-content: space-between;
 
-}
+            width: 100%;
 
+            padding: 12px 13px;
 
-/* ================= MAIN ================= */
+            border: none;
 
+            border-radius: 7px;
 
-.main{
+            background: transparent;
 
-    margin-left:260px;
+            color: rgba(255, 255, 255, 0.88);
 
-}
+            font-family: inherit;
 
+            font-size: 13px;
 
+            font-weight: 500;
 
-/* HEADER */
+            cursor: pointer;
 
+            transition: all 0.2s ease;
+        }
 
-.header{
 
-    height:75px;
+        .master-toggle:hover {
 
-    background:white;
+            background: rgba(255, 255, 255, 0.10);
 
-    display:flex;
+            color: #ffffff;
+        }
 
-    justify-content:space-between;
 
-    align-items:center;
+        .master-toggle-left {
 
-    padding:0 35px;
+            display: flex;
 
-    box-shadow:0 3px 10px rgba(0,0,0,.08);
+            align-items: center;
 
-}
+            gap: 12px;
+        }
 
 
+        .master-arrow {
 
-.header-left{
+            font-size: 10px;
 
-    display:flex;
+            transition: transform 0.2s ease;
+        }
 
-    align-items:center;
 
-    gap:15px;
+        .master-menu.open .master-arrow {
 
-}
+            transform: rotate(180deg);
+        }
 
 
+        /* =====================================================
+           SUBMENU
+        ===================================================== */
 
-.header-logo{
+        .submenu {
 
-    width:50px;
+            display: none;
 
-    height:50px;
+            padding: 3px 0 5px 32px;
+        }
 
-    object-fit:contain;
 
-}
+        .master-menu.open .submenu {
 
+            display: block;
+        }
 
 
-.header-title{
+        .submenu a {
 
-    color:#252A86;
+            display: flex;
 
-    font-weight:700;
+            align-items: center;
 
-    font-size:17px;
+            gap: 10px;
 
-}
+            padding: 10px 12px;
 
+            margin-bottom: 2px;
 
+            color: rgba(255, 255, 255, 0.82);
 
-.header-subtitle{
+            text-decoration: none;
 
-    color:#777;
+            font-size: 12px;
 
-    font-size:13px;
+            font-weight: 600;
 
-}
+            border-radius: 6px;
 
+            transition: all 0.2s ease;
+        }
 
 
-.admin{
+        .submenu a:hover {
 
-    font-weight:600;
+            background: rgba(255, 255, 255, 0.10);
 
-}
+            color: #ffffff;
+        }
 
 
+        .submenu a.active {
 
+            background: rgba(255, 255, 255, 0.16);
 
+            color: #ffffff;
 
-/* ================= CONTENT ================= */
+            font-weight: 700;
+        }
 
 
-.content{
+        .submenu-icon {
 
-    padding:35px;
+            width: 18px;
 
-}
+            min-width: 18px;
 
-@media (max-width: 900px) {
-    .sidebar {
-        position: relative;
-        width: 100%;
-        height: auto;
-    }
+            text-align: center;
 
-    .main {
-        margin-left: 0;
-    }
+            font-size: 13px;
+        }
 
-    .header {
-        padding: 12px 16px;
-        height: auto;
-        min-height: 70px;
-    }
 
-    .content {
-        padding: 20px;
-    }
+        /* =====================================================
+           LOGOUT
+        ===================================================== */
 
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
+        .logout-link {
 
-@media (max-width: 700px) {
-    .sidebar {
-        overflow: visible;
-    }
+            margin-top: 12px;
 
-    .menu {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 8px 12px 12px;
-    }
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
 
-    .sidebar a {
-        flex: 1 1 calc(50% - 8px);
-        min-width: 120px;
-        padding: 12px 14px;
-        text-align: center;
-        border-radius: 8px;
-    }
+            padding-top: 15px;
+        }
 
-    .sidebar .active {
-        margin: 0;
-    }
 
-    .header {
-        justify-content: center;
-        text-align: center;
-    }
+        /* =====================================================
+           MAIN
+        ===================================================== */
 
-    .header-left {
-        justify-content: center;
-        text-align: center;
-    }
+        .main {
 
-    .header-title {
-        font-size: 15px;
-        line-height: 1.4;
-    }
+            margin-left: 260px;
 
-    .header-subtitle {
-        font-size: 12px;
-    }
+            min-height: 100vh;
 
-    .welcome-banner {
-        height: auto;
-        padding: 24px 20px;
-        flex-direction: column;
-        text-align: center;
-    }
+            width: calc(100% - 260px);
+        }
 
-    .welcome-title {
-        font-size: 28px;
-    }
 
-    .welcome-subtitle {
-        font-size: 16px;
-    }
+        /* =====================================================
+           HEADER
+        ===================================================== */
 
-    .banner-image {
-        display: none;
-    }
+        .header {
 
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
+            height: 75px;
 
+            background: #ffffff;
 
+            border-bottom: 1px solid #e5e7eb;
 
-/* ================= WELCOME ================= */
+            display: flex;
 
+            align-items: center;
 
-.welcome-banner{
+            justify-content: space-between;
 
+            padding: 0 30px;
 
-    height:190px;
+            position: sticky;
 
+            top: 0;
 
-    background:
+            z-index: 900;
+        }
 
-    linear-gradient(
-    90deg,
-    rgba(255,255,255,.95),
-    rgba(234,243,255,.85)
-    ),
 
-    url('/images/banner-bg.png');
+        .header-left {
 
+            display: flex;
 
-    background-size:cover;
+            align-items: center;
 
-    background-position:center;
+            gap: 15px;
 
+            min-width: 0;
+        }
 
-    border-radius:20px;
 
+        .header-title {
 
-    padding:40px;
+            font-size: 15px;
 
+            font-weight: 700;
 
-    display:flex;
+            color: #1f2937;
 
-    justify-content:space-between;
+            white-space: nowrap;
 
-    align-items:center;
+            overflow: hidden;
 
+            text-overflow: ellipsis;
+        }
 
-    box-shadow:
-    0 8px 25px rgba(0,0,0,.08);
 
+        .header-subtitle {
 
-}
+            margin-top: 4px;
 
+            font-size: 11px;
 
+            color: #9ca3af;
+        }
 
-.welcome-title{
 
-    font-size:42px;
+        .header-admin {
 
-    font-weight:900;
+            display: flex;
 
-    color:#252A86;
+            align-items: center;
 
-}
+            gap: 10px;
 
+            flex-shrink: 0;
+        }
 
 
-.welcome-subtitle{
+        .admin-text {
 
-    margin-top:15px;
+            text-align: right;
+        }
 
-    font-size:18px;
 
-    color:#4b5563;
+        .admin-name {
 
-}
+            font-size: 12px;
 
+            font-weight: 700;
 
+            color: #1f2937;
+        }
 
-.welcome-desc{
 
-    margin-top:20px;
+        .admin-role {
 
-    color:#7b8596;
+            margin-top: 2px;
 
-}
+            font-size: 10px;
 
+            color: #9ca3af;
+        }
 
 
-.banner-image img{
+        .admin-avatar {
 
+            width: 38px;
 
-    width:260px;
+            height: 38px;
 
-    opacity:.15;
+            border-radius: 50%;
 
+            background: #252A86;
 
-}
+            color: #ffffff;
 
+            display: flex;
 
+            align-items: center;
 
+            justify-content: center;
 
+            font-size: 13px;
 
-/* ================= STATISTIK ================= */
+            font-weight: 700;
+        }
 
 
-.section-title{
+        /* =====================================================
+           HAMBURGER
+        ===================================================== */
 
-    margin-top:35px;
+        .hamburger {
 
-    margin-bottom:20px;
+            display: none;
 
-    color:#252A86;
+            width: 38px;
 
-    font-size:28px;
+            height: 38px;
 
-}
+            border: 1px solid #e5e7eb;
 
+            background: #ffffff;
 
+            border-radius: 7px;
 
+            cursor: pointer;
 
-.stats-grid{
+            align-items: center;
 
+            justify-content: center;
 
-    display:grid;
+            flex-direction: column;
 
-    grid-template-columns:repeat(4,1fr);
+            gap: 4px;
 
-    gap:20px;
+            flex-shrink: 0;
+        }
 
 
-}
+        .hamburger span {
 
+            display: block;
 
+            width: 17px;
 
+            height: 2px;
 
-.stat-card{
+            background: #252A86;
 
+            border-radius: 2px;
+        }
 
-    background:white;
 
+        /* =====================================================
+           OVERLAY
+        ===================================================== */
 
-    padding:25px;
+        .overlay {
 
+            display: none;
 
-    border-radius:18px;
+            position: fixed;
 
+            inset: 0;
 
-    box-shadow:
+            background: rgba(0, 0, 0, 0.35);
 
-    0 8px 20px rgba(0,0,0,.06);
+            z-index: 950;
+        }
 
 
-}
+        .overlay.show {
 
+            display: block;
+        }
 
 
-.stat-label{
+        /* =====================================================
+           CONTENT
+        ===================================================== */
 
+        .content {
 
-    color:#6b7280;
+            padding: 30px;
+        }
 
-    font-size:15px;
 
-}
+        .page-kicker {
 
+            font-size: 10px;
 
+            font-weight: 700;
 
-.stat-number{
+            color: #252A86;
 
+            letter-spacing: 1.2px;
 
-    margin-top:10px;
+            margin-bottom: 7px;
+        }
 
 
-    font-size:42px;
+        .page-title {
 
+            font-size: 26px;
 
-    font-weight:900;
+            font-weight: 700;
 
+            color: #111827;
 
-    color:#252A86;
+            margin-bottom: 8px;
+        }
 
 
-}
+        .page-description {
 
+            font-size: 13px;
 
+            color: #6b7280;
 
-.stat-info{
+            line-height: 1.6;
 
+            margin-bottom: 25px;
+        }
 
-    margin-top:10px;
 
+        /* =====================================================
+           WELCOME BANNER
+        ===================================================== */
 
-    color:#16A34A;
+        .welcome-card {
 
+            background: #252A86;
 
-}
+            border-radius: 10px;
 
+            padding: 24px 25px;
 
+            color: #ffffff;
 
+            margin-bottom: 22px;
 
+            position: relative;
 
-</style>
+            overflow: hidden;
+        }
+
+
+        .welcome-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+
+            height: 180px;
+
+            border-radius: 50%;
+
+            background: rgba(255, 255, 255, 0.05);
+
+            right: -55px;
+
+            top: -70px;
+        }
+
+
+        .welcome-title {
+
+            font-size: 18px;
+
+            font-weight: 700;
+
+            margin-bottom: 7px;
+
+            position: relative;
+
+            z-index: 2;
+        }
+
+
+        .welcome-text {
+
+            font-size: 12px;
+
+            color: rgba(255, 255, 255, 0.78);
+
+            line-height: 1.6;
+
+            position: relative;
+
+            z-index: 2;
+        }
+
+
+        /* =====================================================
+           STATISTICS
+        ===================================================== */
+
+        .stats-grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+
+            gap: 16px;
+
+            margin-bottom: 22px;
+        }
+
+
+        .stat-card {
+
+            background: #ffffff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 9px;
+
+            padding: 18px;
+
+            min-width: 0;
+        }
+
+
+        .stat-label {
+
+            font-size: 11px;
+
+            color: #6b7280;
+
+            margin-bottom: 9px;
+        }
+
+
+        .stat-value {
+
+            font-size: 24px;
+
+            font-weight: 700;
+
+            color: #252A86;
+
+            line-height: 1;
+        }
+
+
+        .stat-description {
+
+            margin-top: 8px;
+
+            font-size: 10px;
+
+            color: #9ca3af;
+        }
+
+
+        /* =====================================================
+           INFORMATION CARD
+        ===================================================== */
+
+        .info-card {
+
+            background: #ffffff;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 9px;
+
+            padding: 20px;
+        }
+
+
+        .info-title {
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            color: #1f2937;
+
+            margin-bottom: 6px;
+        }
+
+
+        .info-text {
+
+            font-size: 12px;
+
+            color: #6b7280;
+
+            line-height: 1.7;
+        }
+
+
+        /* =====================================================
+           TABLET
+        ===================================================== */
+
+        @media (max-width: 1100px) {
+
+            .stats-grid {
+
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .sidebar {
+
+                width: 270px;
+
+                transform: translateX(-100%);
+            }
+
+
+            .sidebar.show {
+
+                transform: translateX(0);
+            }
+
+
+            .main {
+
+                margin-left: 0;
+
+                width: 100%;
+            }
+
+
+            .header {
+
+                height: 70px;
+
+                padding: 0 20px;
+            }
+
+
+            .hamburger {
+
+                display: flex;
+            }
+
+
+            .header-title {
+
+                font-size: 15px;
+            }
+
+
+            .header-subtitle {
+
+                display: none;
+            }
+
+
+            .content {
+
+                padding: 20px;
+            }
+
+        }
+
+
+        /* =====================================================
+           SMALL MOBILE
+        ===================================================== */
+
+        @media (max-width: 600px) {
+
+            .header {
+
+                height: 64px;
+
+                padding: 0 14px;
+
+                gap: 10px;
+            }
+
+
+            .header-left {
+
+                gap: 10px;
+
+                min-width: 0;
+            }
+
+
+            .hamburger {
+
+                width: 38px;
+
+                height: 38px;
+            }
+
+
+            .header-title {
+
+                font-size: 13px;
+
+                max-width: 190px;
+            }
+
+
+            .header-admin .admin-text {
+
+                display: none;
+            }
+
+
+            .admin-avatar {
+
+                width: 34px;
+
+                height: 34px;
+
+                font-size: 12px;
+            }
+
+
+            .content {
+
+                padding: 16px;
+            }
+
+
+            .page-title {
+
+                font-size: 22px;
+            }
+
+
+            .page-description {
+
+                font-size: 12px;
+
+                margin-bottom: 20px;
+            }
+
+
+            .welcome-card {
+
+                padding: 20px;
+            }
+
+
+            .welcome-title {
+
+                font-size: 16px;
+            }
+
+
+            .stats-grid {
+
+                grid-template-columns: 1fr;
+
+                gap: 12px;
+            }
+
+
+            .stat-card {
+
+                padding: 16px;
+            }
+
+        }
+
+
+        /* =====================================================
+           VERY SMALL MOBILE
+        ===================================================== */
+
+        @media (max-width: 400px) {
+
+            .sidebar {
+
+                width: 250px;
+            }
+
+
+            .content {
+
+                padding: 12px;
+            }
+
+
+            .page-title {
+
+                font-size: 20px;
+            }
+
+
+            .header-title {
+
+                max-width: 150px;
+
+                font-size: 12px;
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -533,401 +957,568 @@ body{
 <body>
 
 
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
 
-<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
 
+    <div class="sidebar-logo">
 
-<div class="sidebar">
+        <img
+            src="{{ asset('images/dinsos.png') }}"
+            alt="Logo Dinas Sosial"
+        >
 
+    </div>
 
 
-<div class="logo">
+    <nav class="sidebar-menu">
 
 
-<img src="{{ asset('images/dinsos.png') }}">
+        <!-- DASHBOARD -->
 
+        <a
+            href="{{ route('dashboard') }}"
+            class="menu-link active"
+        >
 
-<div>
+            <span class="menu-icon">
+                ▣
+            </span>
 
-Sistem Pendataan
+            <span>
+                Dashboard
+            </span>
 
-<br>
+        </a>
 
-Dinas Sosial Kota Pasuruan
 
-</div>
+        <!-- RESPONDEN -->
 
+        <a
+            href="#"
+            class="menu-link"
+        >
 
-</div>
+            <span class="menu-icon">
+                ♙
+            </span>
 
+            <span>
+                Responden
+            </span>
 
+        </a>
 
 
+        <!-- KUISIONER -->
 
-<div class="menu">
+        <a
+            href="#"
+            class="menu-link"
+        >
 
+            <span class="menu-icon">
+                ☷
+            </span>
 
-<a class="active" href="/dashboard">
+            <span>
+                Kuisioner
+            </span>
 
-Dashboard
+        </a>
 
-</a>
 
+        <!-- VERIFIKASI -->
 
+        <a
+            href="{{ route('verifikasi.index') }}"
+            class="menu-link"
+        >
 
-<a href="/periode">
+            <span class="menu-icon">
+                ✓
+            </span>
 
-Periode
+            <span>
+                Verifikasi
+            </span>
 
-</a>
+        </a>
 
 
+        <!-- MONITORING -->
 
-<a>
+        <a
+            href="{{ route('monitoring.index') }}"
+            class="menu-link"
+        >
 
-Petugas
+            <span class="menu-icon">
+                ◉
+            </span>
 
-</a>
+            <span>
+                Monitoring
+            </span>
 
+        </a>
 
 
-<a>
+        <!-- LAPORAN -->
 
-Responden
+        <a
+            href="#"
+            class="menu-link"
+        >
 
-</a>
+            <span class="menu-icon">
+                ▤
+            </span>
 
+            <span>
+                Laporan
+            </span>
 
+        </a>
 
-<a>
 
-Kuisioner
+        <!-- =================================================
+             MASTER
+        ================================================== -->
 
-</a>
+        <div
+            class="master-menu"
+            id="masterMenu"
+        >
 
+            <button
+                type="button"
+                class="master-toggle"
+                id="masterToggle"
+            >
 
-<a href="{{ route('verifikasi.index') }}">
-    <i class="fa-solid fa-user-check"></i>
-    <span>Verifikasi</span>
-</a>
+                <span class="master-toggle-left">
 
+                    <span class="menu-icon">
+                        ⚙
+                    </span>
 
+                    <span>
+                        Master
+                    </span>
 
-<a>
+                </span>
 
-Monitoring
+                <span class="master-arrow">
+                    ▼
+                </span>
 
-</a>
+            </button>
 
 
+            <div class="submenu">
 
-<a>
 
-Laporan
+                <!-- PERIODE -->
 
-</a>
+                <a href="{{ url('/periode') }}">
 
+                    <span class="submenu-icon">
+                        ▣
+                    </span>
 
+                    <span>
+                        Periode
+                    </span>
 
-<a href="{{ route('master.index') }}">
-Master
+                </a>
 
-</a>
 
+                <!-- PENGGUNA -->
 
+                <a href="{{ route('master.index') }}">
 
-</div>
+                    <span class="submenu-icon">
+                        ♙
+                    </span>
 
+                    <span>
+                        Pengguna
+                    </span>
 
+                </a>
 
 
-<div class="logout">
+            </div>
 
+        </div>
 
-<a href="/logout">
 
-Logout
+        <!-- LOGOUT -->
 
-</a>
+        <div class="logout-link">
 
+            <a
+                href="{{ route('login') }}"
+                class="menu-link"
+            >
 
-</div>
+                <span class="menu-icon">
+                    ↪
+                </span>
 
+                <span>
+                    Logout
+                </span>
 
+            </a>
 
-</div>
+        </div>
 
 
+    </nav>
 
+</aside>
 
 
+<!-- =====================================================
+     OVERLAY
+===================================================== -->
 
+<div
+    class="overlay"
+    id="overlay"
+></div>
 
-<!-- MAIN -->
 
+<!-- =====================================================
+     MAIN
+===================================================== -->
 
-<div class="main">
+<main class="main">
 
 
+    <!-- =================================================
+         HEADER
+    ================================================== -->
 
-<div class="header">
+    <header class="header">
 
 
+        <div class="header-left">
 
-<div class="header-left">
 
+            <button
+                type="button"
+                class="hamburger"
+                id="hamburger"
+                aria-label="Buka menu"
+            >
 
-<div>
+                <span></span>
+                <span></span>
+                <span></span>
 
+            </button>
 
-<div class="header-title">
 
-Sistem Pendataan Dinas Sosial Kota Pasuruan
+            <div>
 
-</div>
+                <div class="header-title">
+                    Sistem Pendataan perlindungan Dinas Sosial Kota Pasuruan
+                </div>
 
+                <div class="header-subtitle">
+                    Panel Administrasi
+                </div>
 
-<div class="header-subtitle">
+            </div>
 
-Panel Administrasi
 
-</div>
+        </div>
 
 
-</div>
+        <div class="header-admin">
 
 
+            <div class="admin-text">
 
-</div>
+                <div class="admin-name">
+                    Operator
+                </div>
 
+                <div class="admin-role">
+                    Admin
+                </div>
 
+            </div>
 
 
+            <div class="admin-avatar">
+                A
+            </div>
 
-<div class="admin">
 
-Admin
+        </div>
 
-</div>
 
+    </header>
 
 
+    <!-- =================================================
+         CONTENT
+    ================================================== -->
 
-</div>
+    <section class="content">
 
 
+        <div class="page-kicker">
+            ADMIN
+        </div>
 
 
+        <h1 class="page-title">
+            Dashboard
+        </h1>
 
 
+        <p class="page-description">
+            Selamat datang di panel administrasi Sistem Pendataan
+            Dinas Sosial Kota Pasuruan.
+        </p>
 
-<div class="content">
 
+        <!-- =================================================
+             WELCOME
+        ================================================== -->
 
+        <div class="welcome-card">
 
+            <div class="welcome-title">
+                Selamat Datang, Operator
+            </div>
 
+            <div class="welcome-text">
+                Kelola data pendataan sosial, verifikasi,
+                monitoring, dan laporan melalui sistem ini.
+            </div>
 
-<div class="welcome-banner">
+        </div>
 
 
+        <!-- =================================================
+             STATISTICS
+        ================================================== -->
 
-<div>
+        <div class="stats-grid">
 
 
-<h1 class="welcome-title">
+            <div class="stat-card">
 
-Selamat Datang Admin
+                <div class="stat-label">
+                    Total Responden
+                </div>
 
-</h1>
+                <div class="stat-value">
+                    128
+                </div>
 
+                <div class="stat-description">
+                    Data responden terdaftar
+                </div>
 
+            </div>
 
-<p class="welcome-subtitle">
 
-Kelola sistem pendataan Dinsos dengan mudah dan efisien.
+            <div class="stat-card">
 
-</p>
+                <div class="stat-label">
+                    Periode Aktif
+                </div>
 
-</div>
+                <div class="stat-value">
+                    1
+                </div>
 
-<div class="banner-image">
+                <div class="stat-description">
+                    Periode pendataan berjalan
+                </div>
 
+            </div>
 
-<img src="{{ asset('images/banner-bg.png') }}">
 
+            <div class="stat-card">
 
-</div>
+                <div class="stat-label">
+                    Data Masuk Hari Ini
+                </div>
 
+                <div class="stat-value">
+                    12
+                </div>
 
+                <div class="stat-description">
+                    Data baru hari ini
+                </div>
 
+            </div>
 
-</div>
 
+            <div class="stat-card">
 
+                <div class="stat-label">
+                    Data Terverifikasi
+                </div>
 
+                <div class="stat-value">
+                    96
+                </div>
 
+                <div class="stat-description">
+                    Data telah diverifikasi
+                </div>
 
+            </div>
 
 
-<h2 class="section-title">
+        </div>
 
-Statistik
 
-</h2>
+        <!-- =================================================
+             INFORMATION
+        ================================================== -->
 
+        <div class="info-card">
 
+            <div class="info-title">
+                Informasi Sistem
+            </div>
 
+            <div class="info-text">
+                Gunakan menu pada sidebar untuk mengelola
+                responden, kuisioner, proses verifikasi,
+                monitoring, laporan, serta data master sistem.
+            </div>
 
+        </div>
 
 
+    </section>
 
-<div class="stats-grid">
 
+</main>
 
 
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
 
+<script>
 
-<div class="stat-card">
+    const sidebar = document.getElementById('sidebar');
 
+    const hamburger = document.getElementById('hamburger');
 
-<div class="stat-label">
+    const overlay = document.getElementById('overlay');
 
-Total Petugas
+    const masterMenu = document.getElementById('masterMenu');
 
-</div>
+    const masterToggle = document.getElementById('masterToggle');
 
 
-<div class="stat-number">
+    /* =====================================================
+       SIDEBAR MOBILE
+    ===================================================== */
 
-24
+    function openSidebar() {
 
-</div>
+        sidebar.classList.add('show');
 
+        overlay.classList.add('show');
 
-<div class="stat-info">
+    }
 
-+2 dari periode sebelumnya
 
-</div>
+    function closeSidebar() {
 
+        sidebar.classList.remove('show');
 
-</div>
+        overlay.classList.remove('show');
 
+    }
 
 
+    hamburger.addEventListener('click', function () {
 
+        if (sidebar.classList.contains('show')) {
 
+            closeSidebar();
 
+        } else {
 
-<div class="stat-card">
+            openSidebar();
 
+        }
 
-<div class="stat-label">
+    });
 
-Total Responden
 
-</div>
+    overlay.addEventListener('click', function () {
 
+        closeSidebar();
 
-<div class="stat-number">
+    });
 
-1.248
 
-</div>
+    /* =====================================================
+       MASTER DROPDOWN
+    ===================================================== */
 
+    masterToggle.addEventListener('click', function () {
 
-<div class="stat-info">
+        masterMenu.classList.toggle('open');
 
-+86 dari periode sebelumnya
+    });
 
-</div>
 
+    /* =====================================================
+       CLOSE SIDEBAR AFTER CLICK MENU
+    ===================================================== */
 
-</div>
+    const menuLinks = sidebar.querySelectorAll('a');
 
+    menuLinks.forEach(function (link) {
 
+        link.addEventListener('click', function () {
 
+            if (window.innerWidth <= 900) {
 
+                closeSidebar();
 
+            }
 
+        });
 
+    });
 
-<div class="stat-card">
 
+    /* =====================================================
+       RESET SIDEBAR SAAT DESKTOP
+    ===================================================== */
 
-<div class="stat-label">
+    window.addEventListener('resize', function () {
 
-Periode Aktif
+        if (window.innerWidth > 900) {
 
-</div>
+            closeSidebar();
 
+        }
 
-<div class="stat-number">
+    });
 
-1
-
-</div>
-
-
-<div class="stat-info">
-
-Periode berjalan
-
-</div>
-
-
-</div>
-
-
-
-
-
-
-
-
-<div class="stat-card">
-
-
-<div class="stat-label">
-
-Data Masuk Hari Ini
-
-</div>
-
-
-<div class="stat-number">
-
-186
-
-</div>
-
-
-<div class="stat-info">
-
-+12 dari kemarin
-
-</div>
-
-
-</div>
-
-
-
-
-
-</div>
-
-
-
-
-
-</div>
-
-
-
-</div>
-
-
+</script>
 
 
 </body>
