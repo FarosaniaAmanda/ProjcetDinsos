@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class VerifikasiController extends Controller
 {
@@ -241,104 +242,156 @@ class VerifikasiController extends Controller
 
 
     /**
-     * Halaman utama verifikasi.
-     */
-    public function index(Request $request)
-    {
-        $data = $this->getData();
+ * Halaman utama verifikasi.
+ */
+public function index(Request $request)
+{
+    $data = $this->getData();
 
+    /*
+    |--------------------------------------------------------------------------
+    | SEARCH
+    |--------------------------------------------------------------------------
+    */
+    $search = trim(
+        $request->input('search', '')
+    );
 
-        /**
-         * =========================
-         * SEARCH
-         * =========================
-         */
-        $search = trim(
-            $request->input('search', '')
-        );
+    if ($search !== '') {
 
+        $searchLower = strtolower($search);
 
-        if ($search !== '') {
+        $data = $data->filter(function ($item) use ($searchLower) {
 
-            $searchLower = strtolower($search);
-
-            $data = $data->filter(function ($item) use ($searchLower) {
-
-                return
-                    str_contains(
-                        strtolower($item['no_kk'] ?? ''),
-                        $searchLower
-                    )
-                    ||
-                    str_contains(
-                        strtolower($item['nik'] ?? ''),
-                        $searchLower
-                    )
-                    ||
-                    str_contains(
-                        strtolower($item['nama'] ?? ''),
-                        $searchLower
-                    )
-                    ||
-                    str_contains(
-                        strtolower($item['wilayah'] ?? ''),
-                        $searchLower
-                    )
-                    ||
-                    str_contains(
-                        strtolower($item['petugas'] ?? ''),
-                        $searchLower
-                    );
-            });
-        }
-
-
-        /**
-         * =========================
-         * FILTER STATUS
-         * =========================
-         */
-        $status = $request->input(
-            'status',
-            ''
-        );
-
-
-        /**
-         * Jika memilih All Status,
-         * tidak perlu melakukan filter.
-         */
-        if ($status === 'all') {
-            $status = '';
-        }
-
-
-        /**
-         * Hanya filter menggunakan
-         * status standar.
-         */
-        if ($status !== '') {
-
-            $status = $this->normalizeStatus(
-                $status
-            );
-
-            $data = $data->filter(function ($item) use ($status) {
-
-                return ($item['status'] ?? '') === $status;
-            });
-        }
-
-
-        return view(
-            'admin.verifikasi.index',
-            [
-                'data' => $data,
-                'search' => $search,
-                'status' => $status,
-            ]
-        );
+            return
+                str_contains(
+                    strtolower($item['no_kk'] ?? ''),
+                    $searchLower
+                )
+                ||
+                str_contains(
+                    strtolower($item['nik'] ?? ''),
+                    $searchLower
+                )
+                ||
+                str_contains(
+                    strtolower($item['nama'] ?? ''),
+                    $searchLower
+                )
+                ||
+                str_contains(
+                    strtolower($item['wilayah'] ?? ''),
+                    $searchLower
+                )
+                ||
+                str_contains(
+                    strtolower($item['petugas'] ?? ''),
+                    $searchLower
+                );
+        });
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER STATUS
+    |--------------------------------------------------------------------------
+    */
+    $status = $request->input(
+        'status',
+        ''
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Jika memilih All Status
+    |--------------------------------------------------------------------------
+    */
+    if ($status === 'all') {
+        $status = '';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Filter berdasarkan status
+    |--------------------------------------------------------------------------
+    */
+    if ($status !== '') {
+
+        $status = $this->normalizeStatus(
+            $status
+        );
+
+        $data = $data->filter(function ($item) use ($status) {
+
+            return ($item['status'] ?? '') === $status;
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION
+    |--------------------------------------------------------------------------
+    | 30 data setiap halaman
+    |--------------------------------------------------------------------------
+    */
+    $perPage = 30;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Menentukan halaman saat ini
+    |--------------------------------------------------------------------------
+    */
+    $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reset index Collection
+    |--------------------------------------------------------------------------
+    */
+    $data = $data->values();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Ambil data sesuai halaman
+    |--------------------------------------------------------------------------
+    */
+    $currentItems = $data
+        ->slice(
+            ($currentPage - 1) * $perPage,
+            $perPage
+        )
+        ->values();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Buat paginator
+    |--------------------------------------------------------------------------
+    */
+    $data = new LengthAwarePaginator(
+        $currentItems,
+        $data->count(),
+        $perPage,
+        $currentPage,
+        [
+            'path' => $request->url(),
+            'query' => $request->query(),
+        ]
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Kirim ke Blade
+    |--------------------------------------------------------------------------
+    */
+    return view(
+        'admin.verifikasi.index',
+        [
+            'data' => $data,
+            'search' => $search,
+            'status' => $status,
+        ]
+    );
+}
 
 
     /**

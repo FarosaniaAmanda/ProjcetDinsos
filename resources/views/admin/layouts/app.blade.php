@@ -1,324 +1,1650 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
 
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>
-        Sistem Pendataan Dinas Sosial Kota Pasuruan
+        @yield('title', 'Sistem Pendataan Dinas Sosial Kota Pasuruan')
     </title>
+
 
     <style>
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Segoe UI';
-
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        body{
 
-            background:#f6f9ff;
-
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f6fa;
+            color: #252525;
+            min-height: 100vh;
         }
 
-        /* =====================
+
+        /* =====================================================
            SIDEBAR
-        ===================== */
+        ====================================================== */
 
-        .sidebar{
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
 
-            position:fixed;
+            width: 260px;
+            height: 100vh;
 
-            left:0;
+            background: #252A86;
+            color: #ffffff;
 
-            top:0;
+            display: flex;
+            flex-direction: column;
 
-            width:260px;
+            z-index: 1000;
 
-            height:100vh;
+            overflow-y: auto;
 
-            background:#252A86;
-
-            color:white;
-
-            overflow-y:auto;
-
-
+            transition: transform .3s ease;
         }
 
-        .sidebar::-webkit-scrollbar{
-            width: 6px;
+
+        /* =====================================================
+           LOGO SIDEBAR
+        ====================================================== */
+
+        .sidebar-logo {
+            height: 105px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 16px 20px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+            flex-shrink: 0;
         }
 
-        .sidebar::-webkit-scrollbar-thumb{
-            background:#6670d8;
-            border-radius:10px;
+
+        .sidebar-logo img {
+            width: 72px;
+            height: 72px;
+
+            object-fit: contain;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            display: block;
         }
 
-        /* LOGO */
 
-        .logo{
+        /* =====================================================
+           MENU SIDEBAR
+        ====================================================== */
 
-            text-align:center;
+        .sidebar-menu {
+            padding: 20px 14px;
 
-            padding:35px 10px;
-
-            font-size:18px;
-
-            font-weight:bold;
-
-            line-height:1.4;
-
+            flex: 1;
         }
 
-        .logo-icon{
 
-            font-size:50px;
+        .menu-title {
+            font-size: 11px;
+            font-weight: 700;
 
-            margin-bottom:10px;
+            color: rgba(255, 255, 255, 0.55);
 
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            margin: 8px 10px 12px;
         }
 
-        .sidebar a{
 
-            display:block;
+        .menu-link {
+            display: flex;
+            align-items: center;
 
-            padding:17px 30px;
+            gap: 12px;
 
-            color:white;
+            width: 100%;
 
-            text-decoration:none;
+            padding: 12px 14px;
 
-            cursor:pointer;
+            margin-bottom: 5px;
+
+            border-radius: 9px;
+
+            color: rgba(255, 255, 255, 0.82);
+
+            text-decoration: none;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            transition: all .2s ease;
         }
 
-        .sidebar a:hover{
 
-            background:#3448b8;
-
+        .menu-link:hover {
+            background: rgba(255, 255, 255, 0.10);
+            color: #ffffff;
         }
 
-        /* =====================
+
+        .menu-link.active {
+            background: #ffffff;
+            color: #252A86;
+
+            font-weight: 700;
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+        }
+
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+        }
+
+
+        /* =====================================================
+           MASTER DROPDOWN
+        ====================================================== */
+
+        .master-toggle {
+            border: none;
+            background: transparent;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            text-align: left;
+
+            appearance: none;
+        }
+
+
+        .master-toggle .master-arrow {
+            margin-left: auto;
+
+            width: 18px;
+            height: 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            transition: transform .25s ease;
+        }
+
+
+        .master-toggle.open .master-arrow {
+            transform: rotate(180deg);
+        }
+
+
+        .master-toggle.master-active {
+            background: rgba(255, 255, 255, 0.10);
+            color: #ffffff;
+        }
+
+
+        .master-toggle.master-active:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+
+        /* =====================================================
+           SUBMENU MASTER
+        ====================================================== */
+
+        .master-submenu {
+            max-height: 0;
+
+            overflow: hidden;
+
+            opacity: 0;
+
+            padding-left: 18px;
+
+            transition:
+                max-height .3s ease,
+                opacity .2s ease;
+        }
+
+
+        .master-submenu.open {
+            max-height: 200px;
+            opacity: 1;
+        }
+
+
+        .submenu-link {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            width: 100%;
+
+            padding: 10px 14px;
+
+            margin-bottom: 4px;
+
+            border-radius: 8px;
+
+            color: rgba(255, 255, 255, 0.72);
+
+            text-decoration: none;
+
+            font-size: 13px;
+            font-weight: 500;
+
+            transition: all .2s ease;
+        }
+
+
+        .submenu-link:hover {
+            background: rgba(255, 255, 255, 0.10);
+            color: #ffffff;
+        }
+
+
+        .submenu-link.active {
+            background: #ffffff;
+            color: #252A86;
+
+            font-weight: 700;
+
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+
+        .submenu-icon {
+            width: 18px;
+            height: 18px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+        }
+
+
+        /* =====================================================
+           SIDEBAR FOOTER
+        ====================================================== */
+
+        .sidebar-footer {
+            padding: 15px 14px;
+
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+            flex-shrink: 0;
+        }
+
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            width: 100%;
+
+            padding: 12px 14px;
+
+            border-radius: 9px;
+
+            color: rgba(255, 255, 255, 0.85);
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            transition: all .2s ease;
+        }
+
+
+        .logout-link:hover {
+            background: rgba(255, 255, 255, 0.10);
+            color: #ffffff;
+        }
+
+
+        /* =====================================================
            MAIN
-        ===================== */
+        ====================================================== */
 
-        .main{
+        .main {
+            margin-left: 260px;
 
-            margin-left:260px;
+            min-height: 100vh;
+
+            width: calc(100% - 260px);
+
+            display: flex;
+            flex-direction: column;
         }
 
-        /* =====================
+
+        /* =====================================================
            HEADER
-        ===================== */
+        ====================================================== */
 
-        .header{
+        .header {
+            height: 75px;
 
-            height:80px;
+            background: #ffffff;
 
-            background:white;
+            border-bottom: 1px solid #e8e9ef;
 
-            display:flex;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
 
-            justify-content:space-between;
+            padding: 0 30px;
 
-            align-items:center;
+            position: sticky;
+            top: 0;
 
-            padding:0 35px;
-
-            box-shadow:0 2px 10px #ddd;
-
+            z-index: 900;
         }
 
-        .header-left{
-            display:flex;
-            align-items:center;
-            gap:15px;
+
+        .header-left {
+            display: flex;
+            align-items: center;
+
+            gap: 14px;
+
+            flex: 1;
+
+            min-width: 0;
         }
 
-        .header-title{
-            color:#252A86;
-            font-weight:700;
-            font-size:17px;
+
+        .header-title {
+            font-size: 16px;
+
+            font-weight: 700;
+
+            color: #252A86;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+
+            text-overflow: ellipsis;
         }
 
-        .header-subtitle{
-            color:#777;
-            font-size:13px;
+
+        .header-subtitle {
+            font-size: 12px;
+
+            color: #777;
+
+            margin-top: 3px;
         }
 
-        /* =====================
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+
+        .admin-info {
+            text-align: right;
+        }
+
+
+        .admin-name {
+            font-size: 13px;
+
+            font-weight: 700;
+
+            color: #333;
+        }
+
+
+        .admin-role {
+            font-size: 11px;
+
+            color: #888;
+
+            margin-top: 2px;
+        }
+
+
+        .admin-avatar {
+            width: 38px;
+            height: 38px;
+
+            border-radius: 50%;
+
+            background: #252A86;
+
+            color: #ffffff;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 14px;
+
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           MOBILE MENU BUTTON
+        ====================================================== */
+
+        .mobile-menu-btn {
+            display: none;
+
+            width: 42px;
+            height: 42px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #f1f2f8;
+
+            cursor: pointer;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-direction: column;
+
+            gap: 5px;
+
+            flex-shrink: 0;
+        }
+
+
+        .mobile-menu-btn span {
+            display: block;
+
+            width: 20px;
+            height: 2px;
+
+            background: #252A86;
+
+            border-radius: 2px;
+
+            transition: all .25s ease;
+        }
+
+
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+
+        /* =====================================================
+           SIDEBAR OVERLAY
+        ====================================================== */
+
+        .sidebar-overlay {
+            display: none;
+        }
+
+
+        /* =====================================================
            CONTENT
-        ===================== */
+        ====================================================== */
 
-        .content{
+        .content {
+            padding: 30px;
 
-            padding:40px;
-
+            flex: 1;
         }
 
-        .card{
-            background:white;
 
-            padding:25px;
-
-            border-radius:15px;
-
-            box-shadow:0 5px 20px #ddd;
-
-            margin-top:25px;
-
-        }
+        /* =====================================================
+           RESPONSIVE TABLET
+        ====================================================== */
 
         @media (max-width: 900px) {
+
             .sidebar {
-                position: relative;
-                width: 100%;
-                height: auto;
+                position: fixed;
+
+                top: 0;
+                left: 0;
+
+                width: 270px;
+                height: 100vh;
+
+                transform: translateX(-100%);
+
+                transition: transform .3s ease;
+
+                z-index: 1100;
+
+                overflow-y: auto;
             }
+
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+
+            /* OVERLAY */
+
+            .sidebar-overlay {
+                display: block;
+
+                position: fixed;
+
+                inset: 0;
+
+                background: rgba(0, 0, 0, .40);
+
+                opacity: 0;
+
+                visibility: hidden;
+
+                transition: all .3s ease;
+
+                z-index: 1050;
+            }
+
+
+            .sidebar-overlay.active {
+                opacity: 1;
+
+                visibility: visible;
+            }
+
+
+            /* MAIN */
 
             .main {
                 margin-left: 0;
-            }
 
-            .header {
-                padding: 12px 16px;
-                height: auto;
-                min-height: 70px;
-            }
-
-            .header-left {
                 width: 100%;
             }
 
+
+            /* HEADER */
+
+            .header {
+                height: 70px;
+
+                padding: 0 20px;
+
+                position: sticky;
+
+                top: 0;
+
+                z-index: 900;
+            }
+
+
+            /* HAMBURGER */
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+
+            .header-left {
+                gap: 12px;
+            }
+
+
             .header-title {
                 font-size: 15px;
-                line-height: 1.4;
             }
+
+
+            .header-subtitle {
+                display: none;
+            }
+
+
+            /* CONTENT */
 
             .content {
                 padding: 20px;
             }
+
         }
 
-        @media (max-width: 700px) {
-            .sidebar a {
-                padding: 14px 16px;
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
+
+        @media (max-width: 600px) {
+
+            .sidebar-logo {
+                height: 100px;
             }
 
-            .logo {
-                padding: 20px 12px;
-                font-size: 16px;
+
+            .sidebar-logo img {
+                width: 64px;
+                height: 64px;
             }
+
 
             .header {
-                justify-content: center;
+                height: 64px;
+
+                min-height: 64px;
+
+                padding: 0 14px;
             }
 
-            .header-left {
-                justify-content: center;
-                text-align: center;
+
+            .mobile-menu-btn {
+                width: 38px;
+                height: 38px;
             }
+
+
+            .mobile-menu-btn span {
+                width: 18px;
+            }
+
+
+            .header-title {
+                font-size: 13px;
+
+                line-height: 1.3;
+            }
+
+
+            .admin-info {
+                display: none;
+            }
+
+
+            .admin-avatar {
+                width: 34px;
+                height: 34px;
+
+                font-size: 13px;
+            }
+
 
             .content {
                 padding: 16px;
             }
+
+
+            .master-submenu {
+                padding-left: 14px;
+            }
+
+        }
+
+
+        /* =====================================================
+           SMALL MOBILE
+        ====================================================== */
+
+        @media (max-width: 400px) {
+
+            .header-title {
+                font-size: 12px;
+            }
+
+
+            .content {
+                padding: 12px;
+            }
+
+
+            .sidebar {
+                width: 250px;
+            }
+
+
+            .sidebar-logo {
+                height: 95px;
+            }
+
+
+            .sidebar-logo img {
+                width: 60px;
+                height: 60px;
+            }
+
+
+            .master-submenu {
+                padding-left: 10px;
+            }
+
         }
 
     </style>
 
+
+    @stack('styles')
+
 </head>
+
 
 <body>
 
-    <!-- SIDEBAR -->
 
-    <div class="sidebar">
+    <!-- =====================================================
+         SIDEBAR
+    ====================================================== -->
 
-        <div class="logo">
+    <aside class="sidebar" id="sidebar">
 
-            <div class="logo-icon">
 
-                🏛️
+        <!-- =================================================
+             LOGO
+        ================================================== -->
 
-            </div>
+        <div class="sidebar-logo">
 
-            Sistem Pendataan
-
-            <br>
-
-            Dinas Sosial Kota Pasuruan
+            <img
+                src="{{ asset('images/dinsos.png') }}"
+                alt="Logo Dinas Sosial"
+            >
 
         </div>
 
-        <a href="/dashboard">
-            Dashboard
-        </a>
 
-        <a href="/periode">
-            Periode
-        </a>
+        <!-- =================================================
+             MENU
+        ================================================== -->
 
-        <a>
-            Petugas
-        </a>
+        <nav class="sidebar-menu">
 
-        <a>
-            Responden
-        </a>
 
-        <a>
-            Kuisioner
-        </a>
+            <div class="menu-title">
+                Menu Utama
+            </div>
 
-        <a href="/verifikasi">
-            Verifikasi
-        </a>
 
-        <a href="/monitoring">
-            Monitoring
-        </a>
+            <!-- =================================================
+                 DASHBOARD
+            ================================================== -->
 
-        <a>
-            Laporan
-        </a>
+            <a
+                href="{{ route('dashboard') }}"
+                class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}"
+            >
 
-        <a>
-            Master
-        </a>
+                <span class="menu-icon">
 
-    </div>
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
 
-    <!-- MAIN CONTENT -->
+                        <rect x="3" y="3" width="7" height="7"></rect>
+
+                        <rect x="14" y="3" width="7" height="7"></rect>
+
+                        <rect x="3" y="14" width="7" height="7"></rect>
+
+                        <rect x="14" y="14" width="7" height="7"></rect>
+
+                    </svg>
+
+                </span>
+
+                <span>Dashboard</span>
+
+            </a>
+
+
+            <!-- =================================================
+                 RESPONDEN
+            ================================================== -->
+
+            <a
+                href="{{ route('responden.index') }}"
+                class="menu-link {{ request()->is('responden*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <path
+                            d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                        ></path>
+
+                        <circle
+                            cx="12"
+                            cy="7"
+                            r="4"
+                        ></circle>
+
+                    </svg>
+
+                </span>
+
+                <span>Responden</span>
+
+            </a>
+
+
+            <!-- =================================================
+                 KUISIONER
+            ================================================== -->
+
+            <a
+                href="{{ route('kuisioner.index') }}"
+                class="menu-link {{ request()->is('kuisioner*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        ></path>
+
+                        <polyline
+                            points="14 2 14 8 20 8"
+                        ></polyline>
+
+                        <line
+                            x1="8"
+                            y1="13"
+                            x2="16"
+                            y2="13"
+                        ></line>
+
+                        <line
+                            x1="8"
+                            y1="17"
+                            x2="16"
+                            y2="17"
+                        ></line>
+
+                    </svg>
+
+                </span>
+
+                <span>Kuisioner</span>
+
+            </a>
+
+
+            <!-- =================================================
+                 VERIFIKASI
+            ================================================== -->
+
+            <a
+                href="{{ route('verifikasi.index') }}"
+                class="menu-link {{ request()->is('verifikasi*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <path d="M9 11l3 3L22 4"></path>
+
+                        <path
+                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+                        ></path>
+
+                    </svg>
+
+                </span>
+
+                <span>Verifikasi</span>
+
+            </a>
+
+
+            <!-- =================================================
+                 MONITORING
+            ================================================== -->
+
+            <a
+                href="{{ route('monitoring.index') }}"
+                class="menu-link {{ request()->is('monitoring*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <polyline
+                            points="3 3 3 21 21 21"
+                        ></polyline>
+
+                        <polyline
+                            points="7 16 11 12 14 15 21 8"
+                        ></polyline>
+
+                    </svg>
+
+                </span>
+
+                <span>Monitoring</span>
+
+            </a>
+
+
+            <!-- =================================================
+                 LAPORAN
+            ================================================== -->
+
+            <a
+                href="{{ route('laporan.index') }}"
+                class="menu-link {{ request()->is('laporan*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        ></path>
+
+                        <polyline
+                            points="14 2 14 8 20 8"
+                        ></polyline>
+
+                        <line
+                            x1="8"
+                            y1="13"
+                            x2="16"
+                            y2="13"
+                        ></line>
+
+                        <line
+                            x1="8"
+                            y1="17"
+                            x2="16"
+                            y2="17"
+                        ></line>
+
+                    </svg>
+
+                </span>
+
+                <span>Laporan</span>
+
+            </a>
+
+
+            <!-- =================================================
+                 MASTER DROPDOWN
+            ================================================== -->
+
+            @php
+
+                $masterOpen =
+                    request()->is('master*') ||
+                    request()->is('periode*');
+
+            @endphp
+
+
+            <button
+                type="button"
+                class="menu-link master-toggle {{ $masterOpen ? 'master-active open' : '' }}"
+                id="masterToggle"
+                aria-expanded="{{ $masterOpen ? 'true' : 'false' }}"
+            >
+
+                <span class="menu-icon">
+
+                    <!-- ICON MASTER -->
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                        ></circle>
+
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                        ></path>
+
+                    </svg>
+
+                </span>
+
+
+                <span>
+                    Master
+                </span>
+
+
+                <!-- PANAH -->
+
+                <span class="master-arrow">
+
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <polyline
+                            points="6 9 12 15 18 9"
+                        ></polyline>
+
+                    </svg>
+
+                </span>
+
+            </button>
+
+
+            <!-- =================================================
+                 SUBMENU MASTER
+            ================================================== -->
+
+            <div
+                class="master-submenu {{ $masterOpen ? 'open' : '' }}"
+                id="masterSubmenu"
+            >
+
+
+                <!-- =================================================
+                     PERIODE
+                ================================================== -->
+
+                <a
+                    href="{{ route('periode.index') }}"
+                    class="submenu-link {{ request()->is('periode*') ? 'active' : '' }}"
+                >
+
+                    <span class="submenu-icon">
+
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+
+                            <rect
+                                x="3"
+                                y="4"
+                                width="18"
+                                height="17"
+                                rx="2"
+                            ></rect>
+
+                            <line
+                                x1="16"
+                                y1="2"
+                                x2="16"
+                                y2="6"
+                            ></line>
+
+                            <line
+                                x1="8"
+                                y1="2"
+                                x2="8"
+                                y2="6"
+                            ></line>
+
+                            <line
+                                x1="3"
+                                y1="10"
+                                x2="21"
+                                y2="10"
+                            ></line>
+
+                        </svg>
+
+                    </span>
+
+                    <span>
+                        Periode
+                    </span>
+
+                </a>
+
+
+                <!-- =================================================
+                     PENGGUNA
+                ================================================== -->
+
+                <a
+                    href="{{ route('master.index') }}"
+                    class="submenu-link {{ request()->is('master*') ? 'active' : '' }}"
+                >
+
+                    <span class="submenu-icon">
+
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+
+                            <path
+                                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                            ></path>
+
+                            <circle
+                                cx="9"
+                                cy="7"
+                                r="4"
+                            ></circle>
+
+                            <path
+                                d="M22 21v-2a4 4 0 0 0-3-3.87"
+                            ></path>
+
+                            <path
+                                d="M16 3.13a4 4 0 0 1 0 7.75"
+                            ></path>
+
+                        </svg>
+
+                    </span>
+
+                    <span>
+                        Pengguna
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </nav>
+
+
+        <!-- =================================================
+             LOGOUT
+        ================================================== -->
+
+        <div class="sidebar-footer">
+
+            <a
+                href="/logout"
+                class="logout-link"
+            >
+
+                <span class="menu-icon">
+
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <path
+                            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                        ></path>
+
+                        <polyline
+                            points="16 17 21 12 16 7"
+                        ></polyline>
+
+                        <line
+                            x1="21"
+                            y1="12"
+                            x2="9"
+                            y2="12"
+                        ></line>
+
+                    </svg>
+
+                </span>
+
+                <span>
+                    Keluar
+                </span>
+
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =====================================================
+         OVERLAY MOBILE
+    ====================================================== -->
+
+    <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+    ></div>
+
+
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
 
     <div class="main">
 
-        <!-- HEADER -->
 
-        <div class="header">
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
+        <header class="header">
+
+
+            <!-- HAMBURGER -->
+
+            <button
+                class="mobile-menu-btn"
+                id="mobileMenuBtn"
+                type="button"
+                aria-label="Buka menu"
+                aria-expanded="false"
+                aria-controls="sidebar"
+            >
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </button>
+
+
+            <!-- HEADER LEFT -->
+
             <div class="header-left">
+
                 <div>
+
                     <div class="header-title">
                         Sistem Pendataan Dinas Sosial Kota Pasuruan
                     </div>
+
                     <div class="header-subtitle">
                         Panel Administrasi
                     </div>
+
                 </div>
+
             </div>
-            <div>👤 Admin</div>
-        </div>
 
-        <!-- HALAMAN ISI -->
 
-        <div class="content">
+            <!-- ADMIN -->
+
+            <div class="admin-profile">
+
+                <div class="admin-info">
+
+                    <div class="admin-name">
+                        Operator
+                    </div>
+
+                    <div class="admin-role">
+                        Admin
+                    </div>
+
+                </div>
+
+
+                <div class="admin-avatar">
+                    A
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             ISI HALAMAN
+        ================================================== -->
+
+        <main class="content">
 
             @yield('content')
 
-        </div>
+        </main>
 
     </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+
+            /* =================================================
+               ELEMENT SIDEBAR
+            ================================================== */
+
+            const mobileMenuBtn =
+                document.getElementById('mobileMenuBtn');
+
+            const sidebar =
+                document.getElementById('sidebar');
+
+            const sidebarOverlay =
+                document.getElementById('sidebarOverlay');
+
+
+            /* =================================================
+               ELEMENT MASTER
+            ================================================== */
+
+            const masterToggle =
+                document.getElementById('masterToggle');
+
+            const masterSubmenu =
+                document.getElementById('masterSubmenu');
+
+
+            /* =================================================
+               BUKA SIDEBAR MOBILE
+            ================================================== */
+
+            function openSidebar() {
+
+                sidebar.classList.add('active');
+
+                sidebarOverlay.classList.add('active');
+
+                mobileMenuBtn.classList.add('active');
+
+                mobileMenuBtn.setAttribute(
+                    'aria-expanded',
+                    'true'
+                );
+
+                mobileMenuBtn.setAttribute(
+                    'aria-label',
+                    'Tutup menu'
+                );
+
+                document.body.style.overflow = 'hidden';
+
+            }
+
+
+            /* =================================================
+               TUTUP SIDEBAR MOBILE
+            ================================================== */
+
+            function closeSidebar() {
+
+                sidebar.classList.remove('active');
+
+                sidebarOverlay.classList.remove('active');
+
+                mobileMenuBtn.classList.remove('active');
+
+                mobileMenuBtn.setAttribute(
+                    'aria-expanded',
+                    'false'
+                );
+
+                mobileMenuBtn.setAttribute(
+                    'aria-label',
+                    'Buka menu'
+                );
+
+                document.body.style.overflow = '';
+
+            }
+
+
+            /* =================================================
+               HAMBURGER
+            ================================================== */
+
+            mobileMenuBtn.addEventListener(
+                'click',
+                function () {
+
+                    if (
+                        sidebar.classList.contains('active')
+                    ) {
+
+                        closeSidebar();
+
+                    } else {
+
+                        openSidebar();
+
+                    }
+
+                }
+            );
+
+
+            /* =================================================
+               OVERLAY
+            ================================================== */
+
+            sidebarOverlay.addEventListener(
+                'click',
+                closeSidebar
+            );
+
+
+            /* =================================================
+               MASTER DROPDOWN
+            ================================================== */
+
+            if (masterToggle && masterSubmenu) {
+
+                masterToggle.addEventListener(
+                    'click',
+                    function (event) {
+
+                        event.preventDefault();
+
+                        const isOpen =
+                            masterSubmenu.classList.contains('open');
+
+
+                        if (isOpen) {
+
+                            masterSubmenu.classList.remove('open');
+
+                            masterToggle.classList.remove('open');
+
+                            masterToggle.setAttribute(
+                                'aria-expanded',
+                                'false'
+                            );
+
+                        } else {
+
+                            masterSubmenu.classList.add('open');
+
+                            masterToggle.classList.add('open');
+
+                            masterToggle.setAttribute(
+                                'aria-expanded',
+                                'true'
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            /* =================================================
+               KLIK MENU
+            ================================================== */
+
+            document
+                .querySelectorAll(
+                    '.sidebar .menu-link:not(.master-toggle), .sidebar .submenu-link, .sidebar .logout-link'
+                )
+                .forEach(function (link) {
+
+                    link.addEventListener(
+                        'click',
+                        function () {
+
+                            if (
+                                window.innerWidth <= 900
+                            ) {
+
+                                closeSidebar();
+
+                            }
+
+                        }
+                    );
+
+                });
+
+
+            /* =================================================
+               ESC
+            ================================================== */
+
+            document.addEventListener(
+                'keydown',
+                function (event) {
+
+                    if (event.key === 'Escape') {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
+
+
+            /* =================================================
+               RESET DESKTOP
+            ================================================== */
+
+            window.addEventListener(
+                'resize',
+                function () {
+
+                    if (window.innerWidth > 900) {
+
+                        closeSidebar();
+
+                    }
+
+                }
+            );
+
+        });
+
+    </script>
+
+
+    @stack('scripts')
+
 
 </body>
 

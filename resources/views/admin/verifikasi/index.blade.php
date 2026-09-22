@@ -1,1747 +1,1171 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('admin.layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('title', 'Verifikasi Data')
 
-    <title>Verifikasi Data | Sistem Pendataan Dinas Sosial Kota Pasuruan</title>
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+@push('styles')
+
+<style>
+
+    /* =====================================================
+       VERIFIKASI - PAGE HEADER
+    ====================================================== */
+
+    .page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .page-kicker {
+        font-size: 11px;
+        font-weight: 700;
+        color: #252A86;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+    }
+
+    .page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #252A86;
+        line-height: 1.25;
+        margin-bottom: 8px;
+    }
+
+    .page-description {
+        font-size: 14px;
+        color: #777;
+        line-height: 1.6;
+        max-width: 700px;
+    }
+
+
+    /* =====================================================
+       ALERT SUCCESS
+    ====================================================== */
+
+    .alert-success {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 13px 16px;
+        margin-bottom: 20px;
+        border-radius: 9px;
+        background: #eaf8ef;
+        border: 1px solid #bce5c9;
+        color: #24723c;
+        font-size: 13px;
+        animation: alertFade .3s ease;
+    }
+
+    .alert-success svg {
+        flex-shrink: 0;
+    }
+
+    @keyframes alertFade {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
         }
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f6fa;
-            color: #252525;
-            min-height: 100vh;
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    /* =====================================================
+       SEARCH
+    ====================================================== */
+
+    .search-section {
+        background: #ffffff;
+        border: 1px solid #e8e9ef;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 20px;
+    }
+
+    .search-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+    }
+
+    .search-box svg {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+        pointer-events: none;
+    }
+
+    .search-box input {
+        width: 100%;
+        height: 42px;
+        padding: 0 14px 0 40px;
+        border: 1px solid #dfe1e8;
+        border-radius: 8px;
+        outline: none;
+        font-size: 13px;
+        color: #333;
+        background: #ffffff;
+        transition: all .2s ease;
+    }
+
+    .search-box input:focus {
+        border-color: #252A86;
+        box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08);
+    }
+
+    .btn-search {
+        height: 42px;
+        padding: 0 18px;
+        border: none;
+        border-radius: 8px;
+        background: #252A86;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .btn-search:hover {
+        background: #1d226f;
+        transform: translateY(-1px);
+    }
+
+    .search-result {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #777;
+}
+
+.search-result strong {
+    color: #252A86;
+    font-weight: 700;
+}
+
+
+    /* =====================================================
+       STATISTICS
+    ====================================================== */
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: #ffffff;
+        border: 1px solid #e8e9ef;
+        border-radius: 12px;
+        padding: 18px;
+        transition: all .2s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #777;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 25px;
+        font-weight: 700;
+        color: #252A86;
+        line-height: 1;
+    }
+
+
+    /* =====================================================
+       DATA PANEL
+    ====================================================== */
+
+    .data-panel {
+        background: #ffffff;
+        border: 1px solid #e8e9ef;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .data-panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 20px;
+        border-bottom: 1px solid #e8e9ef;
+    }
+
+    .data-panel-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #252A86;
+        margin-bottom: 5px;
+    }
+
+    .data-panel-description {
+        font-size: 12px;
+        color: #888;
+        line-height: 1.5;
+    }
+
+
+    /* =====================================================
+       FILTER
+    ====================================================== */
+
+    .filter-wrapper {
+        flex-shrink: 0;
+    }
+
+    .filter-select {
+        height: 38px;
+        min-width: 170px;
+        padding: 0 12px;
+        border: 1px solid #dfe1e8;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #444;
+        font-size: 12px;
+        outline: none;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .filter-select:focus {
+        border-color: #252A86;
+        box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08);
+    }
+
+
+    /* =====================================================
+       TABLE
+    ====================================================== */
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        min-width: 1050px;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        padding: 13px 14px;
+        background: #f8f8fb;
+        border-bottom: 1px solid #e8e9ef;
+        color: #666;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 14px;
+        border-bottom: 1px solid #eeeeF2;
+        color: #444;
+        font-size: 12px;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .data-table tbody tr {
+        transition: background .15s ease;
+    }
+
+    .data-table tbody tr:hover {
+        background: #fafaff;
+    }
+
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* =====================================================
+       STATUS BADGE
+    ====================================================== */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .status-pending {
+        background: #fff4db;
+        color: #9a6a00;
+    }
+
+    .status-draft {
+        background: #f0f0f2;
+        color: #666;
+    }
+
+    .status-not-processed {
+        background: #f1f2f8;
+        color: #5f6380;
+    }
+
+    .status-approved {
+        background: #eaf8ef;
+        color: #24723c;
+    }
+
+    .status-rejected {
+        background: #fdecec;
+        color: #a53636;
+    }
+
+
+    /* =====================================================
+       ACTION BUTTON
+    ====================================================== */
+
+    .action-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-detail,
+    .btn-edit {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 32px;
+        padding: 0 10px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-size: 11px;
+        font-weight: 600;
+        transition: all .2s ease;
+        white-space: nowrap;
+    }
+
+    .btn-detail {
+        background: #eef0ff;
+        color: #252A86;
+    }
+
+    .btn-detail:hover {
+        background: #252A86;
+        color: #ffffff;
+    }
+
+    .btn-edit {
+        background: #fff5dc;
+        color: #8b6800;
+    }
+
+    .btn-edit:hover {
+        background: #c99b18;
+        color: #ffffff;
+    }
+
+
+    /* =====================================================
+       EMPTY STATE
+    ====================================================== */
+
+    .empty-state {
+        padding: 50px 20px;
+        text-align: center;
+    }
+
+    .empty-state-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 14px;
+        border-radius: 50%;
+        background: #f1f2f8;
+        color: #8b8fa8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-state-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .empty-state-description {
+        font-size: 12px;
+        color: #999;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ====================================================== */
+
+    @media (max-width: 1200px) {
+
+        .stats-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
-        /* =====================================================
-           SIDEBAR
-        ====================================================== */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 260px;
-            height: 100vh;
-            background: #252A86;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-            overflow-y: auto;
-            transition: transform .3s ease;
-        }
+    }
 
-        .sidebar-logo {
-            height: 90px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.12);
-        }
 
-        .sidebar-logo img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            border-radius: 8px;
-            background: #ffffff;
-        }
-
-        .sidebar-logo-text {
-            font-size: 15px;
-            font-weight: 700;
-            line-height: 1.3;
-        }
-
-        .sidebar-menu {
-            padding: 20px 14px;
-            flex: 1;
-        }
-
-        .menu-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.55);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 8px 10px 12px;
-        }
-
-        .menu-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 12px 14px;
-            margin-bottom: 5px;
-            border-radius: 9px;
-            color: rgba(255,255,255,0.82);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all .2s ease;
-        }
-
-        .menu-link:hover {
-            background: rgba(255,255,255,0.10);
-            color: #ffffff;
-        }
-
-        .menu-link.active {
-            background: #ffffff;
-            color: #252A86;
-            font-weight: 700;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.10);
-        }
-
-        .menu-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .sidebar-footer {
-            padding: 15px 14px;
-            border-top: 1px solid rgba(255,255,255,0.12);
-        }
-
-        .logout-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 9px;
-            color: rgba(255,255,255,0.85);
-            text-decoration: none;
-            font-size: 14px;
-            transition: all .2s ease;
-        }
-
-        .logout-link:hover {
-            background: rgba(255,255,255,0.10);
-            color: #ffffff;
-        }
-
-        /* =====================================================
-           MAIN
-        ====================================================== */
-        .main {
-            margin-left: 260px;
-            min-height: 100vh;
-            width: calc(100% - 260px);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* =====================================================
-           HEADER
-        ====================================================== */
-        .header {
-            height: 75px;
-            background: #ffffff;
-            border-bottom: 1px solid #e8e9ef;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            position: sticky;
-            top: 0;
-            z-index: 900;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .header-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #252A86;
-        }
-
-        .header-subtitle {
-            font-size: 12px;
-            color: #777;
-            margin-top: 3px;
-        }
-
-        .admin-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .admin-info {
-            text-align: right;
-        }
-
-        .admin-name {
-            font-size: 13px;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .admin-role {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .admin-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #252A86;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        /* =====================================================
-           CONTENT
-        ====================================================== */
-        .content {
-            padding: 30px;
-        }
-
-        /* =====================================================
-           PAGE HEADER
-        ====================================================== */
-        .page-header {
-            margin-bottom: 25px;
-        }
-
-        .page-kicker {
-            font-size: 12px;
-            color: #252A86;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 7px;
-        }
+    @media (max-width: 900px) {
 
         .page-title {
-            font-size: 28px;
-            color: #222;
-            font-weight: 700;
-            margin-bottom: 7px;
+            font-size: 23px;
+        }
+
+        .page-header {
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .data-panel-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-wrapper {
+            width: 100%;
+        }
+
+        .filter-select {
+            width: 100%;
+        }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+        .page-title {
+            font-size: 21px;
         }
 
         .page-description {
-            font-size: 14px;
-            color: #777;
-            line-height: 1.6;
+            font-size: 13px;
         }
 
-        .alert-success {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: min(100%, 720px);
-            margin: 0 auto 22px;
-            padding: 16px 20px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-            color: #166534;
-            border: 1px solid #86efac;
-            box-shadow: 0 10px 24px rgba(22, 101, 52, 0.12);
-            font-size: 15px;
-            font-weight: 700;
-            opacity: 1;
-            transform: translateY(0);
-            transition: opacity 0.35s ease, transform 0.35s ease;
-        }
-
-        .alert-success {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: min(100%, 720px);
-    margin: 0 auto 22px;
-    padding: 16px 20px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
-    color: #166534;
-    border: 1px solid #86efac;
-    box-shadow: 0 10px 24px rgba(22, 101, 52, 0.12);
-    font-size: 15px;
-    font-weight: 700;
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-}
-
-.alert-success.hidden {
-    opacity: 0;
-    transform: translateY(-8px);
-    pointer-events: none;
-}
-
-        .alert-icon {
-            display: inline-flex;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            align-items: center;
-            justify-content: center;
-            background: #166534;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        /* =====================================================
-           SEARCH
-        ====================================================== */
-        .search-panel {
-            background: #ffffff;
-            border: 1px solid #e7e8ee;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 22px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        .search-section {
+            padding: 14px;
         }
 
         .search-form {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-        }
-
-        .search-box {
-            flex: 1;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            height: 44px;
-            border: 1px solid #dfe1e8;
-            border-radius: 8px;
-            padding: 0 15px;
-            font-size: 13px;
-            outline: none;
-            transition: .2s ease;
-        }
-
-        .search-box input:focus {
-            border-color: #252A86;
-            box-shadow: 0 0 0 3px rgba(37,42,134,0.08);
+            flex-direction: column;
+            align-items: stretch;
         }
 
         .btn-search {
-            height: 44px;
-            padding: 0 22px;
-            border: none;
-            border-radius: 8px;
-            background: #252A86;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: .2s ease;
+            width: 100%;
         }
 
-        .btn-search:hover {
-            background: #1e236f;
-        }
-
-        /* =====================================================
-           STATISTICS
-        ====================================================== */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 14px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
         }
 
         .stat-card {
-            background: #ffffff;
-            border: 1px solid #e7e8ee;
-            border-radius: 12px;
-            padding: 18px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            transition: transform .2s ease,
-                        box-shadow .2s ease;
+            padding: 14px;
         }
 
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.07);
+        .stat-value {
+            font-size: 21px;
+        }
+
+        .data-panel-header {
+            padding: 16px;
+        }
+
+    }
+
+
+    @media (max-width: 400px) {
+
+        .stats-grid {
+            gap: 8px;
+        }
+
+        .stat-card {
+            padding: 12px;
         }
 
         .stat-label {
             font-size: 11px;
-            color: #777;
-            margin-bottom: 8px;
-            line-height: 1.4;
         }
 
         .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #252A86;
+            font-size: 19px;
         }
 
-        /* =====================================================
-           DATA PANEL
-        ====================================================== */
-        .data-panel {
-            background: #ffffff;
-            border: 1px solid #e7e8ee;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            overflow: hidden;
-        }
+    }
 
-        .data-panel-header {
-            padding: 20px 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            border-bottom: 1px solid #ececf1;
-        }
+</style>
 
-        .data-panel-title {
-            font-size: 17px;
-            font-weight: 700;
-            color: #252525;
-        }
+@endpush
 
-        .data-panel-description {
-            font-size: 12px;
-            color: #888;
-            margin-top: 4px;
-        }
 
-        .filter-select {
-            height: 40px;
-            min-width: 170px;
-            border: 1px solid #dfe1e8;
-            border-radius: 8px;
-            padding: 0 12px;
-            background: #ffffff;
-            color: #444;
-            font-size: 12px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .filter-select:focus {
-            border-color: #252A86;
-            box-shadow: 0 0 0 3px rgba(37,42,134,0.08);
-        }
-
-        /* =====================================================
-           TABLE
-        ====================================================== */
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .data-table {
-            width: 100%;
-            min-width: 1250px;
-            border-collapse: collapse;
-        }
-
-        .data-table th {
-            background: #f8f8fb;
-            color: #666;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: left;
-            padding: 13px 14px;
-            border-bottom: 1px solid #e7e8ee;
-            white-space: nowrap;
-        }
-
-        .data-table td {
-            padding: 14px;
-            font-size: 12px;
-            color: #444;
-            border-bottom: 1px solid #eeeeF3;
-            vertical-align: middle;
-            white-space: nowrap;
-        }
-
-        .data-table tbody tr {
-            transition: background .15s ease;
-        }
-
-        .data-table tbody tr:hover {
-            background: #fafaff;
-        }
-
-        .data-table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* =====================================================
-           STATUS
-        ====================================================== */
-        .status {
-            display: inline-flex;
-            align-items: center;
-            padding: 5px 9px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .status-warning {
-            background: #fff7df;
-            color: #a87900;
-        }
-
-        .status-draft {
-            background: #f1f2f5;
-            color: #686b73;
-        }
-
-        .status-info {
-            background: #eaf0ff;
-            color: #3d5ab8;
-        }
-
-        .status-success {
-            background: #e8f7ee;
-            color: #21864a;
-        }
-
-        .status-danger {
-            background: #fdecec;
-            color: #c74343;
-        }
-
-        /* =====================================================
-           ACTION BUTTON
-        ====================================================== */
-        .action-group {
-            display: flex;
-            gap: 6px;
-        }
-
-        .btn-action {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            height: 32px;
-            padding: 0 10px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 11px;
-            font-weight: 600;
-            border: 1px solid transparent;
-            transition: .2s ease;
-        }
-
-        .btn-detail {
-            background: #eef0ff;
-            color: #252A86;
-            border-color: #dfe3ff;
-        }
-
-        .btn-detail:hover {
-            background: #e2e5ff;
-        }
-
-        .btn-edit {
-            background: #fff8e5;
-            color: #a47a00;
-            border-color: #f3e4b5;
-        }
-
-        .btn-edit:hover {
-            background: #fff1c7;
-        }
-
-        /* =====================================================
-           MOBILE MENU BUTTON
-        ====================================================== */
-        .mobile-menu-btn {
-            display: none;
-            width: 42px;
-            height: 42px;
-            border: none;
-            border-radius: 8px;
-            background: #f1f2f8;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 5px;
-            flex-shrink: 0;
-        }
-
-        .mobile-menu-btn span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background: #252A86;
-            border-radius: 2px;
-            transition: all .25s ease;
-        }
-
-        /* =====================================================
-           SIDEBAR OVERLAY
-        ====================================================== */
-        .sidebar-overlay {
-            display: none;
-        }
-
-        /* =====================================================
-           RESPONSIVE
-        ====================================================== */
-        @media (max-width: 1200px) {
-            .stats-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* =====================================================
-           TABLET
-        ====================================================== */
-        @media (max-width: 900px) {
-
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 270px;
-                height: 100vh;
-                transform: translateX(-100%);
-                transition: transform .3s ease;
-                z-index: 1100;
-                overflow-y: auto;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
-            }
-
-            /* OVERLAY */
-            .sidebar-overlay {
-                display: block;
-                position: fixed;
-                inset: 0;
-                background: rgba(0, 0, 0, .40);
-                opacity: 0;
-                visibility: hidden;
-                transition: all .3s ease;
-                z-index: 1050;
-            }
-
-            .sidebar-overlay.active {
-                opacity: 1;
-                visibility: visible;
-            }
-
-            /* MAIN */
-            .main {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            /* HEADER */
-            .header {
-                height: 70px;
-                padding: 0 20px;
-                position: sticky;
-                top: 0;
-                z-index: 900;
-            }
-
-            /* HAMBURGER */
-            .mobile-menu-btn {
-                display: flex;
-            }
-
-            .header-left {
-                gap: 12px;
-            }
-
-            .header-title {
-                font-size: 15px;
-            }
-
-            .header-subtitle {
-                display: none;
-            }
-
-            /* CONTENT */
-            .content {
-                padding: 20px;
-            }
-
-            /* STATISTICS */
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* =====================================================
-           MOBILE
-        ====================================================== */
-        @media (max-width: 600px) {
-
-            .header {
-                height: 64px;
-                min-height: 64px;
-                padding: 0 14px;
-            }
-
-            .mobile-menu-btn {
-                width: 38px;
-                height: 38px;
-            }
-
-            .mobile-menu-btn span {
-                width: 18px;
-            }
-
-            .header-title {
-                font-size: 13px;
-                line-height: 1.3;
-            }
-
-            .admin-info {
-                display: none;
-            }
-
-            .admin-avatar {
-                width: 34px;
-                height: 34px;
-                font-size: 13px;
-            }
-
-            .content {
-                padding: 16px;
-            }
-
-            .page-title {
-                font-size: 22px;
-            }
-
-            .page-description {
-                font-size: 13px;
-            }
-
-            .search-form {
-                flex-direction: column;
-            }
-
-            .btn-search {
-                width: 100%;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .stat-card {
-                padding: 15px;
-            }
-
-            .data-panel-header {
-                align-items: flex-start;
-                flex-direction: column;
-                gap: 12px;
-            }
-
-            .filter-select {
-                width: 100%;
-            }
-        }
-
-        /* =====================================================
-           SMALL MOBILE
-        ====================================================== */
-        @media (max-width: 400px) {
-
-            .header-title {
-                font-size: 12px;
-            }
-
-            .content {
-                padding: 12px;
-            }
-
-            .page-title {
-                font-size: 20px;
-            }
-
-            .sidebar {
-                width: 250px;
-            }
-        }
-    </style>
-</head>
-
-<body>
+@section('content')
 
     <!-- =====================================================
-         SIDEBAR
+         PAGE HEADER
     ====================================================== -->
-    <aside class="sidebar">
 
-        <div class="sidebar-logo">
+    <div class="page-header">
 
-            <img
-                src="{{ asset('images/dinsos.png') }}"
-                alt="Logo"
+        <div>
+
+            <div class="page-kicker">
+                ADMIN
+            </div>
+
+            <h1 class="page-title">
+                Sistem Verifikasi
+            </h1>
+
+            <p class="page-description">
+                Kelola, periksa, dan perbarui data hasil pendataan responden.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUCCESS ALERT
+    ====================================================== -->
+
+    @if (session('success'))
+
+        <div
+            class="alert-success"
+            id="successAlert"
+        >
+
+            <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
             >
+                <path d="M20 6L9 17l-5-5"></path>
+            </svg>
 
-            <div class="sidebar-logo-text">
-                Sistem Pendataan<br>
-                Dinas Sosial Kota Pasuruan
+            <span>
+                {{ session('success') }}
+            </span>
+
+        </div>
+
+    @endif
+
+
+    <!-- =====================================================
+         SEARCH
+    ====================================================== -->
+
+    <div class="search-section"><div class="search-section">
+    <form
+        action="{{ route('verifikasi.index') }}"
+        method="GET"
+        class="search-form"
+    >
+        <div class="search-box">
+            <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <circle
+                    cx="11"
+                    cy="11"
+                    r="7"
+                ></circle>
+                <line
+                    x1="16.65"
+                    y1="16.65"
+                    x2="21"
+                    y2="21"
+                ></line>
+            </svg>
+
+            <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari No. KK, NIK, atau nama kepala keluarga..."
+            >
+        </div>
+
+        <button
+            type="submit"
+            class="btn-search"
+        >
+            Cari Data
+        </button>
+    </form>
+
+    {{-- =====================================================
+         HASIL PENCARIAN
+    ====================================================== --}}
+    @if (request('search'))
+        <div class="search-result">
+            Hasil pencarian untuk
+            <strong>"{{ request('search') }}"</strong> :
+            <strong>{{ count($data) }} data</strong>
+        </div>
+    @endif
+</div>
+
+    <!-- =====================================================
+         STATISTICS
+    ====================================================== -->
+
+    <div class="stats-grid">
+
+        <!-- Total Responden -->
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Total Responden
+            </div>
+
+            <div class="stat-value">
+                100
             </div>
 
         </div>
 
-        <nav class="sidebar-menu">
 
-            <div class="menu-title">
-                Menu Utama
+        <!-- Sudah Didata -->
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Sudah Didata
             </div>
 
-            <!-- Dashboard -->
-            <a
-                href="/dashboard"
-                class="menu-link {{ request()->is('dashboard') ? 'active' : '' }}"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                    </svg>
-                </span>
-
-                <span>Dashboard</span>
-            </a>
-
-            <!-- Periode -->
-            <a
-                href="/periode"
-                class="menu-link {{ request()->is('periode*') ? 'active' : '' }}"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <rect
-                            x="3"
-                            y="4"
-                            width="18"
-                            height="17"
-                            rx="2"
-                        ></rect>
-
-                        <line
-                            x1="16"
-                            y1="2"
-                            x2="16"
-                            y2="6"
-                        ></line>
-
-                        <line
-                            x1="8"
-                            y1="2"
-                            x2="8"
-                            y2="6"
-                        ></line>
-
-                        <line
-                            x1="3"
-                            y1="10"
-                            x2="21"
-                            y2="10"
-                        ></line>
-                    </svg>
-                </span>
-
-                <span>Periode</span>
-            </a>
-
-            <!-- Petugas -->
-            <a
-                href="#"
-                class="menu-link"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-                        ></path>
-
-                        <circle
-                            cx="9"
-                            cy="7"
-                            r="4"
-                        ></circle>
-
-                        <path
-                            d="M22 21v-2a4 4 0 0 0-3-3.87"
-                        ></path>
-
-                        <path
-                            d="M16 3.13a4 4 0 0 1 0 7.75"
-                        ></path>
-                    </svg>
-                </span>
-
-                <span>Petugas</span>
-            </a>
-
-            <!-- Responden -->
-            <a
-                href="#"
-                class="menu-link"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                        ></path>
-
-                        <circle
-                            cx="12"
-                            cy="7"
-                            r="4"
-                        ></circle>
-                    </svg>
-                </span>
-
-                <span>Responden</span>
-            </a>
-
-            <!-- Kuisioner -->
-            <a
-                href="#"
-                class="menu-link"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                        ></path>
-
-                        <polyline
-                            points="14 2 14 8 20 8"
-                        ></polyline>
-
-                        <line
-                            x1="8"
-                            y1="13"
-                            x2="16"
-                            y2="13"
-                        ></line>
-
-                        <line
-                            x1="8"
-                            y1="17"
-                            x2="16"
-                            y2="17"
-                        ></line>
-                    </svg>
-                </span>
-
-                <span>Kuisioner</span>
-            </a>
-
-            <!-- Verifikasi -->
-            <a
-                href="{{ route('verifikasi.index') }}"
-                class="menu-link {{ request()->is('verifikasi*') ? 'active' : '' }}"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M9 11l3 3L22 4"></path>
-
-                        <path
-                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-                        ></path>
-                    </svg>
-                </span>
-
-                <span>Verifikasi</span>
-            </a>
-
-            <!-- Monitoring -->
-            <a
-                href="/monitoring"
-                class="menu-link {{ request()->is('monitoring*') ? 'active' : '' }}"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <polyline
-                            points="3 3 3 21 21 21"
-                        ></polyline>
-
-                        <polyline
-                            points="7 16 11 12 14 15 21 8"
-                        ></polyline>
-                    </svg>
-                </span>
-
-                <span>Monitoring</span>
-            </a>
-
-            <!-- Laporan -->
-            <a
-                href="#"
-                class="menu-link"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                        ></path>
-
-                        <polyline
-                            points="14 2 14 8 20 8"
-                        ></polyline>
-
-                        <line
-                            x1="8"
-                            y1="13"
-                            x2="16"
-                            y2="13"
-                        ></line>
-
-                        <line
-                            x1="8"
-                            y1="17"
-                            x2="16"
-                            y2="17"
-                        ></line>
-                    </svg>
-                </span>
-
-                <span>Laporan</span>
-            </a>
-
-            <!-- Master -->
-            <a
-                href="#"
-                class="menu-link"
-            >
-                <span class="menu-icon">
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <circle
-                            cx="12"
-                            cy="12"
-                            r="3"
-                        ></circle>
-
-                        <path
-                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"
-                        ></path>
-                    </svg>
-                </span>
-
-                <span>Master</span>
-            </a>
-
-        </nav>
-
-        <!-- LOGOUT -->
-        <div class="sidebar-footer">
-
-            <a
-                href="/logout"
-                class="logout-link"
-            >
-                <span class="menu-icon">
-
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-                        ></path>
-
-                        <polyline
-                            points="16 17 21 12 16 7"
-                        ></polyline>
-
-                        <line
-                            x1="21"
-                            y1="12"
-                            x2="9"
-                            y2="12"
-                        ></line>
-                    </svg>
-
-                </span>
-
-                <span>Keluar</span>
-            </a>
+            <div class="stat-value">
+                10
+            </div>
 
         </div>
 
-    </aside>
 
-    <!-- OVERLAY MOBILE -->
-    <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-    ></div>
+        <!-- Belum Didata -->
 
-    <!-- MAIN -->
-    <div class="main">
+        <div class="stat-card">
 
-        <!-- HEADER -->
-        <header class="header">
+            <div class="stat-label">
+                Belum Didata
+            </div>
 
-            <!-- HAMBURGER MOBILE -->
-            <button
-                class="mobile-menu-btn"
-                id="mobileMenuBtn"
-                type="button"
-                aria-label="Buka menu"
-                aria-expanded="false"
-            >
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
+            <div class="stat-value">
+                265
+            </div>
 
-            <div class="header-left">
+        </div>
 
-                <div>
 
-                    <div class="header-title">
-                        Sistem Pendataan Dinas Sosial Kota Pasuruan
-                    </div>
+        <!-- Menunggu Verifikasi -->
 
-                    <div class="header-subtitle">
-                        Panel Administrasi
-                    </div>
+        <div class="stat-card">
 
+            <div class="stat-label">
+                Menunggu Verifikasi
+            </div>
+
+            <div class="stat-value">
+                118
+            </div>
+
+        </div>
+
+
+        <!-- Disetujui -->
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Disetujui
+            </div>
+
+            <div class="stat-value">
+                742
+            </div>
+
+        </div>
+
+
+        <!-- Ditolak -->
+
+        <div class="stat-card">
+
+            <div class="stat-label">
+                Ditolak
+            </div>
+
+            <div class="stat-value">
+                83
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DATA PANEL
+    ====================================================== -->
+
+    <div class="data-panel">
+
+        <!-- HEADER PANEL -->
+
+        <div class="data-panel-header">
+
+            <div>
+
+                <div class="data-panel-title">
+                    Data Hasil Pendataan
+                </div>
+
+                <div class="data-panel-description">
+                    Daftar data responden yang telah masuk ke sistem.
                 </div>
 
             </div>
 
-            <div class="admin-profile">
 
-                <div class="admin-info">
+            <!-- FILTER STATUS -->
 
-                    <div class="admin-name">
-                        Operator
-                    </div>
-
-                    <div class="admin-role">
-                        Admin
-                    </div>
-
-                </div>
-
-                <div class="admin-avatar">
-                    A
-                </div>
-
-            </div>
-
-        </header>
-
-        <!-- CONTENT -->
-        <main class="content">
-
-            <!-- PAGE HEADER -->
-            <div class="page-header">
-
-                <div class="page-kicker">
-                    ADMIN
-                </div>
-
-                <h1 class="page-title">
-                    Sistem Verifikasi
-                </h1>
-
-                <p class="page-description">
-                    Kelola, periksa, dan perbarui data hasil pendataan responden.
-                </p>
-
-            </div>
-
-            @if(session('success'))
-
-                <div
-                    class="alert-success"
-                    id="success-alert"
-                    role="alert"
-                    aria-live="polite"
-                >
-                    <span class="alert-icon">✓</span>
-
-                    <span>
-                        {{ session('success') }}
-                    </span>
-                </div>
-
-            @endif
-
-            <!-- SEARCH -->
-            <div class="search-panel">
+            <div class="filter-wrapper">
 
                 <form
                     action="{{ route('verifikasi.index') }}"
                     method="GET"
-                    class="search-form"
                 >
 
-                    <div class="search-box">
+                    @if (request('search'))
 
                         <input
-                            type="text"
+                            type="hidden"
                             name="search"
                             value="{{ request('search') }}"
-                            placeholder="Cari berdasarkan nama, NIK, atau No. KK..."
                         >
 
-                    </div>
+                    @endif
 
-                    <button
-                        type="submit"
-                        class="btn-search"
+                    <select
+                        name="status"
+                        class="filter-select"
+                        onchange="this.form.submit()"
                     >
-                        Cari Data
-                    </button>
+
+                        <option
+                            value="all"
+                            {{ request('status', 'all') == 'all' ? 'selected' : '' }}
+                        >
+                            Semua Status
+                        </option>
+
+                        <option
+                            value="pending"
+                            {{ request('status') == 'pending' ? 'selected' : '' }}
+                        >
+                            Menunggu Verifikasi
+                        </option>
+
+                        <option
+                            value="draft"
+                            {{ request('status') == 'draft' ? 'selected' : '' }}
+                        >
+                            Draft
+                        </option>
+
+                        <option
+                            value="not_processed"
+                            {{ request('status') == 'not_processed' ? 'selected' : '' }}
+                        >
+                            Belum Didata
+                        </option>
+
+                        <option
+                            value="approved"
+                            {{ request('status') == 'approved' ? 'selected' : '' }}
+                        >
+                            Disetujui
+                        </option>
+
+                        <option
+                            value="rejected"
+                            {{ request('status') == 'rejected' ? 'selected' : '' }}
+                        >
+                            Ditolak
+                        </option>
+
+                    </select>
 
                 </form>
 
             </div>
 
-            <!-- STATISTICS -->
-            <div class="stats-grid">
+        </div>
 
-                <div class="stat-card">
 
-                    <div class="stat-label">
-                        Total Responden
-                    </div>
+        <!-- =================================================
+             TABLE
+        ================================================== -->
 
-                    <div class="stat-value">
-                        100
-                    </div>
+        <div class="table-wrapper">
 
-                </div>
+            <table class="data-table">
 
-                <div class="stat-card">
+                <thead>
 
-                    <div class="stat-label">
-                        Sudah Didata
-                    </div>
+                    <tr>
 
-                    <div class="stat-value">
-                        10
-                    </div>
+                        <th>
+                            No.
+                        </th>
 
-                </div>
+                        <th>
+                            No. KK
+                        </th>
 
-                <div class="stat-card">
+                        <th>
+                            NIK
+                        </th>
 
-                    <div class="stat-label">
-                        Belum Didata
-                    </div>
+                        <th>
+                            Nama Kepala Keluarga
+                        </th>
 
-                    <div class="stat-value">
-                        265
-                    </div>
+                        <th>
+                            Jumlah Anggota
+                        </th>
 
-                </div>
+                        <th>
+                            Status
+                        </th>
 
-                <div class="stat-card">
+                        <th>
+                            Wilayah Pendataan
+                        </th>
 
-                    <div class="stat-label">
-                        Menunggu Verifikasi
-                    </div>
+                        <th>
+                            Petugas
+                        </th>
 
-                    <div class="stat-value">
-                        118
-                    </div>
+                        <th>
+                            Tanggal Pendataan
+                        </th>
 
-                </div>
+                        <th>
+                            Aksi
+                        </th>
 
-                <div class="stat-card">
+                    </tr>
 
-                    <div class="stat-label">
-                        Disetujui
-                    </div>
+                </thead>
 
-                    <div class="stat-value">
-                        742
-                    </div>
 
-                </div>
+                <tbody>
 
-                <div class="stat-card">
+                    @forelse ($data as $item)
 
-                    <div class="stat-label">
-                        Ditolak
-                    </div>
+                        <tr>
 
-                    <div class="stat-value">
-                        83
-                    </div>
+                            <!-- NO -->
 
-                </div>
+                            <td>
+                                {{ $loop->iteration }}
+                            </td>
 
-            </div>
 
-            <!-- DATA PANEL -->
-            <div class="data-panel">
+                            <!-- NO KK -->
 
-                <div class="data-panel-header">
+                            <td>
+                                {{ $item['no_kk'] ?? '-' }}
+                            </td>
 
-                    <div>
 
-                        <div class="data-panel-title">
-                            Data Hasil Pendataan
-                        </div>
+                            <!-- NIK -->
 
-                        <div class="data-panel-description">
-                            Daftar data responden yang telah masuk ke sistem.
-                        </div>
+                            <td>
+                                {{ $item['nik'] ?? '-' }}
+                            </td>
 
-                    </div>
 
-                    <form
-                        action="{{ route('verifikasi.index') }}"
-                        method="GET"
-                    >
+                            <!-- NAMA -->
 
-                        @if(request('search'))
+                            <td>
+                                {{ $item['nama'] ?? '-' }}
+                            </td>
 
-                            <input
-                                type="hidden"
-                                name="search"
-                                value="{{ request('search') }}"
-                            >
-
-                        @endif
-
-                        <!-- FILTER STATUS -->
-                        <select
-                            name="status"
-                            class="filter-select"
-                            onchange="this.form.submit()"
-                        >
-
-                            <option
-                                value="all"
-                                {{ request('status') == 'all' || request('status') == '' ? 'selected' : '' }}
-                            >
-                                All Status
-                            </option>
-
-                            <option
-                                value="pending"
-                                {{ request('status') == 'pending' ? 'selected' : '' }}
-                            >
-                                Pending Verification
-                            </option>
-
-                            <option
-                                value="draft"
-                                {{ request('status') == 'draft' ? 'selected' : '' }}
-                            >
-                                Draft
-                            </option>
 
-                            <option
-                                value="not_processed"
-                                {{ request('status') == 'not_processed' ? 'selected' : '' }}
-                            >
-                                Not Processed
-                            </option>
+                            <!-- ANGGOTA -->
 
-                            <option
-                                value="approved"
-                                {{ request('status') == 'approved' ? 'selected' : '' }}
-                            >
-                                Approved
-                            </option>
+                            <td>
+                                {{ $item['anggota'] ?? 0 }} Orang
+                            </td>
 
-                            <option
-                                value="rejected"
-                                {{ request('status') == 'rejected' ? 'selected' : '' }}
-                            >
-                                Rejected
-                            </option>
 
-                        </select>
+                            <!-- STATUS -->
 
-                    </form>
+                            <td>
 
-                </div>
+                                @php
+                                    $status = strtolower(
+                                        str_replace(
+                                            [' ', '-'],
+                                            '_',
+                                            $item['status'] ?? ''
+                                        )
+                                    );
+                                @endphp
 
-                <!-- TABLE -->
-                <div class="table-wrapper">
+                                @if (
+                                    $status === 'pending' ||
+                                    $status === 'menunggu' ||
+                                    $status === 'menunggu_verifikasi'
+                                )
 
-                    <table class="data-table">
+                                    <span class="status-badge status-pending">
+                                        Menunggu Verifikasi
+                                    </span>
 
-                        <thead>
+                                @elseif ($status === 'draft')
 
-                            <tr>
-                                <th>No.</th>
-                                <th>No. KK</th>
-                                <th>NIK</th>
-                                <th>Nama Kepala Keluarga</th>
-                                <th>Jumlah Anggota</th>
-                                <th>Status</th>
-                                <th>Wilayah Pendataan</th>
-                                <th>Petugas</th>
-                                <th>Tanggal Pendataan</th>
-                                <th>Aksi</th>
-                            </tr>
+                                    <span class="status-badge status-draft">
+                                        Draft
+                                    </span>
 
-                        </thead>
+                                @elseif (
+                                    $status === 'not_processed' ||
+                                    $status === 'belum_didata' ||
+                                    $status === 'belum_didata'
+                                )
 
-                        <tbody>
+                                    <span class="status-badge status-not-processed">
+                                        Belum Didata
+                                    </span>
 
-                            @forelse($data as $item)
+                                @elseif (
+                                    $status === 'approved' ||
+                                    $status === 'disetujui'
+                                )
 
-                                <tr>
+                                    <span class="status-badge status-approved">
+                                        Disetujui
+                                    </span>
 
-                                    <td>
-                                        {{ $loop->iteration }}
-                                    </td>
+                                @elseif (
+                                    $status === 'rejected' ||
+                                    $status === 'ditolak'
+                                )
 
-                                    <td>
-                                        {{ $item['no_kk'] }}
-                                    </td>
+                                    <span class="status-badge status-rejected">
+                                        Ditolak
+                                    </span>
 
-                                    <td>
-                                        {{ $item['nik'] }}
-                                    </td>
+                                @else
 
-                                    <td>
-                                        {{ $item['nama'] }}
-                                    </td>
+                                    <span class="status-badge status-draft">
+                                        {{ $item['status'] ?? '-' }}
+                                    </span>
 
-                                    <td>
-                                        {{ $item['anggota'] }} Orang
-                                    </td>
+                                @endif
 
-                                    <!-- STATUS -->
-                                    <td>
+                            </td>
 
-                                        @if(($item['status'] ?? '') === 'pending')
 
-                                            <span class="status status-warning">
-                                                Pending Verification
-                                            </span>
+                            <!-- WILAYAH -->
 
-                                        @elseif(($item['status'] ?? '') === 'draft')
+                            <td>
+                                {{ $item['wilayah'] ?? '-' }}
+                            </td>
 
-                                            <span class="status status-draft">
-                                                Draft
-                                            </span>
 
-                                        @elseif(($item['status'] ?? '') === 'not_processed')
+                            <!-- PETUGAS -->
 
-                                            <span class="status status-info">
-                                                Not Processed
-                                            </span>
+                            <td>
+                                {{ $item['petugas'] ?? '-' }}
+                            </td>
 
-                                        @elseif(($item['status'] ?? '') === 'approved')
 
-                                            <span class="status status-success">
-                                                Approved
-                                            </span>
+                            <!-- TANGGAL -->
 
-                                        @elseif(($item['status'] ?? '') === 'rejected')
+                            <td>
+                                {{ $item['tanggal'] ?? '-' }}
+                            </td>
 
-                                            <span class="status status-danger">
-                                                Rejected
-                                            </span>
 
-                                        @else
+                            <!-- AKSI -->
 
-                                            <span class="status status-draft">
-                                                Unknown
-                                            </span>
+                            <td>
 
-                                        @endif
+                                <div class="action-wrapper">
 
-                                    </td>
-
-                                    <td>
-                                        {{ $item['wilayah'] }}
-                                    </td>
-
-                                    <td>
-                                        {{ $item['petugas'] }}
-                                    </td>
-
-                                    <td>
-                                        {{ $item['tanggal'] }}
-                                    </td>
-
-                                    <td>
-
-                                        <div class="action-group">
-
-                                            <a
-                                                href="{{ route('verifikasi.show', $item['id'] ?? 0) }}"
-                                                class="btn-action btn-edit"
-                                            >
-                                                Edit
-                                            </a>
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-
-                            @empty
-
-                                <tr>
-
-                                    <td
-                                        colspan="10"
-                                        style="text-align: center; padding: 40px; color: #888;"
+                                    <a
+                                        href="{{ route('verifikasi.show', $item['id'] ?? 0) }}"
+                                        class="btn-detail"
                                     >
+                                        Detail
+                                    </a>
 
-                                        @if($search)
+                                </div>
 
-                                            Data dengan kata pencarian
-                                            "<strong>{{ $search }}</strong>"
-                                            tidak ditemukan.
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="10">
+
+                                <div class="empty-state">
+
+                                    <div class="empty-state-icon">
+
+                                        <svg
+                                            width="23"
+                                            height="23"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <circle
+                                                cx="11"
+                                                cy="11"
+                                                r="7"
+                                            ></circle>
+
+                                            <line
+                                                x1="16.65"
+                                                y1="16.65"
+                                                x2="21"
+                                                y2="21"
+                                            ></line>
+                                        </svg>
+
+                                    </div>
+
+                                    <div class="empty-state-title">
+                                        Data tidak ditemukan
+                                    </div>
+
+                                    <div class="empty-state-description">
+
+                                        @if (request('search'))
+
+                                            Tidak ada data yang sesuai dengan pencarian
+                                            "{{ request('search') }}".
 
                                         @else
 
-                                            Tidak ada data.
+                                            Belum terdapat data responden yang masuk ke sistem.
 
                                         @endif
 
-                                    </td>
+                                    </div>
 
-                                </tr>
+                                </div>
 
-                            @endforelse
+                            </td>
 
-                        </tbody>
+                        </tr>
 
-                    </table>
+                    @endforelse
 
-                </div>
+                </tbody>
 
-            </div>
+            </table>
 
-        </main>
+        </div>
 
     </div>
 
-    <!-- =====================================================
-         MOBILE SIDEBAR SCRIPT
-    ====================================================== -->
-    <script>
-
-        const mobileMenuBtn =
-            document.getElementById('mobileMenuBtn');
-
-        const sidebar =
-            document.querySelector('.sidebar');
-
-        const sidebarOverlay =
-            document.getElementById('sidebarOverlay');
+@endsection
 
 
-        /* BUKA / TUTUP SIDEBAR */
+@push('scripts')
 
-        mobileMenuBtn.addEventListener('click', function () {
+<script>
 
-            const isOpen =
-                sidebar.classList.toggle('active');
-
-            sidebarOverlay.classList.toggle('active');
-
-            mobileMenuBtn.setAttribute(
-                'aria-expanded',
-                isOpen ? 'true' : 'false'
-            );
-
-        });
-
-
-        /* TUTUP SAAT OVERLAY DIKLIK */
-
-        sidebarOverlay.addEventListener('click', function () {
-
-            sidebar.classList.remove('active');
-
-            sidebarOverlay.classList.remove('active');
-
-            mobileMenuBtn.setAttribute(
-                'aria-expanded',
-                'false'
-            );
-
-        });
-
-
-        /* TUTUP SIDEBAR SETELAH MEMILIH MENU */
-
-        document
-            .querySelectorAll('.sidebar .menu-link')
-            .forEach(function (link) {
-
-                link.addEventListener('click', function () {
-
-                    if (window.innerWidth <= 900) {
-
-                        sidebar.classList.remove('active');
-
-                        sidebarOverlay.classList.remove('active');
-
-                        mobileMenuBtn.setAttribute(
-                            'aria-expanded',
-                            'false'
-                        );
-
-                    }
-
-                });
-
-            });
-
-
-        /* RESET SAAT KEMBALI KE DESKTOP */
-
-        window.addEventListener('resize', function () {
-
-            if (window.innerWidth > 900) {
-
-                sidebar.classList.remove('active');
-
-                sidebarOverlay.classList.remove('active');
-
-                mobileMenuBtn.setAttribute(
-                    'aria-expanded',
-                    'false'
-                );
-
-            }
-
-        });
-
-
-        /* AUTO HIDE SUCCESS ALERT */
+    document.addEventListener('DOMContentLoaded', function () {
 
         const successAlert =
-            document.getElementById('success-alert');
+            document.getElementById('successAlert');
 
-       if (successAlert) {
-    setTimeout(() => {
-        successAlert.classList.add('hidden');
+        if (successAlert) {
 
-        setTimeout(() => {
-            successAlert.style.display = 'none';
-        }, 350);
+            setTimeout(function () {
 
-    }, 3000);
-}
+                successAlert.style.opacity = '0';
 
-    </script>
+                successAlert.style.transform =
+                    'translateY(-5px)';
 
-</body>
+                successAlert.style.transition =
+                    'all .3s ease';
 
-</html>
+                setTimeout(function () {
+
+                    successAlert.remove();
+
+                }, 300);
+
+            }, 3000);
+
+        }
+
+    });
+
+</script>
+
+@endpush
