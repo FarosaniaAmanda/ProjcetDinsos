@@ -80,3 +80,33 @@ Route::get('/monitoring', [MonitoringController::class, 'index'])
 Route::get('/master', function () {
     return view('admin.master.index');
 })->name('master.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| Master - Operator
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/master/operator/create', function () {
+    return view('admin.master.operator.create');
+})->name('master.operator.create');
+
+Route::get('/master/operator/{id}/edit', function ($id) {
+    return view('admin.master.operator.edit');
+})->name('master.operator.edit');
+
+
+/*
+|--------------------------------------------------------------------------
+| Master - Verifikator
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/master/verifikator/create', function () {
+    return view('admin.master.verifikator.create');
+})->name('master.verifikator.create');
+
+Route::get('/master/verifikator/{id}/edit', function ($id) {
+    return view('admin.master.verifikator.edit');
+})->name('master.verifikator.edit');
