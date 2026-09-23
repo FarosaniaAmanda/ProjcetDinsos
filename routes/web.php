@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\Admin\PetugasController;
+use App\Http\Controllers\Admin\RespondenController;
 
 
 /*
@@ -41,7 +43,7 @@ Route::get('/periode', [PeriodeController::class, 'index'])
 Route::get('/periode/tambah', [PeriodeController::class, 'create'])
     ->name('periode.create');
 
-Route::get('/periode/edit', [PeriodeController::class, 'edit'])
+Route::get('/periode/edit/{id}', [PeriodeController::class, 'edit'])
     ->name('periode.edit');
 
 
@@ -49,43 +51,56 @@ Route::get('/periode/edit', [PeriodeController::class, 'edit'])
 |--------------------------------------------------------------------------
 | Petugas
 |--------------------------------------------------------------------------
-|
-| Sementara menggunakan halaman view langsung.
-| Nanti bisa diganti menggunakan PetugasController
-| ketika fitur Petugas sudah dibuat.
-|
 */
 
-Route::get('/petugas', function () {
-    return view('admin.petugas.index');
-})->name('petugas.index');
+Route::get('/petugas', [PetugasController::class, 'index'])
+    ->name('petugas.index');
+
+Route::get('/petugas/tambah', [PetugasController::class, 'create'])
+    ->name('petugas.create');
+
+Route::post('/petugas/simpan', [PetugasController::class, 'store'])
+    ->name('petugas.store');
+
+Route::get('/petugas/edit/{id}', [PetugasController::class, 'edit'])
+    ->name('petugas.edit');
+
+Route::put('/petugas/update/{id}', [PetugasController::class, 'update'])
+    ->name('petugas.update');
+
+Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])
+    ->name('petugas.destroy');
 
 
 /*
 |--------------------------------------------------------------------------
 | Responden
 |--------------------------------------------------------------------------
-|
-| Sementara menggunakan halaman view langsung.
-| Nanti bisa diganti menggunakan RespondenController
-| ketika fitur Responden sudah dibuat.
-|
 */
 
-Route::get('/responden', function () {
-    return view('admin.responden.index');
-})->name('responden.index');
+Route::get('/responden', [RespondenController::class, 'index'])
+    ->name('responden.index');
+
+Route::get('/responden/tambah', [RespondenController::class, 'create'])
+    ->name('responden.create');
+
+Route::post('/responden/simpan', [RespondenController::class, 'store'])
+    ->name('responden.store');
+
+Route::get('/responden/edit/{id}', [RespondenController::class, 'edit'])
+    ->name('responden.edit');
+
+Route::put('/responden/update/{id}', [RespondenController::class, 'update'])
+    ->name('responden.update');
+
+Route::delete('/responden/hapus/{id}', [RespondenController::class, 'destroy'])
+    ->name('responden.destroy');
 
 
 /*
 |--------------------------------------------------------------------------
 | Kuisioner
 |--------------------------------------------------------------------------
-|
-| Sementara menggunakan halaman view langsung.
-| Nanti bisa diganti menggunakan KuisionerController
-| ketika fitur Kuisioner sudah dibuat.
-|
 */
 
 Route::get('/kuisioner', function () {
@@ -126,9 +141,6 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 |--------------------------------------------------------------------------
 | Laporan
 |--------------------------------------------------------------------------
-|
-
-|
 */
 
 Route::get('/laporan', function () {
