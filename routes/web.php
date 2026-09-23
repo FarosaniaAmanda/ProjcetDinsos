@@ -135,6 +135,14 @@ Route::get('/laporan', function () {
     return view('admin.laporan.index');
 })->name('laporan.index');
 
+Route::get('/laporan/export', function () {
+    return response()->streamDownload(function () {
+        echo "No. KK,Periode,Tanggal Pendataan,Status\n";
+    }, 'laporan-pendataan.csv', [
+        'Content-Type' => 'text/csv',
+    ]);
+})->name('admin.laporan.export');
+
 
 /*
 |--------------------------------------------------------------------------
