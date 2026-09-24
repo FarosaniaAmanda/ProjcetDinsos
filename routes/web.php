@@ -142,36 +142,23 @@ Route::get('/laporan', function () {
 |--------------------------------------------------------------------------
 */
 
+use App\Http\Controllers\Admin\UserController;
+
 Route::get('/master', function () {
-    return view('admin.master.index');
+    return redirect()->route('master.pengguna.index');
 })->name('master.index');
 
+Route::get('/master/pengguna', [UserController::class, 'index'])
+    ->name('master.pengguna.index');
 
-/*
-|--------------------------------------------------------------------------
-| Master - Operator
-|--------------------------------------------------------------------------
-*/
+Route::post('/master/pengguna', [UserController::class, 'store'])
+    ->name('master.pengguna.store');
 
-Route::get('/master/operator/create', function () {
-    return view('admin.master.operator.create');
-})->name('master.operator.create');
+Route::put('/master/pengguna/{user}', [UserController::class, 'update'])
+    ->name('master.pengguna.update');
 
-Route::get('/master/operator/{id}/edit', function ($id) {
-    return view('admin.master.operator.edit');
-})->name('master.operator.edit');
+Route::delete('/master/pengguna/{user}', [UserController::class, 'destroy'])
+    ->name('master.pengguna.destroy');
 
-
-/*
-|--------------------------------------------------------------------------
-| Master - Verifikator
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/master/verifikator/create', function () {
-    return view('admin.master.verifikator.create');
-})->name('master.verifikator.create');
-
-Route::get('/master/verifikator/{id}/edit', function ($id) {
-    return view('admin.master.verifikator.edit');
-})->name('master.verifikator.edit');
+Route::get('/master/petugas/rt-rw/{kelurahanId}', [UserController::class, 'getRtRw'])
+    ->name('master.petugas.rt-rw');

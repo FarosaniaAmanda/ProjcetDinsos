@@ -1,1376 +1,2557 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('admin.layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@section('title', 'Pengguna')
 
-    <title>Master | Sistem Pendataan Dinas Sosial Kota Pasuruan</title>
+@section('content')
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+<style>
+    /* =====================================================
+       CONTENT
+    ===================================================== */
+
+    .pengguna-content {
+        width: 100%;
+    }
+
+    .page-kicker {
+        font-size: 11px;
+        font-weight: 700;
+        color: #252A86;
+        letter-spacing: 1.2px;
+        margin-bottom: 7px;
+    }
+
+    .page-title {
+        font-size: 26px;
+        font-weight: 700;
+        color: #252A86;
+        margin-bottom: 8px;
+    }
+
+    .page-description {
+        font-size: 13px;
+        color: #6b7280;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+
+    /* =====================================================
+       TABS
+    ===================================================== */
+
+    .tabs-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 9px;
+        overflow: hidden;
+    }
+
+    .tabs {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 0 20px;
+        background: #ffffff;
+    }
+
+    .tab-button {
+        position: relative;
+        border: none;
+        background: transparent;
+        padding: 15px 18px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .tab-button:hover {
+        color: #252A86;
+    }
+
+    .tab-button.active {
+        color: #252A86;
+        font-weight: 700;
+    }
+
+    .tab-button.active::after {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        bottom: -1px;
+        height: 2px;
+        background: #252A86;
+        border-radius: 2px 2px 0 0;
+    }
+
+
+    /* =====================================================
+       TAB CONTENT
+    ===================================================== */
+
+    .tab-content {
+        display: none;
+        padding: 20px;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+
+    /* =====================================================
+       TABLE HEADER
+    ===================================================== */
+
+    .table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .table-header-left {
+        min-width: 0;
+    }
+
+    .table-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 4px;
+    }
+
+    .table-description {
+        font-size: 11px;
+        color: #9ca3af;
+        line-height: 1.5;
+    }
+
+    .table-header-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    .search-box {
+        width: 220px;
+        height: 38px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        background: #ffffff;
+        padding: 0 12px;
+        font-family: inherit;
+        font-size: 12px;
+        color: #1f2937;
+        outline: none;
+    }
+
+    .search-box::placeholder {
+        color: #9ca3af;
+    }
+
+    .search-box:focus {
+        border-color: #252A86;
+        box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08);
+    }
+
+
+    /* =====================================================
+       PRIMARY BUTTON
+    ===================================================== */
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 38px;
+        padding: 0 15px;
+        background: #252A86;
+        color: #ffffff;
+        border: 1px solid #252A86;
+        border-radius: 7px;
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background: #1d216d;
+        border-color: #1d216d;
+    }
+
+    .btn-plus {
+        font-size: 16px;
+        line-height: 1;
+    }
+
+
+    /* =====================================================
+       TABLE
+    ===================================================== */
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 7px;
+    }
+
+    table {
+        width: 100%;
+        min-width: 850px;
+        border-collapse: collapse;
+        background: #ffffff;
+    }
+
+    th {
+        background: #f8f9fc;
+        color: #374151;
+        font-size: 11px;
+        font-weight: 700;
+        text-align: left;
+        padding: 13px 12px;
+        border-bottom: 1px solid #e5e7eb;
+        white-space: nowrap;
+    }
+
+    td {
+        color: #4b5563;
+        font-size: 11px;
+        padding: 13px 12px;
+        border-bottom: 1px solid #eef0f4;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: #fafbff;
+    }
+
+
+    /* =====================================================
+       ACTION
+    ===================================================== */
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 5px;
+        font-family: inherit;
+        font-size: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .btn-edit {
+        background: #ffffff;
+        color: #252A86;
+        border: 1px solid #252A86;
+    }
+
+    .btn-edit:hover {
+        background: #252A86;
+        color: #ffffff;
+    }
+
+    .btn-delete {
+        background: #ffffff;
+        color: #dc2626;
+        border: 1px solid #dc2626;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+        color: #ffffff;
+    }
+
+
+    /* =====================================================
+       MODAL
+    ===================================================== */
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.48);
+        z-index: 2000;
+        padding: 25px;
+        overflow-y: auto;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: 560px;
+        max-height: calc(100vh - 50px);
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.20);
+        overflow: hidden;
+        animation: modalShow 0.18s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    @keyframes modalShow {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
         }
 
-        html,
-        body {
-            width: 100%;
-            min-height: 100%;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f6fa;
-            color: #1f2937;
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
         }
+    }
 
-        body {
-            overflow-x: hidden;
-        }
+    .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px 22px;
+        border-bottom: 1px solid #e5e7eb;
+        flex-shrink: 0;
+    }
 
-        /* =========================
-           SIDEBAR
-        ========================= */
+    .modal-header-text {
+        min-width: 0;
+    }
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 260px;
-            height: 100vh;
-            background: #252A86;
-            z-index: 1000;
-            overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
+    .modal-kicker {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: #252A86;
+        margin-bottom: 5px;
+    }
 
-        .sidebar-logo {
-            height: 110px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 20px;
-            color: #ffffff;
-        }
+    .modal-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #111827;
+    }
 
-        .sidebar-logo img {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            flex-shrink: 0;
-        }
+    .modal-close {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 6px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
 
-        .sidebar-logo-text {
-            font-size: 13px;
-            font-weight: 700;
-            line-height: 1.4;
-        }
+    .modal-close:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
 
-        .sidebar-menu {
-            padding: 10px 14px 25px;
-        }
+    .modal-body {
+        padding: 22px;
+        overflow-y: auto;
+    }
 
-        .menu-title {
-            color: rgba(255, 255, 255, 0.55);
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 15px 12px 8px;
-        }
+    .modal-description {
+        font-size: 11px;
+        color: #9ca3af;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
 
-        .sidebar-menu a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 13px;
-            margin-bottom: 4px;
-            border-radius: 7px;
-            color: rgba(255, 255, 255, 0.88);
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
 
-        .sidebar-menu a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
+    /* =====================================================
+       FORM
+    ===================================================== */
 
-        .sidebar-menu a.active {
-            background: #ffffff;
-            color: #252A86;
-            font-weight: 700;
-        }
+    .form-group {
+        margin-bottom: 17px;
+    }
 
-        .menu-icon {
-            width: 20px;
-            min-width: 20px;
-            text-align: center;
-            font-size: 15px;
-        }
+    .form-label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #374151;
+    }
 
-        /* =========================
-           MAIN
-        ========================= */
+    .required {
+        color: #dc2626;
+    }
 
-        .main {
-            margin-left: 260px;
-            width: calc(100% - 260px);
-            min-height: 100vh;
-            transition: all 0.3s ease;
-        }
+    .form-input,
+    .form-select {
+        width: 100%;
+        height: 41px;
+        padding: 0 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        outline: none;
+        background: #ffffff;
+        font-family: inherit;
+        font-size: 12px;
+        color: #1f2937;
+        transition: 0.2s;
+    }
 
-        /* =========================
-           HEADER
-        ========================= */
+    .form-input:focus,
+    .form-select:focus {
+        border-color: #252A86;
+        box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08);
+    }
 
-        .header {
-            height: 75px;
-            background: #ffffff;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 30px;
-            position: sticky;
-            top: 0;
-            z-index: 900;
-        }
+    .form-input::placeholder {
+        color: #9ca3af;
+    }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
-        }
+    .form-help {
+        margin-top: 5px;
+        font-size: 10px;
+        color: #9ca3af;
+    }
 
-        .mobile-menu-btn {
-            display: none;
-            width: 42px;
-            height: 42px;
-            border: none;
-            border-radius: 8px;
-            background: #f1f2f8;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
+
+    /* =====================================================
+       RT RW
+    ===================================================== */
+
+    .rtrw-box {
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        padding: 10px;
+        background: #fafbfc;
+        max-height: 190px;
+        overflow-y: auto;
+    }
+
+    .rtrw-placeholder {
+        padding: 10px;
+        font-size: 11px;
+        color: #9ca3af;
+        text-align: center;
+    }
+
+    .rtrw-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 10px;
+        background: #ffffff;
+        border: 1px solid #eef0f4;
+        border-radius: 6px;
+        margin-bottom: 7px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .rtrw-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .rtrw-item:hover {
+        border-color: #252A86;
+        background: #f8f9ff;
+    }
+
+    .rtrw-item input {
+        width: 15px;
+        height: 15px;
+        accent-color: #252A86;
+        cursor: pointer;
+    }
+
+    .rtrw-text {
+        font-size: 11px;
+        color: #374151;
+        font-weight: 600;
+    }
+
+    .rtrw-empty {
+        padding: 12px;
+        font-size: 11px;
+        color: #dc2626;
+        text-align: center;
+    }
+
+
+    /* =====================================================
+       MODAL FOOTER
+    ===================================================== */
+
+    .modal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 9px;
+        padding: 16px 22px;
+        border-top: 1px solid #e5e7eb;
+        background: #fafbfc;
+        flex-shrink: 0;
+    }
+
+    .btn-modal {
+        height: 37px;
+        padding: 0 15px;
+        border-radius: 7px;
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .btn-modal-cancel {
+        background: #ffffff;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-modal-cancel:hover {
+        background: #f3f4f6;
+    }
+
+    .btn-modal-save {
+        background: #252A86;
+        color: #ffffff;
+        border: 1px solid #252A86;
+    }
+
+    .btn-modal-save:hover {
+        background: #1d216d;
+    }
+
+    .btn-modal-save:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+    }
+
+
+    /* =====================================================
+       ALERT ERROR
+    ===================================================== */
+
+    .form-error {
+        margin-top: 5px;
+        color: #dc2626;
+        font-size: 10px;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media (max-width: 900px) {
+
+        .table-header {
+            align-items: flex-start;
             flex-direction: column;
-            gap: 5px;
-            flex-shrink: 0;
-        }
-
-        .mobile-menu-btn span {
-            display: block;
-            width: 20px;
-            height: 2px;
-            background: #252A86;
-            border-radius: 2px;
-            transition: all 0.25s ease;
-        }
-
-        .header-title {
-            min-width: 0;
-        }
-
-        .header-title h1 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #252A86;
-            line-height: 1.3;
-        }
-
-        .header-title p {
-            margin-top: 2px;
-            font-size: 11px;
-            color: #8b93a7;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .admin-info {
-            text-align: right;
-        }
-
-        .admin-info strong {
-            display: block;
-            font-size: 12px;
-            color: #252A86;
-        }
-
-        .admin-info span {
-            display: block;
-            margin-top: 2px;
-            font-size: 10px;
-            color: #8b93a7;
-        }
-
-        .avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #252A86;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        /* =========================
-           CONTENT
-        ========================= */
-
-        .content {
-            padding: 30px;
-        }
-
-        .page-kicker {
-            color: #252A86;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .page-title {
-            font-size: 26px;
-            font-weight: 700;
-            color: #20233b;
-            margin-bottom: 6px;
-        }
-
-        .page-description {
-            font-size: 13px;
-            color: #7b8498;
-            margin-bottom: 24px;
-        }
-
-        /* =========================
-           MASTER TABS
-        ========================= */
-
-        .master-tabs {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 9px;
-            padding: 5px;
-            width: fit-content;
-            margin-bottom: 20px;
-        }
-
-        .master-tab {
-            border: none;
-            background: transparent;
-            color: #6b7280;
-            padding: 10px 18px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .master-tab:hover {
-            color: #252A86;
-            background: #f1f2f8;
-        }
-
-        .master-tab.active {
-            background: #252A86;
-            color: #ffffff;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* =========================
-           FORM CARD
-        ========================= */
-
-        .form-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .form-card-title {
-            margin-bottom: 20px;
-        }
-
-        .form-card-title h3 {
-            font-size: 15px;
-            color: #252A86;
-            margin-bottom: 5px;
-        }
-
-        .form-card-title p {
-            font-size: 12px;
-            color: #8b93a7;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 17px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group.full {
-            grid-column: 1 / -1;
-        }
-
-        .form-group label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 7px;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            border: 1px solid #dfe2ea;
-            border-radius: 7px;
-            padding: 10px 12px;
-            font-family: inherit;
-            font-size: 12px;
-            color: #374151;
-            outline: none;
-            background: #ffffff;
-            transition: border 0.2s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: #252A86;
-        }
-
-        .form-group textarea {
-            min-height: 85px;
-            resize: vertical;
-        }
-
-        /* =========================
-           TABLE CARD
-        ========================= */
-
-        .table-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .table-card-header {
-            padding: 18px 20px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-        }
-
-        .table-card-title {
-            min-width: 0;
-        }
-
-        .table-card-title h3 {
-            font-size: 14px;
-            color: #252A86;
-            margin-bottom: 4px;
-        }
-
-        .table-card-title p {
-            font-size: 11px;
-            color: #8b93a7;
         }
 
         .table-header-actions {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        /* =========================
-           SEARCH
-        ========================= */
-
-        .table-search {
-            position: relative;
-            width: 210px;
-            flex-shrink: 0;
-        }
-
-        .table-search input {
             width: 100%;
-            height: 38px;
-            padding: 0 12px 0 34px;
-            border: 1px solid #dfe2ea;
-            border-radius: 7px;
-            outline: none;
-            font-size: 12px;
-            color: #374151;
-            background: #ffffff;
+            justify-content: flex-start;
         }
+    }
 
-        .table-search input:focus {
-            border-color: #252A86;
-        }
 
-        .table-search-icon {
-            position: absolute;
-            left: 11px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #8b93a7;
-            font-size: 15px;
-            pointer-events: none;
-        }
+    @media (max-width: 600px) {
 
-        /* =========================
-           BUTTON TAMBAH
-        ========================= */
-
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            height: 38px;
-            padding: 0 15px;
-            background: #252A86;
-            color: #ffffff;
-            border: 1px solid #252A86;
-            border-radius: 7px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary:hover {
-            background: #1d216d;
-            border-color: #1d216d;
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(37, 42, 134, 0.18);
-        }
-
-        .btn-plus {
-            font-size: 16px;
-            line-height: 1;
-            font-weight: 400;
-        }
-
-        /* =========================
-           TABLE
-        ========================= */
-
-        .table-wrapper {
-            width: 100%;
+        .tabs {
+            padding: 0 10px;
             overflow-x: auto;
         }
 
-        table {
+        .tab-button {
+            padding: 14px 12px;
+            white-space: nowrap;
+        }
+
+        .tab-content {
+            padding: 15px;
+        }
+
+        .table-header-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box,
+        .btn-primary {
             width: 100%;
-            min-width: 1250px;
-            border-collapse: collapse;
         }
 
-        thead th {
-            background: #f8f9fc;
-            color: #5d6578;
-            font-size: 11px;
-            font-weight: 700;
-            text-align: left;
-            padding: 13px 15px;
-            border-bottom: 1px solid #e5e7eb;
-            white-space: nowrap;
+        .modal-overlay {
+            padding: 12px;
+            align-items: flex-start;
         }
 
-        tbody td {
-            padding: 13px 15px;
-            border-bottom: 1px solid #eef0f4;
-            color: #4b5563;
-            font-size: 11px;
-            vertical-align: middle;
-            white-space: nowrap;
+        .modal {
+            max-height: calc(100vh - 24px);
+            margin-top: 12px;
+            border-radius: 10px;
         }
 
-        tbody tr:hover {
-            background: #fafbfe;
+        .modal-header {
+            padding: 17px;
         }
 
-        tbody tr:last-child td {
-            border-bottom: none;
+        .modal-body {
+            padding: 17px;
         }
 
-        .empty-row {
-            text-align: center;
-            color: #9ca3af;
-            padding: 30px 15px !important;
+        .modal-footer {
+            padding: 14px 17px;
+        }
+    }
+
+
+    @media (max-width: 400px) {
+
+        .content {
+            padding: 12px;
         }
 
-        /* =========================
-           ACTION BUTTON
-        ========================= */
-
-        .action-buttons {
-            display: flex;
-            align-items: center;
-            gap: 7px;
+        .modal-footer {
+            flex-direction: column-reverse;
         }
 
-        .btn-edit,
-        .btn-delete {
-            border: none;
-            border-radius: 6px;
-            padding: 7px 10px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
+        .btn-modal {
+            width: 100%;
         }
+    }
+</style>
 
-        .btn-edit {
-            background: #eef0ff;
-            color: #252A86;
-        }
 
-        .btn-edit:hover {
-            background: #e0e3ff;
-        }
+<div class="pengguna-content">
 
-        .btn-delete {
-            background: #fff0f0;
-            color: #dc2626;
-        }
+    <div class="page-kicker">
+        MASTER
+    </div>
 
-        .btn-delete:hover {
-            background: #ffe0e0;
-        }
+    <h1 class="page-title">
+        Pengguna
+    </h1>
 
-        /* =========================
-           OVERLAY
-        ========================= */
+    <p class="page-description">
+        Kelola data pengguna yang memiliki akses dalam sistem
+        pendataan perlindungan sosial.
+    </p>
 
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 999;
-        }
 
-        .sidebar-overlay.active {
-            display: block;
-        }
+    <div class="tabs-card">
 
-        /* =========================
-           RESPONSIVE 900
-        ========================= */
+        {{-- =================================================
+             TABS
+        ================================================== --}}
 
-        @media (max-width: 900px) {
+        <div class="tabs">
 
-            .sidebar {
-                width: 270px;
-                transform: translateX(-100%);
-            }
+            <button
+                type="button"
+                class="tab-button active"
+                data-tab="operator"
+            >
+                Operator
+            </button>
 
-            .sidebar.active {
-                transform: translateX(0);
-            }
+            <button
+                type="button"
+                class="tab-button"
+                data-tab="verifikator"
+            >
+                Verifikator
+            </button>
 
-            .main {
-                margin-left: 0;
-                width: 100%;
-            }
+            <button
+                type="button"
+                class="tab-button"
+                data-tab="petugas"
+            >
+                Petugas
+            </button>
 
-            .mobile-menu-btn {
-                display: flex;
-            }
-
-            .header {
-                height: 70px;
-                padding: 0 20px;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .header-title h1 {
-                font-size: 15px;
-            }
-
-            .header-title p {
-                display: none;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full {
-                grid-column: auto;
-            }
-        }
-
-        /* =========================
-           RESPONSIVE 600
-        ========================= */
-
-        @media (max-width: 600px) {
-
-            .header {
-                height: 64px;
-                padding: 0 14px;
-            }
-
-            .mobile-menu-btn {
-                width: 38px;
-                height: 38px;
-            }
-
-            .mobile-menu-btn span {
-                width: 18px;
-            }
-
-            .header-title h1 {
-                font-size: 13px;
-            }
-
-            .header-right {
-                gap: 7px;
-            }
-
-            .admin-info {
-                display: none;
-            }
-
-            .avatar {
-                width: 34px;
-                height: 34px;
-                font-size: 12px;
-            }
-
-            .content {
-                padding: 16px;
-            }
-
-            .page-title {
-                font-size: 22px;
-            }
-
-            .page-description {
-                font-size: 12px;
-                line-height: 1.5;
-            }
-
-            .master-tabs {
-                width: 100%;
-                overflow-x: auto;
-            }
-
-            .master-tab {
-                flex: 1;
-                min-width: 100px;
-                padding: 9px 12px;
-                font-size: 11px;
-            }
-
-            .form-card {
-                padding: 16px;
-            }
-
-            .table-card-header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 14px;
-                padding: 16px;
-            }
-
-            .table-header-actions {
-                width: 100%;
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .table-search {
-                width: 100%;
-                min-width: 0;
-            }
-
-            .btn-primary {
-                width: 100%;
-            }
-        }
-
-        /* =========================
-           RESPONSIVE 400
-        ========================= */
-
-        @media (max-width: 400px) {
-
-            .sidebar {
-                width: 250px;
-            }
-
-            .content {
-                padding: 12px;
-            }
-
-            .page-title {
-                font-size: 20px;
-            }
-
-            .header-title h1 {
-                font-size: 12px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- =========================
-         SIDEBAR
-    ========================= -->
-
-    <aside class="sidebar" id="sidebar">
-
-        <div class="sidebar-logo">
-            <img src="{{ asset('images/dinsos.png') }}" alt="Logo Dinsos">
-
-            <div class="sidebar-logo-text">
-                Sistem Pendataan<br>
-                Dinas Sosial Kota Pasuruan
-            </div>
         </div>
 
-        <nav class="sidebar-menu">
 
-            <div class="menu-title">Menu Utama</div>
+        {{-- =================================================
+             OPERATOR
+        ================================================== --}}
 
-            <a href="{{ url('/dashboard') }}">
-                <span class="menu-icon">⌂</span>
-                Dashboard
-            </a>
+        <div
+            class="tab-content active"
+            id="operator"
+        >
 
-            <a href="{{ url('/periode') }}">
-                <span class="menu-icon">▣</span>
-                Periode
-            </a>
+            <div class="table-header">
 
-            <a href="#">
-                <span class="menu-icon">♙</span>
-                Petugas
-            </a>
+                <div class="table-header-left">
 
-            <a href="#">
-                <span class="menu-icon">☷</span>
-                Responden
-            </a>
-
-            <a href="#">
-                <span class="menu-icon">☑</span>
-                Kuisioner
-            </a>
-
-            <a href="#">
-                <span class="menu-icon">✓</span>
-                Verifikasi
-            </a>
-
-            <a href="#">
-                <span class="menu-icon">◫</span>
-                Monitoring
-            </a>
-
-            <a href="#">
-                <span class="menu-icon">▤</span>
-                Laporan
-            </a>
-
-            <a href="{{ route('master.index') }}" class="active">
-                <span class="menu-icon">⚙</span>
-                Master
-            </a>
-
-            <div class="menu-title">Akun</div>
-
-            <a href="#">
-                <span class="menu-icon">↪</span>
-                Logout
-            </a>
-
-        </nav>
-    </aside>
-
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-    <!-- =========================
-         MAIN
-    ========================= -->
-
-    <main class="main">
-
-        <!-- HEADER -->
-
-        <header class="header">
-
-            <div class="header-left">
-
-                <button
-                    type="button"
-                    class="mobile-menu-btn"
-                    id="mobileMenuBtn"
-                    aria-label="Buka menu"
-                    aria-expanded="false"
-                >
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-
-                <div class="header-title">
-                    <h1>Sistem Pendataan Dinas Sosial Kota Pasuruan</h1>
-                    <p>Panel Administrasi</p>
-                </div>
-
-            </div>
-
-            <div class="header-right">
-
-                <div class="admin-info">
-                    <strong>Operator</strong>
-                    <span>Admin</span>
-                </div>
-
-                <div class="avatar">
-                    A
-                </div>
-
-            </div>
-
-        </header>
-
-        <!-- CONTENT -->
-
-        <section class="content">
-
-            <div class="page-kicker">
-                ADMIN
-            </div>
-
-            <h2 class="page-title">
-                Master
-            </h2>
-
-            <p class="page-description">
-                Kelola data operator, verifikator, dan petugas dalam sistem pendataan.
-            </p>
-
-            <!-- =========================
-                 TABS
-            ========================= -->
-
-            <div class="master-tabs">
-
-                <button
-                    type="button"
-                    class="master-tab active"
-                    onclick="showTab('operator', this)"
-                >
-                    Operator
-                </button>
-
-                <button
-                    type="button"
-                    class="master-tab"
-                    onclick="showTab('verifikator', this)"
-                >
-                    Verifikator
-                </button>
-
-                <button
-                    type="button"
-                    class="master-tab"
-                    onclick="showTab('petugas', this)"
-                >
-                    Petugas
-                </button>
-
-            </div>
-
-            <!-- ==================================================
-                 OPERATOR
-            ================================================== -->
-
-            <div class="tab-content active" id="operator">
-
-                <div class="table-card">
-
-                    <div class="table-card-header">
-
-                        <div class="table-card-title">
-                            <h3>Data Operator</h3>
-                            <p>
-                                Daftar operator yang terdaftar dalam sistem.
-                            </p>
-                        </div>
-
-                        <div class="table-header-actions">
-
-                            <div class="table-search">
-
-                                <span class="table-search-icon">
-                                    ⌕
-                                </span>
-
-                                <input
-                                    type="text"
-                                    id="searchOperator"
-                                    placeholder="Cari operator..."
-                                    onkeyup="searchTable('searchOperator', 'operatorTable')"
-                                >
-
-                            </div>
-
-                            <a
-                                href="{{ route('master.operator.create') }}"
-                                class="btn-primary"
-                            >
-                                <span class="btn-plus">+</span>
-                                Tambah Operator
-                            </a>
-
-                        </div>
-
+                    <div class="table-title">
+                        Data Operator
                     </div>
 
-                    <div class="table-wrapper">
+                    <div class="table-description">
+                        Daftar pengguna dengan hak akses sebagai operator.
+                    </div>
 
-                        <table id="operatorTable">
+                </div>
 
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Lengkap</th>
-                                    <th>NIK</th>
-                                    <th>Jenis Kelamin</th>
-                                    <th>Tempat Lahir</th>
-                                    <th>Tanggal Lahir</th>
-                                    <th>No. HP</th>
-                                    <th>Email</th>
-                                    <th>Alamat</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
 
-                            <tbody>
+                <div class="table-header-actions">
+
+                    <input
+                        type="text"
+                        class="search-box"
+                        id="searchOperator"
+                        placeholder="Cari operator..."
+                        onkeyup="searchTable('searchOperator', 'operatorTable')"
+                    >
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        onclick="openAddModal('operator')"
+                    >
+                        <span class="btn-plus">+</span>
+                        Tambah Operator
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table id="operatorTable">
+
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nomor Identitas</th>
+                            <th>Nama Lengkap</th>
+                            <th>Email</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @forelse ($operators as $index => $operator)
 
                             <tr>
-                                <td>2</td>
-                                <td>Siti Aminah</td>
-                                <td>3575010202020002</td>
-                                <td>Perempuan</td>
-                                <td>Pasuruan</td>
-                                <td>22 Mei 1999</td>
-                                <td>082234567891</td>
-                                <td>siti.aminah@gmail.com</td>
-                                <td>Jl. Soekarno Hatta, Pasuruan</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a href="{{ route('master.operator.edit', 1) }}" class="btn-edit">
-                                            Edit
-                                        </a>
 
-                                        <button type="button" class="btn-delete">
+                                <td>
+                                    {{ $index + 1 }}
+                                </td>
+
+                                <td>
+                                    {{ $operator->nomor_identitas }}
+                                </td>
+
+                                <td>
+                                    {{ $operator->name }}
+                                </td>
+
+                                <td>
+                                    {{ $operator->email }}
+                                </td>
+
+                                <td>
+
+                                    <div class="action-buttons">
+
+                                        <button
+                                            type="button"
+                                            class="btn-edit"
+                                            data-user="{{ json_encode([
+                                            'id' => $operator->id,
+                                            'role' => 'operator',
+                                            'nomor_identitas' => $operator->nomor_identitas,
+                                            'name' => $operator->name,
+                                            'email' => $operator->email,
+                                        ]) }}"
+                                            onclick="editFromButton(this)"
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-delete"
+                                            data-id="{{ $operator->id }}"
+                                            data-name="{{ $operator->name }}"
+                                            data-role="operator"
+                                            onclick="hapusData(this)"
+                                        >
                                             Hapus
                                         </button>
+
                                     </div>
+
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    style="text-align:center; color:#9ca3af;"
+                                >
+                                    Belum ada data operator.
                                 </td>
                             </tr>
 
-                        </tbody>
+                        @endforelse
 
-                        </table>
+                    </tbody>
 
+                </table>
+
+            </div>
+
+        </div>
+
+
+        {{-- =================================================
+             VERIFIKATOR
+        ================================================== --}}
+
+        <div
+            class="tab-content"
+            id="verifikator"
+        >
+
+            <div class="table-header">
+
+                <div class="table-header-left">
+
+                    <div class="table-title">
+                        Data Verifikator
                     </div>
+
+                    <div class="table-description">
+                        Daftar pengguna dengan hak akses sebagai verifikator.
+                    </div>
+
+                </div>
+
+
+                <div class="table-header-actions">
+
+                    <input
+                        type="text"
+                        class="search-box"
+                        id="searchVerifikator"
+                        placeholder="Cari verifikator..."
+                        onkeyup="searchTable('searchVerifikator', 'verifikatorTable')"
+                    >
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        onclick="openAddModal('verifikator')"
+                    >
+                        <span class="btn-plus">+</span>
+                        Tambah Verifikator
+                    </button>
 
                 </div>
 
             </div>
 
-            <!-- ==================================================
-                 VERIFIKATOR
-            ================================================== -->
 
-            <div class="tab-content" id="verifikator">
+            <div class="table-wrapper">
 
-                <div class="table-card">
+                <table id="verifikatorTable">
 
-                    <div class="table-card-header">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nomor Identitas</th>
+                            <th>Nama Lengkap</th>
+                            <th>Email</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
 
-                        <div class="table-card-title">
-                            <h3>Data Verifikator</h3>
-                            <p>
-                                Daftar verifikator yang terdaftar dalam sistem.
-                            </p>
-                        </div>
+                    <tbody>
 
-                        <div class="table-header-actions">
+                        @forelse ($verifikators as $index => $verifikator)
 
-                            <div class="table-search">
+                            <tr>
 
-                                <span class="table-search-icon">
-                                    ⌕
-                                </span>
+                                <td>
+                                    {{ $index + 1 }}
+                                </td>
 
-                                <input
-                                    type="text"
-                                    id="searchVerifikator"
-                                    placeholder="Cari verifikator..."
-                                    onkeyup="searchTable('searchVerifikator', 'verifikatorTable')"
+                                <td>
+                                    {{ $verifikator->nomor_identitas }}
+                                </td>
+
+                                <td>
+                                    {{ $verifikator->name }}
+                                </td>
+
+                                <td>
+                                    {{ $verifikator->email }}
+                                </td>
+
+                                <td>
+
+                                    <div class="action-buttons">
+
+                                        <button
+                                            type="button"
+                                            class="btn-edit"
+                                            data-user="{{ json_encode([
+                                            'id' => $verifikator->id,
+                                            'role' => 'verifikator',
+                                            'nomor_identitas' => $verifikator->nomor_identitas,
+                                            'name' => $verifikator->name,
+                                            'email' => $verifikator->email,
+                                        ]) }}"
+                                            onclick="editFromButton(this)"
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-delete"
+                                            data-id="{{ $verifikator->id }}"
+                                            data-name="{{ $verifikator->name }}"
+                                            data-role="verifikator"
+                                            onclick="hapusData(this)"
+                                        >
+                                            Hapus
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    style="text-align:center; color:#9ca3af;"
                                 >
+                                    Belum ada data verifikator.
+                                </td>
+                            </tr>
 
-                            </div>
+                        @endforelse
 
-                            <a
-                                href="{{ route('master.verifikator.create') }}"
-                                class="btn-primary"
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        {{-- =================================================
+             PETUGAS
+        ================================================== --}}
+
+        <div
+            class="tab-content"
+            id="petugas"
+        >
+
+            <div class="table-header">
+
+                <div class="table-header-left">
+
+                    <div class="table-title">
+                        Data Petugas
+                    </div>
+
+                    <div class="table-description">
+                        Daftar petugas yang bertugas dalam proses pendataan.
+                    </div>
+
+                </div>
+
+
+                <div class="table-header-actions">
+
+                    <input
+                        type="text"
+                        class="search-box"
+                        id="searchPetugas"
+                        placeholder="Cari petugas..."
+                        onkeyup="searchTable('searchPetugas', 'petugasTable')"
+                    >
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        onclick="openAddModal('petugas')"
+                    >
+                        <span class="btn-plus">+</span>
+                        Tambah Petugas
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table id="petugasTable">
+
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nomor Identitas</th>
+                            <th>Nama Lengkap</th>
+                            <th>Email</th>
+                            <th>Kelurahan</th>
+                            <th>RT/RW</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @forelse ($petugas as $index => $user)
+
+                            @php
+                                $kelurahanUser = $kelurahans->firstWhere(
+                                    'deskripsi',
+                                    $user->kelurahan
+                                );
+
+                                $selectedRtRwIds = $user->petugasWilayah
+                                    ->pluck('rt_rw_id')
+                                    ->values()
+                                    ->all();
+                            @endphp
+
+                            <tr>
+
+                                <td>
+                                    {{ $index + 1 }}
+                                </td>
+
+                                <td>
+                                    {{ $user->nomor_identitas }}
+                                </td>
+
+                                <td>
+                                    {{ $user->name }}
+                                </td>
+
+                                <td>
+                                    {{ $user->email }}
+                                </td>
+
+                                <td>
+                                    {{ $user->kelurahan ?? '-' }}
+                                </td>
+
+                                <td>
+                                    <div class="space-y-1">
+                                        @forelse ($user->petugasWilayah as $wilayah)
+                                            @if ($wilayah->rtRw)
+                                                <div>
+                                                    <span class="inline-block px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs">
+                                                        RT {{ $wilayah->rtRw->rt }} / RW {{ $wilayah->rtRw->rw }}
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        @empty
+                                            <span class="text-gray-400 text-xs">
+                                                Belum ada wilayah
+                                            </span>
+                                        @endforelse
+                                    </div>
+                                </td>
+
+                                <td>
+
+                                    <div class="action-buttons">
+
+                                        <button
+                                            type="button"
+                                            class="btn-edit"
+                                            data-user="{{ json_encode([
+                                                'id' => $user->id,
+                                                'role' => 'petugas',
+                                                'nomor_identitas' => $user->nomor_identitas,
+                                                'name' => $user->name,
+                                                'email' => $user->email,
+                                                'kelurahan' => $user->kelurahan,
+                                                'kelurahan_id' => $kelurahanUser ? $kelurahanUser->kelurahan_id : '',
+                                                'rt_rw_ids' => $selectedRtRwIds
+                                            ]) }}"
+                                            onclick="editFromButton(this)"
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn-delete"
+                                            data-id="{{ $user->id }}"
+                                            data-name="{{ $user->name }}"
+                                            data-role="petugas"
+                                            onclick="hapusData(this)"
+                                        >
+                                            Hapus
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+                                <td
+                                    colspan="7"
+                                    style="text-align:center; color:#9ca3af;"
+                                >
+                                    Belum ada data petugas.
+                                </td>
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+{{-- =====================================================
+     MODAL TAMBAH / EDIT
+===================================================== --}}
+
+<div
+    class="modal-overlay"
+    id="userModal"
+>
+
+    <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+    >
+
+        <div class="modal-header">
+
+            <div class="modal-header-text">
+
+                <div
+                    class="modal-kicker"
+                    id="modalKicker"
+                >
+                    PENGGUNA
+                </div>
+
+                <div
+                    class="modal-title"
+                    id="modalTitle"
+                >
+                    Tambah Operator
+                </div>
+
+            </div>
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="closeModal()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-body">
+
+            <div
+                class="modal-description"
+                id="modalDescription"
+            >
+                Masukkan data pengguna baru.
+            </div>
+
+
+            <form id="userForm">
+
+                <input
+                    type="hidden"
+                    id="userId"
+                >
+
+                <input
+                    type="hidden"
+                    id="userRole"
+                >
+
+
+                {{-- NOMOR IDENTITAS --}}
+
+                <div class="form-group">
+
+                    <label
+                        for="nomorIdentitas"
+                        class="form-label"
+                    >
+                        Nomor Identitas
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nomorIdentitas"
+                        class="form-input"
+                        placeholder="Masukkan nomor identitas"
+                        maxlength="50"
+                        required
+                    >
+
+                </div>
+
+
+                {{-- NAMA --}}
+
+                <div class="form-group">
+
+                    <label
+                        for="namaLengkap"
+                        class="form-label"
+                    >
+                        Nama Lengkap
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="namaLengkap"
+                        class="form-input"
+                        placeholder="Masukkan nama lengkap"
+                        required
+                    >
+
+                </div>
+
+
+                {{-- EMAIL --}}
+
+                <div class="form-group">
+
+                    <label
+                        for="email"
+                        class="form-label"
+                    >
+                        Email
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        class="form-input"
+                        placeholder="Masukkan email"
+                        required
+                    >
+
+                </div>
+
+
+                {{-- PASSWORD --}}
+
+                <div
+                    class="form-group"
+                    id="passwordGroup"
+                >
+
+                    <label
+                        for="password"
+                        class="form-label"
+                    >
+                        Password
+
+                        <span
+                            class="required"
+                            id="passwordRequired"
+                        >
+                            *
+                        </span>
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        class="form-input"
+                        placeholder="Masukkan password"
+                    >
+
+                    <div
+                        class="form-help"
+                        id="passwordHelp"
+                    >
+                        Password digunakan untuk login ke sistem.
+                    </div>
+
+                </div>
+
+
+                {{-- KELURAHAN --}}
+
+                <div
+                    class="form-group"
+                    id="wilayahGroup"
+                    style="display:none;"
+                >
+
+                    <label
+                        for="wilayah"
+                        class="form-label"
+                    >
+                        Kelurahan
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="wilayah"
+                        class="form-select"
+                    >
+
+                        <option value="">
+                            Pilih Kelurahan
+                        </option>
+
+                        @foreach ($kelurahans as $kelurahan)
+
+                            <option
+                                value="{{ $kelurahan->kelurahan_id }}"
                             >
-                                <span class="btn-plus">+</span>
-                                Tambah Verifikator
-                            </a>
+                                {{ $kelurahan->deskripsi }}
+                            </option>
 
-                        </div>
+                        @endforeach
 
+                    </select>
+
+                </div>
+
+
+                {{-- RT/RW --}}
+
+                <div
+                    class="form-group"
+                    id="rtRwGroup"
+                    style="display:none;"
+                >
+
+                    <label class="form-label">
+                        RT/RW
+                        <span class="required">*</span>
+                    </label>
+
+                    <div
+                        class="form-help"
+                        style="margin-bottom:7px;"
+                    >
+                        Pilih satu atau beberapa RT/RW yang menjadi wilayah tugas.
                     </div>
 
-                    <div class="table-wrapper">
+                    <div
+                        class="rtrw-box"
+                        id="rtRwContainer"
+                    >
 
-                        <table id="verifikatorTable">
-
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Lengkap</th>
-                                    <th>NIK</th>
-                                    <th>Jenis Kelamin</th>
-                                    <th>Tempat Lahir</th>
-                                    <th>Tanggal Lahir</th>
-                                    <th>No. HP</th>
-                                    <th>Email</th>
-                                    <th>Alamat</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-
-                                <tr>
-                                    <td>1</td>
-                                    <td>Budi Santoso</td>
-                                    <td>3575030303030003</td>
-                                    <td>Laki-laki</td>
-                                    <td>Pasuruan</td>
-                                    <td>15 Maret 1997</td>
-                                    <td>083345678901</td>
-                                    <td>budi.santoso@gmail.com</td>
-                                    <td>Jl. Hayam Wuruk, Pasuruan</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="{{ route('master.verifikator.edit', 1) }}" class="btn-edit">
-                                                Edit
-                                            </a>
-
-                                            <button type="button" class="btn-delete">
-                                                Hapus
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                            </tbody>
-
-                        </table>
+                        <div class="rtrw-placeholder">
+                            Pilih Kelurahan terlebih dahulu.
+                        </div>
 
                     </div>
 
                 </div>
 
+            </form>
+
+        </div>
+
+
+        <div class="modal-footer">
+
+            <button
+                type="button"
+                class="btn-modal btn-modal-cancel"
+                onclick="closeModal()"
+            >
+                Batal
+            </button>
+
+            <button
+                type="button"
+                class="btn-modal btn-modal-save"
+                id="saveButton"
+                onclick="saveUser()"
+            >
+                Simpan
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =====================================================
+       URL & CSRF
+    ===================================================== */
+
+    const csrfToken = @json(csrf_token());
+
+    const storeUrl =
+        @json(route('master.pengguna.store'));
+
+    const updateUrlTemplate =
+        @json(route(
+            'master.pengguna.update',
+            ['user' => '__USER_ID__']
+        ));
+
+    const deleteUrlTemplate =
+        @json(route(
+            'master.pengguna.destroy',
+            ['user' => '__USER_ID__']
+        ));
+
+    const rtRwUrlTemplate =
+        @json(route(
+            'master.petugas.rt-rw',
+            ['kelurahanId' => '__KELURAHAN_ID__']
+        ));
+
+
+    /* =====================================================
+       ELEMENT
+    ===================================================== */
+
+    const userModal =
+        document.getElementById('userModal');
+
+    const userForm =
+        document.getElementById('userForm');
+
+    const userId =
+        document.getElementById('userId');
+
+    const userRole =
+        document.getElementById('userRole');
+
+    const modalTitle =
+        document.getElementById('modalTitle');
+
+    const modalDescription =
+        document.getElementById('modalDescription');
+
+    const modalKicker =
+        document.getElementById('modalKicker');
+
+    const saveButton =
+        document.getElementById('saveButton');
+
+    const nomorIdentitas =
+        document.getElementById('nomorIdentitas');
+
+    const namaLengkap =
+        document.getElementById('namaLengkap');
+
+    const email =
+        document.getElementById('email');
+
+    const password =
+        document.getElementById('password');
+
+    const wilayah =
+        document.getElementById('wilayah');
+
+    const wilayahGroup =
+        document.getElementById('wilayahGroup');
+
+    const rtRwGroup =
+        document.getElementById('rtRwGroup');
+
+    const rtRwContainer =
+        document.getElementById('rtRwContainer');
+
+    const passwordRequired =
+        document.getElementById('passwordRequired');
+
+    const passwordHelp =
+        document.getElementById('passwordHelp');
+
+
+    let currentMode = 'add';
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    function searchTable(inputId, tableId) {
+
+        const input =
+            document.getElementById(inputId);
+
+        const table =
+            document.getElementById(tableId);
+
+        if (!input || !table) {
+            return;
+        }
+
+        const filter =
+            input.value.toLowerCase();
+
+        const rows =
+            table.querySelectorAll('tbody tr');
+
+        rows.forEach(function (row) {
+
+            const text =
+                row.textContent.toLowerCase();
+
+            row.style.display =
+                text.includes(filter)
+                    ? ''
+                    : 'none';
+
+        });
+
+    }
+
+
+    /* =====================================================
+       TAB
+    ===================================================== */
+
+    const tabButtons =
+        document.querySelectorAll('.tab-button');
+
+    const tabContents =
+        document.querySelectorAll('.tab-content');
+
+
+    function showTab(tabName) {
+
+        tabButtons.forEach(function (button) {
+
+            button.classList.remove('active');
+
+        });
+
+
+        tabContents.forEach(function (content) {
+
+            content.classList.remove('active');
+
+        });
+
+
+        const selectedButton =
+            document.querySelector(
+                '.tab-button[data-tab="' +
+                tabName +
+                '"]'
+            );
+
+        const selectedContent =
+            document.getElementById(tabName);
+
+
+        if (
+            selectedButton &&
+            selectedContent
+        ) {
+
+            selectedButton.classList.add('active');
+
+            selectedContent.classList.add('active');
+
+        }
+
+    }
+
+
+    tabButtons.forEach(function (button) {
+
+        button.addEventListener(
+            'click',
+            function () {
+
+                showTab(
+                    this.getAttribute('data-tab')
+                );
+
+            }
+        );
+
+    });
+
+
+    /* =====================================================
+       RESET RT/RW
+    ===================================================== */
+
+    function resetRtRw() {
+
+        rtRwContainer.innerHTML = `
+            <div class="rtrw-placeholder">
+                Pilih Kelurahan terlebih dahulu.
             </div>
+        `;
 
-            <!-- ==================================================
-                 PETUGAS
-            ================================================== -->
+    }
 
-            <div class="tab-content" id="petugas">
 
-                <div class="table-card">
+    /* =====================================================
+       LOAD RT/RW
+    ===================================================== */
 
-                    <div class="table-card-header">
+    async function loadRtRw(
+        kelurahanId,
+        selectedIds = []
+    ) {
 
-                        <div class="table-card-title">
-                            <h3>Data Petugas</h3>
-                            <p>
-                                Daftar petugas yang terdaftar dalam sistem.
-                            </p>
-                        </div>
+        if (!kelurahanId) {
 
-                        <div class="table-header-actions">
+            resetRtRw();
 
-                            <div class="table-search">
+            return;
 
-                                <span class="table-search-icon">
-                                    ⌕
-                                </span>
+        }
 
-                                <input
-                                    type="text"
-                                    id="searchPetugas"
-                                    placeholder="Cari petugas..."
-                                    onkeyup="searchTable('searchPetugas', 'petugasTable')"
-                                >
 
-                            </div>
+        rtRwContainer.innerHTML = `
+            <div class="rtrw-placeholder">
+                Memuat data RT/RW...
+            </div>
+        `;
 
-                        </div>
 
+        try {
+
+            const url =
+                rtRwUrlTemplate.replace(
+                    '__KELURAHAN_ID__',
+                    encodeURIComponent(kelurahanId)
+                );
+
+
+            const response =
+                await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'Gagal mengambil data RT/RW.'
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.length) {
+
+                rtRwContainer.innerHTML = `
+                    <div class="rtrw-empty">
+                        Belum ada data RT/RW untuk kelurahan ini.
                     </div>
+                `;
 
-                    <div class="table-wrapper">
+                return;
 
-                        <table id="petugasTable">
+            }
 
-                            <thead>
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Lengkap</th>
-                                    <th>NIK</th>
-                                    <th>Jenis Kelamin</th>
-                                    <th>Tempat Lahir</th>
-                                    <th>Tanggal Lahir</th>
-                                    <th>No. HP</th>
-                                    <th>Email</th>
-                                    <th>Alamat</th>
-                                    <th>Wilayah</th>
-                                </tr>
-                            </thead>
 
-                            <tbody>
+            const selected =
+                selectedIds.map(
+                    id => String(id)
+                );
 
-                                <tr>
-                                    <td colspan="10" class="empty-row">
-                                        Belum ada data petugas.
-                                    </td>
-                                </tr>
 
-                            </tbody>
+            rtRwContainer.innerHTML = '';
 
-                        </table>
 
-                    </div>
+            data.forEach(function (item) {
 
+                const wrapper =
+                    document.createElement('label');
+
+                wrapper.className =
+                    'rtrw-item';
+
+
+                const checkbox =
+                    document.createElement('input');
+
+                checkbox.type =
+                    'checkbox';
+
+                checkbox.name =
+                    'rt_rw_ids[]';
+
+                checkbox.value =
+                    item.id;
+
+                checkbox.checked =
+                    selected.includes(
+                        String(item.id)
+                    );
+
+
+                const text =
+                    document.createElement('span');
+
+                text.className =
+                    'rtrw-text';
+
+                text.textContent =
+                    'RT ' +
+                    item.rt +
+                    ' / RW ' +
+                    item.rw;
+
+
+                wrapper.appendChild(checkbox);
+
+                wrapper.appendChild(text);
+
+                rtRwContainer.appendChild(wrapper);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            rtRwContainer.innerHTML = `
+                <div class="rtrw-empty">
+                    Gagal memuat data RT/RW.
                 </div>
+            `;
 
-            </div>
+        }
 
-        </section>
+    }
 
-    </main>
 
-    <!-- =========================
-         JAVASCRIPT
-    ========================= -->
+    /* =====================================================
+       KELURAHAN CHANGE
+    ===================================================== */
 
-    <script>
+    wilayah.addEventListener(
+        'change',
+        function () {
 
-        /* =========================
-           TAB MASTER
-        ========================= */
-
-        function showTab(tabName, button) {
-
-            const tabs = document.querySelectorAll('.tab-content');
-
-            tabs.forEach(function(tab) {
-                tab.classList.remove('active');
-            });
-
-            const buttons = document.querySelectorAll('.master-tab');
-
-            buttons.forEach(function(btn) {
-                btn.classList.remove('active');
-            });
-
-            const selectedTab = document.getElementById(tabName);
-
-            if (selectedTab) {
-                selectedTab.classList.add('active');
+            if (userRole.value !== 'petugas') {
+                return;
             }
 
-            if (button) {
-                button.classList.add('active');
-            }
+            loadRtRw(
+                this.value,
+                []
+            );
+
+        }
+    );
+
+
+    /* =====================================================
+       OPEN ADD MODAL
+    ===================================================== */
+
+    function openAddModal(role) {
+
+        currentMode = 'add';
+
+        userForm.reset();
+
+        userId.value = '';
+
+        userRole.value = role;
+
+
+        resetRtRw();
+
+
+        modalKicker.textContent =
+            'TAMBAH PENGGUNA';
+
+
+        if (role === 'operator') {
+
+            modalTitle.textContent =
+                'Tambah Operator';
+
+            modalDescription.textContent =
+                'Masukkan data operator baru.';
+
+            saveButton.textContent =
+                'Simpan Operator';
+
         }
 
 
-        /* =========================
-           SEARCH TABLE
-        ========================= */
+        if (role === 'verifikator') {
 
-        function searchTable(inputId, tableId) {
+            modalTitle.textContent =
+                'Tambah Verifikator';
 
-            const input = document.getElementById(inputId);
+            modalDescription.textContent =
+                'Masukkan data verifikator baru.';
 
-            if (!input) {
+            saveButton.textContent =
+                'Simpan Verifikator';
+
+        }
+
+
+        if (role === 'petugas') {
+
+            modalTitle.textContent =
+                'Tambah Petugas';
+
+            modalDescription.textContent =
+                'Masukkan data petugas baru beserta wilayah tugasnya.';
+
+            saveButton.textContent =
+                'Simpan Petugas';
+
+        }
+
+
+        const isPetugas =
+            role === 'petugas';
+
+
+        wilayahGroup.style.display =
+            isPetugas
+                ? 'block'
+                : 'none';
+
+
+        rtRwGroup.style.display =
+            isPetugas
+                ? 'block'
+                : 'none';
+
+
+        wilayah.required =
+            isPetugas;
+
+
+        password.required =
+            true;
+
+
+        passwordRequired.style.display =
+            'inline';
+
+
+        passwordHelp.textContent =
+            'Password digunakan untuk login ke sistem.';
+
+
+        userModal.classList.add('show');
+
+
+        setTimeout(function () {
+
+            nomorIdentitas.focus();
+
+        }, 100);
+
+    }
+
+
+    /* =====================================================
+       OPEN EDIT
+    ===================================================== */
+
+    function editFromButton(button) {
+
+        const data =
+            JSON.parse(
+                button.getAttribute('data-user')
+            );
+
+
+        openEditModal(data);
+
+    }
+
+
+    async function openEditModal(data) {
+
+        currentMode = 'edit';
+
+
+        userId.value =
+            data.id;
+
+        userRole.value =
+            data.role;
+
+        nomorIdentitas.value =
+            data.nomor_identitas || '';
+
+        namaLengkap.value =
+            data.name || '';
+
+        email.value =
+            data.email || '';
+
+        password.value =
+            '';
+
+
+        modalKicker.textContent =
+            'EDIT PENGGUNA';
+
+
+        if (data.role === 'operator') {
+
+            modalTitle.textContent =
+                'Edit Operator';
+
+            modalDescription.textContent =
+                'Perbarui data operator.';
+
+        }
+
+
+        if (data.role === 'verifikator') {
+
+            modalTitle.textContent =
+                'Edit Verifikator';
+
+            modalDescription.textContent =
+                'Perbarui data verifikator.';
+
+        }
+
+
+        if (data.role === 'petugas') {
+
+            modalTitle.textContent =
+                'Edit Petugas';
+
+            modalDescription.textContent =
+                'Perbarui data petugas dan wilayah tugasnya.';
+
+        }
+
+
+        saveButton.textContent =
+            'Simpan Perubahan';
+
+
+        const isPetugas =
+            data.role === 'petugas';
+
+
+        wilayahGroup.style.display =
+            isPetugas
+                ? 'block'
+                : 'none';
+
+
+        rtRwGroup.style.display =
+            isPetugas
+                ? 'block'
+                : 'none';
+
+
+        wilayah.required =
+            isPetugas;
+
+
+        password.required =
+            false;
+
+
+        passwordRequired.style.display =
+            'none';
+
+
+        passwordHelp.textContent =
+            'Kosongkan jika password tidak ingin diubah.';
+
+
+        if (isPetugas) {
+
+            wilayah.value =
+                data.kelurahan_id || '';
+
+
+            await loadRtRw(
+                data.kelurahan_id,
+                data.rt_rw_ids || []
+            );
+
+        } else {
+
+            wilayah.value = '';
+
+            resetRtRw();
+
+        }
+
+
+        userModal.classList.add('show');
+
+
+        setTimeout(function () {
+
+            nomorIdentitas.focus();
+
+        }, 100);
+
+    }
+
+
+    /* =====================================================
+       CLOSE MODAL
+    ===================================================== */
+
+    function closeModal() {
+
+        userModal.classList.remove('show');
+
+        userForm.reset();
+
+        userId.value = '';
+
+        userRole.value = '';
+
+        wilayahGroup.style.display =
+            'none';
+
+        rtRwGroup.style.display =
+            'none';
+
+        resetRtRw();
+
+    }
+
+
+    /* =====================================================
+       SAVE USER
+    ===================================================== */
+
+    async function saveUser() {
+
+        if (!userForm.checkValidity()) {
+
+            userForm.reportValidity();
+
+            return;
+
+        }
+
+
+        const role =
+            userRole.value;
+
+
+        if (!role) {
+
+            alert(
+                'Role pengguna tidak ditemukan.'
+            );
+
+            return;
+
+        }
+
+
+        if (role === 'petugas') {
+
+            const checked =
+                document.querySelectorAll(
+                    'input[name="rt_rw_ids[]"]:checked'
+                );
+
+
+            if (!checked.length) {
+
+                alert(
+                    'Pilih minimal satu RT/RW untuk petugas.'
+                );
+
                 return;
+
             }
 
-            const filter = input.value.toLowerCase();
+        }
 
-            const table = document.getElementById(tableId);
 
-            if (!table) {
-                return;
-            }
+        const formData =
+            new FormData();
 
-            const tbody = table.querySelector('tbody');
 
-            if (!tbody) {
-                return;
-            }
+        formData.append(
+            'role',
+            role
+        );
 
-            const rows = tbody.getElementsByTagName('tr');
+        formData.append(
+            'nomor_identitas',
+            nomorIdentitas.value.trim()
+        );
 
-            for (let i = 0; i < rows.length; i++) {
+        formData.append(
+            'name',
+            namaLengkap.value.trim()
+        );
 
-                const rowText = rows[i].textContent.toLowerCase();
+        formData.append(
+            'email',
+            email.value.trim()
+        );
 
-                if (rowText.indexOf(filter) > -1) {
-                    rows[i].style.display = '';
+
+        if (password.value.trim()) {
+
+            formData.append(
+                'password',
+                password.value.trim()
+            );
+
+        }
+
+
+        if (role === 'petugas') {
+
+            formData.append(
+                'kelurahan_id',
+                wilayah.value
+            );
+
+
+            const selectedRtRw =
+                document.querySelectorAll(
+                    'input[name="rt_rw_ids[]"]:checked'
+                );
+
+
+            selectedRtRw.forEach(function (checkbox) {
+
+                formData.append(
+                    'rt_rw_ids[]',
+                    checkbox.value
+                );
+
+            });
+
+        }
+
+
+        let url =
+            storeUrl;
+
+
+        if (currentMode === 'edit') {
+
+            url =
+                updateUrlTemplate.replace(
+                    '__USER_ID__',
+                    userId.value
+                );
+
+            formData.append(
+                '_method',
+                'PUT'
+            );
+
+        }
+
+
+        saveButton.disabled =
+            true;
+
+        saveButton.textContent =
+            'Menyimpan...';
+
+
+        try {
+
+            const response =
+                await fetch(url, {
+
+                    method: 'POST',
+
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+
+                    body: formData
+
+                });
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                if (
+                    response.status === 422 &&
+                    result.errors
+                ) {
+
+                    const messages =
+                        Object.values(
+                            result.errors
+                        ).flat();
+
+                    alert(
+                        messages.join('\n')
+                    );
+
                 } else {
-                    rows[i].style.display = 'none';
+
+                    alert(
+                        result.message ||
+                        'Terjadi kesalahan saat menyimpan data.'
+                    );
+
                 }
 
-            }
-        }
-
-
-        /* =========================
-           MOBILE SIDEBAR
-        ========================= */
-
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-
-
-        function openSidebar() {
-
-            if (!sidebar || !sidebarOverlay || !mobileMenuBtn) {
                 return;
+
             }
 
-            sidebar.classList.add('active');
-            sidebarOverlay.classList.add('active');
 
-            mobileMenuBtn.setAttribute('aria-expanded', 'true');
+            sessionStorage.setItem(
+                'pengguna_active_tab',
+                role
+            );
+
+
+            alert(
+                result.message ||
+                'Data berhasil disimpan.'
+            );
+
+
+            window.location.href =
+                @json(route('master.pengguna.index'));
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                'Terjadi kesalahan koneksi ke server.'
+            );
+
+        } finally {
+
+            saveButton.disabled =
+                false;
+
+            saveButton.textContent =
+                currentMode === 'edit'
+                    ? 'Simpan Perubahan'
+                    : 'Simpan';
+
+        }
+
+    }
+
+
+    /* =====================================================
+       DELETE
+    ===================================================== */
+
+    async function hapusData(button) {
+
+        const id =
+            button.dataset.id;
+
+        const name =
+            button.dataset.name ||
+            'data ini';
+
+        const role =
+            button.dataset.role ||
+            'pengguna';
+
+
+        if (!id) {
+
+            alert(
+                'ID pengguna tidak ditemukan.'
+            );
+
+            return;
+
         }
 
 
-        function closeSidebar() {
+        const yakin =
+            confirm(
+                'Apakah kamu yakin ingin menghapus ' +
+                name +
+                ' sebagai ' +
+                role +
+                '?'
+            );
 
-            if (!sidebar || !sidebarOverlay || !mobileMenuBtn) {
+
+        if (!yakin) {
+            return;
+        }
+
+
+        const url =
+            deleteUrlTemplate.replace(
+                '__USER_ID__',
+                id
+            );
+
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            'Menghapus...';
+
+
+        try {
+
+            const response =
+                await fetch(url, {
+
+                    method: 'POST',
+
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+
+                    body: '_method=DELETE'
+
+                });
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                alert(
+                    result.message ||
+                    'Data gagal dihapus.'
+                );
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    'Hapus';
+
                 return;
+
             }
 
-            sidebar.classList.remove('active');
-            sidebarOverlay.classList.remove('active');
 
-            mobileMenuBtn.setAttribute('aria-expanded', 'false');
+            sessionStorage.setItem(
+                'pengguna_active_tab',
+                role
+            );
+
+
+            alert(
+                result.message ||
+                'Data berhasil dihapus.'
+            );
+
+
+            window.location.href =
+                @json(route('master.pengguna.index'));
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                'Terjadi kesalahan koneksi ke server.'
+            );
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                'Hapus';
+
         }
 
-
-        if (mobileMenuBtn) {
-
-            mobileMenuBtn.addEventListener('click', function() {
-
-                if (sidebar.classList.contains('active')) {
-                    closeSidebar();
-                } else {
-                    openSidebar();
-                }
-
-            });
-
-        }
+    }
 
 
-        if (sidebarOverlay) {
+    /* =====================================================
+       KLIK LUAR MODAL
+    ===================================================== */
 
-            sidebarOverlay.addEventListener('click', function() {
-                closeSidebar();
-            });
+    userModal.addEventListener(
+        'click',
+        function (event) {
 
-        }
+            if (
+                event.target === userModal
+            ) {
 
+                closeModal();
 
-        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-
-        sidebarLinks.forEach(function(link) {
-
-            link.addEventListener('click', function() {
-
-                if (window.innerWidth <= 900) {
-                    closeSidebar();
-                }
-
-            });
-
-        });
-
-
-        window.addEventListener('resize', function() {
-
-            if (window.innerWidth > 900) {
-                closeSidebar();
             }
 
-        });
+        }
+    );
 
-    </script>
 
-</body>
+    /* =====================================================
+       ESC
+    ===================================================== */
 
-</html>
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (
+                event.key === 'Escape' &&
+                userModal.classList.contains('show')
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       TAB AKTIF SETELAH RELOAD
+    ===================================================== */
+
+    const savedTab =
+        sessionStorage.getItem(
+            'pengguna_active_tab'
+        );
+
+
+    const urlParams =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const urlTab =
+        urlParams.get('tab');
+
+
+    showTab(
+        savedTab ||
+        urlTab ||
+        'operator'
+    );
+
+
+    sessionStorage.removeItem(
+        'pengguna_active_tab'
+    );
+
+</script>
+
+@endsection

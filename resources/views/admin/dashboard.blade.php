@@ -1126,7 +1126,7 @@
                 <a href="{{ url('/periode') }}">
 
                     <span class="submenu-icon">
-                        ▣
+                        ◷
                     </span>
 
                     <span>
@@ -1170,7 +1170,7 @@
                 </span>
 
                 <span>
-                    Logout
+                    Keluar
                 </span>
 
             </a>
@@ -1227,7 +1227,7 @@
             <div>
 
                 <div class="header-title">
-                    Sistem Pendataan perlindungan Dinas Sosial Kota Pasuruan
+                    Sistem Pendataan Perlinsos Kota Pasuruan
                 </div>
 
                 <div class="header-subtitle">
