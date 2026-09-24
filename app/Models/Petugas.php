@@ -2,24 +2,30 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Petugas extends Model
 {
+    use HasFactory;
+
     protected $table = 'petugas';
 
     protected $fillable = [
-        'user_id',
+        'nama_lengkap',
         'nik',
-        'nomor_hp',
+        'jenis_kelamin',
+        'tgl_lahir',
+        'no_hp',
         'email',
-        'alamat',
-        'wilayah_id',
-        'status',
-        'last_login_at',
+        'alamat_rumah',
+        'wilayah_tugas',
+        'username',
+        'terakhir_login',
     ];
 
     protected $casts = [
-        'last_login_at' => 'datetime',
+        'tgl_lahir' => 'date',
+        'terakhir_login' => 'datetime',
     ];
 }
