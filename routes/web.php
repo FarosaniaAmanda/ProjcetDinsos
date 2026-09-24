@@ -9,11 +9,12 @@ use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\PetugasController;
 use App\Http\Controllers\Admin\RespondenController;
+use App\Http\Controllers\Admin\UserController;
 
 
 /*
 |--------------------------------------------------------------------------
-| Login
+| LOGIN
 |--------------------------------------------------------------------------
 */
 
@@ -23,7 +24,7 @@ Route::get('/', [LoginController::class, 'index'])
 
 /*
 |--------------------------------------------------------------------------
-| Dashboard
+| DASHBOARD
 |--------------------------------------------------------------------------
 */
 
@@ -33,7 +34,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 /*
 |--------------------------------------------------------------------------
-| Periode
+| PERIODE
 |--------------------------------------------------------------------------
 */
 
@@ -49,7 +50,7 @@ Route::get('/periode/edit/{id}', [PeriodeController::class, 'edit'])
 
 /*
 |--------------------------------------------------------------------------
-| Petugas
+| PETUGAS
 |--------------------------------------------------------------------------
 */
 
@@ -74,7 +75,7 @@ Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])
 
 /*
 |--------------------------------------------------------------------------
-| Responden
+| RESPONDEN
 |--------------------------------------------------------------------------
 */
 
@@ -99,7 +100,26 @@ Route::delete('/responden/hapus/{id}', [RespondenController::class, 'destroy'])
 
 /*
 |--------------------------------------------------------------------------
-| Kuisioner
+| RESPONDEN - AJAX
+|--------------------------------------------------------------------------
+*/
+
+/*
+ * Mengambil data responden untuk modal edit
+ */
+Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData'])
+    ->name('responden.editData');
+
+/*
+ * Mengambil kelurahan berdasarkan kecamatan
+ */
+Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
+    ->name('responden.kelurahan');
+
+
+/*
+|--------------------------------------------------------------------------
+| KUISIONER
 |--------------------------------------------------------------------------
 */
 
@@ -110,7 +130,7 @@ Route::get('/kuisioner', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Verifikasi
+| VERIFIKASI
 |--------------------------------------------------------------------------
 */
 
@@ -126,7 +146,7 @@ Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])
 
 /*
 |--------------------------------------------------------------------------
-| Monitoring
+| MONITORING
 |--------------------------------------------------------------------------
 */
 
@@ -139,7 +159,7 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 
 /*
 |--------------------------------------------------------------------------
-| Laporan
+| LAPORAN
 |--------------------------------------------------------------------------
 */
 
@@ -158,11 +178,9 @@ Route::get('/laporan/export', function () {
 
 /*
 |--------------------------------------------------------------------------
-| Master
+| MASTER
 |--------------------------------------------------------------------------
 */
-
-use App\Http\Controllers\Admin\UserController;
 
 Route::get('/master', function () {
     return redirect()->route('master.pengguna.index');

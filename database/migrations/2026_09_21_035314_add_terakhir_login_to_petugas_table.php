@@ -8,14 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('petugas', function (Blueprint $table) {
-            $table->timestamp('terakhir_login')->nullable()->after('username');
+        Schema::table('users', function (Blueprint $table) {
+            $table->timestamp('terakhir_login')
+                ->nullable()
+                ->after('email');
         });
     }
 
     public function down(): void
     {
-        Schema::table('petugas', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('terakhir_login');
         });
     }

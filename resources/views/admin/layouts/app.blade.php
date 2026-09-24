@@ -11,7 +11,6 @@
         @yield('title', 'Sistem Pendataan Dinas Sosial Kota Pasuruan')
     </title>
 
-
     <style>
 
         * {
@@ -19,7 +18,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
 
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -39,6 +37,9 @@
             left: 0;
 
             width: 260px;
+            min-width: 260px;
+            max-width: 260px;
+
             height: 100vh;
 
             background: #252A86;
@@ -49,14 +50,17 @@
 
             z-index: 1000;
 
+            overflow-x: hidden;
             overflow-y: auto;
+
+            scrollbar-gutter: stable;
 
             transition: transform .3s ease;
         }
 
 
         /* =====================================================
-           LOGO SIDEBAR
+           LOGO
         ====================================================== */
 
         .sidebar-logo {
@@ -68,11 +72,10 @@
 
             padding: 16px 20px;
 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            border-bottom: 1px solid rgba(255,255,255,.12);
 
             flex-shrink: 0;
         }
-
 
         .sidebar-logo img {
             width: 72px;
@@ -89,13 +92,18 @@
 
 
         /* =====================================================
-           MENU SIDEBAR
+           MENU
         ====================================================== */
 
         .sidebar-menu {
             padding: 20px 14px;
 
-            flex: 1;
+            flex: 1 1 auto;
+
+            width: 100%;
+            min-width: 0;
+
+            overflow: visible;
         }
 
 
@@ -103,7 +111,7 @@
             font-size: 11px;
             font-weight: 700;
 
-            color: rgba(255, 255, 255, 0.55);
+            color: rgba(255,255,255,.55);
 
             text-transform: uppercase;
 
@@ -113,6 +121,10 @@
         }
 
 
+        /* =====================================================
+           SEMUA MENU UTAMA
+        ====================================================== */
+
         .menu-link {
             display: flex;
             align-items: center;
@@ -120,39 +132,62 @@
             gap: 12px;
 
             width: 100%;
+            height: 48px;
 
-            padding: 12px 14px;
+            padding: 0 14px;
 
             margin-bottom: 5px;
 
             border-radius: 9px;
 
-            color: rgba(255, 255, 255, 0.82);
+            color: rgba(255,255,255,.82);
 
             text-decoration: none;
 
             font-size: 14px;
             font-weight: 500;
 
-            transition: all .2s ease;
+            transition:
+                background .2s ease,
+                color .2s ease,
+                box-shadow .2s ease;
         }
 
 
+        /* HOVER */
+
         .menu-link:hover {
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255,255,255,.10);
             color: #ffffff;
         }
 
 
+        /* =====================================================
+           MENU AKTIF
+           
+           HANYA MENU YANG MEMILIKI .active YANG PUTIH
+        ====================================================== */
+
         .menu-link.active {
             background: #ffffff;
+
             color: #252A86;
 
             font-weight: 700;
 
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 4px 12px rgba(0,0,0,.10);
         }
 
+
+        .menu-link.active:hover {
+            background: #ffffff;
+            color: #252A86;
+        }
+
+
+        /* =====================================================
+           ICON MENU
+        ====================================================== */
 
         .menu-icon {
             width: 20px;
@@ -167,11 +202,12 @@
 
 
         /* =====================================================
-           MASTER DROPDOWN
+           MASTER BUTTON
         ====================================================== */
 
         .master-toggle {
             border: none;
+
             background: transparent;
 
             cursor: pointer;
@@ -181,10 +217,16 @@
             text-align: left;
 
             appearance: none;
+
+            outline: none;
         }
 
 
-        .master-toggle .master-arrow {
+        /* =====================================================
+           PANAH MASTER
+        ====================================================== */
+
+        .master-arrow {
             margin-left: auto;
 
             width: 18px;
@@ -200,19 +242,34 @@
         }
 
 
+        /* PANAH TERBALIK SAAT OPEN */
+
         .master-toggle.open .master-arrow {
             transform: rotate(180deg);
         }
 
 
-        .master-toggle.master-active {
-            background: rgba(255, 255, 255, 0.10);
-            color: #ffffff;
+        /* =====================================================
+           MASTER AKTIF
+
+           Master putih HANYA ketika class .active diberikan.
+           .open TIDAK OTOMATIS MEMBUAT MASTER PUTIH.
+        ====================================================== */
+
+        .master-toggle.active {
+            background: #ffffff;
+
+            color: #252A86;
+
+            font-weight: 700;
+
+            box-shadow: 0 4px 12px rgba(0,0,0,.10);
         }
 
 
-        .master-toggle.master-active:hover {
-            background: rgba(255, 255, 255, 0.14);
+        .master-toggle.active:hover {
+            background: #ffffff;
+            color: #252A86;
         }
 
 
@@ -237,9 +294,14 @@
 
         .master-submenu.open {
             max-height: 200px;
+
             opacity: 1;
         }
 
+
+        /* =====================================================
+           SUBMENU LINK
+        ====================================================== */
 
         .submenu-link {
             display: flex;
@@ -248,37 +310,56 @@
             gap: 12px;
 
             width: 100%;
+            height: 42px;
 
-            padding: 10px 14px;
+            padding: 0 14px;
 
             margin-bottom: 4px;
 
             border-radius: 8px;
 
-            color: rgba(255, 255, 255, 0.72);
+            color: rgba(255,255,255,.72);
 
             text-decoration: none;
 
             font-size: 13px;
+
             font-weight: 500;
 
-            transition: all .2s ease;
+            transition:
+                background .2s ease,
+                color .2s ease,
+                box-shadow .2s ease;
         }
 
 
         .submenu-link:hover {
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255,255,255,.10);
             color: #ffffff;
         }
 
 
+        /* =====================================================
+           SUBMENU AKTIF
+
+           HANYA submenu yang diklik menjadi putih.
+        ====================================================== */
+
         .submenu-link.active {
             background: #ffffff;
+
             color: #252A86;
 
             font-weight: 700;
 
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 3px 8px rgba(0,0,0,.08);
+        }
+
+
+        .submenu-link.active:hover {
+            background: #ffffff;
+
+            color: #252A86;
         }
 
 
@@ -295,13 +376,13 @@
 
 
         /* =====================================================
-           SIDEBAR FOOTER
+           FOOTER SIDEBAR
         ====================================================== */
 
         .sidebar-footer {
             padding: 15px 14px;
 
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255,255,255,.12);
 
             flex-shrink: 0;
         }
@@ -314,23 +395,26 @@
             gap: 12px;
 
             width: 100%;
+            height: 48px;
 
-            padding: 12px 14px;
+            padding: 0 14px;
 
             border-radius: 9px;
 
-            color: rgba(255, 255, 255, 0.85);
+            color: rgba(255,255,255,.85);
 
             text-decoration: none;
 
             font-size: 14px;
 
-            transition: all .2s ease;
+            transition:
+                background .2s ease,
+                color .2s ease;
         }
 
 
         .logout-link:hover {
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255,255,255,.10);
             color: #ffffff;
         }
 
@@ -347,6 +431,7 @@
             width: calc(100% - 260px);
 
             display: flex;
+
             flex-direction: column;
         }
 
@@ -363,12 +448,15 @@
             border-bottom: 1px solid #e8e9ef;
 
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
             padding: 0 30px;
 
             position: sticky;
+
             top: 0;
 
             z-index: 900;
@@ -377,6 +465,7 @@
 
         .header-left {
             display: flex;
+
             align-items: center;
 
             gap: 14px;
@@ -413,6 +502,7 @@
 
         .admin-profile {
             display: flex;
+
             align-items: center;
 
             gap: 10px;
@@ -453,6 +543,7 @@
             color: #ffffff;
 
             display: flex;
+
             align-items: center;
             justify-content: center;
 
@@ -463,7 +554,7 @@
 
 
         /* =====================================================
-           MOBILE MENU BUTTON
+           MOBILE BUTTON
         ====================================================== */
 
         .mobile-menu-btn {
@@ -521,7 +612,7 @@
 
 
         /* =====================================================
-           SIDEBAR OVERLAY
+           OVERLAY
         ====================================================== */
 
         .sidebar-overlay {
@@ -541,27 +632,19 @@
 
 
         /* =====================================================
-           RESPONSIVE TABLET
+           TABLET
         ====================================================== */
 
         @media (max-width: 900px) {
 
             .sidebar {
-                position: fixed;
-
-                top: 0;
-                left: 0;
-
                 width: 270px;
-                height: 100vh;
+                min-width: 270px;
+                max-width: 270px;
 
                 transform: translateX(-100%);
 
-                transition: transform .3s ease;
-
                 z-index: 1100;
-
-                overflow-y: auto;
             }
 
 
@@ -570,8 +653,6 @@
             }
 
 
-            /* OVERLAY */
-
             .sidebar-overlay {
                 display: block;
 
@@ -579,7 +660,7 @@
 
                 inset: 0;
 
-                background: rgba(0, 0, 0, .40);
+                background: rgba(0,0,0,.40);
 
                 opacity: 0;
 
@@ -598,8 +679,6 @@
             }
 
 
-            /* MAIN */
-
             .main {
                 margin-left: 0;
 
@@ -607,22 +686,12 @@
             }
 
 
-            /* HEADER */
-
             .header {
                 height: 70px;
 
                 padding: 0 20px;
-
-                position: sticky;
-
-                top: 0;
-
-                z-index: 900;
             }
 
-
-            /* HAMBURGER */
 
             .mobile-menu-btn {
                 display: flex;
@@ -643,8 +712,6 @@
                 display: none;
             }
 
-
-            /* CONTENT */
 
             .content {
                 padding: 20px;
@@ -740,6 +807,8 @@
 
             .sidebar {
                 width: 250px;
+                min-width: 250px;
+                max-width: 250px;
             }
 
 
@@ -778,9 +847,7 @@
     <aside class="sidebar" id="sidebar">
 
 
-        <!-- =================================================
-             LOGO
-        ================================================== -->
+        <!-- LOGO -->
 
         <div class="sidebar-logo">
 
@@ -792,9 +859,7 @@
         </div>
 
 
-        <!-- =================================================
-             MENU
-        ================================================== -->
+        <!-- MENU -->
 
         <nav class="sidebar-menu">
 
@@ -825,11 +890,8 @@
                     >
 
                         <rect x="3" y="3" width="7" height="7"></rect>
-
                         <rect x="14" y="3" width="7" height="7"></rect>
-
                         <rect x="3" y="14" width="7" height="7"></rect>
-
                         <rect x="14" y="14" width="7" height="7"></rect>
 
                     </svg>
@@ -1055,28 +1117,48 @@
 
 
             <!-- =================================================
-                 MASTER DROPDOWN
+                 MASTER
             ================================================== -->
 
             @php
 
-                $masterOpen =
-                    request()->is('master*') ||
+                /*
+                |--------------------------------------------------
+                | Master dianggap berada di area Master hanya
+                | ketika halaman Pengguna / Master sedang dibuka.
+                |
+                | Periode memiliki active sendiri.
+                |--------------------------------------------------
+                */
+
+                $isMasterPage =
+                    request()->is('master*');
+
+                $isPeriodePage =
                     request()->is('periode*');
+
+                /*
+                |--------------------------------------------------
+                | Dropdown otomatis terbuka jika sedang berada
+                | di Master atau Periode.
+                |--------------------------------------------------
+                */
+
+                $masterOpen =
+                    $isMasterPage ||
+                    $isPeriodePage;
 
             @endphp
 
 
             <button
                 type="button"
-                class="menu-link master-toggle {{ $masterOpen ? 'master-active open' : '' }}"
+                class="menu-link master-toggle {{ $isMasterPage ? 'active' : '' }} {{ $masterOpen ? 'open' : '' }}"
                 id="masterToggle"
                 aria-expanded="{{ $masterOpen ? 'true' : 'false' }}"
             >
 
                 <span class="menu-icon">
-
-                    <!-- ICON MASTER -->
 
                     <svg
                         width="18"
@@ -1106,8 +1188,6 @@
                     Master
                 </span>
 
-
-                <!-- PANAH -->
 
                 <span class="master-arrow">
 
@@ -1141,13 +1221,11 @@
             >
 
 
-                <!-- =================================================
-                     PERIODE
-                ================================================== -->
+                <!-- PERIODE -->
 
                 <a
                     href="{{ route('periode.index') }}"
-                    class="submenu-link {{ request()->is('periode*') ? 'active' : '' }}"
+                    class="submenu-link {{ $isPeriodePage ? 'active' : '' }}"
                 >
 
                     <span class="submenu-icon">
@@ -1201,13 +1279,11 @@
                 </a>
 
 
-                <!-- =================================================
-                     PENGGUNA
-                ================================================== -->
+                <!-- PENGGUNA -->
 
                 <a
                     href="{{ route('master.index') }}"
-                    class="submenu-link {{ request()->is('master*') ? 'active' : '' }}"
+                    class="submenu-link {{ $isMasterPage ? 'active' : '' }}"
                 >
 
                     <span class="submenu-icon">
@@ -1248,7 +1324,6 @@
                     </span>
 
                 </a>
-
 
             </div>
 
@@ -1324,9 +1399,7 @@
     <div class="main">
 
 
-        <!-- =================================================
-             HEADER
-        ================================================== -->
+        <!-- HEADER -->
 
         <header class="header">
 
@@ -1395,7 +1468,7 @@
 
 
         <!-- =================================================
-             ISI HALAMAN
+             CONTENT
         ================================================== -->
 
         <main class="content">
@@ -1415,11 +1488,6 @@
 
         document.addEventListener('DOMContentLoaded', function () {
 
-
-            /* =================================================
-               ELEMENT SIDEBAR
-            ================================================== */
-
             const mobileMenuBtn =
                 document.getElementById('mobileMenuBtn');
 
@@ -1429,11 +1497,6 @@
             const sidebarOverlay =
                 document.getElementById('sidebarOverlay');
 
-
-            /* =================================================
-               ELEMENT MASTER
-            ================================================== */
-
             const masterToggle =
                 document.getElementById('masterToggle');
 
@@ -1442,7 +1505,7 @@
 
 
             /* =================================================
-               BUKA SIDEBAR MOBILE
+               SIDEBAR MOBILE
             ================================================== */
 
             function openSidebar() {
@@ -1464,13 +1527,8 @@
                 );
 
                 document.body.style.overflow = 'hidden';
-
             }
 
-
-            /* =================================================
-               TUTUP SIDEBAR MOBILE
-            ================================================== */
 
             function closeSidebar() {
 
@@ -1491,13 +1549,8 @@
                 );
 
                 document.body.style.overflow = '';
-
             }
 
-
-            /* =================================================
-               HAMBURGER
-            ================================================== */
 
             mobileMenuBtn.addEventListener(
                 'click',
@@ -1519,10 +1572,6 @@
             );
 
 
-            /* =================================================
-               OVERLAY
-            ================================================== */
-
             sidebarOverlay.addEventListener(
                 'click',
                 closeSidebar
@@ -1533,7 +1582,10 @@
                MASTER DROPDOWN
             ================================================== */
 
-            if (masterToggle && masterSubmenu) {
+            if (
+                masterToggle &&
+                masterSubmenu
+            ) {
 
                 masterToggle.addEventListener(
                     'click',
@@ -1541,26 +1593,79 @@
 
                         event.preventDefault();
 
+
                         const isOpen =
                             masterSubmenu.classList.contains('open');
 
 
                         if (isOpen) {
 
+                            /*
+                            Tutup dropdown.
+
+                            PENTING:
+                            class active juga dihapus.
+                            Jadi Master tidak akan tetap putih
+                            hanya karena sebelumnya diklik.
+                            */
+
                             masterSubmenu.classList.remove('open');
 
                             masterToggle.classList.remove('open');
+
+                            masterToggle.classList.remove('active');
 
                             masterToggle.setAttribute(
                                 'aria-expanded',
                                 'false'
                             );
 
+
                         } else {
 
-                            masterSubmenu.classList.add('open');
+                            /*
+                            Buka dropdown.
+
+                            Semua menu utama lain dilepas
+                            dari keadaan active.
+                            */
+
+                            document
+                                .querySelectorAll(
+                                    '.sidebar .menu-link.active'
+                                )
+                                .forEach(function (item) {
+
+                                    item.classList.remove('active');
+
+                                });
+
+
+                            /*
+                            Semua submenu juga dilepas.
+                            */
+
+                            document
+                                .querySelectorAll(
+                                    '.sidebar .submenu-link.active'
+                                )
+                                .forEach(function (item) {
+
+                                    item.classList.remove('active');
+
+                                });
+
+
+                            /*
+                            Master menjadi satu-satunya
+                            menu yang putih.
+                            */
+
+                            masterToggle.classList.add('active');
 
                             masterToggle.classList.add('open');
+
+                            masterSubmenu.classList.add('open');
 
                             masterToggle.setAttribute(
                                 'aria-expanded',
@@ -1576,18 +1681,85 @@
 
 
             /* =================================================
-               KLIK MENU
+               KLIK MENU UTAMA
             ================================================== */
 
             document
                 .querySelectorAll(
-                    '.sidebar .menu-link:not(.master-toggle), .sidebar .submenu-link, .sidebar .logout-link'
+                    '.sidebar .menu-link:not(.master-toggle)'
                 )
                 .forEach(function (link) {
 
                     link.addEventListener(
                         'click',
                         function () {
+
+                            /*
+                            Hapus active dari SEMUA menu utama.
+                            */
+
+                            document
+                                .querySelectorAll(
+                                    '.sidebar .menu-link'
+                                )
+                                .forEach(function (item) {
+
+                                    item.classList.remove('active');
+
+                                });
+
+
+                            /*
+                            Hapus active dari submenu.
+                            */
+
+                            document
+                                .querySelectorAll(
+                                    '.sidebar .submenu-link'
+                                )
+                                .forEach(function (item) {
+
+                                    item.classList.remove('active');
+
+                                });
+
+
+                            /*
+                            Menu yang baru diklik menjadi active.
+                            */
+
+                            this.classList.add('active');
+
+
+                            /*
+                            Kalau menu biasa diklik,
+                            dropdown Master ditutup.
+                            */
+
+                            if (masterToggle) {
+
+                                masterToggle.classList.remove('active');
+
+                                masterToggle.classList.remove('open');
+
+                                masterToggle.setAttribute(
+                                    'aria-expanded',
+                                    'false'
+                                );
+
+                            }
+
+
+                            if (masterSubmenu) {
+
+                                masterSubmenu.classList.remove('open');
+
+                            }
+
+
+                            /*
+                            Mobile: tutup sidebar.
+                            */
 
                             if (
                                 window.innerWidth <= 900
@@ -1601,6 +1773,114 @@
                     );
 
                 });
+
+
+            /* =================================================
+               KLIK SUBMENU MASTER
+            ================================================== */
+
+            document
+                .querySelectorAll(
+                    '.sidebar .submenu-link'
+                )
+                .forEach(function (link) {
+
+                    link.addEventListener(
+                        'click',
+                        function () {
+
+                            /*
+                            Hapus active dari semua menu utama.
+                            */
+
+                            document
+                                .querySelectorAll(
+                                    '.sidebar .menu-link'
+                                )
+                                .forEach(function (item) {
+
+                                    item.classList.remove('active');
+
+                                });
+
+
+                            /*
+                            Hapus active dari submenu lain.
+                            */
+
+                            document
+                                .querySelectorAll(
+                                    '.sidebar .submenu-link'
+                                )
+                                .forEach(function (item) {
+
+                                    item.classList.remove('active');
+
+                                });
+
+
+                            /*
+                            Hanya submenu yang diklik yang putih.
+                            */
+
+                            this.classList.add('active');
+
+
+                            /*
+                            Master tetap terbuka,
+                            tetapi TIDAK putih.
+                            */
+
+                            masterToggle.classList.remove('active');
+
+                            masterToggle.classList.add('open');
+
+                            masterSubmenu.classList.add('open');
+
+                            masterToggle.setAttribute(
+                                'aria-expanded',
+                                'true'
+                            );
+
+
+                            /*
+                            Mobile: tutup sidebar.
+                            */
+
+                            if (
+                                window.innerWidth <= 900
+                            ) {
+
+                                closeSidebar();
+
+                            }
+
+                        }
+                    );
+
+                });
+
+
+            /* =================================================
+               LOGOUT
+            ================================================== */
+
+            document
+                .querySelector('.logout-link')
+                ?.addEventListener(
+                    'click',
+                    function () {
+
+                        if (
+                            window.innerWidth <= 900
+                        ) {
+
+                            closeSidebar();
+
+                        }
+
+                    }
+                );
 
 
             /* =================================================
@@ -1622,14 +1902,16 @@
 
 
             /* =================================================
-               RESET DESKTOP
+               RESIZE
             ================================================== */
 
             window.addEventListener(
                 'resize',
                 function () {
 
-                    if (window.innerWidth > 900) {
+                    if (
+                        window.innerWidth > 900
+                    ) {
 
                         closeSidebar();
 

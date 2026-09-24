@@ -8,10 +8,11 @@ class Part1Keluarga extends Model
 {
     protected $table = 'part1_keluarga';
 
-    public $timestamps = false;
-
     protected $fillable = [
+        'keluarga_periode_kode',
+        'nik',
         'no_kk',
+        'jml_keluarga',
         'provinsi',
         'daerah',
         'kecamatan',
@@ -19,8 +20,11 @@ class Part1Keluarga extends Model
         'kode_pos',
         'rt_rw',
         'alamat_lengkap',
-        'jlan_rumah',
+        'jalan_rumah',
         'is_alamat_sesuai',
+        'geotangging',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [

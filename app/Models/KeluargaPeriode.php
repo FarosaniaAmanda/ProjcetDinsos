@@ -4,16 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KeluargaAnggota extends Model
+class KeluargaPeriode extends Model
 {
-    protected $table = 'keluarga_anggotas';
+    protected $table = 'keluarga_periodes';
 
     protected $fillable = [
         'kode',
         'keluarga_kode',
-        'nik',
-        'nama_lengkap',
-        'status_keluarga',
+        'periode_kode',
+        'status_kuisoner',
         'created_by',
         'updated_by',
     ];
