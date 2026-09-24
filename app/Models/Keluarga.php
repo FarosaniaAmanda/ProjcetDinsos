@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Keluarga extends Model
 {
-    protected $table = 'keluarga';
+    protected $table = 'keluargas';
 
     protected $fillable = [
         'periode_id',
@@ -22,4 +22,16 @@ class Keluarga extends Model
     protected $casts = [
         'tanggal_pendaftaran' => 'datetime',
     ];
+
+    /**
+     * Relasi ke anggota keluarga
+     */
+    public function anggota()
+    {
+        return $this->hasMany(
+            AnggotaKeluarga::class,
+            'keluarga_id',
+            'id'
+        );
+    }
 }
