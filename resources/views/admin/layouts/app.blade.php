@@ -1152,10 +1152,10 @@
 
 
             <button
-                type="button"
-                class="menu-link master-toggle {{ $isMasterPage ? 'active' : '' }} {{ $masterOpen ? 'open' : '' }}"
-                id="masterToggle"
-                aria-expanded="{{ $masterOpen ? 'true' : 'false' }}"
+            type="button"
+            class="menu-link master-toggle {{ $masterOpen ? 'open' : '' }}"
+            id="masterToggle"
+            aria-expanded="{{ $masterOpen ? 'true' : 'false' }}"
             >
 
                 <span class="menu-icon">
@@ -1429,7 +1429,7 @@
                 <div>
 
                     <div class="header-title">
-                        Sistem Pendataan Dinas Sosial Kota Pasuruan
+                        Sistem Pendataan Perlindungan Dinas Sosial Kota Pasuruan
                     </div>
 
                     <div class="header-subtitle">

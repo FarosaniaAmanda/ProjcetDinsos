@@ -5,24 +5,23 @@
 @push('styles')
 <style>
     /* =====================================================
-       VERIFIKASI - PAGE HEADER
+       CARD BESAR VERIFIKASI
     ====================================================== */
 
-    .page-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 20px;
-        margin-bottom: 24px;
+    .verification-card {
+        background: #ffffff;
+        border: 1px solid #e8e9ef;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
     }
 
-    .page-kicker {
-        font-size: 11px;
-        font-weight: 700;
-        color: #252A86;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 6px;
+    /* =====================================================
+       PAGE HEADER DI DALAM CARD BESAR
+    ====================================================== */
+
+    .verification-header {
+        padding: 28px 28px 22px;
     }
 
     .page-title {
@@ -30,7 +29,7 @@
         font-weight: 700;
         color: #252A86;
         line-height: 1.25;
-        margin-bottom: 8px;
+        margin: 0 0 8px;
     }
 
     .page-description {
@@ -38,8 +37,8 @@
         color: #777;
         line-height: 1.6;
         max-width: 700px;
+        margin: 0;
     }
-
 
     /* =====================================================
        ALERT SUCCESS
@@ -49,8 +48,8 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        margin: 0 28px 20px;
         padding: 13px 16px;
-        margin-bottom: 20px;
         border-radius: 9px;
         background: #eaf8ef;
         border: 1px solid #bce5c9;
@@ -75,23 +74,27 @@
         }
     }
 
-
     /* =====================================================
        STATISTICS
+       CARD KECIL HANYA UNTUK STATISTIK
     ====================================================== */
+
+    .stats-section {
+        padding: 0 28px 26px;
+    }
 
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-        margin-bottom: 24px;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
     }
 
     .stat-card {
         background: #ffffff;
         border: 1px solid #e8e9ef;
-        border-radius: 12px;
-        padding: 18px;
+        border-radius: 11px;
+        padding: 15px;
+        min-width: 0;
         transition: all .2s ease;
     }
 
@@ -101,41 +104,33 @@
     }
 
     .stat-label {
-        font-size: 12px;
+        font-size: 11px;
         color: #777;
         margin-bottom: 8px;
+        line-height: 1.4;
     }
 
     .stat-value {
-        font-size: 25px;
+        font-size: 23px;
         font-weight: 700;
         color: #252A86;
         line-height: 1;
     }
 
-
     /* =====================================================
-       DATA PANEL
-       SEARCH MENJADI BAGIAN DARI CARD
+       SEARCH SECTION
+       MASIH DI DALAM CARD BESAR
     ====================================================== */
 
-    .data-panel {
-        background: #ffffff;
-        border: 1px solid #e8e9ef;
-        border-radius: 12px;
-        overflow: hidden;
+    .search-section {
+        padding: 0 28px 24px;
     }
 
-
-    /* =====================================================
-       SEARCH DI DALAM CARD
-    ====================================================== */
-
-    .table-search-section {
-        position: relative;
-        padding: 16px 20px;
-        border-bottom: 1px solid #e8e9ef;
-        background: #ffffff;
+    .search-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 9px;
     }
 
     .search-form {
@@ -161,7 +156,7 @@
 
     .search-box input {
         width: 100%;
-        height: 42px;
+        height: 43px;
         padding: 0 13px 0 40px;
         border: 1px solid #dfe1e8;
         border-radius: 8px;
@@ -181,7 +176,6 @@
     .search-box input::placeholder {
         color: #a0a0a0;
     }
-
 
     /* =====================================================
        SEARCH SUGGESTIONS
@@ -272,11 +266,6 @@
         color: #999;
     }
 
-
-    /* =====================================================
-       SEARCH RESULT
-    ====================================================== */
-
     .search-result {
         margin-top: 7px;
         padding-left: 2px;
@@ -289,33 +278,35 @@
         font-weight: 700;
     }
 
-
     /* =====================================================
-       DATA PANEL HEADER
+       MONITORING SECTION
+       BAGIAN INI BUKAN CARD TERPISAH
     ====================================================== */
 
-    .data-panel-header {
+    .monitoring-section {
+        border-top: 1px solid #e8e9ef;
+    }
+
+    .monitoring-header {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
         gap: 20px;
-        padding: 20px;
-        border-bottom: 1px solid #e8e9ef;
+        padding: 22px 28px;
     }
 
-    .data-panel-title {
+    .monitoring-title {
         font-size: 17px;
         font-weight: 700;
         color: #252A86;
         margin-bottom: 5px;
     }
 
-    .data-panel-description {
+    .monitoring-description {
         font-size: 12px;
         color: #888;
         line-height: 1.5;
     }
-
 
     /* =====================================================
        FILTER
@@ -344,7 +335,6 @@
         box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08);
     }
 
-
     /* =====================================================
        TABLE
     ====================================================== */
@@ -352,6 +342,7 @@
     .table-wrapper {
         width: 100%;
         overflow-x: auto;
+        border-top: 1px solid #e8e9ef;
     }
 
     .data-table {
@@ -391,7 +382,6 @@
     .data-table tbody tr:last-child td {
         border-bottom: none;
     }
-
 
     /* =====================================================
        STATUS BADGE
@@ -433,7 +423,6 @@
         color: #a53636;
     }
 
-
     /* =====================================================
        ACTION BUTTON
     ====================================================== */
@@ -466,7 +455,6 @@
         background: #252A86;
         color: #ffffff;
     }
-
 
     /* =====================================================
        EMPTY STATE
@@ -501,9 +489,8 @@
         color: #999;
     }
 
-
     /* =====================================================
-       MODAL DETAIL VERIFIKASI
+       MODAL DETAIL
     ====================================================== */
 
     .verification-modal {
@@ -714,34 +701,39 @@
         background: #e1e4ee;
     }
 
-
     /* =====================================================
        RESPONSIVE
     ====================================================== */
 
     @media (max-width: 1200px) {
-
         .stats-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
     }
 
-
     @media (max-width: 900px) {
+        .verification-header {
+            padding: 24px 20px 20px;
+        }
 
         .page-title {
             font-size: 23px;
         }
 
-        .page-header {
-            margin-bottom: 20px;
+        .stats-section {
+            padding: 0 20px 22px;
         }
 
         .stats-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .data-panel-header {
+        .search-section {
+            padding: 0 20px 22px;
+        }
+
+        .monitoring-header {
+            padding: 20px;
             flex-direction: column;
             align-items: stretch;
         }
@@ -754,6 +746,11 @@
             width: 100%;
         }
 
+        .alert-success {
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
         .verification-modal {
             padding: 15px;
         }
@@ -763,8 +760,10 @@
         }
     }
 
-
     @media (max-width: 600px) {
+        .verification-header {
+            padding: 20px 16px 18px;
+        }
 
         .page-title {
             font-size: 21px;
@@ -774,21 +773,25 @@
             font-size: 13px;
         }
 
+        .stats-section {
+            padding: 0 16px 20px;
+        }
+
         .stats-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
+            gap: 9px;
         }
 
         .stat-card {
-            padding: 14px;
+            padding: 13px;
         }
 
         .stat-value {
             font-size: 21px;
         }
 
-        .table-search-section {
-            padding: 12px;
+        .search-section {
+            padding: 0 16px 20px;
         }
 
         .search-box input {
@@ -796,8 +799,12 @@
             font-size: 12px;
         }
 
-        .data-panel-header {
-            padding: 16px;
+        .monitoring-header {
+            padding: 17px 16px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
         }
 
         .verification-modal {
@@ -823,27 +830,21 @@
         }
     }
 
-
     @media (max-width: 400px) {
-
         .stats-grid {
             gap: 8px;
         }
 
         .stat-card {
-            padding: 12px;
+            padding: 11px;
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 10px;
         }
 
         .stat-value {
             font-size: 19px;
-        }
-
-        .table-search-section {
-            padding: 10px;
         }
 
         .verification-actions {
@@ -861,12 +862,16 @@
 @section('content')
 
     {{-- =====================================================
-         PAGE HEADER
+         SATU CARD BESAR
     ====================================================== --}}
 
-    <div class="page-header">
-        <div>
+    <div class="verification-card">
 
+        {{-- =================================================
+             HEADER VERIFIKASI
+        ================================================== --}}
+
+        <div class="verification-header">
             <h1 class="page-title">
                 Sistem Verifikasi
             </h1>
@@ -874,136 +879,125 @@
             <p class="page-description">
                 Kelola, periksa, dan perbarui data hasil pendataan responden.
             </p>
-
         </div>
-    </div>
 
 
-    {{-- =====================================================
-         SUCCESS ALERT
-    ====================================================== --}}
+        {{-- =================================================
+             SUCCESS ALERT
+        ================================================== --}}
 
-    @if (session('success'))
-
-        <div
-            class="alert-success"
-            id="successAlert"
-        >
-
-            <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
+        @if (session('success'))
+            <div
+                class="alert-success"
+                id="successAlert"
             >
-                <path d="M20 6L9 17l-5-5"></path>
-            </svg>
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M20 6L9 17l-5-5"></path>
+                </svg>
 
-            <span>
-                {{ session('success') }}
-            </span>
+                <span>
+                    {{ session('success') }}
+                </span>
+            </div>
+        @endif
 
+
+        {{-- =================================================
+             STATISTIK
+        ================================================== --}}
+
+        <div class="stats-section">
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Total Responden
+                    </div>
+
+                    <div class="stat-value">
+                        100
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Sudah Didata
+                    </div>
+
+                    <div class="stat-value">
+                        10
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Belum Didata
+                    </div>
+
+                    <div class="stat-value">
+                        265
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Menunggu Verifikasi
+                    </div>
+
+                    <div class="stat-value">
+                        118
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Disetujui
+                    </div>
+
+                    <div class="stat-value">
+                        742
+                    </div>
+                </div>
+
+
+                <div class="stat-card">
+                    <div class="stat-label">
+                        Ditolak
+                    </div>
+
+                    <div class="stat-value">
+                        83
+                    </div>
+                </div>
+
+            </div>
         </div>
-
-    @endif
-
-
-    {{-- =====================================================
-         STATISTICS
-    ====================================================== --}}
-
-    <div class="stats-grid">
-
-        <div class="stat-card">
-            <div class="stat-label">
-                Total Responden
-            </div>
-
-            <div class="stat-value">
-                100
-            </div>
-        </div>
-
-
-        <div class="stat-card">
-            <div class="stat-label">
-                Sudah Didata
-            </div>
-
-            <div class="stat-value">
-                10
-            </div>
-        </div>
-
-
-        <div class="stat-card">
-            <div class="stat-label">
-                Belum Didata
-            </div>
-
-            <div class="stat-value">
-                265
-            </div>
-        </div>
-
-
-        <div class="stat-card">
-            <div class="stat-label">
-                Menunggu Verifikasi
-            </div>
-
-            <div class="stat-value">
-                118
-            </div>
-        </div>
-
-
-        <div class="stat-card">
-            <div class="stat-label">
-                Disetujui
-            </div>
-
-            <div class="stat-value">
-                742
-            </div>
-        </div>
-
-
-        <div class="stat-card">
-            <div class="stat-label">
-                Ditolak
-            </div>
-
-            <div class="stat-value">
-                83
-            </div>
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         DATA PANEL
-         SEARCH SEKARANG MENJADI BAGIAN DARI CARD
-    ====================================================== --}}
-
-    <div class="data-panel">
 
 
         {{-- =================================================
              SEARCH
-             BUKAN CARD TERPISAH
         ================================================== --}}
 
-        <div class="table-search-section">
+        <div class="search-section">
+
+            <div class="search-title">
+                Cari Data Responden
+            </div>
 
             <div class="search-form">
 
                 <div class="search-box">
-
-                    {{-- ICON SEARCH --}}
 
                     <svg
                         width="17"
@@ -1027,18 +1021,12 @@
                         ></line>
                     </svg>
 
-
-                    {{-- INPUT SEARCH --}}
-
                     <input
                         type="text"
                         id="liveSearch"
                         placeholder="Cari No.KK, NIK, atau Nama Kepala Keluarga...."
                         autocomplete="off"
                     >
-
-
-                    {{-- SEARCH SUGGESTIONS --}}
 
                     <div
                         class="search-suggestions"
@@ -1048,9 +1036,6 @@
                 </div>
 
             </div>
-
-
-            {{-- HASIL PENCARIAN --}}
 
             <div
                 class="search-result"
@@ -1062,329 +1047,327 @@
 
 
         {{-- =================================================
-             HEADER PANEL
+             MONITORING
+             BUKAN CARD BARU
         ================================================== --}}
 
-        <div class="data-panel-header">
+        <div class="monitoring-section">
 
-            <div>
+            <div class="monitoring-header">
 
-                <div class="data-panel-title">
-                    Data Hasil Pendataan
+                <div>
+                    <div class="monitoring-title">
+                        Data Monitoring Pendataan
+                    </div>
+
+                    <div class="monitoring-description">
+                        Daftar data responden yang telah masuk ke sistem.
+                    </div>
                 </div>
 
-                <div class="data-panel-description">
-                    Daftar data responden yang telah masuk ke sistem.
-                </div>
 
-            </div>
+                {{-- FILTER STATUS --}}
 
+                <div class="filter-wrapper">
 
-            {{-- FILTER STATUS --}}
-
-            <div class="filter-wrapper">
-
-                <form
-                    action="{{ route('verifikasi.index') }}"
-                    method="GET"
-                >
-
-                    <select
-                        name="status"
-                        class="filter-select"
-                        onchange="this.form.submit()"
+                    <form
+                        action="{{ route('verifikasi.index') }}"
+                        method="GET"
                     >
 
-                        <option
-                            value="all"
-                            {{ request('status', 'all') == 'all' ? 'selected' : '' }}
+                        <select
+                            name="status"
+                            class="filter-select"
+                            onchange="this.form.submit()"
                         >
-                            Semua Status
-                        </option>
 
-                        <option
-                            value="pending"
-                            {{ request('status') == 'pending' ? 'selected' : '' }}
-                        >
-                            Menunggu Verifikasi
-                        </option>
+                            <option
+                                value="all"
+                                {{ request('status', 'all') == 'all' ? 'selected' : '' }}
+                            >
+                                Semua Status
+                            </option>
 
-                        <option
-                            value="draft"
-                            {{ request('status') == 'draft' ? 'selected' : '' }}
-                        >
-                            Draft
-                        </option>
+                            <option
+                                value="pending"
+                                {{ request('status') == 'pending' ? 'selected' : '' }}
+                            >
+                                Menunggu Verifikasi
+                            </option>
 
-                        <option
-                            value="not_processed"
-                            {{ request('status') == 'not_processed' ? 'selected' : '' }}
-                        >
-                            Belum Didata
-                        </option>
+                            <option
+                                value="draft"
+                                {{ request('status') == 'draft' ? 'selected' : '' }}
+                            >
+                                Draft
+                            </option>
 
-                        <option
-                            value="approved"
-                            {{ request('status') == 'approved' ? 'selected' : '' }}
-                        >
-                            Disetujui
-                        </option>
+                            <option
+                                value="not_processed"
+                                {{ request('status') == 'not_processed' ? 'selected' : '' }}
+                            >
+                                Belum Didata
+                            </option>
 
-                        <option
-                            value="rejected"
-                            {{ request('status') == 'rejected' ? 'selected' : '' }}
-                        >
-                            Ditolak
-                        </option>
+                            <option
+                                value="approved"
+                                {{ request('status') == 'approved' ? 'selected' : '' }}
+                            >
+                                Disetujui
+                            </option>
 
-                    </select>
+                            <option
+                                value="rejected"
+                                {{ request('status') == 'rejected' ? 'selected' : '' }}
+                            >
+                                Ditolak
+                            </option>
 
-                </form>
+                        </select>
+
+                    </form>
+
+                </div>
 
             </div>
 
-        </div>
+
+            {{-- =================================================
+                 TABLE
+            ================================================== --}}
+
+            <div class="table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>No. KK</th>
+                            <th>NIK</th>
+                            <th>Nama Kepala Keluarga</th>
+                            <th>Jumlah Anggota</th>
+                            <th>Status</th>
+                            <th>Wilayah Pendataan</th>
+                            <th>Petugas</th>
+                            <th>Tanggal Pendataan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
 
 
-        {{-- =================================================
-             TABLE
-        ================================================== --}}
+                    <tbody id="dataTableBody">
 
-        <div class="table-wrapper">
+                        @forelse ($data as $item)
 
-            <table class="data-table">
+                            @php
+                                $status = strtolower(
+                                    str_replace(
+                                        [' ', '-'],
+                                        '_',
+                                        $item['status'] ?? ''
+                                    )
+                                );
 
-                <thead>
-
-                    <tr>
-                        <th>No.</th>
-                        <th>No. KK</th>
-                        <th>NIK</th>
-                        <th>Nama Kepala Keluarga</th>
-                        <th>Jumlah Anggota</th>
-                        <th>Status</th>
-                        <th>Wilayah Pendataan</th>
-                        <th>Petugas</th>
-                        <th>Tanggal Pendataan</th>
-                        <th>Aksi</th>
-                    </tr>
-
-                </thead>
-
-
-                <tbody id="dataTableBody">
-
-                    @forelse ($data as $item)
-
-                        @php
-
-                            $status = strtolower(
-                                str_replace(
-                                    [' ', '-'],
-                                    '_',
-                                    $item['status'] ?? ''
-                                )
-                            );
-
-                            if (
-                                $status === 'pending' ||
-                                $status === 'menunggu' ||
-                                $status === 'menunggu_verifikasi'
-                            ) {
-
-                                $statusLabel = 'Menunggu Verifikasi';
-
-                            } elseif ($status === 'draft') {
-
-                                $statusLabel = 'Draft';
-
-                            } elseif (
-                                $status === 'not_processed' ||
-                                $status === 'belum_didata'
-                            ) {
-
-                                $statusLabel = 'Belum Didata';
-
-                            } elseif (
-                                $status === 'approved' ||
-                                $status === 'disetujui'
-                            ) {
-
-                                $statusLabel = 'Disetujui';
-
-                            } elseif (
-                                $status === 'rejected' ||
-                                $status === 'ditolak'
-                            ) {
-
-                                $statusLabel = 'Ditolak';
-
-                            } else {
-
-                                $statusLabel = $item['status'] ?? '-';
-
-                            }
-
-                        @endphp
-
-
-                        <tr
-                            class="data-row"
-
-                            data-id="{{ $item['id'] ?? '' }}"
-
-                            data-no-kk="{{ $item['no_kk'] ?? '' }}"
-
-                            data-nik="{{ $item['nik'] ?? '' }}"
-
-                            data-nama="{{ $item['nama'] ?? '' }}"
-
-                            data-wilayah="{{ $item['wilayah'] ?? '' }}"
-
-                            data-petugas="{{ $item['petugas'] ?? '' }}"
-
-                            data-status="{{ $item['status'] ?? '' }}"
-
-                            data-status-label="{{ $statusLabel }}"
-                        >
-
-
-                            {{-- NO --}}
-
-                            <td class="row-number">
-                                {{ $loop->iteration }}
-                            </td>
-
-
-                            {{-- NO KK --}}
-
-                            <td>
-                                {{ $item['no_kk'] ?? '-' }}
-                            </td>
-
-
-                            {{-- NIK --}}
-
-                            <td>
-                                {{ $item['nik'] ?? '-' }}
-                            </td>
-
-
-                            {{-- NAMA --}}
-
-                            <td>
-                                {{ $item['nama'] ?? '-' }}
-                            </td>
-
-
-                            {{-- ANGGOTA --}}
-
-                            <td>
-                                {{ $item['anggota'] ?? 0 }} Orang
-                            </td>
-
-
-                            {{-- STATUS --}}
-
-                            <td>
-
-                                @if (
+                                if (
                                     $status === 'pending' ||
                                     $status === 'menunggu' ||
                                     $status === 'menunggu_verifikasi'
-                                )
-
-                                    <span class="status-badge status-pending">
-                                        Menunggu Verifikasi
-                                    </span>
-
-                                @elseif ($status === 'draft')
-
-                                    <span class="status-badge status-draft">
-                                        Draft
-                                    </span>
-
-                                @elseif (
+                                ) {
+                                    $statusLabel = 'Menunggu Verifikasi';
+                                } elseif ($status === 'draft') {
+                                    $statusLabel = 'Draft';
+                                } elseif (
                                     $status === 'not_processed' ||
                                     $status === 'belum_didata'
-                                )
-
-                                    <span class="status-badge status-not-processed">
-                                        Belum Didata
-                                    </span>
-
-                                @elseif (
+                                ) {
+                                    $statusLabel = 'Belum Didata';
+                                } elseif (
                                     $status === 'approved' ||
                                     $status === 'disetujui'
-                                )
-
-                                    <span class="status-badge status-approved">
-                                        Disetujui
-                                    </span>
-
-                                @elseif (
+                                ) {
+                                    $statusLabel = 'Disetujui';
+                                } elseif (
                                     $status === 'rejected' ||
                                     $status === 'ditolak'
-                                )
-
-                                    <span class="status-badge status-rejected">
-                                        Ditolak
-                                    </span>
-
-                                @else
-
-                                    <span class="status-badge status-draft">
-                                        {{ $item['status'] ?? '-' }}
-                                    </span>
-
-                                @endif
-
-                            </td>
+                                ) {
+                                    $statusLabel = 'Ditolak';
+                                } else {
+                                    $statusLabel = $item['status'] ?? '-';
+                                }
+                            @endphp
 
 
-                            {{-- WILAYAH --}}
+                            <tr
+                                class="data-row"
+                                data-id="{{ $item['id'] ?? '' }}"
+                                data-no-kk="{{ $item['no_kk'] ?? '' }}"
+                                data-nik="{{ $item['nik'] ?? '' }}"
+                                data-nama="{{ $item['nama'] ?? '' }}"
+                                data-wilayah="{{ $item['wilayah'] ?? '' }}"
+                                data-petugas="{{ $item['petugas'] ?? '' }}"
+                                data-status="{{ $item['status'] ?? '' }}"
+                                data-status-label="{{ $statusLabel }}"
+                            >
 
-                            <td>
-                                {{ $item['wilayah'] ?? '-' }}
-                            </td>
+                                <td class="row-number">
+                                    {{ $loop->iteration }}
+                                </td>
+
+                                <td>
+                                    {{ $item['no_kk'] ?? '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $item['nik'] ?? '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $item['nama'] ?? '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $item['anggota'] ?? 0 }} Orang
+                                </td>
+
+                                <td>
+
+                                    @if (
+                                        $status === 'pending' ||
+                                        $status === 'menunggu' ||
+                                        $status === 'menunggu_verifikasi'
+                                    )
+                                        <span class="status-badge status-pending">
+                                            Menunggu Verifikasi
+                                        </span>
+
+                                    @elseif ($status === 'draft')
+
+                                        <span class="status-badge status-draft">
+                                            Draft
+                                        </span>
+
+                                    @elseif (
+                                        $status === 'not_processed' ||
+                                        $status === 'belum_didata'
+                                    )
+
+                                        <span class="status-badge status-not-processed">
+                                            Belum Didata
+                                        </span>
+
+                                    @elseif (
+                                        $status === 'approved' ||
+                                        $status === 'disetujui'
+                                    )
+
+                                        <span class="status-badge status-approved">
+                                            Disetujui
+                                        </span>
+
+                                    @elseif (
+                                        $status === 'rejected' ||
+                                        $status === 'ditolak'
+                                    )
+
+                                        <span class="status-badge status-rejected">
+                                            Ditolak
+                                        </span>
+
+                                    @else
+
+                                        <span class="status-badge status-draft">
+                                            {{ $item['status'] ?? '-' }}
+                                        </span>
+
+                                    @endif
+
+                                </td>
+
+                                <td>
+                                    {{ $item['wilayah'] ?? '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $item['petugas'] ?? '-' }}
+                                </td>
+
+                                <td>
+                                    {{ $item['tanggal'] ?? '-' }}
+                                </td>
+
+                                <td>
+
+                                    <div class="action-wrapper">
+
+                                        <button
+                                            type="button"
+                                            class="btn-detail btn-open-detail"
+                                        >
+                                            Detail
+                                        </button>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr id="serverEmptyRow">
+                                <td colspan="10">
+
+                                    <div class="empty-state">
+
+                                        <div class="empty-state-icon">
+
+                                            <svg
+                                                width="23"
+                                                height="23"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                            >
+                                                <circle
+                                                    cx="11"
+                                                    cy="11"
+                                                    r="7"
+                                                ></circle>
+
+                                                <line
+                                                    x1="16.65"
+                                                    y1="16.65"
+                                                    x2="21"
+                                                    y2="21"
+                                                ></line>
+                                            </svg>
+
+                                        </div>
+
+                                        <div class="empty-state-title">
+                                            Data tidak ditemukan
+                                        </div>
+
+                                        <div class="empty-state-description">
+                                            Belum terdapat data responden yang masuk ke sistem.
+                                        </div>
+
+                                    </div>
+
+                                </td>
+                            </tr>
+
+                        @endforelse
 
 
-                            {{-- PETUGAS --}}
+                        {{-- EMPTY RESULT LIVE SEARCH --}}
 
-                            <td>
-                                {{ $item['petugas'] ?? '-' }}
-                            </td>
-
-
-                            {{-- TANGGAL --}}
-
-                            <td>
-                                {{ $item['tanggal'] ?? '-' }}
-                            </td>
-
-
-                            {{-- AKSI --}}
-
-                            <td>
-
-                                <div class="action-wrapper">
-
-                                    <button
-                                        type="button"
-                                        class="btn-detail btn-open-detail"
-                                    >
-                                        Detail
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    @empty
-
-                        <tr id="serverEmptyRow">
+                        <tr
+                            id="liveEmptyRow"
+                            style="display: none;"
+                        >
 
                             <td colspan="10">
 
@@ -1420,8 +1403,11 @@
                                         Data tidak ditemukan
                                     </div>
 
-                                    <div class="empty-state-description">
-                                        Belum terdapat data responden yang masuk ke sistem.
+                                    <div
+                                        class="empty-state-description"
+                                        id="liveEmptyText"
+                                    >
+                                        Tidak ada data yang sesuai dengan pencarian.
                                     </div>
 
                                 </div>
@@ -1430,66 +1416,11 @@
 
                         </tr>
 
-                    @endforelse
+                    </tbody>
 
+                </table>
 
-                    {{-- EMPTY RESULT LIVE SEARCH --}}
-
-                    <tr
-                        id="liveEmptyRow"
-                        style="display: none;"
-                    >
-
-                        <td colspan="10">
-
-                            <div class="empty-state">
-
-                                <div class="empty-state-icon">
-
-                                    <svg
-                                        width="23"
-                                        height="23"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                    >
-                                        <circle
-                                            cx="11"
-                                            cy="11"
-                                            r="7"
-                                        ></circle>
-
-                                        <line
-                                            x1="16.65"
-                                            y1="16.65"
-                                            x2="21"
-                                            y2="21"
-                                        ></line>
-                                    </svg>
-
-                                </div>
-
-                                <div class="empty-state-title">
-                                    Data tidak ditemukan
-                                </div>
-
-                                <div
-                                    class="empty-state-description"
-                                    id="liveEmptyText"
-                                >
-                                    Tidak ada data yang sesuai dengan pencarian.
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
+            </div>
 
         </div>
 
@@ -1506,15 +1437,11 @@
         aria-hidden="true"
     >
 
-        {{-- BACKDROP --}}
-
         <div
             class="verification-modal-overlay"
             id="verificationModalOverlay"
         ></div>
 
-
-        {{-- MODAL BOX --}}
 
         <div
             class="verification-modal-box"
@@ -1522,8 +1449,6 @@
             aria-modal="true"
             aria-labelledby="verificationModalTitle"
         >
-
-            {{-- HEADER --}}
 
             <div class="verification-modal-header">
 
@@ -1546,8 +1471,6 @@
 
                 </div>
 
-
-                {{-- CLOSE --}}
 
                 <button
                     type="button"
@@ -1584,95 +1507,42 @@
             </div>
 
 
-            {{-- BODY --}}
-
             <div class="verification-modal-body">
-
-                {{-- DATA RESPONDEN --}}
 
                 <div class="verification-modal-grid">
 
                     <div class="verification-field">
-
-                        <label>
-                            No. KK
-                        </label>
-
-                        <strong id="modalNoKK">
-                            -
-                        </strong>
-
+                        <label>No. KK</label>
+                        <strong id="modalNoKK">-</strong>
                     </div>
 
-
                     <div class="verification-field">
-
-                        <label>
-                            NIK
-                        </label>
-
-                        <strong id="modalNIK">
-                            -
-                        </strong>
-
+                        <label>NIK</label>
+                        <strong id="modalNIK">-</strong>
                     </div>
 
-
                     <div class="verification-field">
-
-                        <label>
-                            Nama Kepala Keluarga
-                        </label>
-
-                        <strong id="modalNama">
-                            -
-                        </strong>
-
+                        <label>Nama Kepala Keluarga</label>
+                        <strong id="modalNama">-</strong>
                     </div>
 
-
                     <div class="verification-field">
-
-                        <label>
-                            Wilayah
-                        </label>
-
-                        <strong id="modalWilayah">
-                            -
-                        </strong>
-
+                        <label>Wilayah</label>
+                        <strong id="modalWilayah">-</strong>
                     </div>
 
-
                     <div class="verification-field">
-
-                        <label>
-                            Petugas
-                        </label>
-
-                        <strong id="modalPetugas">
-                            -
-                        </strong>
-
+                        <label>Petugas</label>
+                        <strong id="modalPetugas">-</strong>
                     </div>
 
-
                     <div class="verification-field">
-
-                        <label>
-                            Status Saat Ini
-                        </label>
-
-                        <strong id="modalStatusLabel">
-                            -
-                        </strong>
-
+                        <label>Status Saat Ini</label>
+                        <strong id="modalStatusLabel">-</strong>
                     </div>
 
                 </div>
 
-
-                {{-- FORM UBAH STATUS --}}
 
                 <form
                     id="verificationUpdateForm"
@@ -1715,8 +1585,6 @@
                     </div>
 
 
-                    {{-- TOMBOL --}}
-
                     <div class="verification-actions">
 
                         <button
@@ -1748,7 +1616,6 @@
 
 
 @push('scripts')
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -1760,7 +1627,6 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('successAlert');
 
     if (successAlert) {
-
         setTimeout(function () {
 
             successAlert.style.opacity = '0';
@@ -1803,7 +1669,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       DATA UNTUK SEARCH
+       DATA SEARCH
     ====================================================== */
 
     const searchData =
@@ -1820,7 +1686,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       UPDATE HASIL SEARCH
+       ESCAPE HTML
+    ====================================================== */
+
+    function escapeHtml(value) {
+
+        const div =
+            document.createElement('div');
+
+        div.textContent =
+            value ?? '';
+
+        return div.innerHTML;
+    }
+
+
+    /* =====================================================
+       UPDATE SEARCH RESULT
     ====================================================== */
 
     function updateSearchResult(keyword, count) {
@@ -1831,7 +1713,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (keyword.length > 0) {
 
-            searchResult.style.display = 'block';
+            searchResult.style.display =
+                'block';
 
             searchResult.innerHTML =
                 'Menampilkan ' +
@@ -1845,8 +1728,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         } else {
 
-            searchResult.style.display = 'none';
-            searchResult.innerHTML = '';
+            searchResult.style.display =
+                'none';
+
+            searchResult.innerHTML =
+                '';
 
         }
     }
@@ -1864,28 +1750,30 @@ document.addEventListener('DOMContentLoaded', function () {
                 .trim();
 
 
-        /* =================================================
-           JIKA SEARCH KOSONG
-        ================================================== */
-
         if (keyword === '') {
 
-            tableRows.forEach(function (row, index) {
+            tableRows.forEach(
+                function (row, index) {
 
-                row.style.display = '';
+                    row.style.display =
+                        '';
 
-                const numberCell =
-                    row.querySelector('.row-number');
+                    const numberCell =
+                        row.querySelector(
+                            '.row-number'
+                        );
 
-                if (numberCell) {
-                    numberCell.textContent =
-                        index + 1;
+                    if (numberCell) {
+                        numberCell.textContent =
+                            index + 1;
+                    }
+
                 }
-
-            });
+            );
 
             if (liveEmptyRow) {
-                liveEmptyRow.style.display = 'none';
+                liveEmptyRow.style.display =
+                    'none';
             }
 
             updateSearchResult('', 0);
@@ -1894,64 +1782,56 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        /* =================================================
-           CARI DATA
-        ================================================== */
-
         const filteredData =
-            searchData.filter(function (item) {
+            searchData.filter(
+                function (item) {
 
-                const noKK =
-                    item.noKK.toLowerCase();
+                    const noKK =
+                        item.noKK.toLowerCase();
 
-                const nik =
-                    item.nik.toLowerCase();
+                    const nik =
+                        item.nik.toLowerCase();
 
-                const nama =
-                    item.nama.toLowerCase();
+                    const nama =
+                        item.nama.toLowerCase();
 
-                return (
-                    noKK.includes(keyword) ||
-                    nik.includes(keyword) ||
-                    nama.includes(keyword)
-                );
+                    return (
+                        noKK.includes(keyword) ||
+                        nik.includes(keyword) ||
+                        nama.includes(keyword)
+                    );
 
-            });
-
-
-        /* =================================================
-           SEMBUNYIKAN SEMUA DATA
-        ================================================== */
-
-        tableRows.forEach(function (row) {
-            row.style.display = 'none';
-        });
+                }
+            );
 
 
-        /* =================================================
-           TAMPILKAN DATA YANG COCOK
-        ================================================== */
+        tableRows.forEach(
+            function (row) {
+                row.style.display =
+                    'none';
+            }
+        );
 
-        filteredData.forEach(function (item, index) {
 
-            item.row.style.display = '';
+        filteredData.forEach(
+            function (item, index) {
 
-            const numberCell =
-                item.row.querySelector('.row-number');
+                item.row.style.display =
+                    '';
 
-            if (numberCell) {
+                const numberCell =
+                    item.row.querySelector(
+                        '.row-number'
+                    );
 
-                numberCell.textContent =
-                    index + 1;
+                if (numberCell) {
+                    numberCell.textContent =
+                        index + 1;
+                }
 
             }
+        );
 
-        });
-
-
-        /* =================================================
-           HASIL SEARCH
-        ================================================== */
 
         updateSearchResult(
             keyword,
@@ -1959,15 +1839,12 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-        /* =================================================
-           JIKA TIDAK ADA HASIL
-        ================================================== */
-
         if (liveEmptyRow) {
 
             if (filteredData.length === 0) {
 
-                liveEmptyRow.style.display = '';
+                liveEmptyRow.style.display =
+                    '';
 
                 if (liveEmptyText) {
 
@@ -1980,10 +1857,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             } else {
 
-                liveEmptyRow.style.display = 'none';
+                liveEmptyRow.style.display =
+                    'none';
 
             }
         }
+
 
         return filteredData;
     }
@@ -2007,8 +1886,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (keyword.length < 2) {
 
-            searchSuggestions.classList.remove('show');
-            searchSuggestions.innerHTML = '';
+            searchSuggestions.classList.remove(
+                'show'
+            );
+
+            searchSuggestions.innerHTML =
+                '';
 
             return;
         }
@@ -2019,21 +1902,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 .filter(function (item) {
 
                     return (
-                        item.nama.toLowerCase().includes(keyword) ||
-                        item.noKK.toLowerCase().includes(keyword) ||
-                        item.nik.toLowerCase().includes(keyword)
+                        item.nama
+                            .toLowerCase()
+                            .includes(keyword) ||
+
+                        item.noKK
+                            .toLowerCase()
+                            .includes(keyword) ||
+
+                        item.nik
+                            .toLowerCase()
+                            .includes(keyword)
                     );
 
                 })
                 .slice(0, 5);
 
 
-        searchSuggestions.innerHTML = '';
+        searchSuggestions.innerHTML =
+            '';
 
-
-        /* =================================================
-           TIDAK ADA HASIL SUGGESTION
-        ================================================== */
 
         if (matches.length === 0) {
 
@@ -2046,130 +1934,141 @@ document.addEventListener('DOMContentLoaded', function () {
             empty.textContent =
                 'Tidak ada data yang cocok.';
 
-            searchSuggestions.appendChild(empty);
+            searchSuggestions.appendChild(
+                empty
+            );
 
-            searchSuggestions.classList.add('show');
+            searchSuggestions.classList.add(
+                'show'
+            );
 
             return;
         }
 
 
-        /* =================================================
-           TAMPILKAN SUGGESTION
-        ================================================== */
+        matches.forEach(
+            function (item) {
 
-        matches.forEach(function (item) {
-
-            const button =
-                document.createElement('button');
-
-            button.type = 'button';
-
-            button.className =
-                'suggestion-item';
-
-
-            /* ICON */
-
-            const icon =
-                document.createElement('div');
-
-            icon.className =
-                'suggestion-icon';
-
-            icon.innerHTML = `
-                <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                >
-                    <circle
-                        cx="11"
-                        cy="11"
-                        r="7"
-                    ></circle>
-
-                    <line
-                        x1="16.65"
-                        y1="16.65"
-                        x2="21"
-                        y2="21"
-                    ></line>
-                </svg>
-            `;
-
-
-            /* CONTENT */
-
-            const content =
-                document.createElement('div');
-
-            content.className =
-                'suggestion-content';
-
-
-            const name =
-                document.createElement('div');
-
-            name.className =
-                'suggestion-name';
-
-            name.textContent =
-                item.nama || '-';
-
-
-            const detail =
-                document.createElement('div');
-
-            detail.className =
-                'suggestion-detail';
-
-            detail.textContent =
-                'No. KK: ' +
-                (item.noKK || '-') +
-                '  •  NIK: ' +
-                (item.nik || '-');
-
-
-            content.appendChild(name);
-            content.appendChild(detail);
-
-            button.appendChild(icon);
-            button.appendChild(content);
-
-
-            /* KLIK SUGGESTION */
-
-            button.addEventListener(
-                'click',
-                function () {
-
-                    searchInput.value =
-                        item.nama ||
-                        item.noKK ||
-                        item.nik;
-
-                    filterTable(
-                        searchInput.value
+                const button =
+                    document.createElement(
+                        'button'
                     );
 
-                    searchSuggestions.classList.remove(
-                        'show'
+                button.type =
+                    'button';
+
+                button.className =
+                    'suggestion-item';
+
+
+                const icon =
+                    document.createElement(
+                        'div'
                     );
 
-                }
-            );
+                icon.className =
+                    'suggestion-icon';
+
+                icon.innerHTML = `
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <circle
+                            cx="11"
+                            cy="11"
+                            r="7"
+                        ></circle>
+
+                        <line
+                            x1="16.65"
+                            y1="16.65"
+                            x2="21"
+                            y2="21"
+                        ></line>
+                    </svg>
+                `;
 
 
-            searchSuggestions.appendChild(button);
+                const content =
+                    document.createElement(
+                        'div'
+                    );
 
-        });
+                content.className =
+                    'suggestion-content';
 
 
-        searchSuggestions.classList.add('show');
+                const name =
+                    document.createElement(
+                        'div'
+                    );
+
+                name.className =
+                    'suggestion-name';
+
+                name.textContent =
+                    item.nama || '-';
+
+
+                const detail =
+                    document.createElement(
+                        'div'
+                    );
+
+                detail.className =
+                    'suggestion-detail';
+
+                detail.textContent =
+                    'No. KK: ' +
+                    (item.noKK || '-') +
+                    ' • NIK: ' +
+                    (item.nik || '-');
+
+
+                content.appendChild(name);
+                content.appendChild(detail);
+
+                button.appendChild(icon);
+                button.appendChild(content);
+
+
+                button.addEventListener(
+                    'click',
+                    function () {
+
+                        searchInput.value =
+                            item.nama ||
+                            item.noKK ||
+                            item.nik;
+
+                        filterTable(
+                            searchInput.value
+                        );
+
+                        searchSuggestions.classList.remove(
+                            'show'
+                        );
+
+                    }
+                );
+
+
+                searchSuggestions.appendChild(
+                    button
+                );
+
+            }
+        );
+
+
+        searchSuggestions.classList.add(
+            'show'
+        );
     }
 
 
@@ -2187,7 +2086,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     this.value.trim();
 
                 filterTable(keyword);
-
                 showSuggestions(keyword);
 
             }
@@ -2202,9 +2100,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     this.value.trim();
 
                 if (keyword.length >= 2) {
-
                     showSuggestions(keyword);
-
                 }
 
             }
@@ -2225,12 +2121,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
         );
-
     }
 
 
     /* =====================================================
-       KLIK DI LUAR SEARCH
+       CLICK DI LUAR SEARCH
     ====================================================== */
 
     document.addEventListener(
@@ -2240,8 +2135,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (
                 searchSuggestions &&
                 searchInput &&
-                !searchSuggestions.contains(event.target) &&
-                !searchInput.contains(event.target)
+                !searchSuggestions.contains(
+                    event.target
+                ) &&
+                !searchInput.contains(
+                    event.target
+                )
             ) {
 
                 searchSuggestions.classList.remove(
@@ -2255,23 +2154,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       ESCAPE HTML
-    ====================================================== */
-
-    function escapeHtml(value) {
-
-        const div =
-            document.createElement('div');
-
-        div.textContent =
-            value ?? '';
-
-        return div.innerHTML;
-    }
-
-
-    /* =====================================================
-       MODAL DETAIL VERIFIKASI
+       MODAL DETAIL
     ====================================================== */
 
     const verificationModal =
@@ -2344,7 +2227,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       BUKA MODAL
+       OPEN MODAL
     ====================================================== */
 
     function openVerificationModal(row) {
@@ -2353,8 +2236,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-
-        /* DATA ROW */
 
         const id =
             row.dataset.id || '';
@@ -2381,8 +2262,6 @@ document.addEventListener('DOMContentLoaded', function () {
             row.dataset.statusLabel || '-';
 
 
-        /* ISI DATA MODAL */
-
         modalNoKK.textContent =
             noKK;
 
@@ -2402,8 +2281,6 @@ document.addEventListener('DOMContentLoaded', function () {
             statusLabel;
 
 
-        /* STATUS SELECT */
-
         let normalizedStatus =
             status
                 .toLowerCase()
@@ -2411,16 +2288,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         if (
-            normalizedStatus === 'disetujui'
+            normalizedStatus ===
+            'disetujui'
         ) {
-            normalizedStatus = 'approved';
+            normalizedStatus =
+                'approved';
         }
 
 
         if (
-            normalizedStatus === 'ditolak'
+            normalizedStatus ===
+            'ditolak'
         ) {
-            normalizedStatus = 'rejected';
+            normalizedStatus =
+                'rejected';
         }
 
 
@@ -2429,7 +2310,8 @@ document.addEventListener('DOMContentLoaded', function () {
             normalizedStatus !== 'rejected'
         ) {
 
-            modalStatus.value = '';
+            modalStatus.value =
+                '';
 
         } else {
 
@@ -2438,8 +2320,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
-        /* FORM ACTION */
 
         if (
             verificationUpdateForm &&
@@ -2454,8 +2334,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
-        /* TAMPILKAN MODAL */
 
         verificationModal.classList.add(
             'show'
@@ -2472,7 +2350,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       TUTUP MODAL
+       CLOSE MODAL
     ====================================================== */
 
     function closeModal() {
@@ -2496,30 +2374,36 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       KLIK BUTTON DETAIL
+       BUTTON DETAIL
     ====================================================== */
 
     document
         .querySelectorAll('.btn-open-detail')
-        .forEach(function (button) {
+        .forEach(
+            function (button) {
 
-            button.addEventListener(
-                'click',
-                function () {
+                button.addEventListener(
+                    'click',
+                    function () {
 
-                    const row =
-                        this.closest('.data-row');
+                        const row =
+                            this.closest(
+                                '.data-row'
+                            );
 
-                    openVerificationModal(row);
+                        openVerificationModal(
+                            row
+                        );
 
-                }
-            );
+                    }
+                );
 
-        });
+            }
+        );
 
 
     /* =====================================================
-       TOMBOL CLOSE
+       CLOSE BUTTON
     ====================================================== */
 
     if (closeVerificationModal) {
@@ -2543,7 +2427,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       KLIK BACKDROP
+       CLICK BACKDROP
     ====================================================== */
 
     if (verificationModalOverlay) {
@@ -2557,7 +2441,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       TEKAN ESCAPE UNTUK CLOSE MODAL
+       ESCAPE
     ====================================================== */
 
     document.addEventListener(
@@ -2567,7 +2451,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (
                 event.key === 'Escape' &&
                 verificationModal &&
-                verificationModal.classList.contains('show')
+                verificationModal.classList.contains(
+                    'show'
+                )
             ) {
 
                 closeModal();

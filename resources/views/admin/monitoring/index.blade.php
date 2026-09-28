@@ -16,13 +16,29 @@
         box-sizing: border-box;
     }
 
+
+    /* =====================================================
+       SINGLE LARGE CARD
+       SEMUA ISI MONITORING BERADA DI SINI
+    ===================================================== */
+
+    .monitoring-main-card {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #e2e6f2;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(37, 42, 134, 0.06);
+        overflow: hidden;
+    }
+
+
     /* =====================================================
        HEADER
     ===================================================== */
 
     .monitoring-header {
-        margin-bottom: 26px;
-        padding-top: 4px;
+        padding: 24px 26px 20px;
+        border-bottom: 1px solid #e8ebf3;
     }
 
     .monitoring-header h1 {
@@ -42,39 +58,44 @@
 
 
     /* =====================================================
-       STAT CARD
+       STATISTICS AREA
+       CARD KECIL HANYA UNTUK STATISTIK
     ===================================================== */
+
+    .monitoring-stats-wrapper {
+        padding: 20px 26px 22px;
+        border-bottom: 1px solid #e8ebf3;
+    }
 
     .monitoring-stats {
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 14px;
     }
 
     .monitoring-stat-card {
         background: #ffffff;
         border: 1px solid #e2e6f2;
-        border-radius: 15px;
-        padding: 20px 21px;
+        border-radius: 14px;
+        padding: 17px 18px;
         display: flex;
         align-items: center;
-        gap: 15px;
-        min-height: 92px;
-        box-shadow: 0 3px 12px rgba(37, 42, 134, 0.05);
+        gap: 13px;
+        min-height: 86px;
+        box-shadow: 0 2px 8px rgba(37, 42, 134, 0.04);
         transition: .2s ease;
         box-sizing: border-box;
     }
 
     .monitoring-stat-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(37, 42, 134, 0.08);
+        box-shadow: 0 5px 14px rgba(37, 42, 134, 0.08);
     }
 
     .monitoring-stat-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 12px;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -89,45 +110,41 @@
 
     .monitoring-stat-label {
         color: #64748b;
-        font-size: 13px;
+        font-size: 12px;
         margin-bottom: 5px;
         line-height: 1.4;
     }
 
     .monitoring-stat-value {
         color: #252A86;
-        font-size: 23px;
+        font-size: 22px;
         line-height: 1.2;
         font-weight: 700;
     }
 
 
     /* =====================================================
-       CONTENT CARD
+       TABLE SECTION
     ===================================================== */
 
-    .monitoring-card {
-        background: #ffffff;
-        border: 1px solid #e2e6f2;
-        border-radius: 16px;
-        box-shadow: 0 3px 14px rgba(37, 42, 134, 0.05);
-        overflow: hidden;
+    .monitoring-table-section {
+        width: 100%;
     }
 
-    .monitoring-card-header {
-        padding: 22px 24px 21px;
+    .monitoring-table-header {
+        padding: 20px 26px 18px;
         border-bottom: 1px solid #e8ebf3;
     }
 
-    .monitoring-card-title {
+    .monitoring-table-title {
         font-size: 17px;
         line-height: 1.4;
         font-weight: 700;
         color: #252A86;
-        margin: 0 0 6px;
+        margin: 0 0 5px;
     }
 
-    .monitoring-card-description {
+    .monitoring-table-description {
         margin: 0;
         color: #64748b;
         font-size: 13px;
@@ -141,7 +158,7 @@
 
     .monitoring-search-wrapper {
         position: relative;
-        margin-top: 19px;
+        margin-top: 17px;
     }
 
     .monitoring-search-box {
@@ -583,20 +600,10 @@
        RESPONSIVE
     ===================================================== */
 
-    /* =========================
-       DESKTOP
-       5 CARD SATU BARIS
-       ========================= */
-
-    .monitoring-stats {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-
-
-    /* =========================
+    /* =====================================================
        TABLET
-       3 CARD SATU BARIS
-       ========================= */
+       3 CARD STATISTIK
+    ===================================================== */
 
     @media (max-width: 1200px) {
 
@@ -610,19 +617,23 @@
     }
 
 
-    /* =========================
+    /* =====================================================
        MOBILE
-       2 CARD SATU BARIS
-       ========================= */
+       2 CARD STATISTIK
+    ===================================================== */
 
     @media (max-width: 700px) {
 
         .monitoring-page {
-            padding: 18px 14px 30px;
+            padding: 16px 12px 30px;
+        }
+
+        .monitoring-main-card {
+            border-radius: 15px;
         }
 
         .monitoring-header {
-            margin-bottom: 20px;
+            padding: 19px 17px 17px;
         }
 
         .monitoring-header h1 {
@@ -633,19 +644,18 @@
             font-size: 13px;
         }
 
-        /*
-         * PENTING:
-         * Mobile dibuat 2 kolom.
-         * Jangan gunakan 1fr di sini.
-         */
+        .monitoring-stats-wrapper {
+            padding: 15px;
+        }
+
         .monitoring-stats {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 10px;
         }
 
         .monitoring-stat-card {
-            min-height: 78px;
-            padding: 14px;
+            min-height: 76px;
+            padding: 13px;
         }
 
         .monitoring-stat-label {
@@ -656,8 +666,16 @@
             font-size: 19px;
         }
 
-        .monitoring-card-header {
+        .monitoring-table-header {
             padding: 17px;
+        }
+
+        .monitoring-table-title {
+            font-size: 16px;
+        }
+
+        .monitoring-table-description {
+            font-size: 12px;
         }
 
         .monitoring-modal-overlay {
@@ -692,15 +710,15 @@
     }
 
 
-    /* =========================
+    /* =====================================================
        HP SANGAT KECIL
        TETAP 2 CARD
-       ========================= */
+    ===================================================== */
 
     @media (max-width: 400px) {
 
         .monitoring-page {
-            padding: 15px 10px 25px;
+            padding: 12px 9px 25px;
         }
 
         .monitoring-stats {
@@ -709,9 +727,9 @@
         }
 
         .monitoring-stat-card {
-            min-height: 72px;
-            padding: 12px;
-            border-radius: 12px;
+            min-height: 70px;
+            padding: 11px;
+            border-radius: 11px;
         }
 
         .monitoring-stat-label {
@@ -729,410 +747,502 @@
 <div class="monitoring-page">
 
     {{-- =====================================================
-         HEADER
+         SATU CARD BESAR
+         SELURUH ISI MONITORING BERADA DI DALAM CARD INI
     ===================================================== --}}
 
-    <div class="monitoring-header">
-
-        <h1>
-            Monitoring Pendataan
-        </h1>
-
-        <p>
-            Memantau data responden yang telah dilakukan pendataan.
-        </p>
-
-    </div>
+    <div class="monitoring-main-card">
 
 
-    {{-- =====================================================
-         STATISTICS
-    ===================================================== --}}
+        {{-- =================================================
+             HEADER MONITORING
+        ================================================== --}}
 
-    <div class="monitoring-stats">
+        <div class="monitoring-header">
 
-        {{-- TOTAL RESPONDEN --}}
-        <div class="monitoring-stat-card">
+            <h1>
+                Monitoring Pendataan
+            </h1>
 
-            <div class="monitoring-stat-info">
-
-                <div class="monitoring-stat-label">
-                    Total Responden
-                </div>
-
-                <div class="monitoring-stat-value">
-                    {{ $totalResponden ?? count($data ?? []) }}
-                </div>
-
-            </div>
+            <p>
+                Memantau data responden yang telah dilakukan pendataan.
+            </p>
 
         </div>
 
 
-        {{-- SUDAH DIDATA --}}
-        <div class="monitoring-stat-card">
+        {{-- =================================================
+             STATISTICS
+             CARD KECIL HANYA UNTUK STATISTIK
+        ================================================== --}}
 
-            <div class="monitoring-stat-info">
+        <div class="monitoring-stats-wrapper">
 
-                <div class="monitoring-stat-label">
-                    Sudah Didata
-                </div>
-
-                <div class="monitoring-stat-value">
-                    {{ $dataSudahDidata ?? count($data ?? []) }}
-                </div>
-
-            </div>
-
-        </div>
+            <div class="monitoring-stats">
 
 
-        {{-- BELUM DIDATA --}}
-        <div class="monitoring-stat-card">
+                {{-- TOTAL RESPONDEN --}}
 
-            <div class="monitoring-stat-info">
+                <div class="monitoring-stat-card">
 
-                <div class="monitoring-stat-label">
-                    Belum Didata
-                </div>
+                    
 
-                <div class="monitoring-stat-value">
-                    {{ $belumDidata ?? 0 }}
-                </div>
+                    <div class="monitoring-stat-info">
 
-            </div>
+                        <div class="monitoring-stat-label">
+                            Total Responden
+                        </div>
 
-        </div>
-
-
-        {{-- DISETUJUI --}}
-        <div class="monitoring-stat-card">
-
-            <div class="monitoring-stat-info">
-
-                <div class="monitoring-stat-label">
-                    Disetujui
-                </div>
-
-                <div class="monitoring-stat-value">
-                    {{ $disetujui ?? 0 }}
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- DITOLAK --}}
-        <div class="monitoring-stat-card">
-
-            <div class="monitoring-stat-info">
-
-                <div class="monitoring-stat-label">
-                    Ditolak
-                </div>
-
-                <div class="monitoring-stat-value">
-                    {{ $ditolak ?? 0 }}
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =====================================================
-         MAIN CARD
-    ===================================================== --}}
-
-    <div class="monitoring-card">
-
-        <div class="monitoring-card-header">
-
-            {{-- SEARCH --}}
-
-            <div class="monitoring-search-wrapper">
-
-                <div class="monitoring-search-box">
-
-                    <input
-                        type="text"
-                        id="monitoringSearch"
-                        placeholder="Cari No. KK, NIK, atau Nama Kepala Keluarga"
-                        autocomplete="off"
-                    >
-
-                    <div class="monitoring-search-icon">
-
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-
-                            <circle
-                                cx="11"
-                                cy="11"
-                                r="7"
-                            ></circle>
-
-                            <line
-                                x1="16.5"
-                                y1="16.5"
-                                x2="21"
-                                y2="21"
-                            ></line>
-
-                        </svg>
+                        <div class="monitoring-stat-value">
+                            {{ $totalResponden ?? count($data ?? []) }}
+                        </div>
 
                     </div>
 
                 </div>
 
 
-                <div
-                    class="monitoring-search-suggestions"
-                    id="monitoringSearchSuggestions"
-                ></div>
+                {{-- SUDAH DIDATA --}}
+
+                <div class="monitoring-stat-card">
+
+                
+
+                    <div class="monitoring-stat-info">
+
+                        <div class="monitoring-stat-label">
+                            Sudah Didata
+                        </div>
+
+                        <div class="monitoring-stat-value">
+                            {{ $dataSudahDidata ?? count($data ?? []) }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- BELUM DIDATA --}}
+
+                <div class="monitoring-stat-card">
+
+                    <div class="monitoring-stat-info">
+
+                        <div class="monitoring-stat-label">
+                            Belum Didata
+                        </div>
+
+                        <div class="monitoring-stat-value">
+                            {{ $belumDidata ?? 0 }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- DISETUJUI --}}
+
+                <div class="monitoring-stat-card">
+
+
+                    <div class="monitoring-stat-info">
+
+                        <div class="monitoring-stat-label">
+                            Disetujui
+                        </div>
+
+                        <div class="monitoring-stat-value">
+                            {{ $disetujui ?? 0 }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {{-- DITOLAK --}}
+
+                <div class="monitoring-stat-card">
+
+
+                    <div class="monitoring-stat-info">
+
+                        <div class="monitoring-stat-label">
+                            Ditolak
+                        </div>
+
+                        <div class="monitoring-stat-value">
+                            {{ $ditolak ?? 0 }}
+                        </div>
+
+                    </div>
+
+                </div>
 
             </div>
 
         </div>
 
 
-        {{-- =====================================================
-             TABLE
-        ===================================================== --}}
+        {{-- =================================================
+             TABLE SECTION
+        ================================================== --}}
 
-        <div class="monitoring-table-wrapper">
-
-            <table class="monitoring-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>No.</th>
-
-                        <th>No. KK</th>
-
-                        <th>Nama Kepala Keluarga</th>
-
-                        <th>Wilayah</th>
-
-                        <th>Status</th>
-
-                        <th>Petugas</th>
-
-                        <th>Aksi</th>
-
-                    </tr>
-
-                </thead>
+        <div class="monitoring-table-section">
 
 
-                <tbody id="monitoringTableBody">
+            {{-- TABLE HEADER + SEARCH --}}
 
-                    @forelse($data ?? [] as $index => $item)
+            <div class="monitoring-table-header">
 
-                        @php
+                <div class="monitoring-table-title">
+                    Data Responden
+                </div>
 
-                            $itemId = data_get(
-                                $item,
-                                'id',
-                                $index
-                            );
-
-                            $noKk = data_get(
-                                $item,
-                                'no_kk'
-                            )
-                            ?? data_get(
-                                $item,
-                                'kk'
-                            )
-                            ?? '-';
-
-                            $nik = data_get(
-                                $item,
-                                'nik'
-                            )
-                            ?? '-';
-
-                            $nama = data_get(
-                                $item,
-                                'nama_kepala_keluarga'
-                            )
-                            ?? data_get(
-                                $item,
-                                'nama_lengkap'
-                            )
-                            ?? data_get(
-                                $item,
-                                'nama'
-                            )
-                            ?? '-';
-
-                            $wilayah = data_get(
-                                $item,
-                                'wilayah'
-                            )
-                            ?? '-';
-
-                            $status = data_get(
-                                $item,
-                                'status'
-                            )
-                            ?? 'Draft';
-
-                            $petugas = data_get(
-                                $item,
-                                'petugas'
-                            )
-                            ?? data_get(
-                                $item,
-                                'nama_petugas'
-                            )
-                            ?? '-';
-
-                            $jumlahAnggota = data_get(
-                                $item,
-                                'jumlah_anggota_keluarga'
-                            )
-                            ?? data_get(
-                                $item,
-                                'jumlah_anggota'
-                            )
-                            ?? 0;
-
-                            $tanggalPendataan = data_get(
-                                $item,
-                                'tanggal_pendataan'
-                            )
-                            ?? data_get(
-                                $item,
-                                'created_at'
-                            )
-                            ?? '-';
-
-                        @endphp
+                <p class="monitoring-table-description">
+                    Daftar responden yang telah tercatat dalam sistem pendataan.
+                </p>
 
 
-                        <tr
-                            data-no-kk="{{ strtolower($noKk) }}"
-                            data-nik="{{ strtolower($nik) }}"
-                            data-nama="{{ strtolower($nama) }}"
-                            data-search="{{ strtolower(
-                                $noKk . ' ' .
-                                $nik . ' ' .
-                                $nama
-                            ) }}"
+                {{-- SEARCH --}}
+
+                <div class="monitoring-search-wrapper">
+
+                    <div class="monitoring-search-box">
+
+                        <input
+                            type="text"
+                            id="monitoringSearch"
+                            placeholder="Cari No. KK, NIK, atau Nama Kepala Keluarga"
+                            autocomplete="off"
                         >
 
-                            <td>
-                                {{ $index + 1 }}
-                            </td>
+                        <div class="monitoring-search-icon">
+
+                            <svg
+                                width="18"
+                                height="18"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+
+                                <circle
+                                    cx="11"
+                                    cy="11"
+                                    r="7"
+                                ></circle>
+
+                                <line
+                                    x1="16.5"
+                                    y1="16.5"
+                                    x2="21"
+                                    y2="21"
+                                ></line>
+
+                            </svg>
+
+                        </div>
+
+                    </div>
 
 
-                            <td>
-                                <strong>
-                                    {{ $noKk }}
-                                </strong>
-                            </td>
+                    {{-- SEARCH SUGGESTIONS --}}
+
+                    <div
+                        class="monitoring-search-suggestions"
+                        id="monitoringSearchSuggestions"
+                    ></div>
+
+                </div>
+
+            </div>
 
 
-                            <td>
-                                {{ $nama }}
-                            </td>
+            {{-- =================================================
+                 TABLE
+            ================================================== --}}
 
+            <div class="monitoring-table-wrapper">
 
-                            <td>
-                                {{ $wilayah }}
-                            </td>
+                <table class="monitoring-table">
 
+                    <thead>
 
-                            <td>
+                        <tr>
 
-                                @php
+                            <th>No.</th>
 
-                                    $statusClass = match (
-                                        strtolower($status)
-                                    ) {
+                            <th>No. KK</th>
 
-                                        'approved',
-                                        'disetujui'
-                                            => 'approved',
+                            <th>Nama Kepala Keluarga</th>
 
-                                        'reject',
-                                        'ditolak'
-                                            => 'reject',
+                            <th>Wilayah</th>
 
-                                        'pending',
-                                        'menunggu'
-                                            => 'pending',
+                            <th>Status</th>
 
-                                        default
-                                            => 'draft',
+                            <th>Petugas</th>
 
-                                    };
-
-                                @endphp
-
-
-                                <span
-                                    class="monitoring-status {{ $statusClass }}"
-                                >
-                                    {{ $status }}
-                                </span>
-
-                            </td>
-
-
-                            <td>
-                                {{ $petugas }}
-                            </td>
-
-
-                            <td>
-
-                                <button
-                                    type="button"
-                                    class="monitoring-action-btn btn-detail-monitoring"
-
-                                    data-id="{{ $itemId }}"
-
-                                    data-no-kk="{{ e($noKk) }}"
-
-                                    data-nik="{{ e($nik) }}"
-
-                                    data-nama="{{ e($nama) }}"
-
-                                    data-jumlah-anggota="{{ e($jumlahAnggota) }}"
-
-                                    data-wilayah="{{ e($wilayah) }}"
-
-                                    data-petugas="{{ e($petugas) }}"
-
-                                    data-tanggal="{{ e($tanggalPendataan) }}"
-
-                                    data-status="{{ e($status) }}"
-                                >
-                                    Detail
-                                </button>
-
-                            </td>
+                            <th>Aksi</th>
 
                         </tr>
 
+                    </thead>
 
-                    @empty
 
-                        <tr>
+                    <tbody id="monitoringTableBody">
+
+                        @forelse($data ?? [] as $index => $item)
+
+                            @php
+
+                                $itemId = data_get(
+                                    $item,
+                                    'id',
+                                    $index
+                                );
+
+                                $noKk = data_get(
+                                    $item,
+                                    'no_kk'
+                                )
+                                ?? data_get(
+                                    $item,
+                                    'kk'
+                                )
+                                ?? '-';
+
+                                $nik = data_get(
+                                    $item,
+                                    'nik'
+                                )
+                                ?? '-';
+
+                                $nama = data_get(
+                                    $item,
+                                    'nama_kepala_keluarga'
+                                )
+                                ?? data_get(
+                                    $item,
+                                    'nama_lengkap'
+                                )
+                                ?? data_get(
+                                    $item,
+                                    'nama'
+                                )
+                                ?? '-';
+
+                                $wilayah = data_get(
+                                    $item,
+                                    'wilayah'
+                                )
+                                ?? '-';
+
+                                $status = data_get(
+                                    $item,
+                                    'status'
+                                )
+                                ?? 'Draft';
+
+                                $petugas = data_get(
+                                    $item,
+                                    'petugas'
+                                )
+                                ?? data_get(
+                                    $item,
+                                    'nama_petugas'
+                                )
+                                ?? '-';
+
+                                $jumlahAnggota = data_get(
+                                    $item,
+                                    'jumlah_anggota_keluarga'
+                                )
+                                ?? data_get(
+                                    $item,
+                                    'jumlah_anggota'
+                                )
+                                ?? 0;
+
+                                $tanggalPendataan = data_get(
+                                    $item,
+                                    'tanggal_pendataan'
+                                )
+                                ?? data_get(
+                                    $item,
+                                    'created_at'
+                                )
+                                ?? '-';
+
+                            @endphp
+
+
+                            <tr
+                                data-no-kk="{{ strtolower($noKk) }}"
+                                data-nik="{{ strtolower($nik) }}"
+                                data-nama="{{ strtolower($nama) }}"
+                                data-search="{{ strtolower(
+                                    $noKk . ' ' .
+                                    $nik . ' ' .
+                                    $nama
+                                ) }}"
+                            >
+
+                                <td>
+                                    {{ $index + 1 }}
+                                </td>
+
+
+                                <td>
+                                    <strong>
+                                        {{ $noKk }}
+                                    </strong>
+                                </td>
+
+
+                                <td>
+                                    {{ $nama }}
+                                </td>
+
+
+                                <td>
+                                    {{ $wilayah }}
+                                </td>
+
+
+                                <td>
+
+                                    @php
+
+                                        $statusClass = match (
+                                            strtolower($status)
+                                        ) {
+
+                                            'approved',
+                                            'disetujui'
+                                                => 'approved',
+
+                                            'reject',
+                                            'ditolak'
+                                                => 'reject',
+
+                                            'pending',
+                                            'menunggu'
+                                                => 'pending',
+
+                                            default
+                                                => 'draft',
+
+                                        };
+
+                                    @endphp
+
+
+                                    <span
+                                        class="monitoring-status {{ $statusClass }}"
+                                    >
+                                        {{ $status }}
+                                    </span>
+
+                                </td>
+
+
+                                <td>
+                                    {{ $petugas }}
+                                </td>
+
+
+                                <td>
+
+                                    <button
+                                        type="button"
+                                        class="monitoring-action-btn btn-detail-monitoring"
+
+                                        data-id="{{ $itemId }}"
+
+                                        data-no-kk="{{ e($noKk) }}"
+
+                                        data-nik="{{ e($nik) }}"
+
+                                        data-nama="{{ e($nama) }}"
+
+                                        data-jumlah-anggota="{{ e($jumlahAnggota) }}"
+
+                                        data-wilayah="{{ e($wilayah) }}"
+
+                                        data-petugas="{{ e($petugas) }}"
+
+                                        data-tanggal="{{ e($tanggalPendataan) }}"
+
+                                        data-status="{{ e($status) }}"
+                                    >
+                                        Detail
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+
+                        @empty
+
+                            <tr>
+
+                                <td colspan="7">
+
+                                    <div class="monitoring-empty">
+
+                                        <div class="monitoring-empty-icon">
+
+                                            <svg
+                                                width="25"
+                                                height="25"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                            >
+
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+
+                                                <circle
+                                                    cx="12"
+                                                    cy="7"
+                                                    r="4"
+                                                ></circle>
+
+                                            </svg>
+
+                                        </div>
+
+
+                                        <div class="monitoring-empty-title">
+                                            Belum Ada Data
+                                        </div>
+
+
+                                        <div class="monitoring-empty-text">
+                                            Belum terdapat data responden yang dapat ditampilkan.
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        @endforelse
+
+
+                        {{-- EMPTY SEARCH --}}
+
+                        <tr
+                            id="monitoringSearchEmpty"
+                            style="display:none;"
+                        >
 
                             <td colspan="7">
 
@@ -1149,13 +1259,18 @@
                                             stroke-width="1.8"
                                         >
 
-                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-
                                             <circle
-                                                cx="12"
-                                                cy="7"
-                                                r="4"
+                                                cx="11"
+                                                cy="11"
+                                                r="7"
                                             ></circle>
+
+                                            <line
+                                                x1="16.5"
+                                                y1="16.5"
+                                                x2="21"
+                                                y2="21"
+                                            ></line>
 
                                         </svg>
 
@@ -1163,12 +1278,12 @@
 
 
                                     <div class="monitoring-empty-title">
-                                        Belum Ada Data
+                                        Data Tidak Ditemukan
                                     </div>
 
 
                                     <div class="monitoring-empty-text">
-                                        Belum terdapat data responden yang dapat ditampilkan.
+                                        Tidak ada data yang sesuai dengan pencarian.
                                     </div>
 
                                 </div>
@@ -1177,67 +1292,11 @@
 
                         </tr>
 
-                    @endforelse
+                    </tbody>
 
+                </table>
 
-                    {{-- EMPTY SEARCH --}}
-
-                    <tr
-                        id="monitoringSearchEmpty"
-                        style="display:none;"
-                    >
-
-                        <td colspan="7">
-
-                            <div class="monitoring-empty">
-
-                                <div class="monitoring-empty-icon">
-
-                                    <svg
-                                        width="25"
-                                        height="25"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                    >
-
-                                        <circle
-                                            cx="11"
-                                            cy="11"
-                                            r="7"
-                                        ></circle>
-
-                                        <line
-                                            x1="16.5"
-                                            y1="16.5"
-                                            x2="21"
-                                            y2="21"
-                                        ></line>
-
-                                    </svg>
-
-                                </div>
-
-
-                                <div class="monitoring-empty-title">
-                                    Data Tidak Ditemukan
-                                </div>
-
-
-                                <div class="monitoring-empty-text">
-                                    Tidak ada data yang sesuai dengan pencarian.
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
+            </div>
 
         </div>
 
@@ -1246,9 +1305,10 @@
 </div>
 
 
-{{-- =====================================================
+
+{{-- =========================================================
      MODAL DETAIL MONITORING
-===================================================== --}}
+========================================================= --}}
 
 <div
     class="monitoring-modal-overlay"
@@ -1262,6 +1322,7 @@
         aria-modal="true"
         aria-labelledby="monitoringDetailTitle"
     >
+
 
         {{-- MODAL HEADER --}}
 
@@ -1320,6 +1381,7 @@
         {{-- MODAL BODY --}}
 
         <div class="monitoring-modal-body">
+
 
             {{-- SUMMARY --}}
 
@@ -1385,6 +1447,7 @@
 
 
                 <div class="monitoring-detail-grid">
+
 
                     <div class="monitoring-detail-item">
 
@@ -1579,6 +1642,7 @@
 </div>
 
 
+
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1687,6 +1751,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             return;
+
         }
 
 
@@ -1716,6 +1781,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             return;
+
         }
 
 
@@ -2140,3 +2206,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 @endsection
+
