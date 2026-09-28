@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Part1Keluarga extends Model
+class KeluargaPart1 extends Model
 {
     protected $table = 'part1_keluarga';
 
@@ -23,11 +23,17 @@ class Part1Keluarga extends Model
         'jalan_rumah',
         'is_alamat_sesuai',
         'geotangging',
+
+        // Draft
+        'status',
+        'current_part',
+
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
         'is_alamat_sesuai' => 'boolean',
+        'current_part' => 'integer',
     ];
 }

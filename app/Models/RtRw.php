@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RtRw extends Model
 {
@@ -15,11 +15,12 @@ class RtRw extends Model
         'rw',
     ];
 
-    /**
-     * Wilayah ini dapat ditugaskan kepada banyak petugas.
-     */
-    public function petugasWilayah(): HasMany
+    public function keluarga()
     {
-        return $this->hasMany(PetugasWilayah::class, 'rt_rw_id');
+        return $this->hasMany(
+            Keluarga::class,
+            'rt_rw_id',
+            'id'
+        );
     }
 }

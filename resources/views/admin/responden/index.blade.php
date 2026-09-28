@@ -172,7 +172,7 @@
 .responden-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 750px;
+    min-width: 950px;
 }
 
 .responden-table th {
@@ -209,29 +209,127 @@
     color: #999;
 }
 
-.responden-kk {
-    font-weight: 700;
+
+/* =========================================================
+   NO KK - BISA DIKLIK
+========================================================= */
+
+.responden-kk-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    background: transparent;
     color: #252A86;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
 }
 
-.responden-code {
-    font-size: 10px;
-    color: #999;
-    margin-top: 3px;
+.responden-kk-toggle:hover {
+    color: #171b66;
 }
+
+.responden-kk-icon {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background: #f1f2ff;
+    color: #252A86;
+    font-size: 12px;
+    transition: .2s ease;
+}
+
+.responden-kk-toggle.active .responden-kk-icon {
+    background: #252A86;
+    color: #fff;
+    transform: rotate(180deg);
+}
+
+.responden-family-main {
+    background: #fff;
+}
+
+.responden-family-main.expanded {
+    background: #f8f9ff;
+}
+
+
+/* =========================================================
+   JUMLAH ANGGOTA
+========================================================= */
 
 .responden-member-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 30px;
-    height: 25px;
-    padding: 0 8px;
+    min-width: 34px;
+    height: 27px;
+    padding: 0 10px;
     border-radius: 20px;
     background: #eef0ff;
     color: #252A86;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
+}
+
+
+/* =========================================================
+   BARIS ANGGOTA
+========================================================= */
+
+.responden-member-row {
+    display: none;
+    background: #fafbff;
+}
+
+.responden-member-row.active {
+    display: table-row;
+}
+
+.responden-member-row td {
+    background: #fafbff;
+    border-bottom: 1px solid #eeeeF3;
+    color: #555;
+    padding: 11px 16px;
+}
+
+.responden-member-row:hover td {
+    background: #f4f6ff;
+}
+
+.responden-member-indent {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.responden-member-indent-line {
+    width: 15px;
+    height: 15px;
+    border-left: 2px solid #dfe2f3;
+    border-bottom: 2px solid #dfe2f3;
+    border-radius: 0 0 0 5px;
+}
+
+.responden-member-name {
+    font-weight: 600;
+    color: #444;
+}
+
+.responden-member-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: #eef7f3;
+    color: #006b46;
+    font-size: 10px;
+    font-weight: 600;
 }
 
 
@@ -529,7 +627,7 @@ textarea.responden-form-control {
 
 
 /* =========================================================
-   ANGGOTA
+   ANGGOTA FORM
 ========================================================= */
 
 .anggota-header {
@@ -712,6 +810,7 @@ textarea.responden-form-control {
 
 <div class="responden-page">
 
+
     {{-- =====================================================
          HEADER
     ====================================================== --}}
@@ -733,6 +832,7 @@ textarea.responden-form-control {
             </p>
 
         </div>
+
 
         <button
             type="button"
@@ -766,6 +866,7 @@ textarea.responden-form-control {
 
             </div>
 
+
             <div class="responden-search">
 
                 <span class="responden-search-icon">
@@ -795,61 +896,225 @@ textarea.responden-form-control {
 
                     <tr>
 
-                        <th>No</th>
+                        <th>
+                            No
+                        </th>
 
-                        <th>No. KK</th>
+                        <th>
+                            No. KK
+                        </th>
 
-                        <th>Nama Kepala Keluarga</th>
+                        <th>
+                            NIK Anggota
+                        </th>
 
-                        <th>Jumlah Anggota</th>
+                        <th>
+                            Jumlah Anggota
+                        </th>
 
-                        <th>Aksi</th>
+                        <th>
+                            Nama Anggota
+                        </th>
+
+                        <th>
+                            Status Keluarga
+                        </th>
+
+                        <th>
+                            Wilayah
+                        </th>
+
+                        <th>
+                            Aksi
+                        </th>
 
                     </tr>
 
                 </thead>
 
+
                 <tbody id="respondenTableBody">
 
                     @forelse ($keluargas as $index => $keluarga)
 
-                        <tr class="responden-row">
+                        @php
+
+                            $kecamatan = $keluarga->kecamatan_id
+                                ? DB::table('kecamatans')
+                                    ->where(
+                                        'kecamatan_id',
+                                        $keluarga->kecamatan_id
+                                    )
+                                    ->value('deskripsi')
+                                : null;
+
+                            $kelurahan = $keluarga->kelurahan_id
+                                ? DB::table('kelurahans')
+                                    ->where(
+                                        'kelurahan_id',
+                                        $keluarga->kelurahan_id
+                                    )
+                                    ->value('deskripsi')
+                                : null;
+
+                            $rtRw = $keluarga->rtRw
+                                ? $keluarga->rtRw->rt .
+                                  '/' .
+                                  $keluarga->rtRw->rw
+                                : null;
+
+                            $jumlahAnggota =
+                                $keluarga->anggota->count();
+
+                            $kepalaKeluarga = $keluarga->anggota
+                                ->first(function ($anggota) {
+                                    return strtoupper(trim((string) ($anggota->status_keluarga ?? ''))) === 'KEPALA KELUARGA';
+                                }) ?? $keluarga->anggota->first();
+
+                        @endphp
+
+
+                        {{-- =================================================
+                             BARIS UTAMA KELUARGA
+                        ================================================== --}}
+
+                        <tr
+                            class="responden-row responden-family-main"
+                            id="keluarga-row-{{ $keluarga->id }}"
+                        >
+
+
+                            {{-- NO --}}
 
                             <td class="responden-number">
+
                                 {{ $index + 1 }}
+
                             </td>
+
+
+                            {{-- NO KK --}}
 
                             <td>
 
-                                <div class="responden-kk">
-                                    {{ $keluarga->no_kk ?? '-' }}
-                                </div>
+                                <button
+                                    type="button"
+                                    class="responden-kk-toggle"
+                                    id="kkToggle-{{ $keluarga->id }}"
+                                    onclick="toggleKeluarga({{ $keluarga->id }})"
+                                >
 
-                                @if ($keluarga->kode)
+                                    <span
+                                        class="responden-kk-icon"
+                                        id="kkIcon-{{ $keluarga->id }}"
+                                    >
+                                        ⌄
+                                    </span>
 
-                                    <div class="responden-code">
-                                        {{ $keluarga->kode }}
-                                    </div>
+                                    <span>
+                                        {{ $keluarga->no_kk ?? '-' }}
+                                    </span>
 
+                                </button>
+
+                            </td>
+
+
+                            {{-- NIK ANGGOTA --}}
+
+                            <td>
+
+                                @if ($kepalaKeluarga)
+                                    <strong>
+                                        {{ $kepalaKeluarga->nik ?? '-' }}
+                                    </strong>
+                                @else
+                                    <span style="color:#999;">
+                                        —
+                                    </span>
                                 @endif
 
                             </td>
 
-                            <td>
-                                {{ $keluarga->nama_lengkap ?? '-' }}
-                            </td>
+
+                            {{-- JUMLAH ANGGOTA --}}
 
                             <td>
 
                                 <span class="responden-member-count">
-
-                                    {{ $keluarga->anggota->count() }}
-
-                                    orang
-
+                                    {{ $jumlahAnggota }}
                                 </span>
 
                             </td>
+
+
+                            {{-- NAMA ANGGOTA --}}
+
+                            <td>
+
+                                @if ($kepalaKeluarga)
+                                    <span class="responden-member-name">
+                                        {{ $kepalaKeluarga->nama_lengkap ?? '-' }}
+                                    </span>
+                                @else
+                                    <span style="color:#999;">
+                                        —
+                                    </span>
+                                @endif
+
+                            </td>
+
+
+                            {{-- STATUS KELUARGA --}}
+
+                            <td>
+
+                                @if ($kepalaKeluarga)
+                                    <span class="responden-member-status">
+                                        {{ $kepalaKeluarga->status_keluarga ?? '-' }}
+                                    </span>
+                                @else
+                                    <span style="color:#999;">
+                                        —
+                                    </span>
+                                @endif
+
+                            </td>
+
+
+                            {{-- WILAYAH --}}
+
+                            <td>
+
+                                <div>
+                                    {{ $kelurahan ?? '-' }}
+                                </div>
+
+                                <div
+                                    style="
+                                        font-size:11px;
+                                        color:#777;
+                                        margin-top:3px;
+                                    "
+                                >
+                                    {{ $kecamatan ?? '-' }}
+                                </div>
+
+                                <div
+                                    style="
+                                        font-size:11px;
+                                        color:#777;
+                                        margin-top:3px;
+                                    "
+                                >
+                                    RT/RW:
+                                    {{ $rtRw ?? '-' }}
+                                </div>
+
+                            </td>
+
+
+                            {{-- AKSI --}}
 
                             <td>
 
@@ -877,17 +1142,142 @@ textarea.responden-form-control {
 
                         </tr>
 
+
+                        {{-- =================================================
+                             BARIS ANGGOTA
+                        ================================================== --}}
+
+                        @foreach ($keluarga->anggota as $anggota)
+
+                            <tr
+                                class="responden-member-row"
+                                id="member-{{ $keluarga->id }}-{{ $anggota->id }}"
+                                data-keluarga="{{ $keluarga->id }}"
+                            >
+
+                                {{-- NO --}}
+
+                                <td></td>
+
+
+                                {{-- NO KK --}}
+
+                                <td>
+
+                                    <div class="responden-member-indent">
+
+                                        <span
+                                            class="responden-member-indent-line"
+                                        ></span>
+
+                                        <span
+                                            style="
+                                                font-size:10px;
+                                                color:#999;
+                                            "
+                                        >
+                                            Anggota
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+
+                                {{-- NIK ANGGOTA --}}
+
+                                <td>
+
+                                    <strong>
+                                        {{ $anggota->nik ?? '-' }}
+                                    </strong>
+
+                                </td>
+
+
+                                {{-- JUMLAH ANGGOTA --}}
+
+                                <td>
+
+                                    {{ $jumlahAnggota }}
+
+                                </td>
+
+
+                                {{-- NAMA ANGGOTA --}}
+
+                                <td>
+
+                                    <span class="responden-member-name">
+                                        {{ $anggota->nama_lengkap ?? '-' }}
+                                    </span>
+
+                                </td>
+
+
+                                {{-- STATUS KELUARGA --}}
+
+                                <td>
+
+                                    <span class="responden-member-status">
+                                        {{ $anggota->status_keluarga ?? '-' }}
+                                    </span>
+
+                                </td>
+
+
+                                {{-- WILAYAH --}}
+
+                                <td>
+
+                                    <div>
+                                        {{ $kelurahan ?? '-' }}
+                                    </div>
+
+                                    <div
+                                        style="
+                                            font-size:11px;
+                                            color:#777;
+                                            margin-top:3px;
+                                        "
+                                    >
+                                        {{ $kecamatan ?? '-' }}
+                                    </div>
+
+                                </td>
+
+
+                                {{-- AKSI --}}
+
+                                <td>
+
+                                    <span
+                                        style="
+                                            font-size:10px;
+                                            color:#aaa;
+                                        "
+                                    >
+                                        —
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+                        @endforeach
+
+
                     @empty
 
                         <tr>
 
                             <td
-                                colspan="5"
+                                colspan="8"
                                 class="responden-empty"
                             >
 
                                 <div class="responden-empty-icon">
-                                    👥
+                                    👨‍👩‍👧
                                 </div>
 
                                 <div class="responden-empty-title">
@@ -895,7 +1285,7 @@ textarea.responden-form-control {
                                 </div>
 
                                 <div class="responden-empty-text">
-                                    Data responden yang ditambahkan akan muncul di sini.
+                                    Silakan tambahkan data responden terlebih dahulu.
                                 </div>
 
                             </td>
@@ -913,6 +1303,7 @@ textarea.responden-form-control {
     </div>
 
 </div>
+
 
 
 {{-- =========================================================
@@ -933,6 +1324,7 @@ textarea.responden-form-control {
 
             @csrf
 
+
             <div class="responden-modal-header">
 
                 <div>
@@ -946,6 +1338,7 @@ textarea.responden-form-control {
                     </h2>
 
                 </div>
+
 
                 <button
                     type="button"
@@ -1146,6 +1539,7 @@ textarea.responden-form-control {
                 </div>
 
 
+
                 {{-- =================================================
                      DATA KK
                 ================================================== --}}
@@ -1184,11 +1578,13 @@ textarea.responden-form-control {
                                 required
                             >
 
-                            <div style="
-                                font-size:10px;
-                                color:#888;
-                                margin-top:5px;
-                            ">
+                            <div
+                                style="
+                                    font-size:10px;
+                                    color:#888;
+                                    margin-top:5px;
+                                "
+                            >
                                 Harus tepat 16 digit angka.
                             </div>
 
@@ -1220,6 +1616,7 @@ textarea.responden-form-control {
                 </div>
 
 
+
                 {{-- =================================================
                      ANGGOTA KELUARGA
                 ================================================== --}}
@@ -1243,6 +1640,7 @@ textarea.responden-form-control {
 
                         </div>
 
+
                         <button
                             type="button"
                             class="btn-tambah-anggota"
@@ -1255,6 +1653,7 @@ textarea.responden-form-control {
 
 
                     <div id="anggotaContainer">
+
 
                         {{-- ANGGOTA PERTAMA --}}
 
@@ -1382,6 +1781,7 @@ textarea.responden-form-control {
 
                                     </select>
 
+
                                     <input
                                         type="text"
                                         name="anggota[0][status_keluarga_lainnya]"
@@ -1429,6 +1829,7 @@ textarea.responden-form-control {
 </div>
 
 
+
 {{-- =========================================================
      MODAL EDIT
 ========================================================= --}}
@@ -1462,6 +1863,7 @@ textarea.responden-form-control {
                     </h2>
 
                 </div>
+
 
                 <button
                     type="button"
@@ -1667,6 +2069,7 @@ textarea.responden-form-control {
                 </div>
 
 
+
                 {{-- =================================================
                      DATA KK EDIT
                 ================================================== --}}
@@ -1681,8 +2084,11 @@ textarea.responden-form-control {
                         Ubah nomor KK dan nama kepala keluarga.
                     </div>
 
+
                     <div class="responden-form-grid">
 
+
+                        {{-- NO KK --}}
 
                         <div class="responden-form-group">
 
@@ -1704,16 +2110,20 @@ textarea.responden-form-control {
                                 required
                             >
 
-                            <div style="
-                                font-size:10px;
-                                color:#888;
-                                margin-top:5px;
-                            ">
+                            <div
+                                style="
+                                    font-size:10px;
+                                    color:#888;
+                                    margin-top:5px;
+                                "
+                            >
                                 Harus tepat 16 digit angka.
                             </div>
 
                         </div>
 
+
+                        {{-- NAMA KEPALA KELUARGA --}}
 
                         <div class="responden-form-group">
 
@@ -1738,6 +2148,7 @@ textarea.responden-form-control {
                 </div>
 
 
+
                 {{-- =================================================
                      ANGGOTA EDIT
                 ================================================== --}}
@@ -1760,6 +2171,7 @@ textarea.responden-form-control {
                             </div>
 
                         </div>
+
 
                         <button
                             type="button"
@@ -1807,6 +2219,7 @@ textarea.responden-form-control {
 @endsection
 
 
+
 @push('scripts')
 
 <script>
@@ -1817,12 +2230,15 @@ textarea.responden-form-control {
 
 function bukaModalTambah() {
 
-    const modal = document.getElementById(
-        'modalTambahResponden'
-    );
+    const modal =
+        document.getElementById(
+            'modalTambahResponden'
+        );
 
     if (modal) {
+
         modal.classList.add('active');
+
     }
 
     document.body.style.overflow = 'hidden';
@@ -1832,12 +2248,15 @@ function bukaModalTambah() {
 
 function tutupModalTambah() {
 
-    const modal = document.getElementById(
-        'modalTambahResponden'
-    );
+    const modal =
+        document.getElementById(
+            'modalTambahResponden'
+        );
 
     if (modal) {
+
         modal.classList.remove('active');
+
     }
 
     document.body.style.overflow = '';
@@ -1851,12 +2270,15 @@ function tutupModalTambah() {
 
 function tutupModalEdit() {
 
-    const modal = document.getElementById(
-        'modalEditResponden'
-    );
+    const modal =
+        document.getElementById(
+            'modalEditResponden'
+        );
 
     if (modal) {
+
         modal.classList.remove('active');
+
     }
 
     document.body.style.overflow = '';
@@ -1870,17 +2292,19 @@ function tutupModalEdit() {
 
 function toggleStatusLainnya(select) {
 
-    const parent = select.closest(
-        '.responden-form-group'
-    );
+    const parent =
+        select.closest(
+            '.responden-form-group'
+        );
 
     if (!parent) {
         return;
     }
 
-    const input = parent.querySelector(
-        '.status-lainnya'
-    );
+    const input =
+        parent.querySelector(
+            '.status-lainnya'
+        );
 
     if (!input) {
         return;
@@ -1945,9 +2369,11 @@ function tambahAnggota() {
         return;
     }
 
-    const index = anggotaIndex;
+    const index =
+        anggotaIndex;
 
-    const nomor = index + 1;
+    const nomor =
+        index + 1;
 
 
     const html = `
@@ -2112,10 +2538,14 @@ function tambahAnggota() {
 function hapusAnggota(button) {
 
     const card =
-        button.closest('.anggota-card');
+        button.closest(
+            '.anggota-card'
+        );
 
     if (card) {
+
         card.remove();
+
     }
 
     updateNomorAnggota();
@@ -2144,14 +2574,18 @@ function updateNomorAnggota() {
                 );
 
             if (number) {
+
                 number.textContent =
                     index + 1;
+
             }
 
             if (title) {
+
                 title.textContent =
                     'Anggota Keluarga ' +
                     (index + 1);
+
             }
 
         }
@@ -2205,16 +2639,23 @@ function editResponden(id) {
                     );
 
 
+                /* =========================
+                   ACTION FORM
+                ========================= */
+
                 form.action =
                     '/responden/update/' +
                     id;
 
 
+                /* =========================
+                   WILAYAH
+                ========================= */
+
                 document.getElementById(
                     'edit_provinsi'
                 ).value =
                     'Jawa Timur';
-
 
                 document.getElementById(
                     'edit_daerah'
@@ -2240,6 +2681,10 @@ function editResponden(id) {
                     data.alamat_lengkap ?? '';
 
 
+                /* =========================
+                   DATA KELUARGA
+                ========================= */
+
                 document.getElementById(
                     'edit_nomor_kk'
                 ).value =
@@ -2252,15 +2697,22 @@ function editResponden(id) {
                     data.nama_lengkap ?? '';
 
 
+                /* =========================
+                   KECAMATAN
+                ========================= */
+
                 const kecamatan =
                     document.getElementById(
                         'edit_kecamatan'
                     );
 
-
                 kecamatan.value =
                     data.kecamatan_id ?? '';
 
+
+                /* =========================
+                   KELURAHAN
+                ========================= */
 
                 if (data.kecamatan_id) {
 
@@ -2286,11 +2738,14 @@ function editResponden(id) {
                 }
 
 
+                /* =========================
+                   ANGGOTA
+                ========================= */
+
                 const container =
                     document.getElementById(
                         'anggotaEditContainer'
                     );
-
 
                 container.innerHTML = '';
 
@@ -2319,6 +2774,10 @@ function editResponden(id) {
                 }
 
 
+                /* =========================
+                   TAMPILKAN MODAL
+                ========================= */
+
                 modal.classList.add(
                     'active'
                 );
@@ -2345,6 +2804,105 @@ function editResponden(id) {
 
 
 /* =========================================================
+   TOGGLE NO KK
+========================================================= */
+
+function toggleKeluarga(id) {
+
+    const button =
+        document.getElementById(
+            'kkToggle-' + id
+        );
+
+    const mainRow =
+        document.getElementById(
+            'keluarga-row-' + id
+        );
+
+    const memberRows =
+        document.querySelectorAll(
+            '.responden-member-row[data-keluarga="' +
+            id +
+            '"]'
+        );
+
+
+    if (!button) {
+        return;
+    }
+
+
+    const sedangTerbuka =
+        button.classList.contains(
+            'active'
+        );
+
+
+    if (sedangTerbuka) {
+
+        /* =========================
+           TUTUP ANGGOTA
+        ========================= */
+
+        button.classList.remove(
+            'active'
+        );
+
+        if (mainRow) {
+
+            mainRow.classList.remove(
+                'expanded'
+            );
+
+        }
+
+
+        memberRows.forEach(
+            function(row) {
+
+                row.classList.remove(
+                    'active'
+                );
+
+            }
+        );
+
+
+    } else {
+
+        /* =========================
+           BUKA ANGGOTA
+        ========================= */
+
+        button.classList.add(
+            'active'
+        );
+
+        if (mainRow) {
+
+            mainRow.classList.add(
+                'expanded'
+            );
+
+        }
+
+
+        memberRows.forEach(
+            function(row) {
+
+                row.classList.add(
+                    'active'
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
    TAMBAH ANGGOTA EDIT
 ========================================================= */
 
@@ -2361,11 +2919,13 @@ function tambahAnggotaEdit(
         return;
     }
 
+
     const index =
         anggotaEditIndex;
 
     const nomor =
         index + 1;
+
 
     const nik =
         data?.nik ?? '';
@@ -2437,6 +2997,8 @@ function tambahAnggotaEdit(
             <div class="responden-form-grid">
 
 
+                {{-- NIK --}}
+
                 <div class="responden-form-group">
 
                     <label class="responden-form-label">
@@ -2459,6 +3021,8 @@ function tambahAnggotaEdit(
                 </div>
 
 
+                {{-- NAMA --}}
+
                 <div class="responden-form-group">
 
                     <label class="responden-form-label">
@@ -2477,6 +3041,8 @@ function tambahAnggotaEdit(
 
                 </div>
 
+
+                {{-- STATUS --}}
 
                 <div class="responden-form-group full">
 
@@ -2593,10 +3159,14 @@ function tambahAnggotaEdit(
 function hapusAnggotaEdit(button) {
 
     const card =
-        button.closest('.anggota-card');
+        button.closest(
+            '.anggota-card'
+        );
 
     if (card) {
+
         card.remove();
+
     }
 
     updateNomorAnggotaEdit();
@@ -2624,15 +3194,21 @@ function updateNomorAnggotaEdit() {
                     '.anggota-card-title span'
                 );
 
+
             if (number) {
+
                 number.textContent =
                     index + 1;
+
             }
 
+
             if (title) {
+
                 title.textContent =
                     'Anggota Keluarga ' +
                     (index + 1);
+
             }
 
         }
@@ -2652,15 +3228,19 @@ function hapusResponden(id) {
             'Apakah Anda yakin ingin menghapus data responden ini?'
         );
 
+
     if (!konfirmasi) {
         return;
     }
 
 
     const form =
-        document.createElement('form');
+        document.createElement(
+            'form'
+        );
 
-    form.method = 'POST';
+    form.method =
+        'POST';
 
     form.action =
         '/responden/hapus/' +
@@ -2668,31 +3248,46 @@ function hapusResponden(id) {
 
 
     const csrf =
-        document.createElement('input');
+        document.createElement(
+            'input'
+        );
 
-    csrf.type = 'hidden';
+    csrf.type =
+        'hidden';
 
-    csrf.name = '_token';
+    csrf.name =
+        '_token';
 
     csrf.value =
         '{{ csrf_token() }}';
 
 
     const method =
-        document.createElement('input');
+        document.createElement(
+            'input'
+        );
 
-    method.type = 'hidden';
+    method.type =
+        'hidden';
 
-    method.name = '_method';
+    method.name =
+        '_method';
 
-    method.value = 'DELETE';
+    method.value =
+        'DELETE';
 
 
-    form.appendChild(csrf);
+    form.appendChild(
+        csrf
+    );
 
-    form.appendChild(method);
+    form.appendChild(
+        method
+    );
 
-    document.body.appendChild(form);
+    document.body.appendChild(
+        form
+    );
 
     form.submit();
 
@@ -2713,6 +3308,7 @@ function loadKelurahan(
         document.getElementById(
             targetId
         );
+
 
     if (!select) {
         return;
@@ -2762,19 +3358,6 @@ function loadKelurahan(
 
         .then(
             result => {
-
-                /*
-                |--------------------------------------------------------------------------
-                | CONTROLLER MENGIRIM:
-                |
-                | {
-                |     success: true,
-                |     data: [...]
-                | }
-                |
-                | Jadi array kelurahan berada di result.data
-                |--------------------------------------------------------------------------
-                */
 
                 console.log(
                     'Response Kelurahan:',

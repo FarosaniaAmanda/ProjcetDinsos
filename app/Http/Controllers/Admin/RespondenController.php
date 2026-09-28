@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
 use App\Models\KeluargaAnggota;
+use App\Models\RtRw;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -16,7 +17,12 @@ class RespondenController extends Controller
      */
     public function index()
     {
-        $keluargas = Keluarga::with('anggota')
+        $keluargas = Keluarga::with([
+            'anggota' => function ($query) {
+                $query->orderBy('id');
+            },
+            'rtRw',
+        ])
             ->latest()
             ->get();
 
@@ -50,21 +56,22 @@ class RespondenController extends Controller
 
     /**
      * Menyimpan data responden baru.
-     *
-     * DATA YANG DISIMPAN:
-     * - keluargas
-     * - keluarga_anggotas
-     *
-     * part1_keluarga TIDAK digunakan di sini.
      */
     public function store(Request $request)
     {
+        if (!$request->filled('nomor_kk') && $request->filled('no_kk')) {
+            $request->merge([
+                'nomor_kk' => $request->input('no_kk'),
+            ]);
+        }
+
+        if (!$request->filled('no_kk') && $request->filled('nomor_kk')) {
+            $request->merge([
+                'no_kk' => $request->input('nomor_kk'),
+            ]);
+        }
+
         $request->validate([
-            /*
-            |--------------------------------------------------------------------------
-            | Data keluarga
-            |--------------------------------------------------------------------------
-            */
             'nomor_kk' => [
                 'required',
                 'digits:16',
@@ -76,11 +83,6 @@ class RespondenController extends Controller
                 'max:255',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Anggota keluarga
-            |--------------------------------------------------------------------------
-            */
             'anggota' => [
                 'required',
                 'array',
@@ -110,15 +112,6 @@ class RespondenController extends Controller
                 'max:255',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Alamat
-            |--------------------------------------------------------------------------
-            |
-            | Validasi tetap dipertahankan karena form responden
-            | masih mengirimkan data alamat.
-            |
-            */
             'provinsi' => [
                 'nullable',
                 'string',
@@ -134,7 +127,7 @@ class RespondenController extends Controller
             'kecamatan_id' => [
                 'nullable',
                 'string',
-                'max:8',
+                'max:13',
             ],
 
             'kelurahan_id' => [
@@ -146,13 +139,14 @@ class RespondenController extends Controller
             'kode_pos' => [
                 'nullable',
                 'string',
-                'max:16',
+                'max:10',
             ],
 
             'rt_rw' => [
                 'nullable',
                 'string',
-                'max:16',
+                'max:20',
+                'regex:/^\d{1,3}\s*\/\s*\d{1,3}$/',
             ],
 
             'alamat_lengkap' => [
@@ -164,11 +158,6 @@ class RespondenController extends Controller
 
         DB::transaction(function () use ($request) {
 
-            /*
-            |--------------------------------------------------------------------------
-            | User yang membuat data
-            |--------------------------------------------------------------------------
-            */
             $createdBy = auth()->user()?->name ?? 'admin';
 
             /*
@@ -199,12 +188,6 @@ class RespondenController extends Controller
                 }
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Jika tidak ada Kepala Keluarga,
-            | gunakan anggota pertama
-            |--------------------------------------------------------------------------
-            */
             if (
                 !$nikKepalaKeluarga &&
                 !empty($request->anggota)
@@ -215,24 +198,55 @@ class RespondenController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Simpan data keluarga
+            | Simpan RT/RW
+            |--------------------------------------------------------------------------
+            */
+            $rtRwId = null;
+
+            if (
+                $request->filled('rt_rw') &&
+                $request->filled('kelurahan_id')
+            ) {
+                $rtRw = $this->simpanRtRw(
+                    $request->kelurahan_id,
+                    $request->rt_rw
+                );
+
+                $rtRwId = $rtRw?->id;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Simpan keluarga
             |--------------------------------------------------------------------------
             */
             $keluarga = Keluarga::create([
-                'kode' =>
-                    $kodeKeluarga,
+                'kode' => $kodeKeluarga,
 
-                'no_kk' =>
-                    $request->nomor_kk,
+                'no_kk' => $request->nomor_kk,
 
-                'nik' =>
-                    $nikKepalaKeluarga,
+                'nik' => $nikKepalaKeluarga,
 
                 'nama_lengkap' =>
                     $request->nama_kepala_keluarga,
 
                 'status_keluarga' =>
                     'Kepala Keluarga',
+
+                'kecamatan_id' =>
+                    $request->kecamatan_id,
+
+                'kelurahan_id' =>
+                    $request->kelurahan_id,
+
+                'rt_rw_id' =>
+                    $rtRwId,
+
+                'kode_pos' =>
+                    $request->kode_pos,
+
+                'alamat_lengkap' =>
+                    $request->alamat_lengkap,
 
                 'created_by' =>
                     $createdBy,
@@ -248,19 +262,16 @@ class RespondenController extends Controller
                 $statusKeluarga =
                     $anggota['status_keluarga'] ?? '';
 
-                /*
-                |--------------------------------------------------------------------------
-                | Jika status = Lainnya
-                |--------------------------------------------------------------------------
-                */
                 if ($statusKeluarga === 'Lainnya') {
 
-                    $customStatus = trim(
-                        (string) (
-                            $anggota['status_keluarga_lainnya']
-                            ?? ''
-                        )
-                    );
+                    $customStatus =
+                        trim(
+                            (string) (
+                                $anggota[
+                                    'status_keluarga_lainnya'
+                                ] ?? ''
+                            )
+                        );
 
                     $statusKeluarga =
                         $customStatus !== ''
@@ -270,7 +281,8 @@ class RespondenController extends Controller
 
                 KeluargaAnggota::create([
                     'kode' =>
-                        'ANG-' . strtoupper(
+                        'ANG-' .
+                        strtoupper(
                             Str::random(10)
                         ),
 
@@ -290,18 +302,6 @@ class RespondenController extends Controller
                         $createdBy,
                 ]);
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | PENTING
-            |--------------------------------------------------------------------------
-            |
-            | Tidak ada penyimpanan ke part1_keluarga.
-            |
-            | part1_keluarga akan digunakan khusus untuk
-            | menyimpan jawaban Kuisioner Part 1.
-            |
-            */
         });
 
         return redirect()
@@ -317,8 +317,10 @@ class RespondenController extends Controller
      */
     public function edit($id)
     {
-        $keluarga = Keluarga::with('anggota')
-            ->findOrFail($id);
+        $keluarga = Keluarga::with([
+            'anggota',
+            'rtRw',
+        ])->findOrFail($id);
 
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
@@ -338,8 +340,56 @@ class RespondenController extends Controller
      */
     public function editData($id)
     {
-        $keluarga = Keluarga::with('anggota')
-            ->findOrFail($id);
+        $keluarga = Keluarga::with([
+            'anggota',
+            'rtRw',
+        ])->findOrFail($id);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil nama kecamatan
+        |--------------------------------------------------------------------------
+        */
+        $kecamatan = null;
+
+        if ($keluarga->kecamatan_id) {
+            $kecamatan = DB::table('kecamatans')
+                ->where(
+                    'kecamatan_id',
+                    $keluarga->kecamatan_id
+                )
+                ->first();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil nama kelurahan
+        |--------------------------------------------------------------------------
+        */
+        $kelurahan = null;
+
+        if ($keluarga->kelurahan_id) {
+            $kelurahan = DB::table('kelurahans')
+                ->where(
+                    'kelurahan_id',
+                    $keluarga->kelurahan_id
+                )
+                ->first();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Bentuk RT/RW untuk form
+        |--------------------------------------------------------------------------
+        */
+        $rtRw = null;
+
+        if ($keluarga->rtRw) {
+            $rtRw =
+                $keluarga->rtRw->rt .
+                '/' .
+                $keluarga->rtRw->rw;
+        }
 
         return response()->json([
             'id' =>
@@ -360,59 +410,87 @@ class RespondenController extends Controller
             'status_keluarga' =>
                 $keluarga->status_keluarga,
 
-            /*
-            |--------------------------------------------------------------------------
-            | Alamat
-            |--------------------------------------------------------------------------
-            |
-            | Untuk sementara dikosongkan karena data alamat sebelumnya
-            | disimpan di part1_keluarga.
-            |
-            | Nanti alamat bisa kita tambahkan ke tabel keluarga
-            | melalui migration khusus.
-            |
-            */
-            'provinsi' => null,
+            'provinsi' =>
+                'Jawa Timur',
 
-            'daerah' => null,
+            'daerah' =>
+                'Kota Pasuruan',
 
-            'kecamatan_id' => null,
+            'kecamatan_id' =>
+                $keluarga->kecamatan_id,
 
-            'kecamatan' => null,
+            'kecamatan' =>
+                $kecamatan?->deskripsi,
 
-            'kelurahan_id' => null,
+            'kelurahan_id' =>
+                $keluarga->kelurahan_id,
 
-            'kelurahan' => null,
+            'kelurahan' =>
+                $kelurahan?->deskripsi,
 
-            'kode_pos' => null,
+            'kode_pos' =>
+                $keluarga->kode_pos,
 
-            'rt_rw' => null,
+            'rt_rw' =>
+                $rtRw,
 
-            'alamat_lengkap' => null,
+            'alamat_lengkap' =>
+                $keluarga->alamat_lengkap,
 
             'jml_keluarga' =>
                 $keluarga->anggota->count(),
 
             'anggota' =>
-                $keluarga->anggota,
+                $keluarga->anggota
+                    ->sortBy(function ($anggota) {
+                        $statusPriority = [
+                            'Kepala Keluarga' => 1,
+                            'Istri' => 2,
+                            'Suami' => 3,
+                            'Anak' => 4,
+                            'Orang Tua' => 5,
+                            'Saudara' => 6,
+                            'Famili' => 7,
+                        ];
+
+                        $status = (string) ($anggota->status_keluarga ?? '');
+
+                        return ($statusPriority[$status] ?? 999) * 1000000 + ($anggota->id ?? 0);
+                    })
+                    ->map(function ($anggota) {
+                        $statusNormal = [
+                            'Kepala Keluarga',
+                            'Istri',
+                            'Suami',
+                            'Anak',
+                            'Orang Tua',
+                            'Saudara',
+                            'Famili',
+                        ];
+
+                        $status = (string) ($anggota->status_keluarga ?? '');
+
+                        return [
+                            'id' => $anggota->id,
+                            'kode' => $anggota->kode,
+                            'nik' => $anggota->nik,
+                            'nama_lengkap' => $anggota->nama_lengkap,
+                            'status_keluarga' => $status,
+                            'status_keluarga_lainnya' =>
+                                $status !== '' && !in_array($status, $statusNormal, true)
+                                    ? $status
+                                    : '',
+                        ];
+                    })
+                    ->values(),
         ]);
     }
 
     /**
      * Mengambil Kelurahan berdasarkan Kecamatan.
-     *
-     * Struktur tabel kelurahans:
-     * - kelurahan_id
-     * - kecamatan_id
-     * - deskripsi
      */
     public function getKelurahan($kecamatanId)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Pastikan Kecamatan memang ada
-        |--------------------------------------------------------------------------
-        */
         $kecamatan = DB::table('kecamatans')
             ->where(
                 'kecamatan_id',
@@ -421,19 +499,14 @@ class RespondenController extends Controller
             ->first();
 
         if (!$kecamatan) {
-
             return response()->json([
                 'success' => false,
-                'message' => 'Kecamatan tidak ditemukan.',
+                'message' =>
+                    'Kecamatan tidak ditemukan.',
                 'data' => [],
             ], 404);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ambil Kelurahan berdasarkan kecamatan_id
-        |--------------------------------------------------------------------------
-        */
         $kelurahans = DB::table('kelurahans')
             ->where(
                 'kecamatan_id',
@@ -457,23 +530,24 @@ class RespondenController extends Controller
 
     /**
      * Memperbarui data responden.
-     *
-     * Hanya:
-     * - keluargas
-     * - keluarga_anggotas
-     *
-     * Tidak menyentuh part1_keluarga.
      */
     public function update(
         Request $request,
         $id
     ) {
+        if (!$request->filled('nomor_kk') && $request->filled('no_kk')) {
+            $request->merge([
+                'nomor_kk' => $request->input('no_kk'),
+            ]);
+        }
+
+        if (!$request->filled('no_kk') && $request->filled('nomor_kk')) {
+            $request->merge([
+                'no_kk' => $request->input('nomor_kk'),
+            ]);
+        }
+
         $request->validate([
-            /*
-            |--------------------------------------------------------------------------
-            | Data keluarga
-            |--------------------------------------------------------------------------
-            */
             'nomor_kk' => [
                 'required',
                 'digits:16',
@@ -485,11 +559,6 @@ class RespondenController extends Controller
                 'max:255',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Anggota keluarga
-            |--------------------------------------------------------------------------
-            */
             'anggota' => [
                 'required',
                 'array',
@@ -519,11 +588,6 @@ class RespondenController extends Controller
                 'max:255',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Alamat
-            |--------------------------------------------------------------------------
-            */
             'provinsi' => [
                 'nullable',
                 'string',
@@ -539,7 +603,7 @@ class RespondenController extends Controller
             'kecamatan_id' => [
                 'nullable',
                 'string',
-                'max:8',
+                'max:13',
             ],
 
             'kelurahan_id' => [
@@ -551,13 +615,14 @@ class RespondenController extends Controller
             'kode_pos' => [
                 'nullable',
                 'string',
-                'max:16',
+                'max:10',
             ],
 
             'rt_rw' => [
                 'nullable',
                 'string',
-                'max:16',
+                'max:20',
+                'regex:/^\d{1,3}\s*\/\s*\d{1,3}$/',
             ],
 
             'alamat_lengkap' => [
@@ -575,11 +640,6 @@ class RespondenController extends Controller
             $updatedBy =
                 auth()->user()?->name ?? 'admin';
 
-            /*
-            |--------------------------------------------------------------------------
-            | Ambil keluarga
-            |--------------------------------------------------------------------------
-            */
             $keluarga =
                 Keluarga::findOrFail($id);
 
@@ -597,7 +657,6 @@ class RespondenController extends Controller
                     $anggota['status_keluarga']
                     === 'Kepala Keluarga'
                 ) {
-
                     $nikKepalaKeluarga =
                         $anggota['nik'] ?? null;
 
@@ -605,19 +664,31 @@ class RespondenController extends Controller
                 }
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Jika tidak ditemukan,
-            | gunakan anggota pertama
-            |--------------------------------------------------------------------------
-            */
             if (
                 !$nikKepalaKeluarga &&
                 !empty($request->anggota)
             ) {
-
                 $nikKepalaKeluarga =
                     $request->anggota[0]['nik'] ?? null;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Simpan / ambil RT RW
+            |--------------------------------------------------------------------------
+            */
+            $rtRwId = null;
+
+            if (
+                $request->filled('rt_rw') &&
+                $request->filled('kelurahan_id')
+            ) {
+                $rtRw = $this->simpanRtRw(
+                    $request->kelurahan_id,
+                    $request->rt_rw
+                );
+
+                $rtRwId = $rtRw?->id;
             }
 
             /*
@@ -637,6 +708,21 @@ class RespondenController extends Controller
 
                 'status_keluarga' =>
                     'Kepala Keluarga',
+
+                'kecamatan_id' =>
+                    $request->kecamatan_id,
+
+                'kelurahan_id' =>
+                    $request->kelurahan_id,
+
+                'rt_rw_id' =>
+                    $rtRwId,
+
+                'kode_pos' =>
+                    $request->kode_pos,
+
+                'alamat_lengkap' =>
+                    $request->alamat_lengkap,
 
                 'updated_by' =>
                     $updatedBy,
@@ -659,11 +745,6 @@ class RespondenController extends Controller
                 $statusKeluarga =
                     $anggota['status_keluarga'] ?? '';
 
-                /*
-                |--------------------------------------------------------------------------
-                | Jika status = Lainnya
-                |--------------------------------------------------------------------------
-                */
                 if ($statusKeluarga === 'Lainnya') {
 
                     $customStatus =
@@ -683,7 +764,8 @@ class RespondenController extends Controller
 
                 KeluargaAnggota::create([
                     'kode' =>
-                        'ANG-' . strtoupper(
+                        'ANG-' .
+                        strtoupper(
                             Str::random(10)
                         ),
 
@@ -703,15 +785,6 @@ class RespondenController extends Controller
                         $updatedBy,
                 ]);
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | TIDAK ADA UPDATE part1_keluarga
-            |--------------------------------------------------------------------------
-            |
-            | part1_keluarga hanya untuk jawaban Kuisioner Part 1.
-            |
-            */
         });
 
         return redirect()
@@ -723,13 +796,59 @@ class RespondenController extends Controller
     }
 
     /**
+     * Menyimpan RT/RW ke tabel rt_rws.
+     */
+    private function simpanRtRw(
+        $kelurahanId,
+        $rtRwValue
+    ) {
+        $rtRwValue =
+            trim((string) $rtRwValue);
+
+        $parts =
+            preg_split(
+                '/\s*\/\s*/',
+                $rtRwValue
+            );
+
+        if (
+            count($parts) !== 2 ||
+            $parts[0] === '' ||
+            $parts[1] === ''
+        ) {
+            return null;
+        }
+
+        $rt =
+            str_pad(
+                trim($parts[0]),
+                3,
+                '0',
+                STR_PAD_LEFT
+            );
+
+        $rw =
+            str_pad(
+                trim($parts[1]),
+                3,
+                '0',
+                STR_PAD_LEFT
+            );
+
+        return RtRw::firstOrCreate([
+            'kelurahan_id' =>
+                $kelurahanId,
+
+            'rt' =>
+                $rt,
+
+            'rw' =>
+                $rw,
+        ]);
+    }
+
+    /**
      * Menghapus data responden.
-     *
-     * Hanya menghapus:
-     * - keluarga_anggotas
-     * - keluargas
-     *
-     * part1_keluarga TIDAK dihapus.
      */
     public function destroy($id)
     {
@@ -738,18 +857,8 @@ class RespondenController extends Controller
             $keluarga =
                 Keluarga::findOrFail($id);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Hapus anggota keluarga
-            |--------------------------------------------------------------------------
-            */
             $keluarga->anggota()->delete();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Hapus keluarga
-            |--------------------------------------------------------------------------
-            */
             $keluarga->delete();
         });
 
@@ -766,9 +875,41 @@ class RespondenController extends Controller
      */
     public function detail($id)
     {
-        $keluarga =
-            Keluarga::with('anggota')
-                ->findOrFail($id);
+        $keluarga = Keluarga::with([
+            'anggota',
+            'rtRw',
+        ])->findOrFail($id);
+
+        $kecamatan = null;
+
+        if ($keluarga->kecamatan_id) {
+            $kecamatan = DB::table('kecamatans')
+                ->where(
+                    'kecamatan_id',
+                    $keluarga->kecamatan_id
+                )
+                ->first();
+        }
+
+        $kelurahan = null;
+
+        if ($keluarga->kelurahan_id) {
+            $kelurahan = DB::table('kelurahans')
+                ->where(
+                    'kelurahan_id',
+                    $keluarga->kelurahan_id
+                )
+                ->first();
+        }
+
+        $rtRw = null;
+
+        if ($keluarga->rtRw) {
+            $rtRw =
+                $keluarga->rtRw->rt .
+                '/' .
+                $keluarga->rtRw->rw;
+        }
 
         return response()->json([
             'id' =>
@@ -789,24 +930,32 @@ class RespondenController extends Controller
             'status_keluarga' =>
                 $keluarga->status_keluarga,
 
-            /*
-            |--------------------------------------------------------------------------
-            | Alamat
-            |--------------------------------------------------------------------------
-            */
-            'provinsi' => null,
+            'provinsi' =>
+                'Jawa Timur',
 
-            'daerah' => null,
+            'daerah' =>
+                'Kota Pasuruan',
 
-            'kecamatan' => null,
+            'kecamatan_id' =>
+                $keluarga->kecamatan_id,
 
-            'kelurahan' => null,
+            'kecamatan' =>
+                $kecamatan?->deskripsi,
 
-            'kode_pos' => null,
+            'kelurahan_id' =>
+                $keluarga->kelurahan_id,
 
-            'rt_rw' => null,
+            'kelurahan' =>
+                $kelurahan?->deskripsi,
 
-            'alamat_lengkap' => null,
+            'kode_pos' =>
+                $keluarga->kode_pos,
+
+            'rt_rw' =>
+                $rtRw,
+
+            'alamat_lengkap' =>
+                $keluarga->alamat_lengkap,
 
             'jml_keluarga' =>
                 $keluarga->anggota->count(),

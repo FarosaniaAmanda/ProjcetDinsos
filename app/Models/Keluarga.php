@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Keluarga extends Model
 {
@@ -14,18 +16,19 @@ class Keluarga extends Model
         'nik',
         'nama_lengkap',
         'status_keluarga',
+        'kecamatan_id',
+        'kelurahan_id',
+        'rt_rw_id',
+        'kode_pos',
+        'alamat_lengkap',
         'created_by',
         'updated_by',
     ];
 
     /**
-     * Relasi ke anggota keluarga
-     *
-     * keluarga_anggotas.keluarga_kode
-     * berelasi dengan
-     * keluargas.kode
+     * Anggota keluarga
      */
-    public function anggota()
+    public function anggota(): HasMany
     {
         return $this->hasMany(
             KeluargaAnggota::class,
@@ -35,14 +38,14 @@ class Keluarga extends Model
     }
 
     /**
-     * Relasi ke periode keluarga
+     * Relasi RT/RW
      */
-    public function periode()
+    public function rtRw(): BelongsTo
     {
-        return $this->hasMany(
-            KeluargaPeriode::class,
-            'keluarga_kode',
-            'kode'
+        return $this->belongsTo(
+            RtRw::class,
+            'rt_rw_id',
+            'id'
         );
     }
 }
