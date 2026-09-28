@@ -4,7 +4,7 @@
 
 <style>
     .page-wrapper {
-        max-width: 1100px;
+        max-width: 1400px;
         margin: 0 auto;
     }
 
@@ -14,7 +14,7 @@
         border-radius: 18px;
         padding: 25px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,.03);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
     }
 
     .page-title {
@@ -35,7 +35,7 @@
         border: 1px solid #e5e7eb;
         border-radius: 18px;
         overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,.03);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .03);
     }
 
     .table-wrapper {
@@ -45,6 +45,7 @@
     table {
         width: 100%;
         border-collapse: collapse;
+        min-width: 1300px;
     }
 
     th {
@@ -59,10 +60,11 @@
     }
 
     td {
-        padding: 16px 18px;
+        padding: 15px 18px;
         border-top: 1px solid #eef0f4;
         color: #374151;
-        font-size: 14px;
+        font-size: 13px;
+        white-space: nowrap;
     }
 
     tr:hover td {
@@ -71,6 +73,7 @@
 
     .status {
         display: inline-flex;
+        align-items: center;
         padding: 6px 10px;
         border-radius: 999px;
         background: #fff7ed;
@@ -79,7 +82,7 @@
         font-weight: 700;
     }
 
-    .progress-text {
+    .progress {
         font-weight: 700;
         color: #252A86;
     }
@@ -87,14 +90,15 @@
     .btn-continue {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 9px 13px;
+        justify-content: center;
+        padding: 9px 14px;
         background: #252A86;
         color: white !important;
         text-decoration: none !important;
         border-radius: 9px;
         font-size: 12px;
         font-weight: 700;
+        transition: .2s ease;
     }
 
     .btn-continue:hover {
@@ -102,7 +106,7 @@
     }
 
     .empty-state {
-        padding: 55px 25px;
+        padding: 60px 25px;
         text-align: center;
     }
 
@@ -136,11 +140,18 @@
         font-size: 13px;
         font-weight: 700;
     }
+
+    .back-button:hover {
+        background: #f9fafb;
+        border-color: #252A86;
+        color: #252A86 !important;
+    }
 </style>
 
 
 <div class="page-wrapper">
 
+    {{-- HEADER --}}
     <div class="page-header">
 
         <h1 class="page-title">
@@ -148,33 +159,38 @@
         </h1>
 
         <p class="page-subtitle">
-            Data keluarga yang masih dalam proses pendataan dan belum selesai.
+            Data yang sudah diisi tetapi belum menyelesaikan seluruh proses kuisioner.
         </p>
 
     </div>
 
 
+    {{-- TABLE --}}
     <div class="table-card">
 
-        @if($drafts->count() > 0)
+        @if($drafts->isNotEmpty())
 
             <div class="table-wrapper">
 
                 <table>
 
                     <thead>
-
                         <tr>
                             <th>No</th>
-                            <th>No. KK</th>
                             <th>NIK</th>
+                            <th>No. KK</th>
+                            <th>Jumlah Keluarga</th>
+                            <th>Provinsi</th>
+                            <th>Daerah</th>
                             <th>Kecamatan</th>
                             <th>Kelurahan</th>
-                            <th>Progress</th>
+                            <th>Kode Pos</th>
+                            <th>RT/RW</th>
+                            <th>Alamat Lengkap</th>
                             <th>Status</th>
+                            <th>Progress</th>
                             <th>Aksi</th>
                         </tr>
-
                     </thead>
 
                     <tbody>
@@ -182,7 +198,9 @@
                         @foreach($drafts as $draft)
 
                             @php
-                                $progress = match((int) $draft->current_part) {
+                                $currentPart = (int) ($draft->current_part ?? 1);
+
+                                $progress = match ($currentPart) {
                                     1 => 20,
                                     2 => 40,
                                     3 => 60,
@@ -194,50 +212,84 @@
 
                             <tr>
 
+                                {{-- NO --}}
                                 <td>
                                     {{ $loop->iteration }}
                                 </td>
 
-                                <td>
-                                    <strong>
-                                        {{ $draft->no_kk ?: '-' }}
-                                    </strong>
-                                </td>
-
+                                {{-- NIK --}}
                                 <td>
                                     {{ $draft->nik ?: '-' }}
                                 </td>
 
+                                {{-- NO KK --}}
+                                <td>
+                                    {{ $draft->no_kk ?: '-' }}
+                                </td>
+
+                                {{-- JUMLAH KELUARGA --}}
+                                <td>
+                                    {{ $draft->jml_keluarga ?: '-' }}
+                                </td>
+
+                                {{-- PROVINSI --}}
+                                <td>
+                                    {{ $draft->provinsi ?: '-' }}
+                                </td>
+
+                                {{-- DAERAH --}}
+                                <td>
+                                    {{ $draft->daerah ?: '-' }}
+                                </td>
+
+                                {{-- KECAMATAN --}}
                                 <td>
                                     {{ $draft->kecamatan ?: '-' }}
                                 </td>
 
+                                {{-- KELURAHAN --}}
                                 <td>
                                     {{ $draft->kelurahan ?: '-' }}
                                 </td>
 
+                                {{-- KODE POS --}}
                                 <td>
-                                    <span class="progress-text">
-                                        Part {{ $draft->current_part }} / 5
-                                        ({{ $progress }}%)
-                                    </span>
+                                    {{ $draft->kode_pos ?: '-' }}
                                 </td>
 
+                                {{-- RT/RW --}}
+                                <td>
+                                    {{ $draft->rt_rw ?: '-' }}
+                                </td>
+
+                                {{-- ALAMAT --}}
+                                <td>
+                                    {{ $draft->alamat_lengkap ?: '-' }}
+                                </td>
+
+                                {{-- STATUS --}}
                                 <td>
                                     <span class="status">
                                         Draft
                                     </span>
                                 </td>
 
+                                {{-- PROGRESS --}}
                                 <td>
+                                    <span class="progress">
+                                        Part {{ $currentPart }} / 5
+                                        ({{ $progress }}%)
+                                    </span>
+                                </td>
 
+                                {{-- AKSI --}}
+                                <td>
                                     <a
-                                        href="{{ route('kuisioner.draft.resume', $draft->id) }}"
+                                        href="{{ route('kuisioner.draft.resume', ['id' => $draft->id]) }}"
                                         class="btn-continue"
                                     >
                                         Lanjutkan →
                                     </a>
-
                                 </td>
 
                             </tr>
@@ -263,7 +315,7 @@
                 </div>
 
                 <div class="empty-description">
-                    Semua data kuisioner yang sedang diproses akan muncul di sini.
+                    Data kuisioner yang sudah diisi tetapi belum selesai akan muncul di sini.
                 </div>
 
             </div>
@@ -273,6 +325,7 @@
     </div>
 
 
+    {{-- KEMBALI --}}
     <a
         href="{{ route('kuisioner.index') }}"
         class="back-button"
