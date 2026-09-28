@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Periode;
 
 class DashboardController extends Controller
 {
-
     public function index()
     {
-        return view('admin.dashboard');
-    }
+        $periodeAktif = Periode::where('status', 'Aktif')->count();
 
+        return view('admin.dashboard', compact('periodeAktif'));
+    }
 }
