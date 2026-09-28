@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class KeluargaAnggota extends Model
 {
@@ -21,7 +22,7 @@ class KeluargaAnggota extends Model
     /**
      * Relasi ke keluarga
      */
-    public function keluarga()
+    public function keluarga(): BelongsTo
     {
         return $this->belongsTo(
             Keluarga::class,

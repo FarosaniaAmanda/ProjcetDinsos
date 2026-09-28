@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\PetugasController;
 use App\Http\Controllers\Admin\RespondenController;
+use App\Http\Controllers\Admin\KuisionerController;
 use App\Http\Controllers\Admin\UserController;
 
 
@@ -104,15 +105,9 @@ Route::delete('/responden/hapus/{id}', [RespondenController::class, 'destroy'])
 |--------------------------------------------------------------------------
 */
 
-/*
- * Mengambil data responden untuk modal edit
- */
 Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData'])
     ->name('responden.editData');
 
-/*
- * Mengambil kelurahan berdasarkan kecamatan
- */
 Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
     ->name('responden.kelurahan');
 
@@ -123,9 +118,244 @@ Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'g
 |--------------------------------------------------------------------------
 */
 
-Route::get('/kuisioner', function () {
-    return view('admin.kuisioner.index');
-})->name('kuisioner.index');
+/*
+|--------------------------------------------------------------------------
+| HALAMAN UTAMA
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner', [KuisionerController::class, 'index'])
+    ->name('kuisioner.index');
+
+
+/*
+|--------------------------------------------------------------------------
+| MULAI KUISIONER → PART 1
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
+    ->name('kuisioner.part1');
+
+
+/*
+|--------------------------------------------------------------------------
+| SIMPAN PART 1
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
+    ->name('kuisioner.part1.store');
+
+
+/*
+|--------------------------------------------------------------------------
+| HALAMAN DRAFT
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
+    ->name('kuisioner.draft');
+
+
+/*
+|--------------------------------------------------------------------------
+| LANJUTKAN DRAFT
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
+    ->name('kuisioner.draft.resume');
+
+
+/*
+|--------------------------------------------------------------------------
+| HALAMAN SELESAI
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
+    ->name('kuisioner.selesai');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 2
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part2', function () {
+
+    if (!session('part1_selesai')) {
+        return redirect()
+            ->route('kuisioner.part1')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 1 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part2');
+
+})->name('kuisioner.part2');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 3
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part3', function () {
+
+    if (!session('part2_selesai')) {
+        return redirect()
+            ->route('kuisioner.part2')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 2 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part3');
+
+})->name('kuisioner.part3');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 4
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part4', function () {
+
+    if (!session('part3_selesai')) {
+        return redirect()
+            ->route('kuisioner.part3')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 3 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part4');
+
+})->name('kuisioner.part4');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 5
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part5', function () {
+
+    if (!session('part4_selesai')) {
+        return redirect()
+            ->route('kuisioner.part4')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 4 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part5');
+
+})->name('kuisioner.part5');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 2
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part2', function () {
+
+    if (!session('part1_selesai')) {
+
+        return redirect()
+            ->route('kuisioner.index')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 1 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part2');
+
+})->name('kuisioner.part2');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 3
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part3', function () {
+
+    if (!session('part2_selesai')) {
+
+        return redirect()
+            ->route('kuisioner.part2')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 2 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part3');
+
+})->name('kuisioner.part3');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 4
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part4', function () {
+
+    if (!session('part3_selesai')) {
+
+        return redirect()
+            ->route('kuisioner.part3')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 3 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part4');
+
+})->name('kuisioner.part4');
+
+
+/*
+|--------------------------------------------------------------------------
+| PART 5
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/kuisioner/part5', function () {
+
+    if (!session('part4_selesai')) {
+
+        return redirect()
+            ->route('kuisioner.part4')
+            ->with(
+                'warning',
+                'Silakan lengkapi dan simpan Part 4 terlebih dahulu.'
+            );
+    }
+
+    return view('admin.kuisioner.part5');
+
+})->name('kuisioner.part5');
 
 
 /*
@@ -164,15 +394,24 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 */
 
 Route::get('/laporan', function () {
+
     return view('admin.laporan.index');
+
 })->name('laporan.index');
 
+
 Route::get('/laporan/export', function () {
+
     return response()->streamDownload(function () {
+
         echo "No. KK,Periode,Tanggal Pendataan,Status\n";
+
     }, 'laporan-pendataan.csv', [
+
         'Content-Type' => 'text/csv',
+
     ]);
+
 })->name('admin.laporan.export');
 
 
@@ -183,8 +422,12 @@ Route::get('/laporan/export', function () {
 */
 
 Route::get('/master', function () {
-    return redirect()->route('master.pengguna.index');
+
+    return redirect()
+        ->route('master.pengguna.index');
+
 })->name('master.index');
+
 
 Route::get('/master/pengguna', [UserController::class, 'index'])
     ->name('master.pengguna.index');
