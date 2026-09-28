@@ -855,6 +855,518 @@
             width: 100%;
         }
     }
+
+/* =========================================================
+   DETAIL VERIFIKASI - RESPONSIVE QUESTIONNAIRE
+========================================================= */
+
+.verification-modal-box {
+    width: min(960px, 100%);
+    max-width: 960px;
+    max-height: calc(100vh - 40px);
+    overflow: hidden;
+}
+
+.verification-modal-body {
+    padding: 18px 20px 22px;
+    overflow-y: auto;
+    max-height: calc(100vh - 125px);
+    scrollbar-width: thin;
+}
+
+.verification-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.verification-summary-card {
+    min-width: 0;
+    padding: 13px 14px;
+    border: 1px solid #e7e9f1;
+    border-radius: 10px;
+    background: #f8f9fc;
+}
+
+.verification-summary-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #7b8192;
+    text-transform: uppercase;
+    letter-spacing: .35px;
+}
+
+.verification-summary-card strong {
+    display: block;
+    overflow: hidden;
+    font-size: 13px;
+    color: #252A86;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.verification-summary-status {
+    color: #252A86 !important;
+}
+
+.verification-detail-section {
+    margin-bottom: 16px;
+    padding: 16px;
+    border: 1px solid #e7e9f1;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.verification-section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 13px;
+}
+
+.verification-section-kicker {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #252A86;
+    letter-spacing: .75px;
+}
+
+.verification-section-heading h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #252A86;
+}
+
+.verification-section-heading p {
+    margin: 4px 0 0;
+    font-size: 11px;
+    line-height: 1.5;
+    color: #7d8392;
+}
+
+.verification-info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.verification-info-item {
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid #edf0f5;
+    border-radius: 9px;
+    background: #fafbfc;
+}
+
+.verification-info-item span {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 10px;
+    color: #858b99;
+}
+
+.verification-info-item strong {
+    display: block;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #252A86;
+    text-overflow: ellipsis;
+}
+
+.questionnaire-heading {
+    align-items: center;
+}
+
+.questionnaire-total {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eef0ff;
+    color: #252A86;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.questionnaire-parts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.questionnaire-part {
+    overflow: hidden;
+    border: 1px solid #e5e7ef;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.questionnaire-part.is-open {
+    border-color: #cfd3f4;
+}
+
+.questionnaire-part-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 13px;
+    border: 0;
+    background: #f8f9fc;
+    color: #252A86;
+    text-align: left;
+    cursor: pointer;
+    transition: background .18s ease;
+}
+
+.questionnaire-part-header:hover {
+    background: #f1f3fb;
+}
+
+.questionnaire-part.is-open .questionnaire-part-header {
+    background: #f0f2ff;
+}
+
+.questionnaire-part-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #252A86;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.questionnaire-part-title {
+    min-width: 0;
+    flex: 1;
+}
+
+.questionnaire-part-title strong {
+    display: block;
+    font-size: 12px;
+    color: #252A86;
+}
+
+.questionnaire-part-title span {
+    display: block;
+    margin-top: 2px;
+    font-size: 10px;
+    color: #818797;
+}
+
+.questionnaire-part-chevron {
+    flex: 0 0 24px;
+    transition: transform .2s ease;
+}
+
+.questionnaire-part.is-open .questionnaire-part-chevron {
+    transform: rotate(180deg);
+}
+
+.questionnaire-part-body {
+    display: none;
+    padding: 10px;
+    border-top: 1px solid #e8eaf1;
+    background: #fff;
+}
+
+.questionnaire-part.is-open .questionnaire-part-body {
+    display: block;
+}
+
+.questionnaire-question {
+    padding: 11px 12px;
+    border: 1px solid #eceef4;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.questionnaire-question + .questionnaire-question {
+    margin-top: 7px;
+}
+
+.questionnaire-question-number {
+    margin-bottom: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #8a90a0;
+}
+
+.questionnaire-question-text {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #303545;
+}
+
+.questionnaire-answer-label {
+    margin-top: 8px;
+    margin-bottom: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    color: #252A86;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.questionnaire-answer {
+    padding: 8px 9px;
+    border-radius: 7px;
+    background: #f7f8fb;
+    color: #505668;
+    font-size: 11px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.questionnaire-answer.is-empty {
+    color: #9a6a18;
+    background: #fff8e7;
+}
+
+.questionnaire-empty {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 28px 18px;
+    border: 1px dashed #dfe2eb;
+    border-radius: 10px;
+    background: #fafbfc;
+    text-align: center;
+}
+
+.questionnaire-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: 9px;
+    border-radius: 50%;
+    background: #eef0ff;
+    color: #252A86;
+}
+
+.questionnaire-empty strong {
+    font-size: 12px;
+    color: #4a5060;
+}
+
+.questionnaire-empty span {
+    max-width: 400px;
+    margin-top: 4px;
+    font-size: 10px;
+    line-height: 1.5;
+    color: #8a90a0;
+}
+
+.verification-action-section {
+    margin-bottom: 0;
+}
+
+.verification-form-group {
+    margin-bottom: 12px;
+}
+
+.verification-form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #424858;
+}
+
+.verification-form-group select {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid #dfe2ea;
+    border-radius: 8px;
+    outline: none;
+    background: #fff;
+    color: #343949;
+    font-size: 12px;
+}
+
+.verification-form-group select:focus {
+    border-color: #252A86;
+    box-shadow: 0 0 0 3px rgba(37, 42, 134, .08);
+}
+
+.verification-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.verification-btn {
+    min-height: 38px;
+    padding: 0 15px;
+    border: 0;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.verification-btn-secondary {
+    border: 1px solid #dfe2ea;
+    background: #fff;
+    color: #606676;
+}
+
+.verification-btn-secondary:hover {
+    background: #f6f7fa;
+}
+
+.verification-btn-danger {
+    background: #fff0f0;
+    color: #b33a3a;
+}
+
+.verification-btn-danger:hover {
+    background: #fce1e1;
+}
+
+.verification-btn-success {
+    background: #eef8f1;
+    color: #277443;
+}
+
+.verification-btn-success:hover {
+    background: #dff1e4;
+}
+
+.verification-btn-primary {
+    background: #252A86;
+    color: #fff;
+}
+
+.verification-btn-primary:hover {
+    background: #1e236f;
+}
+
+@media (max-width: 900px) {
+    .verification-info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .verification-modal {
+        padding: 12px;
+    }
+
+    .verification-modal-box {
+        max-height: calc(100vh - 24px);
+        border-radius: 12px;
+    }
+
+    .verification-modal-body {
+        max-height: calc(100vh - 105px);
+        padding: 14px;
+    }
+
+    .verification-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .verification-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .verification-section-heading {
+        align-items: flex-start;
+    }
+
+    .questionnaire-heading {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .questionnaire-total {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .verification-modal {
+        padding: 7px;
+    }
+
+    .verification-modal-box {
+        max-height: calc(100vh - 14px);
+        border-radius: 10px;
+    }
+
+    .verification-modal-header {
+        padding: 13px 14px;
+    }
+
+    .verification-modal-body {
+        max-height: calc(100vh - 94px);
+        padding: 10px;
+    }
+
+    .verification-detail-section {
+        padding: 11px;
+        margin-bottom: 10px;
+    }
+
+    .verification-summary-card {
+        padding: 11px 12px;
+    }
+
+    .questionnaire-part-header {
+        padding: 10px;
+    }
+
+    .questionnaire-part-number {
+        flex-basis: 30px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .questionnaire-part-body {
+        padding: 7px;
+    }
+
+    .questionnaire-question {
+        padding: 9px;
+    }
+
+    .verification-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .verification-btn {
+        width: 100%;
+    }
+
+    .verification-btn-secondary {
+        grid-column: 1 / -1;
+    }
+}
+
 </style>
 @endpush
 
@@ -1208,6 +1720,9 @@
                                 data-petugas="{{ $item['petugas'] ?? '' }}"
                                 data-status="{{ $item['status'] ?? '' }}"
                                 data-status-label="{{ $statusLabel }}"
+                                data-anggota="{{ $item['anggota'] ?? 0 }}"
+                                data-tanggal="{{ $item['tanggal'] ?? '' }}"
+                                data-kuisioner="{{ e(json_encode($item['kuisioner'] ?? $item['questionnaire'] ?? $item['jawaban_kuisioner'] ?? $item['answers'] ?? [])) }}"
                             >
 
                                 <td class="row-number">
@@ -1442,7 +1957,6 @@
             id="verificationModalOverlay"
         ></div>
 
-
         <div
             class="verification-modal-box"
             role="dialog"
@@ -1453,7 +1967,6 @@
             <div class="verification-modal-header">
 
                 <div class="verification-modal-header-content">
-
                     <div class="verification-modal-kicker">
                         VERIFIKASI DATA
                     </div>
@@ -1462,15 +1975,13 @@
                         class="verification-modal-title"
                         id="verificationModalTitle"
                     >
-                        Detail Verifikasi
+                        Detail Data Pendataan
                     </h2>
 
                     <div class="verification-modal-subtitle">
-                        Periksa data responden dan ubah status verifikasi.
+                        Periksa informasi responden dan jawaban kuisioner sebelum melakukan verifikasi.
                     </div>
-
                 </div>
-
 
                 <button
                     type="button"
@@ -1478,7 +1989,6 @@
                     id="closeVerificationModal"
                     aria-label="Tutup detail"
                 >
-
                     <svg
                         width="17"
                         height="17"
@@ -1487,21 +1997,9 @@
                         stroke="currentColor"
                         stroke-width="2"
                     >
-                        <line
-                            x1="18"
-                            y1="6"
-                            x2="6"
-                            y2="18"
-                        ></line>
-
-                        <line
-                            x1="6"
-                            y1="6"
-                            x2="18"
-                            y2="18"
-                        ></line>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-
                 </button>
 
             </div>
@@ -1509,102 +2007,247 @@
 
             <div class="verification-modal-body">
 
-                <div class="verification-modal-grid">
+                {{-- RINGKASAN --}}
+                <div class="verification-summary-grid">
 
-                    <div class="verification-field">
-                        <label>No. KK</label>
-                        <strong id="modalNoKK">-</strong>
+                    <div class="verification-summary-card">
+                        <span class="verification-summary-label">
+                            Nama Responden
+                        </span>
+                        <strong id="modalSummaryNama">-</strong>
                     </div>
 
-                    <div class="verification-field">
-                        <label>NIK</label>
-                        <strong id="modalNIK">-</strong>
+                    <div class="verification-summary-card">
+                        <span class="verification-summary-label">
+                            Nomor KK
+                        </span>
+                        <strong id="modalSummaryNoKK">-</strong>
                     </div>
 
-                    <div class="verification-field">
-                        <label>Nama Kepala Keluarga</label>
-                        <strong id="modalNama">-</strong>
-                    </div>
-
-                    <div class="verification-field">
-                        <label>Wilayah</label>
-                        <strong id="modalWilayah">-</strong>
-                    </div>
-
-                    <div class="verification-field">
-                        <label>Petugas</label>
-                        <strong id="modalPetugas">-</strong>
-                    </div>
-
-                    <div class="verification-field">
-                        <label>Status Saat Ini</label>
-                        <strong id="modalStatusLabel">-</strong>
+                    <div class="verification-summary-card">
+                        <span class="verification-summary-label">
+                            Status Pendataan
+                        </span>
+                        <strong
+                            id="modalSummaryStatus"
+                            class="verification-summary-status"
+                        >
+                            -
+                        </strong>
                     </div>
 
                 </div>
 
 
-                <form
-                    id="verificationUpdateForm"
-                    method="POST"
-                >
+                {{-- INFORMASI RESPONDEN --}}
+                <section class="verification-detail-section">
 
-                    @csrf
-                    @method('PUT')
+                    <div class="verification-section-heading">
+                        <div>
+                            <span class="verification-section-kicker">
+                                DATA RESPONDEN
+                            </span>
+
+                            <h3>
+                                Informasi Responden
+                            </h3>
+                        </div>
+                    </div>
 
 
-                    <div class="verification-form-group">
+                    <div class="verification-info-grid">
 
-                        <label for="modalStatus">
-                            Ubah Status
-                        </label>
+                        <div class="verification-info-item">
+                            <span>No. KK</span>
+                            <strong id="modalNoKK">-</strong>
+                        </div>
 
-                        <select
-                            id="modalStatus"
-                            name="status"
-                            required
+                        <div class="verification-info-item">
+                            <span>NIK</span>
+                            <strong id="modalNIK">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Nama Kepala Keluarga</span>
+                            <strong id="modalNama">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Jumlah Anggota Keluarga</span>
+                            <strong id="modalAnggota">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Wilayah</span>
+                            <strong id="modalWilayah">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Petugas</span>
+                            <strong id="modalPetugas">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Tanggal Pendataan</span>
+                            <strong id="modalTanggal">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Status Saat Ini</span>
+                            <strong id="modalStatusLabel">-</strong>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                {{-- HASIL KUISIONER --}}
+                <section class="verification-detail-section questionnaire-section">
+
+                    <div class="verification-section-heading questionnaire-heading">
+
+                        <div>
+                            <span class="verification-section-kicker">
+                                HASIL PENDATAAN
+                            </span>
+
+                            <h3>
+                                Hasil Kuisioner
+                            </h3>
+
+                            <p>
+                                Buka setiap part untuk memeriksa pertanyaan dan jawaban responden.
+                            </p>
+                        </div>
+
+                        <div
+                            class="questionnaire-total"
+                            id="questionnaireTotal"
                         >
+                            0 Part
+                        </div>
 
-                            <option
-                                value=""
-                                disabled
+                    </div>
+
+
+                    <div
+                        class="questionnaire-parts"
+                        id="verificationQuestionnaireContent"
+                    >
+                        <div class="questionnaire-empty">
+                            <div class="questionnaire-empty-icon">
+                                <svg
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                >
+                                    <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"></path>
+                                    <path d="M4 5.5v16"></path>
+                                    <path d="M8 7h8"></path>
+                                    <path d="M8 11h8"></path>
+                                </svg>
+                            </div>
+
+                            <strong>
+                                Belum Ada Hasil Kuisioner
+                            </strong>
+
+                            <span>
+                                Hasil kuisioner untuk responden ini belum tersedia.
+                            </span>
+                        </div>
+                    </div>
+
+                </section>
+
+
+                {{-- VERIFIKASI --}}
+                <section class="verification-detail-section verification-action-section">
+
+                    <div class="verification-section-heading">
+                        <div>
+                            <span class="verification-section-kicker">
+                                VERIFIKASI
+                            </span>
+
+                            <h3>
+                                Verifikasi Data
+                            </h3>
+
+                            <p>
+                                Periksa seluruh data sebelum menentukan status pendataan.
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <form
+                        id="verificationUpdateForm"
+                        method="POST"
+                    >
+
+                        @csrf
+                        @method('PUT')
+
+
+                        <div class="verification-form-group">
+
+                            <label for="modalStatus">
+                                Ubah Status
+                            </label>
+
+                            <select
+                                id="modalStatus"
+                                name="status"
+                                required
                             >
-                                Pilih Status Verifikasi
-                            </option>
+                                <option
+                                    value=""
+                                    disabled
+                                >
+                                    Pilih Status Verifikasi
+                                </option>
 
-                            <option value="approved">
-                                Disetujui
-                            </option>
+                                <option value="approved">
+                                    Disetujui
+                                </option>
 
-                            <option value="rejected">
-                                Ditolak
-                            </option>
+                                <option value="rejected">
+                                    Ditolak
+                                </option>
+                            </select>
 
-                        </select>
-
-                    </div>
+                        </div>
 
 
-                    <div class="verification-actions">
+                        <div class="verification-actions">
 
-                        <button
-                            type="button"
-                            class="verification-btn verification-btn-secondary"
-                            id="cancelVerificationModal"
-                        >
-                            Tutup
-                        </button>
+                            <button
+                                type="button"
+                                class="verification-btn verification-btn-secondary"
+                                id="cancelVerificationModal"
+                            >
+                                Tutup
+                            </button>
 
-                        <button
-                            type="submit"
-                            class="verification-btn verification-btn-primary"
-                        >
-                            Simpan
-                        </button>
+                            
 
-                    </div>
+                            <button
+                                type="submit"
+                                class="verification-btn verification-btn-primary"
+                            >
+                                Simpan
+                            </button>
 
-                </form>
+                        </div>
+
+                    </form>
+
+                </section>
 
             </div>
 
@@ -2158,64 +2801,67 @@ document.addEventListener('DOMContentLoaded', function () {
     ====================================================== */
 
     const verificationModal =
-        document.getElementById(
-            'verificationModal'
-        );
+        document.getElementById('verificationModal');
 
     const verificationModalOverlay =
-        document.getElementById(
-            'verificationModalOverlay'
-        );
+        document.getElementById('verificationModalOverlay');
 
     const closeVerificationModal =
-        document.getElementById(
-            'closeVerificationModal'
-        );
+        document.getElementById('closeVerificationModal');
 
     const cancelVerificationModal =
-        document.getElementById(
-            'cancelVerificationModal'
-        );
+        document.getElementById('cancelVerificationModal');
 
     const verificationUpdateForm =
-        document.getElementById(
-            'verificationUpdateForm'
-        );
+        document.getElementById('verificationUpdateForm');
 
     const modalNoKK =
-        document.getElementById(
-            'modalNoKK'
-        );
+        document.getElementById('modalNoKK');
 
     const modalNIK =
-        document.getElementById(
-            'modalNIK'
-        );
+        document.getElementById('modalNIK');
 
     const modalNama =
-        document.getElementById(
-            'modalNama'
-        );
+        document.getElementById('modalNama');
 
     const modalWilayah =
-        document.getElementById(
-            'modalWilayah'
-        );
+        document.getElementById('modalWilayah');
 
     const modalPetugas =
-        document.getElementById(
-            'modalPetugas'
-        );
+        document.getElementById('modalPetugas');
 
     const modalStatusLabel =
-        document.getElementById(
-            'modalStatusLabel'
-        );
+        document.getElementById('modalStatusLabel');
 
     const modalStatus =
-        document.getElementById(
-            'modalStatus'
-        );
+        document.getElementById('modalStatus');
+
+    const modalAnggota =
+        document.getElementById('modalAnggota');
+
+    const modalTanggal =
+        document.getElementById('modalTanggal');
+
+    const modalSummaryNama =
+        document.getElementById('modalSummaryNama');
+
+    const modalSummaryNoKK =
+        document.getElementById('modalSummaryNoKK');
+
+    const modalSummaryStatus =
+        document.getElementById('modalSummaryStatus');
+
+    const questionnaireContent =
+        document.getElementById('verificationQuestionnaireContent');
+
+    const questionnaireTotal =
+        document.getElementById('questionnaireTotal');
+
+    const approveVerificationButton =
+        document.getElementById('approveVerificationButton');
+
+    const rejectVerificationButton =
+        document.getElementById('rejectVerificationButton');
 
 
     /* =====================================================
@@ -2227,6 +2873,572 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
+       HELPER
+    ====================================================== */
+
+    function escapeHtmlValue(value) {
+
+        return String(value ?? '-')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+
+    }
+
+
+    function parseQuestionnaire(raw) {
+
+        if (!raw) {
+            return [];
+        }
+
+        if (typeof raw === 'string') {
+
+            try {
+                raw = JSON.parse(raw);
+            } catch (error) {
+                return [];
+            }
+
+        }
+
+        if (!raw) {
+            return [];
+        }
+
+        /*
+         * Bentuk yang didukung:
+         * 1. { parts: [...] }
+         * 2. { data: [...] }
+         * 3. array part
+         * 4. array pertanyaan yang mempunyai field part/bagian
+         */
+
+        if (!Array.isArray(raw) && typeof raw === 'object') {
+
+            if (Array.isArray(raw.parts)) {
+                return raw.parts;
+            }
+
+            if (Array.isArray(raw.data)) {
+                return raw.data;
+            }
+
+            if (Array.isArray(raw.questionnaire)) {
+                return raw.questionnaire;
+            }
+
+            if (Array.isArray(raw.questions)) {
+                return raw.questions;
+            }
+
+        }
+
+        if (Array.isArray(raw)) {
+            return raw;
+        }
+
+        return [];
+    }
+
+
+    function getFirstValue(object, keys, fallback = '') {
+
+        if (!object || typeof object !== 'object') {
+            return fallback;
+        }
+
+        for (const key of keys) {
+
+            if (
+                Object.prototype.hasOwnProperty.call(object, key) &&
+                object[key] !== null &&
+                object[key] !== undefined &&
+                String(object[key]).trim() !== ''
+            ) {
+                return object[key];
+            }
+
+        }
+
+        return fallback;
+    }
+
+
+    function normalizeQuestionAnswer(value) {
+
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        if (Array.isArray(value)) {
+            return value.join(', ');
+        }
+
+        if (typeof value === 'object') {
+
+            const nested =
+                getFirstValue(
+                    value,
+                    [
+                        'label',
+                        'name',
+                        'nama',
+                        'text',
+                        'value',
+                        'jawaban',
+                        'answer'
+                    ],
+                    ''
+                );
+
+            if (nested !== '') {
+                return normalizeQuestionAnswer(nested);
+            }
+
+            try {
+                return JSON.stringify(value);
+            } catch (error) {
+                return '';
+            }
+        }
+
+        return String(value);
+    }
+
+
+    function normalizeQuestion(question, index) {
+
+        if (
+            question === null ||
+            question === undefined
+        ) {
+            return {
+                number: index + 1,
+                text: '',
+                answer: ''
+            };
+        }
+
+        if (typeof question !== 'object') {
+            return {
+                number: index + 1,
+                text: String(question),
+                answer: ''
+            };
+        }
+
+        const text =
+            getFirstValue(
+                question,
+                [
+                    'pertanyaan',
+                    'question',
+                    'question_text',
+                    'nama_pertanyaan',
+                    'text',
+                    'judul',
+                    'label'
+                ],
+                `Pertanyaan ${index + 1}`
+            );
+
+        const answer =
+            getFirstValue(
+                question,
+                [
+                    'jawaban',
+                    'answer',
+                    'response',
+                    'nilai',
+                    'value',
+                    'hasil'
+                ],
+                ''
+            );
+
+        return {
+            number:
+                getFirstValue(
+                    question,
+                    ['number', 'nomor', 'no', 'urutan'],
+                    index + 1
+                ),
+            text: normalizeQuestionAnswer(text),
+            answer: normalizeQuestionAnswer(answer)
+        };
+    }
+
+
+    function normalizeParts(raw) {
+
+        const source =
+            parseQuestionnaire(raw);
+
+        if (!source.length) {
+            return [];
+        }
+
+        /*
+         * Kalau data sudah berbentuk Part:
+         * [
+         *   {
+         *      part: 1,
+         *      title: "...",
+         *      questions: [...]
+         *   }
+         * ]
+         */
+        const looksLikeParts =
+            source.some(function (item) {
+
+                if (!item || typeof item !== 'object') {
+                    return false;
+                }
+
+                return (
+                    Array.isArray(item.questions) ||
+                    Array.isArray(item.pertanyaan) ||
+                    Array.isArray(item.items) ||
+                    Array.isArray(item.answers)
+                );
+
+            });
+
+        if (looksLikeParts) {
+
+            return source.map(function (part, index) {
+
+                const questions =
+                    Array.isArray(part.questions)
+                        ? part.questions
+                        : Array.isArray(part.pertanyaan)
+                            ? part.pertanyaan
+                            : Array.isArray(part.items)
+                                ? part.items
+                                : Array.isArray(part.answers)
+                                    ? part.answers
+                                    : [];
+
+                const partNumber =
+                    getFirstValue(
+                        part,
+                        ['part', 'part_number', 'bagian', 'section', 'section_number'],
+                        index + 1
+                    );
+
+                const partTitle =
+                    getFirstValue(
+                        part,
+                        ['title', 'judul', 'nama', 'part_title', 'section_title'],
+                        `Part ${partNumber}`
+                    );
+
+                return {
+                    number: partNumber,
+                    title: partTitle,
+                    questions: questions.map(normalizeQuestion)
+                };
+
+            });
+
+        }
+
+
+        /*
+         * Kalau database mengirim daftar pertanyaan langsung,
+         * kelompokkan berdasarkan part/bagian.
+         */
+        const grouped = {};
+
+        source.forEach(function (question, index) {
+
+            const partNumber =
+                getFirstValue(
+                    question,
+                    [
+                        'part',
+                        'part_number',
+                        'bagian',
+                        'section',
+                        'section_number'
+                    ],
+                    1
+                );
+
+            const key =
+                String(partNumber);
+
+            if (!grouped[key]) {
+
+                grouped[key] = {
+                    number: partNumber,
+                    title:
+                        getFirstValue(
+                            question,
+                            [
+                                'part_title',
+                                'section_title',
+                                'nama_part',
+                                'nama_bagian'
+                            ],
+                            `Part ${partNumber}`
+                        ),
+                    questions: []
+                };
+
+            }
+
+            grouped[key].questions.push(
+                normalizeQuestion(
+                    question,
+                    grouped[key].questions.length
+                )
+            );
+
+        });
+
+        return Object.values(grouped);
+    }
+
+
+    function renderQuestionnaire(raw) {
+
+        if (!questionnaireContent) {
+            return;
+        }
+
+        const parts =
+            normalizeParts(raw);
+
+        questionnaireContent.innerHTML = '';
+
+        if (!parts.length) {
+
+            questionnaireContent.innerHTML = `
+                <div class="questionnaire-empty">
+                    <div class="questionnaire-empty-icon">
+                        <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="1.8"
+                        >
+                            <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"></path>
+                            <path d="M4 5.5v16"></path>
+                            <path d="M8 7h8"></path>
+                            <path d="M8 11h8"></path>
+                        </svg>
+                    </div>
+
+                    <strong>Belum Ada Hasil Kuisioner</strong>
+
+                    <span>
+                        Hasil kuisioner untuk responden ini belum tersedia.
+                    </span>
+                </div>
+            `;
+
+            if (questionnaireTotal) {
+                questionnaireTotal.textContent = '0 Part';
+            }
+
+            return;
+        }
+
+
+        if (questionnaireTotal) {
+            questionnaireTotal.textContent =
+                `${parts.length} Part`;
+        }
+
+
+        parts.forEach(function (part, partIndex) {
+
+            const partWrapper =
+                document.createElement('div');
+
+            partWrapper.className =
+                'questionnaire-part';
+
+            const header =
+                document.createElement('button');
+
+            header.type = 'button';
+            header.className =
+                'questionnaire-part-header';
+
+            const number =
+                escapeHtmlValue(
+                    part.number || partIndex + 1
+                );
+
+            const title =
+                escapeHtmlValue(
+                    part.title || `Part ${part.number || partIndex + 1}`
+                );
+
+            const questionCount =
+                part.questions.length;
+
+            header.innerHTML = `
+                <span class="questionnaire-part-number">
+                    ${number}
+                </span>
+
+                <span class="questionnaire-part-title">
+                    <strong>${title}</strong>
+                    <span>
+                        ${questionCount} pertanyaan
+                    </span>
+                </span>
+
+                <span class="questionnaire-part-chevron">
+                    <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </span>
+            `;
+
+
+            const body =
+                document.createElement('div');
+
+            body.className =
+                'questionnaire-part-body';
+
+
+            if (!questionCount) {
+
+                body.innerHTML = `
+                    <div class="questionnaire-empty">
+                        <strong>Belum ada pertanyaan</strong>
+                        <span>
+                            Pertanyaan untuk part ini belum tersedia.
+                        </span>
+                    </div>
+                `;
+
+            } else {
+
+                part.questions.forEach(
+                    function (question, questionIndex) {
+
+                        const questionBox =
+                            document.createElement('div');
+
+                        questionBox.className =
+                            'questionnaire-question';
+
+                        const questionNumber =
+                            escapeHtmlValue(
+                                question.number ||
+                                questionIndex + 1
+                            );
+
+                        const questionText =
+                            escapeHtmlValue(
+                                question.text ||
+                                `Pertanyaan ${questionIndex + 1}`
+                            );
+
+                        const answer =
+                            question.answer || '';
+
+                        const answerHtml =
+                            answer !== ''
+                                ? escapeHtmlValue(answer)
+                                : 'Belum diisi';
+
+                        questionBox.innerHTML = `
+                            <div class="questionnaire-question-number">
+                                PERTANYAAN ${questionNumber}
+                            </div>
+
+                            <div class="questionnaire-question-text">
+                                ${questionText}
+                            </div>
+
+                            <div class="questionnaire-answer-label">
+                                Jawaban Responden
+                            </div>
+
+                            <div class="questionnaire-answer ${answer === '' ? 'is-empty' : ''}">
+                                ${answerHtml}
+                            </div>
+                        `;
+
+                        body.appendChild(questionBox);
+
+                    }
+                );
+
+            }
+
+
+            partWrapper.appendChild(header);
+            partWrapper.appendChild(body);
+            questionnaireContent.appendChild(partWrapper);
+
+
+            header.addEventListener(
+                'click',
+                function () {
+
+                    const isOpen =
+                        partWrapper.classList.contains(
+                            'is-open'
+                        );
+
+                    /*
+                     * Tutup semua part lain.
+                     */
+                    questionnaireContent
+                        .querySelectorAll(
+                            '.questionnaire-part'
+                        )
+                        .forEach(
+                            function (otherPart) {
+
+                                otherPart.classList.remove(
+                                    'is-open'
+                                );
+
+                            }
+                        );
+
+                    /*
+                     * Kalau sebelumnya tertutup,
+                     * buka part yang baru diklik.
+                     */
+                    if (!isOpen) {
+
+                        partWrapper.classList.add(
+                            'is-open'
+                        );
+
+                    }
+
+                }
+            );
+
+        });
+
+    }
+
+
+    /* =====================================================
        OPEN MODAL
     ====================================================== */
 
@@ -2235,7 +3447,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!verificationModal || !row) {
             return;
         }
-
 
         const id =
             row.dataset.id || '';
@@ -2255,6 +3466,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const petugas =
             row.dataset.petugas || '-';
 
+        const anggota =
+            row.dataset.anggota || '0';
+
+        const tanggal =
+            row.dataset.tanggal || '-';
+
         const status =
             row.dataset.status || '';
 
@@ -2262,23 +3479,52 @@ document.addEventListener('DOMContentLoaded', function () {
             row.dataset.statusLabel || '-';
 
 
-        modalNoKK.textContent =
-            noKK;
+        if (modalNoKK) {
+            modalNoKK.textContent = noKK;
+        }
 
-        modalNIK.textContent =
-            nik;
+        if (modalNIK) {
+            modalNIK.textContent = nik;
+        }
 
-        modalNama.textContent =
-            nama;
+        if (modalNama) {
+            modalNama.textContent = nama;
+        }
 
-        modalWilayah.textContent =
-            wilayah;
+        if (modalWilayah) {
+            modalWilayah.textContent = wilayah;
+        }
 
-        modalPetugas.textContent =
-            petugas;
+        if (modalPetugas) {
+            modalPetugas.textContent = petugas;
+        }
 
-        modalStatusLabel.textContent =
-            statusLabel;
+        if (modalAnggota) {
+            modalAnggota.textContent =
+                anggota === '0'
+                    ? '0 Orang'
+                    : `${anggota} Orang`;
+        }
+
+        if (modalTanggal) {
+            modalTanggal.textContent = tanggal;
+        }
+
+        if (modalStatusLabel) {
+            modalStatusLabel.textContent = statusLabel;
+        }
+
+        if (modalSummaryNama) {
+            modalSummaryNama.textContent = nama;
+        }
+
+        if (modalSummaryNoKK) {
+            modalSummaryNoKK.textContent = noKK;
+        }
+
+        if (modalSummaryStatus) {
+            modalSummaryStatus.textContent = statusLabel;
+        }
 
 
         let normalizedStatus =
@@ -2287,21 +3533,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/[\s-]+/g, '_');
 
 
-        if (
-            normalizedStatus ===
-            'disetujui'
-        ) {
-            normalizedStatus =
-                'approved';
+        if (normalizedStatus === 'disetujui') {
+            normalizedStatus = 'approved';
         }
 
-
-        if (
-            normalizedStatus ===
-            'ditolak'
-        ) {
-            normalizedStatus =
-                'rejected';
+        if (normalizedStatus === 'ditolak') {
+            normalizedStatus = 'rejected';
         }
 
 
@@ -2310,13 +3547,16 @@ document.addEventListener('DOMContentLoaded', function () {
             normalizedStatus !== 'rejected'
         ) {
 
-            modalStatus.value =
-                '';
+            if (modalStatus) {
+                modalStatus.value = '';
+            }
 
         } else {
 
-            modalStatus.value =
-                normalizedStatus;
+            if (modalStatus) {
+                modalStatus.value =
+                    normalizedStatus;
+            }
 
         }
 
@@ -2335,9 +3575,29 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        verificationModal.classList.add(
-            'show'
+        let rawQuestionnaire = [];
+
+        try {
+
+            rawQuestionnaire =
+                row.dataset.kuisioner
+                    ? JSON.parse(
+                        row.dataset.kuisioner
+                    )
+                    : [];
+
+        } catch (error) {
+
+            rawQuestionnaire = [];
+
+        }
+
+        renderQuestionnaire(
+            rawQuestionnaire
         );
+
+
+        verificationModal.classList.add('show');
 
         verificationModal.setAttribute(
             'aria-hidden',
@@ -2346,6 +3606,59 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.body.style.overflow =
             'hidden';
+
+    }
+
+
+    /* =====================================================
+       QUICK ACTION SETUJUI / TOLAK
+       Tetap menggunakan form + route yang sama.
+    ====================================================== */
+
+    function submitVerificationStatus(status) {
+
+        if (!verificationUpdateForm) {
+            return;
+        }
+
+        if (modalStatus) {
+            modalStatus.value = status;
+        }
+
+        verificationUpdateForm.requestSubmit();
+
+    }
+
+
+    if (approveVerificationButton) {
+
+        approveVerificationButton.addEventListener(
+            'click',
+            function () {
+
+                submitVerificationStatus(
+                    'approved'
+                );
+
+            }
+        );
+
+    }
+
+
+    if (rejectVerificationButton) {
+
+        rejectVerificationButton.addEventListener(
+            'click',
+            function () {
+
+                submitVerificationStatus(
+                    'rejected'
+                );
+
+            }
+        );
+
     }
 
 
@@ -2368,8 +3681,8 @@ document.addEventListener('DOMContentLoaded', function () {
             'true'
         );
 
-        document.body.style.overflow =
-            '';
+        document.body.style.overflow = '';
+
     }
 
 
@@ -2451,9 +3764,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (
                 event.key === 'Escape' &&
                 verificationModal &&
-                verificationModal.classList.contains(
-                    'show'
-                )
+                verificationModal.classList.contains('show')
             ) {
 
                 closeModal();
@@ -2464,5 +3775,6 @@ document.addEventListener('DOMContentLoaded', function () {
     );
 
 });
+
 </script>
 @endpush

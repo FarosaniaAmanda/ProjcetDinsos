@@ -597,6 +597,154 @@
 
 
     /* =====================================================
+       QUESTIONNAIRE PART ACCORDION
+    ===================================================== */
+
+    .monitoring-questionnaire-content {
+        padding: 14px;
+    }
+
+    .monitoring-questionnaire-part {
+        border: 1px solid #e2e6f2;
+        border-radius: 11px;
+        overflow: hidden;
+        margin-bottom: 10px;
+        background: #ffffff;
+    }
+
+    .monitoring-questionnaire-part:last-child {
+        margin-bottom: 0;
+    }
+
+    .monitoring-questionnaire-part-header {
+        width: 100%;
+        border: 0;
+        background: #f8f9ff;
+        color: #252A86;
+        padding: 13px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        cursor: pointer;
+        text-align: left;
+        transition: .2s ease;
+    }
+
+    .monitoring-questionnaire-part-header:hover,
+    .monitoring-questionnaire-part-header.active {
+        background: #eef0ff;
+    }
+
+    .monitoring-questionnaire-part-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .monitoring-questionnaire-part-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: #252A86;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .monitoring-questionnaire-part-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #252A86;
+    }
+
+    .monitoring-questionnaire-part-meta {
+        margin-top: 3px;
+        font-size: 11px;
+        color: #64748b;
+        font-weight: 400;
+    }
+
+    .monitoring-questionnaire-chevron {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        transition: transform .2s ease;
+    }
+
+    .monitoring-questionnaire-part-header.active .monitoring-questionnaire-chevron {
+        transform: rotate(180deg);
+    }
+
+    .monitoring-questionnaire-part-body {
+        display: none;
+        padding: 12px;
+        background: #ffffff;
+    }
+
+    .monitoring-questionnaire-part-body.active {
+        display: block;
+    }
+
+    .monitoring-questionnaire-question {
+        border: 1px solid #edf0f6;
+        border-radius: 9px;
+        padding: 11px 12px;
+        margin-bottom: 9px;
+        background: #ffffff;
+    }
+
+    .monitoring-questionnaire-question:last-child {
+        margin-bottom: 0;
+    }
+
+    .monitoring-questionnaire-question-label {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        color: #334155;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.55;
+    }
+
+    .monitoring-questionnaire-question-number {
+        color: #252A86;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .monitoring-questionnaire-answer {
+        margin-top: 8px;
+        padding: 9px 10px;
+        border-radius: 8px;
+        background: #f8fafc;
+        border-left: 3px solid #252A86;
+        color: #475569;
+        font-size: 12px;
+        line-height: 1.55;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .monitoring-questionnaire-answer.empty {
+        color: #94a3b8;
+        font-style: italic;
+    }
+
+    .monitoring-questionnaire-part-empty {
+        padding: 18px 10px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    /* =====================================================
        RESPONSIVE
     ===================================================== */
 
@@ -1178,6 +1326,7 @@
                                         data-tanggal="{{ e($tanggalPendataan) }}"
 
                                         data-status="{{ e($status) }}"
+                                        data-kuisioner="{{ e(json_encode(data_get($item, 'kuisioner', data_get($item, 'questionnaire', data_get($item, 'jawaban_kuisioner', data_get($item, 'answers', [])))), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) }}"
                                     >
                                         Detail
                                     </button>
@@ -1590,47 +1739,14 @@
                 </div>
 
 
-                <div class="monitoring-questionnaire-empty">
-
-                    <svg
-                        width="30"
-                        height="30"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.7"
-                    >
-
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-
-                        <polyline points="14 2 14 8 20 8"></polyline>
-
-                        <line
-                            x1="8"
-                            y1="13"
-                            x2="16"
-                            y2="13"
-                        ></line>
-
-                        <line
-                            x1="8"
-                            y1="17"
-                            x2="16"
-                            y2="17"
-                        ></line>
-
-                    </svg>
-
-
-                    <strong>
-                        Belum Ada Hasil Kuisioner
-                    </strong>
-
-
-                    <span>
-                        Hasil kuisioner untuk responden ini belum tersedia.
-                    </span>
-
+                <div
+                    class="monitoring-questionnaire-content"
+                    id="monitoringQuestionnaireContent"
+                >
+                    <div class="monitoring-questionnaire-empty">
+                        <strong>Memuat Hasil Kuisioner</strong>
+                        <span>Data kuisioner akan ditampilkan setelah detail dibuka.</span>
+                    </div>
                 </div>
 
             </div>
@@ -1965,131 +2081,313 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     const detailNamaSummary =
-        document.getElementById(
-            'detailNamaSummary'
-        );
-
+        document.getElementById('detailNamaSummary');
 
     const detailKkSummary =
-        document.getElementById(
-            'detailKkSummary'
-        );
-
+        document.getElementById('detailKkSummary');
 
     const detailStatusSummary =
-        document.getElementById(
-            'detailStatusSummary'
-        );
-
+        document.getElementById('detailStatusSummary');
 
     const detailNoKk =
-        document.getElementById(
-            'detailNoKk'
-        );
-
+        document.getElementById('detailNoKk');
 
     const detailNik =
-        document.getElementById(
-            'detailNik'
-        );
-
+        document.getElementById('detailNik');
 
     const detailNama =
-        document.getElementById(
-            'detailNama'
-        );
-
+        document.getElementById('detailNama');
 
     const detailJumlahAnggota =
-        document.getElementById(
-            'detailJumlahAnggota'
-        );
-
+        document.getElementById('detailJumlahAnggota');
 
     const detailWilayah =
-        document.getElementById(
-            'detailWilayah'
-        );
-
+        document.getElementById('detailWilayah');
 
     const detailPetugas =
-        document.getElementById(
-            'detailPetugas'
-        );
-
+        document.getElementById('detailPetugas');
 
     const detailTanggal =
-        document.getElementById(
-            'detailTanggal'
-        );
-
+        document.getElementById('detailTanggal');
 
     const detailStatus =
-        document.getElementById(
-            'detailStatus'
-        );
+        document.getElementById('detailStatus');
 
+    const questionnaireContent =
+        document.getElementById('monitoringQuestionnaireContent');
+
+
+    /* =====================================================
+       NORMALISASI DATA KUISIONER
+       Mendukung beberapa bentuk data dari controller/database.
+    ===================================================== */
+
+    function firstValue(object, keys) {
+        if (!object || typeof object !== 'object') return undefined;
+
+        for (const key of keys) {
+            if (Object.prototype.hasOwnProperty.call(object, key) &&
+                object[key] !== null && object[key] !== undefined &&
+                object[key] !== '') {
+                return object[key];
+            }
+        }
+
+        return undefined;
+    }
+
+    function formatAnswer(value) {
+        if (value === null || value === undefined || value === '') {
+            return '';
+        }
+
+        if (Array.isArray(value)) {
+            return value.map(function (item) {
+                if (item && typeof item === 'object') {
+                    return firstValue(item, ['label', 'nama', 'name', 'value', 'jawaban']) ?? JSON.stringify(item);
+                }
+                return String(item);
+            }).join(', ');
+        }
+
+        if (typeof value === 'object') {
+            return firstValue(value, ['label', 'nama', 'name', 'value', 'jawaban', 'answer']) ?? JSON.stringify(value);
+        }
+
+        return String(value);
+    }
+
+    function normalizeQuestion(item, fallbackNumber) {
+        if (!item || typeof item !== 'object') {
+            return {
+                question: String(item ?? ''),
+                answer: '',
+                number: fallbackNumber
+            };
+        }
+
+        const question = firstValue(item, [
+            'pertanyaan', 'question', 'question_text', 'nama_pertanyaan',
+            'teks_pertanyaan', 'text', 'label', 'judul'
+        ]) ?? 'Pertanyaan';
+
+        const answer = firstValue(item, [
+            'jawaban', 'answer', 'response', 'nilai', 'value', 'hasil', 'respon', 'selected', 'selected_answer'
+        ]);
+
+        return {
+            question: String(question),
+            answer: formatAnswer(answer),
+            number: firstValue(item, ['nomor', 'number', 'no']) ?? fallbackNumber
+        };
+    }
+
+    function partNumberFromKey(key, fallback) {
+        const match = String(key).match(/(?:part|bagian|section)[\s_-]*(\d+)/i);
+        return match ? parseInt(match[1], 10) : fallback;
+    }
+
+    function normalizeQuestionnaire(raw) {
+        let source = raw;
+
+        if (typeof source === 'string') {
+            try {
+                source = JSON.parse(source);
+            } catch (error) {
+                return [];
+            }
+        }
+
+        if (!source) return [];
+
+        if (source.questions || source.pertanyaan || source.items) {
+            source = source.questions || source.pertanyaan || source.items;
+        }
+
+        const parts = [];
+
+        function addPart(number, title, items) {
+            if (!Array.isArray(items)) return;
+            parts.push({
+                number: number,
+                title: title || ('Part ' + number),
+                items: items.map(function (item, index) {
+                    return normalizeQuestion(item, index + 1);
+                })
+            });
+        }
+
+        if (Array.isArray(source)) {
+            const structured = source.some(function (item) {
+                return item && typeof item === 'object' && (
+                    item.part || item.bagian || item.section ||
+                    item.part_name || item.bagian_name || item.section_name ||
+                    Array.isArray(item.questions) || Array.isArray(item.pertanyaan) || Array.isArray(item.items)
+                );
+            });
+
+            if (structured) {
+                const grouped = {};
+
+                source.forEach(function (item) {
+                    if (!item || typeof item !== 'object') return;
+
+                    const partRaw = firstValue(item, ['part', 'bagian', 'section', 'part_number', 'bagian_number', 'section_number']) ?? 1;
+                    const partMatch = String(partRaw).match(/\d+/);
+                    const number = partMatch ? parseInt(partMatch[0], 10) : 1;
+                    const title = firstValue(item, ['part_name', 'bagian_name', 'section_name', 'part_title', 'bagian_title', 'section_title']) || ('Part ' + number);
+                    const items = item.questions || item.pertanyaan || item.items;
+
+                    if (Array.isArray(items)) {
+                        grouped[number] = grouped[number] || { number: number, title: title, items: [] };
+                        grouped[number].items.push.apply(grouped[number].items, items);
+                    } else {
+                        grouped[number] = grouped[number] || { number: number, title: title, items: [] };
+                        grouped[number].items.push(item);
+                    }
+                });
+
+                Object.keys(grouped).sort(function (a, b) { return Number(a) - Number(b); }).forEach(function (key) {
+                    const part = grouped[key];
+                    addPart(part.number, part.title, part.items);
+                });
+            } else {
+                addPart(1, 'Part 1', source);
+            }
+        } else if (typeof source === 'object') {
+            const candidate = source.parts || source.bagian || source.sections;
+
+            if (Array.isArray(candidate)) {
+                candidate.forEach(function (part, index) {
+                    if (Array.isArray(part)) {
+                        addPart(index + 1, 'Part ' + (index + 1), part);
+                        return;
+                    }
+
+                    if (!part || typeof part !== 'object') return;
+                    const number = Number(firstValue(part, ['number', 'nomor', 'part_number', 'id']) ?? (index + 1));
+                    const title = firstValue(part, ['title', 'name', 'nama', 'part_name', 'bagian_name']) || ('Part ' + number);
+                    const items = part.questions || part.pertanyaan || part.items || part.answers || [];
+                    addPart(number, title, items);
+                });
+            } else {
+                Object.keys(source).forEach(function (key, index) {
+                    const value = source[key];
+                    if (!Array.isArray(value)) return;
+                    const number = partNumberFromKey(key, index + 1);
+                    addPart(number, /part|bagian|section/i.test(key) ? key.replace(/[_-]+/g, ' ') : 'Part ' + number, value);
+                });
+            }
+        }
+
+        const unique = {};
+        parts.forEach(function (part) {
+            if (!unique[part.number]) {
+                unique[part.number] = part;
+            } else {
+                unique[part.number].items.push.apply(unique[part.number].items, part.items);
+            }
+        });
+
+        return Object.values(unique).sort(function (a, b) { return a.number - b.number; });
+    }
+
+    function renderQuestionnaire(raw) {
+        if (!questionnaireContent) return;
+
+        const parts = normalizeQuestionnaire(raw);
+
+        if (!parts.length || !parts.some(function (part) { return part.items.length > 0; })) {
+            questionnaireContent.innerHTML = `
+                <div class="monitoring-questionnaire-empty">
+                    <strong>Belum Ada Hasil Kuisioner</strong>
+                    <span>Hasil kuisioner untuk responden ini belum tersedia.</span>
+                </div>
+            `;
+            return;
+        }
+
+        questionnaireContent.innerHTML = parts.map(function (part, partIndex) {
+            const answered = part.items.filter(function (item) { return item.answer.trim() !== ''; }).length;
+            const active = partIndex === 0;
+
+            return `
+                <div class="monitoring-questionnaire-part">
+                    <button type="button" class="monitoring-questionnaire-part-header ${active ? 'active' : ''}" aria-expanded="${active ? 'true' : 'false'}">
+                        <span class="monitoring-questionnaire-part-title">
+                            <span class="monitoring-questionnaire-part-number">${escapeHtml(part.number)}</span>
+                            <span>
+                                <span class="monitoring-questionnaire-part-name">${escapeHtml(part.title)}</span>
+                                <span class="monitoring-questionnaire-part-meta">${part.items.length} Pertanyaan · ${answered} Terjawab${answered < part.items.length ? ' · ' + (part.items.length - answered) + ' Belum Diisi' : ''}</span>
+                            </span>
+                        </span>
+                        <svg class="monitoring-questionnaire-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <div class="monitoring-questionnaire-part-body ${active ? 'active' : ''}">
+                        ${part.items.length ? part.items.map(function (item, index) {
+                            const answer = item.answer.trim() !== '' ? item.answer : 'Belum diisi';
+                            return `
+                                <div class="monitoring-questionnaire-question">
+                                    <div class="monitoring-questionnaire-question-label">
+                                        <span class="monitoring-questionnaire-question-number">${escapeHtml(item.number || (index + 1))}.</span>
+                                        <span>${escapeHtml(item.question)}</span>
+                                    </div>
+                                    <div class="monitoring-questionnaire-answer ${item.answer.trim() === '' ? 'empty' : ''}">${escapeHtml(answer)}</div>
+                                </div>
+                            `;
+                        }).join('') : '<div class="monitoring-questionnaire-part-empty">Belum ada pertanyaan pada bagian ini.</div>'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        questionnaireContent.querySelectorAll('.monitoring-questionnaire-part-header').forEach(function (header) {
+            header.addEventListener('click', function () {
+                const currentPart = this.closest('.monitoring-questionnaire-part');
+                const shouldOpen = !this.classList.contains('active');
+
+                questionnaireContent.querySelectorAll('.monitoring-questionnaire-part').forEach(function (part) {
+                    const partHeader = part.querySelector('.monitoring-questionnaire-part-header');
+                    const partBody = part.querySelector('.monitoring-questionnaire-part-body');
+                    const isCurrent = part === currentPart;
+                    const open = isCurrent && shouldOpen;
+
+                    partHeader.classList.toggle('active', open);
+                    partHeader.setAttribute('aria-expanded', open ? 'true' : 'false');
+                    partBody.classList.toggle('active', open);
+                });
+            });
+        });
+    }
 
     function openDetailModal(button) {
+        detailNamaSummary.textContent = button.dataset.nama || '-';
+        detailKkSummary.textContent = button.dataset.noKk || '-';
+        detailStatusSummary.textContent = button.dataset.status || '-';
+        detailNoKk.textContent = button.dataset.noKk || '-';
+        detailNik.textContent = button.dataset.nik || '-';
+        detailNama.textContent = button.dataset.nama || '-';
+        detailJumlahAnggota.textContent = button.dataset.jumlahAnggota || '0';
+        detailWilayah.textContent = button.dataset.wilayah || '-';
+        detailPetugas.textContent = button.dataset.petugas || '-';
+        detailTanggal.textContent = button.dataset.tanggal || '-';
+        detailStatus.textContent = button.dataset.status || '-';
 
-        detailNamaSummary.textContent =
-            button.dataset.nama || '-';
+        let questionnaire = [];
+        try {
+            questionnaire = button.dataset.kuisioner ? JSON.parse(button.dataset.kuisioner) : [];
+        } catch (error) {
+            questionnaire = [];
+        }
 
+        renderQuestionnaire(questionnaire);
 
-        detailKkSummary.textContent =
-            button.dataset.noKk || '-';
-
-
-        detailStatusSummary.textContent =
-            button.dataset.status || '-';
-
-
-        detailNoKk.textContent =
-            button.dataset.noKk || '-';
-
-
-        detailNik.textContent =
-            button.dataset.nik || '-';
-
-
-        detailNama.textContent =
-            button.dataset.nama || '-';
-
-
-        detailJumlahAnggota.textContent =
-            button.dataset.jumlahAnggota || '0';
-
-
-        detailWilayah.textContent =
-            button.dataset.wilayah || '-';
-
-
-        detailPetugas.textContent =
-            button.dataset.petugas || '-';
-
-
-        detailTanggal.textContent =
-            button.dataset.tanggal || '-';
-
-
-        detailStatus.textContent =
-            button.dataset.status || '-';
-
-
-        modal.classList.add(
-            'active'
-        );
-
-
-        modal.setAttribute(
-            'aria-hidden',
-            'false'
-        );
-
-
-        document.body.style.overflow =
-            'hidden';
-
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
     }
 
 
@@ -2108,6 +2406,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         document.body.style.overflow =
             '';
+
+        if (questionnaireContent) {
+            questionnaireContent.innerHTML = `
+                <div class="monitoring-questionnaire-empty">
+                    <strong>Belum Ada Hasil Kuisioner</strong>
+                    <span>Hasil kuisioner akan tampil saat Detail dibuka.</span>
+                </div>
+            `;
+        }
 
     }
 
