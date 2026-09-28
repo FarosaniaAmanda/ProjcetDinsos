@@ -9,20 +9,15 @@ use Illuminate\Http\Request;
 class KuisionerController extends Controller
 {
     /**
+     * ============================================================
      * HALAMAN UTAMA KUISIONER
-     * Hanya menampilkan jumlah Draft dan Selesai.
+     * ============================================================
      */
     public function index()
     {
-        $user = auth()->user()->name ?? 'admin';
+        $draftCount = KeluargaPart1::where('status', 'draft')->count();
 
-        $draftCount = KeluargaPart1::where('status', 'draft')
-            ->where('created_by', $user)
-            ->count();
-
-        $selesaiCount = KeluargaPart1::where('status', 'selesai')
-            ->where('created_by', $user)
-            ->count();
+        $selesaiCount = KeluargaPart1::where('status', 'selesai')->count();
 
         return view('admin.kuisioner.index', [
             'page' => 'home',
@@ -35,46 +30,39 @@ class KuisionerController extends Controller
 
 
     /**
+     * ============================================================
      * HALAMAN DRAFT
+     * ============================================================
      */
     public function draft()
     {
-        $user = auth()->user()->name ?? 'admin';
-
         $drafts = KeluargaPart1::where('status', 'draft')
-            ->where('created_by', $user)
             ->latest('id')
             ->get();
 
-        return view('admin.kuisioner.index', [
-            'page' => 'draft',
-            'draftCount' => $drafts->count(),
-            'selesaiCount' => KeluargaPart1::where('status', 'selesai')
-                ->where('created_by', $user)
-                ->count(),
+        return view('admin.kuisioner.draft', [
             'drafts' => $drafts,
-            'selesais' => collect(),
         ]);
     }
 
 
     /**
+     * ============================================================
      * HALAMAN SELESAI
+     * ============================================================
      */
     public function selesai()
     {
-        $user = auth()->user()->name ?? 'admin';
-
         $selesais = KeluargaPart1::where('status', 'selesai')
-            ->where('created_by', $user)
             ->latest('id')
             ->get();
 
+        $draftCount = KeluargaPart1::where('status', 'draft')
+            ->count();
+
         return view('admin.kuisioner.index', [
             'page' => 'selesai',
-            'draftCount' => KeluargaPart1::where('status', 'draft')
-                ->where('created_by', $user)
-                ->count(),
+            'draftCount' => $draftCount,
             'selesaiCount' => $selesais->count(),
             'drafts' => collect(),
             'selesais' => $selesais,
@@ -83,17 +71,20 @@ class KuisionerController extends Controller
 
 
     /**
-     * MULAI KUISIONER
-     * Tombol "Mulai Kuisioner" masuk ke Part 1.
+     * ============================================================
+     * PART 1
+     * ============================================================
      */
     public function part1()
     {
-        return view('admin.kuisioner.index');
+        return view('admin.kuisioner.part1');
     }
 
 
     /**
-     * SIMPAN PART 1 SEBAGAI DRAFT
+     * ============================================================
+     * SIMPAN PART 1
+     * ============================================================
      */
     public function storePart1(Request $request)
     {
@@ -122,8 +113,12 @@ class KuisionerController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | CARI DRAFT BERDASARKAN NIK
+        | CARI DRAFT LAMA
         |--------------------------------------------------------------------------
+        |
+        | Jika NIK yang sama sudah memiliki draft milik user ini,
+        | maka data akan diperbarui, bukan membuat draft baru.
+        |
         */
 
         $draft = null;
@@ -170,7 +165,7 @@ class KuisionerController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | SIMPAN DRAFT AKTIF
+        | SIMPAN DRAFT AKTIF KE SESSION
         |--------------------------------------------------------------------------
         */
 
@@ -196,41 +191,296 @@ class KuisionerController extends Controller
 
 
     /**
+     * ============================================================
+     * PART 2
+     * ============================================================
+     */
+    public function part2()
+    {
+        if (!session('part1_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part1')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 1 terlebih dahulu.'
+                );
+        }
+
+        return view('admin.kuisioner.part2');
+    }
+
+
+    /**
+     * ============================================================
+     * PART 3
+     * ============================================================
+     */
+    public function part3()
+    {
+        if (!session('part1_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part1')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 1 terlebih dahulu.'
+                );
+        }
+
+        if (!session('part2_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part2')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 2 terlebih dahulu.'
+                );
+        }
+
+        return view('admin.kuisioner.part3');
+    }
+
+
+    /**
+     * ============================================================
+     * PART 4
+     * ============================================================
+     */
+    public function part4()
+    {
+        if (!session('part1_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part1')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 1 terlebih dahulu.'
+                );
+        }
+
+        if (!session('part2_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part2')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 2 terlebih dahulu.'
+                );
+        }
+
+        if (!session('part3_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part3')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 3 terlebih dahulu.'
+                );
+        }
+
+        return view('admin.kuisioner.part4');
+    }
+
+
+    /**
+     * ============================================================
+     * PART 5
+     * ============================================================
+     */
+    public function part5()
+    {
+        if (!session('part1_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part1')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 1 terlebih dahulu.'
+                );
+        }
+
+        if (!session('part2_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part2')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 2 terlebih dahulu.'
+                );
+        }
+
+        if (!session('part3_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part3')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 3 terlebih dahulu.'
+                );
+        }
+
+        if (!session('part4_selesai')) {
+
+            return redirect()
+                ->route('kuisioner.part4')
+                ->with(
+                    'warning',
+                    'Silakan lengkapi Part 4 terlebih dahulu.'
+                );
+        }
+
+        return view('admin.kuisioner.part5');
+    }
+
+
+    /**
+     * ============================================================
+     * SELESAIKAN KUISIONER
+     * ============================================================
+     */
+    public function selesaiKuisioner(Request $request)
+    {
+        if (!session('draft_keluarga_id')) {
+
+            return redirect()
+                ->route('kuisioner.index')
+                ->with(
+                    'warning',
+                    'Tidak ada kuisioner aktif.'
+                );
+        }
+
+
+        $draft = KeluargaPart1::findOrFail(
+            session('draft_keluarga_id')
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UBAH STATUS MENJADI SELESAI
+        |--------------------------------------------------------------------------
+        */
+
+        $draft->update([
+            'status' => 'selesai',
+            'current_part' => 5,
+            'updated_by' => auth()->user()->name ?? 'admin',
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HAPUS SESSION KUISIONER AKTIF
+        |--------------------------------------------------------------------------
+        */
+
+        session()->forget([
+            'draft_keluarga_id',
+            'part1_selesai',
+            'part2_selesai',
+            'part3_selesai',
+            'part4_selesai',
+        ]);
+
+
+        return redirect()
+            ->route('kuisioner.selesai')
+            ->with(
+                'success',
+                'Kuisioner berhasil diselesaikan.'
+            );
+    }
+
+
+    /**
+     * ============================================================
      * LANJUTKAN DRAFT
+     * ============================================================
      */
     public function resumeDraft($id)
     {
-        $user = auth()->user()->name ?? 'admin';
-
         $draft = KeluargaPart1::where('id', $id)
             ->where('status', 'draft')
-            ->where('created_by', $user)
             ->firstOrFail();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SIMPAN DRAFT AKTIF
+        |--------------------------------------------------------------------------
+        */
 
         session([
             'draft_keluarga_id' => $draft->id,
             'part1_selesai' => true,
         ]);
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | TENTUKAN PART TERAKHIR
+        |--------------------------------------------------------------------------
+        */
+
         switch ((int) $draft->current_part) {
 
             case 1:
-                return redirect()->route('kuisioner.part1');
+
+                return redirect()
+                    ->route('kuisioner.part1');
+
 
             case 2:
-                return redirect()->route('kuisioner.part2');
+
+                session([
+                    'part2_selesai' => false,
+                ]);
+
+                return redirect()
+                    ->route('kuisioner.part2');
+
 
             case 3:
-                return redirect()->route('kuisioner.part3');
+
+                session([
+                    'part2_selesai' => true,
+                    'part3_selesai' => false,
+                ]);
+
+                return redirect()
+                    ->route('kuisioner.part3');
+
 
             case 4:
-                return redirect()->route('kuisioner.part4');
+
+                session([
+                    'part2_selesai' => true,
+                    'part3_selesai' => true,
+                    'part4_selesai' => false,
+                ]);
+
+                return redirect()
+                    ->route('kuisioner.part4');
+
 
             case 5:
-                return redirect()->route('kuisioner.part5');
+
+                session([
+                    'part2_selesai' => true,
+                    'part3_selesai' => true,
+                    'part4_selesai' => true,
+                ]);
+
+                return redirect()
+                    ->route('kuisioner.part5');
+
 
             default:
-                return redirect()->route('kuisioner.part1');
+
+                return redirect()
+                    ->route('kuisioner.part1');
         }
     }
 }

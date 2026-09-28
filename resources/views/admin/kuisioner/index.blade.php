@@ -284,46 +284,46 @@
         </div>
 
 
-        {{-- STATUS CARD --}}
-        <div class="status-grid">
+      {{-- STATUS CARD --}}
+<div class="status-grid">
 
-            {{-- DRAFT --}}
-            <div class="status-card">
+    {{-- DRAFT --}}
+    <div class="status-card">
 
-                <div>
+        <div>
 
-                    <div class="status-icon draft-icon">
-                        📋
-                    </div>
-
-                    <h2>
-                        Draft Kuisioner
-                    </h2>
-
-                    <p class="description">
-                        Data keluarga yang proses pendataannya
-                        masih belum selesai.
-                    </p>
-
-                    <div class="status-count">
-                        {{ $drafts->count() }}
-                    </div>
-
-                    <div class="status-label">
-                        Data belum selesai
-                    </div>
-
-                </div>
-
-                <div>
-                    <a href="{{ route('kuisioner.draft') }}"
-                       class="status-link">
-                        Lihat Draft
-                        <span>→</span>
-                    </a>
-                </div>
-
+            <div class="status-icon draft-icon">
+                📋
             </div>
+
+            <h2>
+                Draft Kuisioner
+            </h2>
+
+            <p class="description">
+                Data keluarga yang proses pendataannya
+                masih belum selesai.
+            </p>
+
+            <div class="status-count">
+                {{ $draftCount }}
+            </div>
+
+            <div class="status-label">
+                Data belum selesai
+            </div>
+
+        </div>
+
+        <div>
+            <a href="{{ route('kuisioner.draft') }}"
+               class="status-link">
+                Lihat Draft
+                <span>→</span>
+            </a>
+        </div>
+
+    </div>
 
 
             {{-- DATA SELESAI --}}

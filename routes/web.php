@@ -118,244 +118,77 @@ Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'g
 |--------------------------------------------------------------------------
 */
 
-/*
-|--------------------------------------------------------------------------
-| HALAMAN UTAMA
-|--------------------------------------------------------------------------
-*/
-
+// HALAMAN UTAMA
 Route::get('/kuisioner', [KuisionerController::class, 'index'])
     ->name('kuisioner.index');
 
 
-/*
-|--------------------------------------------------------------------------
-| MULAI KUISIONER → PART 1
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
-    ->name('kuisioner.part1');
-
-
-/*
-|--------------------------------------------------------------------------
-| SIMPAN PART 1
-|--------------------------------------------------------------------------
-*/
-
-Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
-    ->name('kuisioner.part1.store');
-
-
-/*
-|--------------------------------------------------------------------------
-| HALAMAN DRAFT
-|--------------------------------------------------------------------------
-*/
-
+// HALAMAN DRAFT
 Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
     ->name('kuisioner.draft');
 
 
-/*
-|--------------------------------------------------------------------------
-| LANJUTKAN DRAFT
-|--------------------------------------------------------------------------
-*/
-
+// LANJUTKAN DRAFT
 Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
     ->name('kuisioner.draft.resume');
 
 
-/*
-|--------------------------------------------------------------------------
-| HALAMAN SELESAI
-|--------------------------------------------------------------------------
-*/
-
+// HALAMAN SELESAI
 Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
     ->name('kuisioner.selesai');
 
 
-/*
-|--------------------------------------------------------------------------
-| PART 2
-|--------------------------------------------------------------------------
-*/
+// ============================================================
+// PART 1
+// ============================================================
 
-Route::get('/kuisioner/part2', function () {
+// Tampilkan Part 1
+Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
+    ->name('kuisioner.part1');
 
-    if (!session('part1_selesai')) {
-        return redirect()
-            ->route('kuisioner.part1')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 1 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part2');
-
-})->name('kuisioner.part2');
+// Simpan Part 1
+Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
+    ->name('kuisioner.part1.store');
 
 
-/*
-|--------------------------------------------------------------------------
-| PART 3
-|--------------------------------------------------------------------------
-*/
+// ============================================================
+// PART 2
+// ============================================================
 
-Route::get('/kuisioner/part3', function () {
-
-    if (!session('part2_selesai')) {
-        return redirect()
-            ->route('kuisioner.part2')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 2 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part3');
-
-})->name('kuisioner.part3');
+Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
+    ->name('kuisioner.part2');
 
 
-/*
-|--------------------------------------------------------------------------
-| PART 4
-|--------------------------------------------------------------------------
-*/
+// ============================================================
+// PART 3
+// ============================================================
 
-Route::get('/kuisioner/part4', function () {
-
-    if (!session('part3_selesai')) {
-        return redirect()
-            ->route('kuisioner.part3')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 3 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part4');
-
-})->name('kuisioner.part4');
+Route::get('/kuisioner/part3', [KuisionerController::class, 'part3'])
+    ->name('kuisioner.part3');
 
 
-/*
-|--------------------------------------------------------------------------
-| PART 5
-|--------------------------------------------------------------------------
-*/
+// ============================================================
+// PART 4
+// ============================================================
 
-Route::get('/kuisioner/part5', function () {
-
-    if (!session('part4_selesai')) {
-        return redirect()
-            ->route('kuisioner.part4')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 4 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part5');
-
-})->name('kuisioner.part5');
+Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
+    ->name('kuisioner.part4');
 
 
-/*
-|--------------------------------------------------------------------------
-| PART 2
-|--------------------------------------------------------------------------
-*/
+// ============================================================
+// PART 5
+// ============================================================
 
-Route::get('/kuisioner/part2', function () {
-
-    if (!session('part1_selesai')) {
-
-        return redirect()
-            ->route('kuisioner.index')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 1 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part2');
-
-})->name('kuisioner.part2');
+Route::get('/kuisioner/part5', [KuisionerController::class, 'part5'])
+    ->name('kuisioner.part5');
 
 
-/*
-|--------------------------------------------------------------------------
-| PART 3
-|--------------------------------------------------------------------------
-*/
+// ============================================================
+// SELESAIKAN KUISIONER
+// ============================================================
 
-Route::get('/kuisioner/part3', function () {
-
-    if (!session('part2_selesai')) {
-
-        return redirect()
-            ->route('kuisioner.part2')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 2 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part3');
-
-})->name('kuisioner.part3');
-
-
-/*
-|--------------------------------------------------------------------------
-| PART 4
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/kuisioner/part4', function () {
-
-    if (!session('part3_selesai')) {
-
-        return redirect()
-            ->route('kuisioner.part3')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 3 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part4');
-
-})->name('kuisioner.part4');
-
-
-/*
-|--------------------------------------------------------------------------
-| PART 5
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/kuisioner/part5', function () {
-
-    if (!session('part4_selesai')) {
-
-        return redirect()
-            ->route('kuisioner.part4')
-            ->with(
-                'warning',
-                'Silakan lengkapi dan simpan Part 4 terlebih dahulu.'
-            );
-    }
-
-    return view('admin.kuisioner.part5');
-
-})->name('kuisioner.part5');
+Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner'])
+    ->name('kuisioner.selesai.store');
 
 
 /*
