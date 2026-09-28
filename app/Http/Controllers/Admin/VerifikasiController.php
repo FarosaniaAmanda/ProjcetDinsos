@@ -11,13 +11,7 @@ class VerifikasiController extends Controller
 {
     /**
      * Data dummy/default
-     *
-     * Status yang disimpan menggunakan kode:
-     * pending
-     * draft
-     * not_processed
-     * approved
-     * rejected
+     
      */
     protected function getDefaultData()
     {
@@ -28,7 +22,7 @@ class VerifikasiController extends Controller
                 'nik' => '3575010101010001',
                 'nama' => 'Budi Santoso',
                 'anggota' => 4,
-                'status' => 'pending',
+                'status' => 'Menunggu Verifikasi',
                 'status_label' => 'Pending Verification',
                 'wilayah' => 'Bugul Kidul',
                 'petugas' => 'Ahmad',
@@ -67,8 +61,8 @@ class VerifikasiController extends Controller
                 'nik' => '3575010101010004',
                 'nama' => 'Dewi Lestari',
                 'anggota' => 2,
-                'status' => 'approved',
-                'status_label' => 'Approved',
+                'status' => 'Setuju',
+                'status_label' => 'Setuju',
                 'wilayah' => 'Panggungrejo',
                 'petugas' => 'Sari',
                 'tanggal' => '18 September 2026',
@@ -81,7 +75,7 @@ class VerifikasiController extends Controller
                 'nama' => 'Eko Prasetyo',
                 'anggota' => 6,
                 'status' => 'rejected',
-                'status_label' => 'Rejected',
+                'status_label' => 'Ditolak',
                 'wilayah' => 'Bugul Kidul',
                 'petugas' => 'Andi',
                 'tanggal' => '17 September 2026',

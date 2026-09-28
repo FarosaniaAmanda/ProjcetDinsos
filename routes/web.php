@@ -11,6 +11,10 @@ use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
+use App\Http\Controllers\Admin\PetugasController;
+use App\Http\Controllers\Admin\RespondenController;
+use App\Http\Controllers\Admin\KuisionerController;
+use App\Http\Controllers\Admin\UserController;
 
 
 /*
@@ -77,10 +81,7 @@ Route::get('/periode', [PeriodeController::class, 'index'])
 Route::get('/periode/tambah', [PeriodeController::class, 'create'])
     ->name('periode.create');
 
-Route::post('/periode', [PeriodeController::class, 'store'])
-    ->name('periode.store');
-
-Route::get('/periode/{id}/edit', [PeriodeController::class, 'edit'])
+Route::get('/periode/edit', [PeriodeController::class, 'edit'])
     ->name('periode.edit');
 
 Route::put('/periode/{id}', [PeriodeController::class, 'update'])
@@ -92,50 +93,119 @@ Route::delete('/periode/{id}', [PeriodeController::class, 'destroy'])
 
 /*
 |--------------------------------------------------------------------------
-| PETUGAS
+| Petugas
 |--------------------------------------------------------------------------
-|
-| Sementara menggunakan halaman view langsung.
-| Nanti bisa diganti menggunakan PetugasController
-| ketika fitur Petugas sudah dibuat.
-|
 */
 
-Route::get('/petugas', function () {
-    return view('admin.petugas.index');
-})->name('petugas.index');
+Route::get('/responden', [RespondenController::class, 'index'])
+    ->name('responden.index');
+
+Route::get('/responden/tambah', [RespondenController::class, 'create'])
+    ->name('responden.create');
+
+Route::post('/responden/simpan', [RespondenController::class, 'store'])
+    ->name('responden.store');
+
+Route::get('/responden/edit/{id}', [RespondenController::class, 'edit'])
+    ->name('responden.edit');
+
+Route::put('/responden/update/{id}', [RespondenController::class, 'update'])
+    ->name('responden.update');
+
+Route::delete('/responden/hapus/{id}', [RespondenController::class, 'destroy'])
+    ->name('responden.destroy');
 
 
 /*
 |--------------------------------------------------------------------------
-| RESPONDEN
+| Responden
 |--------------------------------------------------------------------------
-|
-| Sementara menggunakan halaman view langsung.
-| Nanti bisa diganti menggunakan RespondenController
-| ketika fitur Responden sudah dibuat.
-|
 */
 
-Route::get('/responden', function () {
-    return view('admin.responden.index');
-})->name('responden.index');
+Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData'])
+    ->name('responden.editData');
+
+Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
+    ->name('responden.kelurahan');
 
 
 /*
 |--------------------------------------------------------------------------
 | KUISIONER
 |--------------------------------------------------------------------------
-|
-| Sementara menggunakan halaman view langsung.
-| Nanti bisa diganti menggunakan KuisionerController
-| ketika fitur Kuisioner sudah dibuat.
-|
 */
 
-Route::get('/kuisioner', function () {
-    return view('admin.kuisioner.index');
-})->name('kuisioner.index');
+// HALAMAN UTAMA
+Route::get('/kuisioner', [KuisionerController::class, 'index'])
+    ->name('kuisioner.index');
+
+
+// HALAMAN DRAFT
+Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
+    ->name('kuisioner.draft');
+
+
+// LANJUTKAN DRAFT
+Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
+    ->name('kuisioner.draft.resume');
+
+
+// HALAMAN SELESAI
+Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
+    ->name('kuisioner.selesai');
+
+
+// ============================================================
+// PART 1
+// ============================================================
+
+// Tampilkan Part 1
+Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
+    ->name('kuisioner.part1');
+
+// Simpan Part 1
+Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
+    ->name('kuisioner.part1.store');
+
+
+// ============================================================
+// PART 2
+// ============================================================
+
+Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
+    ->name('kuisioner.part2');
+
+
+// ============================================================
+// PART 3
+// ============================================================
+
+Route::get('/kuisioner/part3', [KuisionerController::class, 'part3'])
+    ->name('kuisioner.part3');
+
+
+// ============================================================
+// PART 4
+// ============================================================
+
+Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
+    ->name('kuisioner.part4');
+
+
+// ============================================================
+// PART 5
+// ============================================================
+
+Route::get('/kuisioner/part5', [KuisionerController::class, 'part5'])
+    ->name('kuisioner.part5');
+
+
+// ============================================================
+// SELESAIKAN KUISIONER
+// ============================================================
+
+Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner'])
+    ->name('kuisioner.selesai.store');
 
 
 /*
@@ -174,8 +244,25 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 */
 
 Route::get('/laporan', function () {
+
     return view('admin.laporan.index');
+
 })->name('laporan.index');
+
+
+Route::get('/laporan/export', function () {
+
+    return response()->streamDownload(function () {
+
+        echo "No. KK,Periode,Tanggal Pendataan,Status\n";
+
+    }, 'laporan-pendataan.csv', [
+
+        'Content-Type' => 'text/csv',
+
+    ]);
+
+})->name('admin.laporan.export');
 
 
 /*
@@ -185,13 +272,16 @@ Route::get('/laporan', function () {
 */
 
 Route::get('/master', function () {
-    return view('admin.master.index');
+
+    return redirect()
+        ->route('master.pengguna.index');
+
 })->name('master.index');
 
 
 /*
 |--------------------------------------------------------------------------
-| MASTER - OPERATOR
+| Master - Operator
 |--------------------------------------------------------------------------
 */
 
@@ -206,7 +296,7 @@ Route::get('/master/operator/{id}/edit', function ($id) {
 
 /*
 |--------------------------------------------------------------------------
-| MASTER - VERIFIKATOR
+| Master - Verifikator
 |--------------------------------------------------------------------------
 */
 
@@ -217,90 +307,3 @@ Route::get('/master/verifikator/create', function () {
 Route::get('/master/verifikator/{id}/edit', function ($id) {
     return view('admin.master.verifikator.edit');
 })->name('master.verifikator.edit');
-
-
-/*
-|--------------------------------------------------------------------------
-| PROFIL ADMIN / OPERATOR
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/profil', function () {
-    return view('admin.profil.index');
-})->name('profil.index');
-
-
-/*
-|--------------------------------------------------------------------------
-| UBAH PASSWORD
-|--------------------------------------------------------------------------
-*/
-
-// Menampilkan halaman ubah password
-Route::get('/profil/ubah-password', function () {
-    return view('admin.profil.ubah-password');
-})->name('profil.password');
-
-
-// Memproses ubah password
-Route::post('/profil/ubah-password', function (Request $request) {
-
-    $request->validate([
-        'password_lama' => 'required',
-        'password_baru' => 'required|min:8|confirmed',
-    ], [
-        'password_lama.required' => 'Password lama wajib diisi.',
-        'password_baru.required' => 'Password baru wajib diisi.',
-        'password_baru.min' => 'Password baru minimal 8 karakter.',
-        'password_baru.confirmed' => 'Konfirmasi password tidak cocok.',
-    ]);
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Ambil user yang sedang login
-    |--------------------------------------------------------------------------
-    */
-
-    $user = Auth::user();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cek password lama
-    |--------------------------------------------------------------------------
-    */
-
-    if (!$user || !Hash::check($request->password_lama, $user->password)) {
-
-        return back()
-            ->withErrors([
-                'password_lama' => 'Password lama tidak sesuai.'
-            ])
-            ->withInput();
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Simpan password baru
-    |--------------------------------------------------------------------------
-    */
-
-    $user->password = Hash::make($request->password_baru);
-
-    $user->save();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Kembali ke halaman profil
-    |--------------------------------------------------------------------------
-    */
-
-    return redirect()
-        ->route('profil.index')
-        ->with('success', 'Password berhasil diubah.');
-
-})->name('profil.password.update');
