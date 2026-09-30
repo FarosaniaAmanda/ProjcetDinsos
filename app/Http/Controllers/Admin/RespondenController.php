@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
 use App\Models\KeluargaAnggota;
-use App\Models\RtRw;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,9 +18,10 @@ class RespondenController extends Controller
     {
         $keluargas = Keluarga::with([
             'anggota' => function ($query) {
-                $query->orderBy('id');
+                $query
+                    ->where('status_keluarga', '!=', 'Kepala Keluarga')
+                    ->orderBy('id');
             },
-            'rtRw',
         ])
             ->latest()
             ->get();
@@ -29,6 +29,19 @@ class RespondenController extends Controller
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
             ->get();
+
+        $kelurahans = DB::table('kelurahans')
+            ->get()
+            ->keyBy('kelurahan_id');
+
+        $kecamatansById = $kecamatans->keyBy('kecamatan_id');
+
+        foreach ($keluargas as $keluarga) {
+            $keluarga->nama_kepala_keluarga = $keluarga->nama_lengkap;
+            $keluarga->kecamatan = $kecamatansById->get($keluarga->kecamatan_id)?->deskripsi;
+            $keluarga->kelurahan = $kelurahans->get($keluarga->kelurahan_id)?->deskripsi;
+            $keluarga->jml_keluarga = 1 + $keluarga->anggota->count();
+        }
 
         return view(
             'admin.responden.index',
@@ -59,13 +72,13 @@ class RespondenController extends Controller
      */
     public function store(Request $request)
     {
-        if (!$request->filled('nomor_kk') && $request->filled('no_kk')) {
+        if (! $request->filled('nomor_kk') && $request->filled('no_kk')) {
             $request->merge([
                 'nomor_kk' => $request->input('no_kk'),
             ]);
         }
 
-        if (!$request->filled('no_kk') && $request->filled('nomor_kk')) {
+        if (! $request->filled('no_kk') && $request->filled('nomor_kk')) {
             $request->merge([
                 'no_kk' => $request->input('nomor_kk'),
             ]);
@@ -77,6 +90,11 @@ class RespondenController extends Controller
                 'digits:16',
             ],
 
+            'nik_kepala_keluarga' => [
+                'required',
+                'digits:16',
+            ],
+
             'nama_kepala_keluarga' => [
                 'required',
                 'string',
@@ -84,9 +102,9 @@ class RespondenController extends Controller
             ],
 
             'anggota' => [
-                'required',
+                'nullable',
                 'array',
-                'min:1',
+                'max:19',
             ],
 
             'anggota.*.nik' => [
@@ -105,7 +123,6 @@ class RespondenController extends Controller
                 'string',
                 'max:255',
             ],
-
             'anggota.*.status_keluarga_lainnya' => [
                 'nullable',
                 'string',
@@ -142,13 +159,6 @@ class RespondenController extends Controller
                 'max:10',
             ],
 
-            'rt_rw' => [
-                'nullable',
-                'string',
-                'max:20',
-                'regex:/^\d{1,3}\s*\/\s*\d{1,3}$/',
-            ],
-
             'alamat_lengkap' => [
                 'nullable',
                 'string',
@@ -166,54 +176,14 @@ class RespondenController extends Controller
             |--------------------------------------------------------------------------
             */
             $kodeKeluarga =
-                'KLG-' . strtoupper(Str::random(10));
+                'KLG-'.strtoupper(Str::random(10));
 
             /*
             |--------------------------------------------------------------------------
             | Cari NIK Kepala Keluarga
             |--------------------------------------------------------------------------
             */
-            $nikKepalaKeluarga = null;
-
-            foreach ($request->anggota as $anggota) {
-
-                if (
-                    isset($anggota['status_keluarga']) &&
-                    $anggota['status_keluarga'] === 'Kepala Keluarga'
-                ) {
-                    $nikKepalaKeluarga =
-                        $anggota['nik'] ?? null;
-
-                    break;
-                }
-            }
-
-            if (
-                !$nikKepalaKeluarga &&
-                !empty($request->anggota)
-            ) {
-                $nikKepalaKeluarga =
-                    $request->anggota[0]['nik'] ?? null;
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Simpan RT/RW
-            |--------------------------------------------------------------------------
-            */
-            $rtRwId = null;
-
-            if (
-                $request->filled('rt_rw') &&
-                $request->filled('kelurahan_id')
-            ) {
-                $rtRw = $this->simpanRtRw(
-                    $request->kelurahan_id,
-                    $request->rt_rw
-                );
-
-                $rtRwId = $rtRw?->id;
-            }
+            $nikKepalaKeluarga = $request->nik_kepala_keluarga;
 
             /*
             |--------------------------------------------------------------------------
@@ -227,29 +197,19 @@ class RespondenController extends Controller
 
                 'nik' => $nikKepalaKeluarga,
 
-                'nama_lengkap' =>
-                    $request->nama_kepala_keluarga,
+                'nama_lengkap' => $request->nama_kepala_keluarga,
 
-                'status_keluarga' =>
-                    'Kepala Keluarga',
+                'status_keluarga' => 'Kepala Keluarga',
 
-                'kecamatan_id' =>
-                    $request->kecamatan_id,
+                'kecamatan_id' => $request->kecamatan_id,
 
-                'kelurahan_id' =>
-                    $request->kelurahan_id,
+                'kelurahan_id' => $request->kelurahan_id,
 
-                'rt_rw_id' =>
-                    $rtRwId,
+                'kode_pos' => $request->kode_pos,
 
-                'kode_pos' =>
-                    $request->kode_pos,
+                'alamat_lengkap' => $request->alamat_lengkap,
 
-                'alamat_lengkap' =>
-                    $request->alamat_lengkap,
-
-                'created_by' =>
-                    $createdBy,
+                'created_by' => $createdBy,
             ]);
 
             /*
@@ -257,7 +217,7 @@ class RespondenController extends Controller
             | Simpan anggota keluarga
             |--------------------------------------------------------------------------
             */
-            foreach ($request->anggota as $anggota) {
+            foreach ($request->input('anggota', []) as $anggota) {
 
                 $statusKeluarga =
                     $anggota['status_keluarga'] ?? '';
@@ -280,26 +240,20 @@ class RespondenController extends Controller
                 }
 
                 KeluargaAnggota::create([
-                    'kode' =>
-                        'ANG-' .
+                    'kode' => 'ANG-'.
                         strtoupper(
                             Str::random(10)
                         ),
 
-                    'keluarga_kode' =>
-                        $keluarga->kode,
+                    'keluarga_kode' => $keluarga->kode,
 
-                    'nik' =>
-                        $anggota['nik'],
+                    'nik' => $anggota['nik'],
 
-                    'nama_lengkap' =>
-                        $anggota['nama_lengkap'],
+                    'nama_lengkap' => $anggota['nama_lengkap'],
 
-                    'status_keluarga' =>
-                        $statusKeluarga,
+                    'status_keluarga' => $statusKeluarga,
 
-                    'created_by' =>
-                        $createdBy,
+                    'created_by' => $createdBy,
                 ]);
             }
         });
@@ -317,10 +271,7 @@ class RespondenController extends Controller
      */
     public function edit($id)
     {
-        $keluarga = Keluarga::with([
-            'anggota',
-            'rtRw',
-        ])->findOrFail($id);
+        $keluarga = Keluarga::with('anggota')->findOrFail($id);
 
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
@@ -340,10 +291,7 @@ class RespondenController extends Controller
      */
     public function editData($id)
     {
-        $keluarga = Keluarga::with([
-            'anggota',
-            'rtRw',
-        ])->findOrFail($id);
+        $keluarga = Keluarga::with('anggota')->findOrFail($id);
 
         /*
         |--------------------------------------------------------------------------
@@ -377,112 +325,81 @@ class RespondenController extends Controller
                 ->first();
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Bentuk RT/RW untuk form
-        |--------------------------------------------------------------------------
-        */
-        $rtRw = null;
-
-        if ($keluarga->rtRw) {
-            $rtRw =
-                $keluarga->rtRw->rt .
-                '/' .
-                $keluarga->rtRw->rw;
-        }
-
         return response()->json([
-            'id' =>
-                $keluarga->id,
+            'id' => $keluarga->id,
 
-            'kode' =>
-                $keluarga->kode,
+            'kode' => $keluarga->kode,
 
-            'no_kk' =>
-                $keluarga->no_kk,
+            'no_kk' => $keluarga->no_kk,
 
-            'nik' =>
-                $keluarga->nik,
+            'nik' => $keluarga->nik,
 
-            'nama_lengkap' =>
-                $keluarga->nama_lengkap,
+            'nama_lengkap' => $keluarga->nama_lengkap,
 
-            'status_keluarga' =>
-                $keluarga->status_keluarga,
+            'status_keluarga' => $keluarga->status_keluarga,
 
-            'provinsi' =>
-                'Jawa Timur',
+            'provinsi' => 'Jawa Timur',
 
-            'daerah' =>
-                'Kota Pasuruan',
+            'daerah' => 'Kota Pasuruan',
 
-            'kecamatan_id' =>
-                $keluarga->kecamatan_id,
+            'kecamatan_id' => $keluarga->kecamatan_id,
 
-            'kecamatan' =>
-                $kecamatan?->deskripsi,
+            'kecamatan' => $kecamatan?->deskripsi,
 
-            'kelurahan_id' =>
-                $keluarga->kelurahan_id,
+            'kelurahan_id' => $keluarga->kelurahan_id,
 
-            'kelurahan' =>
-                $kelurahan?->deskripsi,
+            'kelurahan' => $kelurahan?->deskripsi,
 
-            'kode_pos' =>
-                $keluarga->kode_pos,
+            'kode_pos' => $keluarga->kode_pos,
 
-            'rt_rw' =>
-                $rtRw,
+            'alamat_lengkap' => $keluarga->alamat_lengkap,
 
-            'alamat_lengkap' =>
-                $keluarga->alamat_lengkap,
+            'jml_keluarga' => 1 + $keluarga->anggota
+                ->where('status_keluarga', '!=', 'Kepala Keluarga')
+                ->count(),
 
-            'jml_keluarga' =>
-                $keluarga->anggota->count(),
+            'anggota' => $keluarga->anggota
+                ->where('status_keluarga', '!=', 'Kepala Keluarga')
+                ->sortBy(function ($anggota) {
+                    $statusPriority = [
+                        'Kepala Keluarga' => 1,
+                        'Istri' => 2,
+                        'Suami' => 3,
+                        'Anak' => 4,
+                        'Orang Tua' => 5,
+                        'Saudara' => 6,
+                        'Famili' => 7,
+                    ];
 
-            'anggota' =>
-                $keluarga->anggota
-                    ->sortBy(function ($anggota) {
-                        $statusPriority = [
-                            'Kepala Keluarga' => 1,
-                            'Istri' => 2,
-                            'Suami' => 3,
-                            'Anak' => 4,
-                            'Orang Tua' => 5,
-                            'Saudara' => 6,
-                            'Famili' => 7,
-                        ];
+                    $status = (string) ($anggota->status_keluarga ?? '');
 
-                        $status = (string) ($anggota->status_keluarga ?? '');
+                    return ($statusPriority[$status] ?? 999) * 1000000 + ($anggota->id ?? 0);
+                })
+                ->map(function ($anggota) {
+                    $statusNormal = [
+                        'Kepala Keluarga',
+                        'Istri',
+                        'Suami',
+                        'Anak',
+                        'Orang Tua',
+                        'Saudara',
+                        'Famili',
+                    ];
 
-                        return ($statusPriority[$status] ?? 999) * 1000000 + ($anggota->id ?? 0);
-                    })
-                    ->map(function ($anggota) {
-                        $statusNormal = [
-                            'Kepala Keluarga',
-                            'Istri',
-                            'Suami',
-                            'Anak',
-                            'Orang Tua',
-                            'Saudara',
-                            'Famili',
-                        ];
+                    $status = (string) ($anggota->status_keluarga ?? '');
 
-                        $status = (string) ($anggota->status_keluarga ?? '');
-
-                        return [
-                            'id' => $anggota->id,
-                            'kode' => $anggota->kode,
-                            'nik' => $anggota->nik,
-                            'nama_lengkap' => $anggota->nama_lengkap,
-                            'status_keluarga' => $status,
-                            'status_keluarga_lainnya' =>
-                                $status !== '' && !in_array($status, $statusNormal, true)
-                                    ? $status
-                                    : '',
-                        ];
-                    })
-                    ->values(),
+                    return [
+                        'id' => $anggota->id,
+                        'kode' => $anggota->kode,
+                        'nik' => $anggota->nik,
+                        'nama_lengkap' => $anggota->nama_lengkap,
+                        'status_keluarga' => $status,
+                        'status_keluarga_lainnya' => $status !== '' && ! in_array($status, $statusNormal, true)
+                                ? $status
+                                : '',
+                    ];
+                })
+                ->values(),
         ]);
     }
 
@@ -498,11 +415,10 @@ class RespondenController extends Controller
             )
             ->first();
 
-        if (!$kecamatan) {
+        if (! $kecamatan) {
             return response()->json([
                 'success' => false,
-                'message' =>
-                    'Kecamatan tidak ditemukan.',
+                'message' => 'Kecamatan tidak ditemukan.',
                 'data' => [],
             ], 404);
         }
@@ -535,13 +451,13 @@ class RespondenController extends Controller
         Request $request,
         $id
     ) {
-        if (!$request->filled('nomor_kk') && $request->filled('no_kk')) {
+        if (! $request->filled('nomor_kk') && $request->filled('no_kk')) {
             $request->merge([
                 'nomor_kk' => $request->input('no_kk'),
             ]);
         }
 
-        if (!$request->filled('no_kk') && $request->filled('nomor_kk')) {
+        if (! $request->filled('no_kk') && $request->filled('nomor_kk')) {
             $request->merge([
                 'no_kk' => $request->input('nomor_kk'),
             ]);
@@ -553,6 +469,11 @@ class RespondenController extends Controller
                 'digits:16',
             ],
 
+            'nik_kepala_keluarga' => [
+                'required',
+                'digits:16',
+            ],
+
             'nama_kepala_keluarga' => [
                 'required',
                 'string',
@@ -560,9 +481,9 @@ class RespondenController extends Controller
             ],
 
             'anggota' => [
-                'required',
+                'nullable',
                 'array',
-                'min:1',
+                'max:19',
             ],
 
             'anggota.*.nik' => [
@@ -588,6 +509,9 @@ class RespondenController extends Controller
                 'max:255',
             ],
 
+            /*
+             * Wilayah and address fields.
+             */
             'provinsi' => [
                 'nullable',
                 'string',
@@ -618,18 +542,12 @@ class RespondenController extends Controller
                 'max:10',
             ],
 
-            'rt_rw' => [
-                'nullable',
-                'string',
-                'max:20',
-                'regex:/^\d{1,3}\s*\/\s*\d{1,3}$/',
-            ],
-
             'alamat_lengkap' => [
                 'nullable',
                 'string',
                 'max:255',
             ],
+
         ]);
 
         DB::transaction(function () use (
@@ -648,84 +566,36 @@ class RespondenController extends Controller
             | Cari NIK Kepala Keluarga
             |--------------------------------------------------------------------------
             */
-            $nikKepalaKeluarga = null;
-
-            foreach ($request->anggota as $anggota) {
-
-                if (
-                    isset($anggota['status_keluarga']) &&
-                    $anggota['status_keluarga']
-                    === 'Kepala Keluarga'
-                ) {
-                    $nikKepalaKeluarga =
-                        $anggota['nik'] ?? null;
-
-                    break;
-                }
-            }
-
-            if (
-                !$nikKepalaKeluarga &&
-                !empty($request->anggota)
-            ) {
-                $nikKepalaKeluarga =
-                    $request->anggota[0]['nik'] ?? null;
-            }
+            $nikKepalaKeluarga = $request->nik_kepala_keluarga;
 
             /*
             |--------------------------------------------------------------------------
             | Simpan / ambil RT RW
             |--------------------------------------------------------------------------
             */
-            $rtRwId = null;
-
-            if (
-                $request->filled('rt_rw') &&
-                $request->filled('kelurahan_id')
-            ) {
-                $rtRw = $this->simpanRtRw(
-                    $request->kelurahan_id,
-                    $request->rt_rw
-                );
-
-                $rtRwId = $rtRw?->id;
-            }
-
             /*
             |--------------------------------------------------------------------------
             | Update keluarga
             |--------------------------------------------------------------------------
             */
             $keluarga->update([
-                'no_kk' =>
-                    $request->nomor_kk,
+                'no_kk' => $request->nomor_kk,
 
-                'nik' =>
-                    $nikKepalaKeluarga,
+                'nik' => $nikKepalaKeluarga,
 
-                'nama_lengkap' =>
-                    $request->nama_kepala_keluarga,
+                'nama_lengkap' => $request->nama_kepala_keluarga,
 
-                'status_keluarga' =>
-                    'Kepala Keluarga',
+                'status_keluarga' => 'Kepala Keluarga',
 
-                'kecamatan_id' =>
-                    $request->kecamatan_id,
+                'kecamatan_id' => $request->kecamatan_id,
 
-                'kelurahan_id' =>
-                    $request->kelurahan_id,
+                'kelurahan_id' => $request->kelurahan_id,
 
-                'rt_rw_id' =>
-                    $rtRwId,
+                'kode_pos' => $request->kode_pos,
 
-                'kode_pos' =>
-                    $request->kode_pos,
+                'alamat_lengkap' => $request->alamat_lengkap,
 
-                'alamat_lengkap' =>
-                    $request->alamat_lengkap,
-
-                'updated_by' =>
-                    $updatedBy,
+                'updated_by' => $updatedBy,
             ]);
 
             /*
@@ -740,7 +610,7 @@ class RespondenController extends Controller
             | Simpan anggota terbaru
             |--------------------------------------------------------------------------
             */
-            foreach ($request->anggota as $anggota) {
+            foreach ($request->input('anggota', []) as $anggota) {
 
                 $statusKeluarga =
                     $anggota['status_keluarga'] ?? '';
@@ -763,26 +633,20 @@ class RespondenController extends Controller
                 }
 
                 KeluargaAnggota::create([
-                    'kode' =>
-                        'ANG-' .
+                    'kode' => 'ANG-'.
                         strtoupper(
                             Str::random(10)
                         ),
 
-                    'keluarga_kode' =>
-                        $keluarga->kode,
+                    'keluarga_kode' => $keluarga->kode,
 
-                    'nik' =>
-                        $anggota['nik'],
+                    'nik' => $anggota['nik'],
 
-                    'nama_lengkap' =>
-                        $anggota['nama_lengkap'],
+                    'nama_lengkap' => $anggota['nama_lengkap'],
 
-                    'status_keluarga' =>
-                        $statusKeluarga,
+                    'status_keluarga' => $statusKeluarga,
 
-                    'created_by' =>
-                        $updatedBy,
+                    'created_by' => $updatedBy,
                 ]);
             }
         });
@@ -793,58 +657,6 @@ class RespondenController extends Controller
                 'success',
                 'Data responden berhasil diperbarui.'
             );
-    }
-
-    /**
-     * Menyimpan RT/RW ke tabel rt_rws.
-     */
-    private function simpanRtRw(
-        $kelurahanId,
-        $rtRwValue
-    ) {
-        $rtRwValue =
-            trim((string) $rtRwValue);
-
-        $parts =
-            preg_split(
-                '/\s*\/\s*/',
-                $rtRwValue
-            );
-
-        if (
-            count($parts) !== 2 ||
-            $parts[0] === '' ||
-            $parts[1] === ''
-        ) {
-            return null;
-        }
-
-        $rt =
-            str_pad(
-                trim($parts[0]),
-                3,
-                '0',
-                STR_PAD_LEFT
-            );
-
-        $rw =
-            str_pad(
-                trim($parts[1]),
-                3,
-                '0',
-                STR_PAD_LEFT
-            );
-
-        return RtRw::firstOrCreate([
-            'kelurahan_id' =>
-                $kelurahanId,
-
-            'rt' =>
-                $rt,
-
-            'rw' =>
-                $rw,
-        ]);
     }
 
     /**
@@ -875,10 +687,7 @@ class RespondenController extends Controller
      */
     public function detail($id)
     {
-        $keluarga = Keluarga::with([
-            'anggota',
-            'rtRw',
-        ])->findOrFail($id);
+        $keluarga = Keluarga::with('anggota')->findOrFail($id);
 
         $kecamatan = null;
 
@@ -902,66 +711,38 @@ class RespondenController extends Controller
                 ->first();
         }
 
-        $rtRw = null;
-
-        if ($keluarga->rtRw) {
-            $rtRw =
-                $keluarga->rtRw->rt .
-                '/' .
-                $keluarga->rtRw->rw;
-        }
-
         return response()->json([
-            'id' =>
-                $keluarga->id,
+            'id' => $keluarga->id,
 
-            'kode' =>
-                $keluarga->kode,
+            'kode' => $keluarga->kode,
 
-            'no_kk' =>
-                $keluarga->no_kk,
+            'no_kk' => $keluarga->no_kk,
 
-            'nik' =>
-                $keluarga->nik,
+            'nik' => $keluarga->nik,
 
-            'nama_lengkap' =>
-                $keluarga->nama_lengkap,
+            'nama_lengkap' => $keluarga->nama_lengkap,
 
-            'status_keluarga' =>
-                $keluarga->status_keluarga,
+            'status_keluarga' => $keluarga->status_keluarga,
 
-            'provinsi' =>
-                'Jawa Timur',
+            'provinsi' => 'Jawa Timur',
 
-            'daerah' =>
-                'Kota Pasuruan',
+            'daerah' => 'Kota Pasuruan',
 
-            'kecamatan_id' =>
-                $keluarga->kecamatan_id,
+            'kecamatan_id' => $keluarga->kecamatan_id,
 
-            'kecamatan' =>
-                $kecamatan?->deskripsi,
+            'kecamatan' => $kecamatan?->deskripsi,
 
-            'kelurahan_id' =>
-                $keluarga->kelurahan_id,
+            'kelurahan_id' => $keluarga->kelurahan_id,
 
-            'kelurahan' =>
-                $kelurahan?->deskripsi,
+            'kelurahan' => $kelurahan?->deskripsi,
 
-            'kode_pos' =>
-                $keluarga->kode_pos,
+            'kode_pos' => $keluarga->kode_pos,
 
-            'rt_rw' =>
-                $rtRw,
+            'alamat_lengkap' => $keluarga->alamat_lengkap,
 
-            'alamat_lengkap' =>
-                $keluarga->alamat_lengkap,
+            'jml_keluarga' => $keluarga->anggota->count(),
 
-            'jml_keluarga' =>
-                $keluarga->anggota->count(),
-
-            'anggota' =>
-                $keluarga->anggota,
+            'anggota' => $keluarga->anggota,
         ]);
     }
 }

@@ -35,4 +35,21 @@ return [
         ],
     ],
 
+    'geocoding' => [
+        'endpoint' => env(
+            'GEOCODING_ENDPOINT',
+            'https://nominatim.openstreetmap.org/search'
+        ),
+        'ca_bundle' => env('GEOCODING_CA_BUNDLE') ?: (
+            PHP_OS_FAMILY === 'Windows'
+                ? dirname(dirname(PHP_BINARY)).'/apache/bin/curl-ca-bundle.crt'
+                : null
+        ),
+        'user_agent' => env(
+            'GEOCODING_USER_AGENT',
+            'ProjcetDinsos/1.0'
+        ),
+        'email' => env('GEOCODING_CONTACT_EMAIL'),
+    ],
+
 ];

@@ -28,7 +28,6 @@ class KuisionerController extends Controller
         ]);
     }
 
-
     /**
      * ============================================================
      * HALAMAN DRAFT
@@ -44,7 +43,6 @@ class KuisionerController extends Controller
             'drafts' => $drafts,
         ]);
     }
-
 
     /**
      * ============================================================
@@ -69,7 +67,6 @@ class KuisionerController extends Controller
         ]);
     }
 
-
     /**
      * ============================================================
      * PART 1
@@ -79,7 +76,6 @@ class KuisionerController extends Controller
     {
         return view('admin.kuisioner.part1');
     }
-
 
     /**
      * ============================================================
@@ -102,7 +98,6 @@ class KuisionerController extends Controller
             'rt_rw' => 'nullable|string|max:16',
 
             'alamat_lengkap' => 'nullable|string|max:255',
-            'jalan_rumah' => 'nullable|string|max:255',
 
             'is_alamat_sesuai' => 'nullable|boolean',
 
@@ -123,13 +118,12 @@ class KuisionerController extends Controller
 
         $draft = null;
 
-        if (!empty($validated['nik'])) {
+        if (! empty($validated['nik'])) {
             $draft = KeluargaPart1::where('nik', $validated['nik'])
                 ->where('status', 'draft')
                 ->where('created_by', $user)
                 ->first();
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -146,7 +140,6 @@ class KuisionerController extends Controller
             $draft->update($validated);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | BUAT DRAFT BARU
@@ -162,7 +155,6 @@ class KuisionerController extends Controller
             $draft = KeluargaPart1::create($validated);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | SIMPAN DRAFT AKTIF KE SESSION
@@ -173,7 +165,6 @@ class KuisionerController extends Controller
             'draft_keluarga_id' => $draft->id,
             'part1_selesai' => true,
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -189,7 +180,6 @@ class KuisionerController extends Controller
             );
     }
 
-
     /**
      * ============================================================
      * PART 2
@@ -197,7 +187,7 @@ class KuisionerController extends Controller
      */
     public function part2()
     {
-        if (!session('part1_selesai')) {
+        if (! session('part1_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -210,7 +200,6 @@ class KuisionerController extends Controller
         return view('admin.kuisioner.part2');
     }
 
-
     /**
      * ============================================================
      * PART 3
@@ -218,7 +207,7 @@ class KuisionerController extends Controller
      */
     public function part3()
     {
-        if (!session('part1_selesai')) {
+        if (! session('part1_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -228,7 +217,7 @@ class KuisionerController extends Controller
                 );
         }
 
-        if (!session('part2_selesai')) {
+        if (! session('part2_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part2')
@@ -241,7 +230,6 @@ class KuisionerController extends Controller
         return view('admin.kuisioner.part3');
     }
 
-
     /**
      * ============================================================
      * PART 4
@@ -249,7 +237,7 @@ class KuisionerController extends Controller
      */
     public function part4()
     {
-        if (!session('part1_selesai')) {
+        if (! session('part1_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -259,7 +247,7 @@ class KuisionerController extends Controller
                 );
         }
 
-        if (!session('part2_selesai')) {
+        if (! session('part2_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part2')
@@ -269,7 +257,7 @@ class KuisionerController extends Controller
                 );
         }
 
-        if (!session('part3_selesai')) {
+        if (! session('part3_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part3')
@@ -282,7 +270,6 @@ class KuisionerController extends Controller
         return view('admin.kuisioner.part4');
     }
 
-
     /**
      * ============================================================
      * PART 5
@@ -290,7 +277,7 @@ class KuisionerController extends Controller
      */
     public function part5()
     {
-        if (!session('part1_selesai')) {
+        if (! session('part1_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -300,7 +287,7 @@ class KuisionerController extends Controller
                 );
         }
 
-        if (!session('part2_selesai')) {
+        if (! session('part2_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part2')
@@ -310,7 +297,7 @@ class KuisionerController extends Controller
                 );
         }
 
-        if (!session('part3_selesai')) {
+        if (! session('part3_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part3')
@@ -320,7 +307,7 @@ class KuisionerController extends Controller
                 );
         }
 
-        if (!session('part4_selesai')) {
+        if (! session('part4_selesai')) {
 
             return redirect()
                 ->route('kuisioner.part4')
@@ -333,7 +320,6 @@ class KuisionerController extends Controller
         return view('admin.kuisioner.part5');
     }
 
-
     /**
      * ============================================================
      * SELESAIKAN KUISIONER
@@ -341,7 +327,7 @@ class KuisionerController extends Controller
      */
     public function selesaiKuisioner(Request $request)
     {
-        if (!session('draft_keluarga_id')) {
+        if (! session('draft_keluarga_id')) {
 
             return redirect()
                 ->route('kuisioner.index')
@@ -351,11 +337,9 @@ class KuisionerController extends Controller
                 );
         }
 
-
         $draft = KeluargaPart1::findOrFail(
             session('draft_keluarga_id')
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -368,7 +352,6 @@ class KuisionerController extends Controller
             'current_part' => 5,
             'updated_by' => auth()->user()->name ?? 'admin',
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -384,7 +367,6 @@ class KuisionerController extends Controller
             'part4_selesai',
         ]);
 
-
         return redirect()
             ->route('kuisioner.selesai')
             ->with(
@@ -392,7 +374,6 @@ class KuisionerController extends Controller
                 'Kuisioner berhasil diselesaikan.'
             );
     }
-
 
     /**
      * ============================================================
@@ -405,7 +386,6 @@ class KuisionerController extends Controller
             ->where('status', 'draft')
             ->firstOrFail();
 
-
         /*
         |--------------------------------------------------------------------------
         | SIMPAN DRAFT AKTIF
@@ -416,7 +396,6 @@ class KuisionerController extends Controller
             'draft_keluarga_id' => $draft->id,
             'part1_selesai' => true,
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -431,7 +410,6 @@ class KuisionerController extends Controller
                 return redirect()
                     ->route('kuisioner.part1');
 
-
             case 2:
 
                 session([
@@ -440,7 +418,6 @@ class KuisionerController extends Controller
 
                 return redirect()
                     ->route('kuisioner.part2');
-
 
             case 3:
 
@@ -451,7 +428,6 @@ class KuisionerController extends Controller
 
                 return redirect()
                     ->route('kuisioner.part3');
-
 
             case 4:
 
@@ -464,7 +440,6 @@ class KuisionerController extends Controller
                 return redirect()
                     ->route('kuisioner.part4');
 
-
             case 5:
 
                 session([
@@ -475,7 +450,6 @@ class KuisionerController extends Controller
 
                 return redirect()
                     ->route('kuisioner.part5');
-
 
             default:
 

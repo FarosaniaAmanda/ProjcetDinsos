@@ -1,21 +1,13 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-
-use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\PeriodeController;
-use App\Http\Controllers\Admin\VerifikasiController;
-use App\Http\Controllers\Admin\MonitoringController;
-use App\Http\Controllers\Admin\ForgotPasswordController;
-use App\Http\Controllers\Admin\PetugasController;
-use App\Http\Controllers\Admin\RespondenController;
 use App\Http\Controllers\Admin\KuisionerController;
-use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\Admin\PeriodeController;
+use App\Http\Controllers\Admin\RespondenController;
+use App\Http\Controllers\Admin\VerifikasiController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,7 +26,6 @@ Route::post('/login', [LoginController::class, 'login'])
 // Logout
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -58,7 +49,6 @@ Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showRes
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
     ->name('password.update');
 
-
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD
@@ -67,7 +57,6 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -89,7 +78,6 @@ Route::put('/periode/{id}', [PeriodeController::class, 'update'])
 
 Route::delete('/periode/{id}', [PeriodeController::class, 'destroy'])
     ->name('periode.destroy');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -115,7 +103,6 @@ Route::put('/responden/update/{id}', [RespondenController::class, 'update'])
 Route::delete('/responden/hapus/{id}', [RespondenController::class, 'destroy'])
     ->name('responden.destroy');
 
-
 /*
 |--------------------------------------------------------------------------
 | Responden
@@ -128,6 +115,8 @@ Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData']
 Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
     ->name('responden.kelurahan');
 
+Route::get('/responden/peta/{kelurahanId}', [RespondenController::class, 'map'])
+    ->name('responden.map');
 
 /*
 |--------------------------------------------------------------------------
@@ -139,21 +128,17 @@ Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'g
 Route::get('/kuisioner', [KuisionerController::class, 'index'])
     ->name('kuisioner.index');
 
-
 // HALAMAN DRAFT
 Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
     ->name('kuisioner.draft');
-
 
 // LANJUTKAN DRAFT
 Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
     ->name('kuisioner.draft.resume');
 
-
 // HALAMAN SELESAI
 Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
     ->name('kuisioner.selesai');
-
 
 // ============================================================
 // PART 1
@@ -167,14 +152,12 @@ Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
 Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
     ->name('kuisioner.part1.store');
 
-
 // ============================================================
 // PART 2
 // ============================================================
 
 Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
     ->name('kuisioner.part2');
-
 
 // ============================================================
 // PART 3
@@ -183,14 +166,12 @@ Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
 Route::get('/kuisioner/part3', [KuisionerController::class, 'part3'])
     ->name('kuisioner.part3');
 
-
 // ============================================================
 // PART 4
 // ============================================================
 
 Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
     ->name('kuisioner.part4');
-
 
 // ============================================================
 // PART 5
@@ -199,14 +180,12 @@ Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
 Route::get('/kuisioner/part5', [KuisionerController::class, 'part5'])
     ->name('kuisioner.part5');
 
-
 // ============================================================
 // SELESAIKAN KUISIONER
 // ============================================================
 
 Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner'])
     ->name('kuisioner.selesai.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -223,7 +202,6 @@ Route::get('/verifikasi/{id}', [VerifikasiController::class, 'show'])
 Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])
     ->name('verifikasi.update');
 
-
 /*
 |--------------------------------------------------------------------------
 | MONITORING
@@ -236,7 +214,6 @@ Route::get('/monitoring', [MonitoringController::class, 'index'])
 Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
     ->name('monitoring.detail');
 
-
 /*
 |--------------------------------------------------------------------------
 | LAPORAN
@@ -248,7 +225,6 @@ Route::get('/laporan', function () {
     return view('admin.laporan.index');
 
 })->name('laporan.index');
-
 
 Route::get('/laporan/export', function () {
 
@@ -264,7 +240,6 @@ Route::get('/laporan/export', function () {
 
 })->name('admin.laporan.export');
 
-
 /*
 |--------------------------------------------------------------------------
 | MASTER
@@ -277,7 +252,6 @@ Route::get('/master', function () {
         ->route('master.pengguna.index');
 
 })->name('master.index');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -292,7 +266,6 @@ Route::get('/master/operator/create', function () {
 Route::get('/master/operator/{id}/edit', function ($id) {
     return view('admin.master.operator.edit');
 })->name('master.operator.edit');
-
 
 /*
 |--------------------------------------------------------------------------
