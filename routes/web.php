@@ -1,12 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\PetugasController;
 use App\Http\Controllers\Admin\RespondenController;
 use App\Http\Controllers\Admin\KuisionerController;
@@ -20,8 +24,40 @@ use App\Http\Controllers\Admin\LaporanController;
 |--------------------------------------------------------------------------
 */
 
+// Menampilkan halaman login
 Route::get('/', [LoginController::class, 'index'])
     ->name('login');
+
+// Memproses login
+Route::post('/login', [LoginController::class, 'login'])
+    ->name('login.process');
+
+// Logout
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->name('logout');
+
+
+/*
+|--------------------------------------------------------------------------
+| LUPA PASSWORD
+|--------------------------------------------------------------------------
+*/
+
+// Menampilkan halaman lupa password
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])
+    ->name('password.request');
+
+// Memproses permintaan reset password
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])
+    ->name('password.email');
+
+// Menampilkan halaman reset password
+Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
+    ->name('password.reset');
+
+// Memproses password baru
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->name('password.update');
 
 
 /*
@@ -46,38 +82,19 @@ Route::get('/periode', [PeriodeController::class, 'index'])
 Route::get('/periode/tambah', [PeriodeController::class, 'create'])
     ->name('periode.create');
 
-Route::get('/periode/edit/{id}', [PeriodeController::class, 'edit'])
+Route::get('/periode/edit', [PeriodeController::class, 'edit'])
     ->name('periode.edit');
 
+Route::put('/periode/{id}', [PeriodeController::class, 'update'])
+    ->name('periode.update');
 
-/*
-|--------------------------------------------------------------------------
-| PETUGAS
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/petugas', [PetugasController::class, 'index'])
-    ->name('petugas.index');
-
-Route::get('/petugas/tambah', [PetugasController::class, 'create'])
-    ->name('petugas.create');
-
-Route::post('/petugas/simpan', [PetugasController::class, 'store'])
-    ->name('petugas.store');
-
-Route::get('/petugas/edit/{id}', [PetugasController::class, 'edit'])
-    ->name('petugas.edit');
-
-Route::put('/petugas/update/{id}', [PetugasController::class, 'update'])
-    ->name('petugas.update');
-
-Route::delete('/petugas/hapus/{id}', [PetugasController::class, 'destroy'])
-    ->name('petugas.destroy');
+Route::delete('/periode/{id}', [PeriodeController::class, 'destroy'])
+    ->name('periode.destroy');
 
 
 /*
 |--------------------------------------------------------------------------
-| RESPONDEN
+| Petugas
 |--------------------------------------------------------------------------
 */
 
@@ -102,7 +119,7 @@ Route::delete('/responden/hapus/{id}', [RespondenController::class, 'destroy'])
 
 /*
 |--------------------------------------------------------------------------
-| RESPONDEN - AJAX
+| Responden
 |--------------------------------------------------------------------------
 */
 
@@ -251,17 +268,31 @@ Route::get('/master', function () {
 })->name('master.index');
 
 
-Route::get('/master/pengguna', [UserController::class, 'index'])
-    ->name('master.pengguna.index');
+/*
+|--------------------------------------------------------------------------
+| Master - Operator
+|--------------------------------------------------------------------------
+*/
 
-Route::post('/master/pengguna', [UserController::class, 'store'])
-    ->name('master.pengguna.store');
+Route::get('/master/operator/create', function () {
+    return view('admin.master.operator.create');
+})->name('master.operator.create');
 
-Route::put('/master/pengguna/{user}', [UserController::class, 'update'])
-    ->name('master.pengguna.update');
+Route::get('/master/operator/{id}/edit', function ($id) {
+    return view('admin.master.operator.edit');
+})->name('master.operator.edit');
 
-Route::delete('/master/pengguna/{user}', [UserController::class, 'destroy'])
-    ->name('master.pengguna.destroy');
 
-Route::get('/master/petugas/rt-rw/{kelurahanId}', [UserController::class, 'getRtRw'])
-    ->name('master.petugas.rt-rw');
+/*
+|--------------------------------------------------------------------------
+| Master - Verifikator
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/master/verifikator/create', function () {
+    return view('admin.master.verifikator.create');
+})->name('master.verifikator.create');
+
+Route::get('/master/verifikator/{id}/edit', function ($id) {
+    return view('admin.master.verifikator.edit');
+})->name('master.verifikator.edit');

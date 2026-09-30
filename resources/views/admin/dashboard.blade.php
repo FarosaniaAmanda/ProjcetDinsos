@@ -32,7 +32,7 @@
 
         /* =====================================================
            SIDEBAR
-        ===================================================== */
+        ====================================================== */
 
         .sidebar {
 
@@ -45,70 +45,104 @@
             height: 100vh;
 
             background: #252A86;
+            color: #ffffff;
+
+            display: flex;
+            flex-direction: column;
 
             z-index: 1000;
 
             overflow-y: auto;
 
-            transition: transform 0.3s ease;
+            transition: transform .3s ease;
         }
 
+
+        /* =====================================================
+           LOGO SIDEBAR
+        ====================================================== */
 
         .sidebar-logo {
 
             height: 105px;
 
             display: flex;
-
             align-items: center;
-
             justify-content: center;
 
-            padding: 15px;
+            padding: 16px 20px;
+
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+            flex-shrink: 0;
         }
 
 
         .sidebar-logo img {
 
-            max-width: 95px;
-
-            max-height: 75px;
+            width: 72px;
+            height: 72px;
 
             object-fit: contain;
+
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            display: block;
         }
 
 
+        /* =====================================================
+           MENU SIDEBAR
+        ====================================================== */
+
         .sidebar-menu {
 
-            padding: 10px 14px 25px;
+            padding: 20px 14px;
+
+            flex: 1;
+        }
+
+
+        .menu-title {
+
+            font-size: 11px;
+            font-weight: 700;
+
+            color: rgba(255, 255, 255, 0.55);
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+
+            margin: 8px 10px 12px;
         }
 
 
         .menu-link {
 
             display: flex;
-
             align-items: center;
 
             gap: 12px;
 
             width: 100%;
 
-            padding: 12px 13px;
+            padding: 12px 14px;
 
-            margin-bottom: 4px;
+            margin-bottom: 5px;
 
-            border-radius: 7px;
+            border-radius: 9px;
 
-            color: rgba(255, 255, 255, 0.88);
+            color: rgba(255, 255, 255, 0.82);
 
             text-decoration: none;
 
-            font-size: 13px;
-
+            font-size: 14px;
             font-weight: 500;
 
-            transition: all 0.2s ease;
+            transition: all .2s ease;
         }
 
 
@@ -127,72 +161,64 @@
             color: #252A86;
 
             font-weight: 700;
+
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
         }
 
 
+        /* =====================================================
+           ICON MENU
+        ====================================================== */
+
         .menu-icon {
 
-            width: 19px;
+            width: 20px;
+            height: 20px;
 
-            min-width: 19px;
+            display: flex;
 
-            text-align: center;
+            align-items: center;
+            justify-content: center;
 
-            font-size: 14px;
+            flex-shrink: 0;
+        }
 
-            line-height: 1;
+
+        .menu-icon svg {
+
+            width: 18px;
+            height: 18px;
+
+            display: block;
         }
 
 
         /* =====================================================
            MASTER DROPDOWN
-        ===================================================== */
+        ====================================================== */
 
         .master-menu {
-
-            margin-bottom: 4px;
+            width: 100%;
         }
 
 
         .master-toggle {
 
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            width: 100%;
-
-            padding: 12px 13px;
-
             border: none;
-
-            border-radius: 7px;
 
             background: transparent;
 
-            color: rgba(255, 255, 255, 0.88);
+            cursor: pointer;
 
             font-family: inherit;
 
-            font-size: 13px;
+            text-align: left;
 
-            font-weight: 500;
-
-            cursor: pointer;
-
-            transition: all 0.2s ease;
+            appearance: none;
         }
 
 
-        .master-toggle:hover {
-
-            background: rgba(255, 255, 255, 0.10);
-
-            color: #ffffff;
-        }
-
+        /* BAGIAN ICON + TEXT MASTER */
 
         .master-toggle-left {
 
@@ -201,68 +227,79 @@
             align-items: center;
 
             gap: 12px;
+
+            flex: 1;
+
+            min-width: 0;
         }
 
 
-        .master-arrow {
+        .master-toggle-left .menu-icon {
 
-            font-size: 10px;
+            width: 20px;
+            height: 20px;
 
-            transition: transform 0.2s ease;
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
         }
 
 
-        .master-menu.open .master-arrow {
+        .master-toggle-left .menu-icon svg {
 
-            transform: rotate(180deg);
-        }
-
-
-        /* =====================================================
-           SUBMENU
-        ===================================================== */
-
-        .submenu {
-
-            display: none;
-
-            padding: 3px 0 5px 32px;
-        }
-
-
-        .master-menu.open .submenu {
+            width: 18px;
+            height: 18px;
 
             display: block;
         }
 
 
-        .submenu a {
+        .master-toggle-left > span:last-child {
 
             display: flex;
 
             align-items: center;
 
-            gap: 10px;
+            height: 20px;
 
-            padding: 10px 12px;
+            line-height: 20px;
 
-            margin-bottom: 2px;
-
-            color: rgba(255, 255, 255, 0.82);
-
-            text-decoration: none;
-
-            font-size: 12px;
-
-            font-weight: 600;
-
-            border-radius: 6px;
-
-            transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
 
-        .submenu a:hover {
+        /* =====================================================
+           PANAH MASTER
+        ====================================================== */
+
+        .master-toggle .master-arrow {
+
+            margin-left: auto;
+
+            width: 18px;
+            height: 18px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            transition: transform .25s ease;
+        }
+
+
+        .master-toggle.open .master-arrow {
+
+            transform: rotate(180deg);
+        }
+
+
+        .master-toggle.master-active {
 
             background: rgba(255, 255, 255, 0.10);
 
@@ -270,45 +307,193 @@
         }
 
 
-        .submenu a.active {
+        .master-toggle.master-active:hover {
 
-            background: rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+
+        /* =====================================================
+           SUBMENU MASTER
+        ====================================================== */
+
+        .master-submenu {
+
+            max-height: 0;
+
+            overflow: hidden;
+
+            opacity: 0;
+
+            padding-left: 18px;
+
+            transition:
+                max-height .3s ease,
+                opacity .2s ease;
+        }
+
+
+        .master-submenu.open {
+
+            max-height: 200px;
+
+            opacity: 1;
+        }
+
+
+        /* =====================================================
+           LINK SUBMENU
+        ====================================================== */
+
+        .submenu-link {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            width: 100%;
+
+            padding: 10px 14px;
+
+            margin-bottom: 4px;
+
+            border-radius: 8px;
+
+            color: rgba(255, 255, 255, .72);
+
+            text-decoration: none;
+
+            font-size: 13px;
+
+            font-weight: 500;
+
+            transition: all .2s ease;
+        }
+
+
+        .submenu-link:hover {
+
+            background: rgba(255, 255, 255, .10);
 
             color: #ffffff;
+        }
+
+
+        .submenu-link.active {
+
+            background: #ffffff;
+
+            color: #252A86;
 
             font-weight: 700;
+
+            box-shadow: 0 3px 8px rgba(0, 0, 0, .08);
         }
 
 
         .submenu-icon {
 
             width: 18px;
+            height: 18px;
 
-            min-width: 18px;
+            display: flex;
 
-            text-align: center;
+            align-items: center;
+            justify-content: center;
 
-            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+
+        .submenu-icon svg {
+
+            width: 18px;
+            height: 18px;
+
+            display: block;
+        }
+
+
+        /* =====================================================
+           SIDEBAR FOOTER
+        ====================================================== */
+
+        .sidebar-footer {
+
+            padding: 15px 14px;
+
+            border-top: 1px solid rgba(255, 255, 255, .12);
+
+            flex-shrink: 0;
         }
 
 
         /* =====================================================
            LOGOUT
-        ===================================================== */
+        ====================================================== */
 
         .logout-link {
 
-            margin-top: 12px;
+            display: flex;
 
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            align-items: center;
 
-            padding-top: 15px;
+            gap: 12px;
+
+            width: 100%;
+
+            padding: 12px 14px;
+
+            border-radius: 9px;
+
+            color: rgba(255, 255, 255, .85);
+
+            text-decoration: none;
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+            transition: all .2s ease;
+        }
+
+
+        .logout-link:hover {
+
+            background: rgba(255, 255, 255, .10);
+
+            color: #ffffff;
+        }
+
+
+        .logout-link .menu-icon {
+
+            width: 20px;
+            height: 20px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+        }
+
+
+        .logout-link .menu-icon svg {
+
+            width: 18px;
+            height: 18px;
+
+            display: block;
         }
 
 
         /* =====================================================
            MAIN
-        ===================================================== */
+        ====================================================== */
 
         .main {
 
@@ -322,7 +507,7 @@
 
         /* =====================================================
            HEADER
-        ===================================================== */
+        ====================================================== */
 
         .header {
 
@@ -362,11 +547,11 @@
 
         .header-title {
 
-            font-size: 15px;
+            font-size: 16px;
 
             font-weight: 700;
 
-            color: #1f2937;
+            color: #252A86;
 
             white-space: nowrap;
 
@@ -380,11 +565,15 @@
 
             margin-top: 4px;
 
-            font-size: 11px;
+            font-size: 12px;
 
             color: #9ca3af;
         }
 
+
+        /* =====================================================
+           PROFIL OPERATOR HEADER
+        ====================================================== */
 
         .header-admin {
 
@@ -395,6 +584,47 @@
             gap: 10px;
 
             flex-shrink: 0;
+
+            cursor: pointer;
+
+            text-decoration: none;
+
+            color: inherit;
+
+            padding: 6px 9px;
+
+            border-radius: 10px;
+
+            position: relative;
+
+            z-index: 100;
+
+            transition:
+                background-color .25s ease,
+                transform .25s ease,
+                box-shadow .25s ease;
+        }
+
+
+        /* EFEK SAAT MOUSE DIARAHKAN */
+
+        .header-admin:hover {
+
+            background: #f3f4f6;
+
+            transform: translateY(-1px);
+
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+        }
+
+
+        /* EFEK SAAT DITEKAN */
+
+        .header-admin:active {
+
+            transform: scale(.97);
+
+            box-shadow: none;
         }
 
 
@@ -411,6 +641,8 @@
             font-weight: 700;
 
             color: #1f2937;
+
+            transition: color .2s ease;
         }
 
 
@@ -421,13 +653,14 @@
             font-size: 10px;
 
             color: #9ca3af;
+
+            transition: color .2s ease;
         }
 
 
         .admin-avatar {
 
             width: 38px;
-
             height: 38px;
 
             border-radius: 50%;
@@ -445,19 +678,49 @@
             font-size: 13px;
 
             font-weight: 700;
+
+            flex-shrink: 0;
+
+            transition:
+                transform .25s ease,
+                box-shadow .25s ease;
+        }
+
+
+        /* ANIMASI AVATAR */
+
+        .header-admin:hover .admin-avatar {
+
+            transform: scale(1.08);
+
+            box-shadow:
+                0 4px 10px rgba(37, 42, 134, .25);
+        }
+
+
+        /* WARNA TEKS SAAT HOVER */
+
+        .header-admin:hover .admin-name {
+
+            color: #252A86;
+        }
+
+
+        .header-admin:hover .admin-role {
+
+            color: #6b7280;
         }
 
 
         /* =====================================================
            HAMBURGER
-        ===================================================== */
+        ====================================================== */
 
         .hamburger {
 
             display: none;
 
             width: 38px;
-
             height: 38px;
 
             border: 1px solid #e5e7eb;
@@ -485,7 +748,6 @@
             display: block;
 
             width: 17px;
-
             height: 2px;
 
             background: #252A86;
@@ -496,7 +758,7 @@
 
         /* =====================================================
            OVERLAY
-        ===================================================== */
+        ====================================================== */
 
         .overlay {
 
@@ -520,7 +782,7 @@
 
         /* =====================================================
            CONTENT
-        ===================================================== */
+        ====================================================== */
 
         .content {
 
@@ -530,7 +792,7 @@
 
         .page-kicker {
 
-            font-size: 10px;
+            font-size: 11px;
 
             font-weight: 700;
 
@@ -544,11 +806,11 @@
 
         .page-title {
 
-            font-size: 26px;
+            font-size: 27px;
 
             font-weight: 700;
 
-            color: #111827;
+            color: #252A86;
 
             margin-bottom: 8px;
         }
@@ -556,7 +818,7 @@
 
         .page-description {
 
-            font-size: 13px;
+            font-size: 14px;
 
             color: #6b7280;
 
@@ -568,7 +830,7 @@
 
         /* =====================================================
            WELCOME BANNER
-        ===================================================== */
+        ====================================================== */
 
         .welcome-card {
 
@@ -595,7 +857,6 @@
             position: absolute;
 
             width: 180px;
-
             height: 180px;
 
             border-radius: 50%;
@@ -638,7 +899,7 @@
 
         /* =====================================================
            STATISTICS
-        ===================================================== */
+        ====================================================== */
 
         .stats-grid {
 
@@ -700,7 +961,7 @@
 
         /* =====================================================
            INFORMATION CARD
-        ===================================================== */
+        ====================================================== */
 
         .info-card {
 
@@ -720,7 +981,7 @@
 
             font-weight: 700;
 
-            color: #1f2937;
+            color: #252A86;
 
             margin-bottom: 6px;
         }
@@ -738,7 +999,7 @@
 
         /* =====================================================
            TABLET
-        ===================================================== */
+        ====================================================== */
 
         @media (max-width: 1100px) {
 
@@ -752,7 +1013,7 @@
 
         /* =====================================================
            MOBILE
-        ===================================================== */
+        ====================================================== */
 
         @media (max-width: 900px) {
 
@@ -814,9 +1075,22 @@
 
         /* =====================================================
            SMALL MOBILE
-        ===================================================== */
+        ====================================================== */
 
         @media (max-width: 600px) {
+
+            .sidebar-logo {
+
+                height: 100px;
+            }
+
+
+            .sidebar-logo img {
+
+                width: 64px;
+                height: 64px;
+            }
+
 
             .header {
 
@@ -849,6 +1123,16 @@
                 font-size: 13px;
 
                 max-width: 190px;
+            }
+
+
+            .header-admin {
+
+                padding: 4px 6px;
+
+                gap: 7px;
+
+                border-radius: 9px;
             }
 
 
@@ -913,12 +1197,18 @@
                 padding: 16px;
             }
 
+
+            .master-submenu {
+
+                padding-left: 14px;
+            }
+
         }
 
 
         /* =====================================================
            VERY SMALL MOBILE
-        ===================================================== */
+        ====================================================== */
 
         @media (max-width: 400px) {
 
@@ -947,6 +1237,12 @@
                 font-size: 12px;
             }
 
+
+            .master-submenu {
+
+                padding-left: 10px;
+            }
+
         }
 
     </style>
@@ -963,6 +1259,11 @@
 
 <aside class="sidebar" id="sidebar">
 
+
+    <!-- =================================================
+         LOGO
+    ================================================== -->
+
     <div class="sidebar-logo">
 
         <img
@@ -973,10 +1274,23 @@
     </div>
 
 
+    <!-- =================================================
+         MENU
+    ================================================== -->
+
     <nav class="sidebar-menu">
 
 
-        <!-- DASHBOARD -->
+        <!-- MENU UTAMA -->
+
+        <div class="menu-title">
+            Menu Utama
+        </div>
+
+
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
 
         <a
             href="{{ route('dashboard') }}"
@@ -984,7 +1298,26 @@
         >
 
             <span class="menu-icon">
-                ▣
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <rect x="3" y="3" width="7" height="7"></rect>
+
+                    <rect x="14" y="3" width="7" height="7"></rect>
+
+                    <rect x="3" y="14" width="7" height="7"></rect>
+
+                    <rect x="14" y="14" width="7" height="7"></rect>
+
+                </svg>
+
             </span>
 
             <span>
@@ -994,7 +1327,9 @@
         </a>
 
 
-        <!-- RESPONDEN -->
+        <!-- =================================================
+             RESPONDEN
+        ================================================== -->
 
         <a
             href="#"
@@ -1002,7 +1337,28 @@
         >
 
             <span class="menu-icon">
-                ♙
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <path
+                        d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                    ></path>
+
+                    <circle
+                        cx="12"
+                        cy="7"
+                        r="4"
+                    ></circle>
+
+                </svg>
+
             </span>
 
             <span>
@@ -1012,7 +1368,9 @@
         </a>
 
 
-        <!-- KUISIONER -->
+        <!-- =================================================
+             KUISIONER
+        ================================================== -->
 
         <a
             href="#"
@@ -1020,7 +1378,40 @@
         >
 
             <span class="menu-icon">
-                ☷
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <path
+                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                    ></path>
+
+                    <polyline
+                        points="14 2 14 8 20 8"
+                    ></polyline>
+
+                    <line
+                        x1="8"
+                        y1="13"
+                        x2="16"
+                        y2="13"
+                    ></line>
+
+                    <line
+                        x1="8"
+                        y1="17"
+                        x2="16"
+                        y2="17"
+                    ></line>
+
+                </svg>
+
             </span>
 
             <span>
@@ -1030,7 +1421,9 @@
         </a>
 
 
-        <!-- VERIFIKASI -->
+        <!-- =================================================
+             VERIFIKASI
+        ================================================== -->
 
         <a
             href="{{ route('verifikasi.index') }}"
@@ -1038,7 +1431,24 @@
         >
 
             <span class="menu-icon">
-                ✓
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <path d="M9 11l3 3L22 4"></path>
+
+                    <path
+                        d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+                    ></path>
+
+                </svg>
+
             </span>
 
             <span>
@@ -1048,7 +1458,9 @@
         </a>
 
 
-        <!-- MONITORING -->
+        <!-- =================================================
+             MONITORING
+        ================================================== -->
 
         <a
             href="{{ route('monitoring.index') }}"
@@ -1056,7 +1468,26 @@
         >
 
             <span class="menu-icon">
-                ◉
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <polyline
+                        points="3 3 3 21 21 21"
+                    ></polyline>
+
+                    <polyline
+                        points="7 16 11 12 14 15 21 8"
+                    ></polyline>
+
+                </svg>
+
             </span>
 
             <span>
@@ -1066,7 +1497,9 @@
         </a>
 
 
-        <!-- LAPORAN -->
+        <!-- =================================================
+             LAPORAN
+        ================================================== -->
 
         <a
             href="#"
@@ -1074,7 +1507,40 @@
         >
 
             <span class="menu-icon">
-                ▤
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <path
+                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                    ></path>
+
+                    <polyline
+                        points="14 2 14 8 20 8"
+                    ></polyline>
+
+                    <line
+                        x1="8"
+                        y1="13"
+                        x2="16"
+                        y2="13"
+                    ></line>
+
+                    <line
+                        x1="8"
+                        y1="17"
+                        x2="16"
+                        y2="17"
+                    ></line>
+
+                </svg>
+
             </span>
 
             <span>
@@ -1093,16 +1559,38 @@
             id="masterMenu"
         >
 
+
             <button
                 type="button"
-                class="master-toggle"
+                class="menu-link master-toggle"
                 id="masterToggle"
             >
 
                 <span class="master-toggle-left">
 
                     <span class="menu-icon">
-                        ⚙
+
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="3"
+                            ></circle>
+
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"
+                            ></path>
+
+                        </svg>
+
                     </span>
 
                     <span>
@@ -1111,22 +1599,48 @@
 
                 </span>
 
+
                 <span class="master-arrow">
-                    ▼
+
+                    <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+
+                        <polyline
+                            points="6 9 12 15 18 9"
+                        ></polyline>
+
+                    </svg>
+
                 </span>
 
             </button>
 
 
-            <div class="submenu">
+            <!-- =================================================
+                 SUBMENU MASTER
+            ================================================== -->
+
+            <div
+                class="master-submenu"
+                id="masterSubmenu"
+            >
 
 
                 <!-- PERIODE -->
 
-                <a href="{{ url('/periode') }}">
+                <a
+                    href="{{ url('/periode') }}"
+                    class="submenu-link"
+                >
 
                     <span class="submenu-icon">
-                        ◷
+                        ▣
                     </span>
 
                     <span>
@@ -1138,10 +1652,42 @@
 
                 <!-- PENGGUNA -->
 
-                <a href="{{ route('master.index') }}">
+                <a
+                    href="{{ route('master.index') }}"
+                    class="submenu-link"
+                >
 
                     <span class="submenu-icon">
-                        ♙
+
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
+
+                            <path
+                                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
+                            ></path>
+
+                            <circle
+                                cx="9"
+                                cy="7"
+                                r="4"
+                            ></circle>
+
+                            <path
+                                d="M22 21v-2a4 4 0 0 0-3-3.87"
+                            ></path>
+
+                            <path
+                                d="M16 3.13a4 4 0 0 1 0 7.75"
+                            ></path>
+
+                        </svg>
+
                     </span>
 
                     <span>
@@ -1156,29 +1702,58 @@
         </div>
 
 
-        <!-- LOGOUT -->
+    </nav>
 
-        <div class="logout-link">
 
-            <a
-                href="{{ route('login') }}"
-                class="menu-link"
-            >
+    <!-- =================================================
+         LOGOUT
+    ================================================== -->
 
-                <span class="menu-icon">
-                    ↪
-                </span>
+    <div class="sidebar-footer">
+
+        <a
+            href="{{ route('login') }}"
+            class="logout-link"
+        >
+
+            <span class="menu-icon">
+
+                <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+
+                    <path
+                        d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                    ></path>
+
+                    <polyline
+                        points="16 17 21 12 16 7"
+                    ></polyline>
+
+                    <line
+                        x1="21"
+                        y1="12"
+                        x2="9"
+                        y2="12"
+                    ></line>
+
+                </svg>
+
+            </span>
 
                 <span>
-                    Keluar
+                    Logout
                 </span>
 
-            </a>
+        </a>
 
-        </div>
+    </div>
 
-
-    </nav>
 
 </aside>
 
@@ -1240,8 +1815,14 @@
         </div>
 
 
-        <div class="header-admin">
+        <!-- =================================================
+             PROFIL OPERATOR
+        ================================================== -->
 
+        <a
+            href="{{ route('profil.index') }}"
+            class="header-admin"
+        >
 
             <div class="admin-text">
 
@@ -1260,8 +1841,7 @@
                 A
             </div>
 
-
-        </div>
+        </a>
 
 
     </header>
@@ -1286,7 +1866,7 @@
 
         <p class="page-description">
             Selamat datang di panel administrasi Sistem Pendataan
-            Dinas Sosial Kota Pasuruan.
+            Perlinsos Kota Pasuruan.
         </p>
 
 
@@ -1339,7 +1919,7 @@
                 </div>
 
                 <div class="stat-value">
-                    1
+                    {{ $periodeAktif }}
                 </div>
 
                 <div class="stat-description">
@@ -1417,15 +1997,23 @@
 
 <script>
 
-    const sidebar = document.getElementById('sidebar');
+    const sidebar =
+        document.getElementById('sidebar');
 
-    const hamburger = document.getElementById('hamburger');
+    const hamburger =
+        document.getElementById('hamburger');
 
-    const overlay = document.getElementById('overlay');
+    const overlay =
+        document.getElementById('overlay');
 
-    const masterMenu = document.getElementById('masterMenu');
+    const masterMenu =
+        document.getElementById('masterMenu');
 
-    const masterToggle = document.getElementById('masterToggle');
+    const masterToggle =
+        document.getElementById('masterToggle');
+
+    const masterSubmenu =
+        document.getElementById('masterSubmenu');
 
 
     /* =====================================================
@@ -1452,7 +2040,9 @@
 
     hamburger.addEventListener('click', function () {
 
-        if (sidebar.classList.contains('show')) {
+        if (
+            sidebar.classList.contains('show')
+        ) {
 
             closeSidebar();
 
@@ -1480,6 +2070,10 @@
 
         masterMenu.classList.toggle('open');
 
+        masterToggle.classList.toggle('open');
+
+        masterSubmenu.classList.toggle('open');
+
     });
 
 
@@ -1487,7 +2081,8 @@
        CLOSE SIDEBAR AFTER CLICK MENU
     ===================================================== */
 
-    const menuLinks = sidebar.querySelectorAll('a');
+    const menuLinks =
+        sidebar.querySelectorAll('a');
 
     menuLinks.forEach(function (link) {
 
