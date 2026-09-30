@@ -215,6 +215,87 @@
     color: #999;
 }
 
+.responden-pagination {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 20px;
+    border-top: 1px solid #e8e9ef;
+}
+
+.responden-pagination-links {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.responden-pagination-link,
+.responden-pagination-current,
+.responden-pagination-disabled,
+.responden-pagination-ellipsis {
+    min-width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border: 1px solid #dfe1e8;
+    border-radius: 6px;
+    background: #fff;
+    color: #555;
+    font-size: 11px;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.responden-pagination-link:hover {
+    border-color: #252A86;
+    color: #252A86;
+}
+
+.responden-pagination-current {
+    border-color: #252A86;
+    background: #252A86;
+    color: #fff;
+    font-weight: 700;
+}
+
+.responden-pagination-disabled,
+.responden-pagination-ellipsis {
+    color: #aaa;
+}
+
+.responden-pagination-disabled {
+    background: #fafafd;
+}
+
+.responden-pagination-direction {
+    gap: 6px;
+    padding: 0 11px;
+}
+
+@media (max-width: 500px) {
+    .responden-pagination {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .responden-pagination-links {
+        gap: 3px;
+    }
+
+    .responden-pagination-link,
+    .responden-pagination-current,
+    .responden-pagination-disabled,
+    .responden-pagination-ellipsis {
+        min-width: 30px;
+        padding: 0 7px;
+    }
+
+    .responden-pagination-direction span:not([aria-hidden="true"]) {
+        display: none;
+    }
+}
+
 
 /* =========================================================
    NO KK - BISA DIKLIK
@@ -1192,7 +1273,7 @@ textarea.responden-form-control {
                         >
 
                             <td class="responden-number">
-                                {{ $index + 1 }}
+                                {{ $keluargas->firstItem() + $index }}
                             </td>
 
                             <td>
@@ -1340,6 +1421,68 @@ textarea.responden-form-control {
             </table>
 
         </div>
+
+        @if ($keluargas->hasPages())
+            <nav class="responden-pagination" aria-label="Navigasi halaman responden">
+                <div class="responden-pagination-links">
+                    @if ($keluargas->previousPageUrl())
+                        <a
+                            href="{{ $keluargas->previousPageUrl() }}"
+                            class="responden-pagination-link responden-pagination-direction"
+                            rel="prev"
+                            aria-label="Halaman sebelumnya"
+                        >
+                            <span aria-hidden="true">&lsaquo;</span>
+                            <span>Sebelumnya</span>
+                        </a>
+                    @else
+                        <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
+                            <span aria-hidden="true">&lsaquo;</span>
+                            <span>Sebelumnya</span>
+                        </span>
+                    @endif
+
+                    @if ($keluargas->currentPage() > 2)
+                        <a href="{{ $keluargas->url(1) }}" class="responden-pagination-link">1</a>
+                        @if ($keluargas->currentPage() > 3)
+                            <span class="responden-pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                        @endif
+                    @endif
+
+                    @foreach ($keluargas->getUrlRange(max(1, $keluargas->currentPage() - 1), min($keluargas->lastPage(), $keluargas->currentPage() + 1)) as $page => $url)
+                        @if ($page === $keluargas->currentPage())
+                            <span class="responden-pagination-current" aria-current="page">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="responden-pagination-link" aria-label="Halaman {{ $page }}">{{ $page }}</a>
+                        @endif
+                    @endforeach
+
+                    @if ($keluargas->currentPage() < $keluargas->lastPage() - 1)
+                        @if ($keluargas->currentPage() < $keluargas->lastPage() - 2)
+                            <span class="responden-pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                        @endif
+                        <a href="{{ $keluargas->url($keluargas->lastPage()) }}" class="responden-pagination-link">{{ $keluargas->lastPage() }}</a>
+                    @endif
+
+                    @if ($keluargas->nextPageUrl())
+                        <a
+                            href="{{ $keluargas->nextPageUrl() }}"
+                            class="responden-pagination-link responden-pagination-direction"
+                            rel="next"
+                            aria-label="Halaman berikutnya"
+                        >
+                            <span>Berikutnya</span>
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </a>
+                    @else
+                        <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
+                            <span>Berikutnya</span>
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </span>
+                    @endif
+                </div>
+            </nav>
+        @endif
 
     </div>
 
@@ -3249,8 +3392,6 @@ function toggleKeluarga(id) {
         row.classList.toggle('active', !sedangTerbuka);
     });
 }
-
-
 /* =========================================================
    HAPUS RESPONDEN
 ========================================================= */
