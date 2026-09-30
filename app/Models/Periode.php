@@ -6,17 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Periode extends Model
 {
-    protected $table = 'periode';
+    protected $table = 'periodes';
 
     protected $fillable = [
-        'nama_periode',
-        'tanggal_mulai',
-        'tanggal_selesai',
-        'status',
+        'kode',
+        'nama',
+        'tgl_awal',
+        'tgl_akhir',
+        'status_periode',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
-        'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
+        'tgl_awal' => 'date',
+        'tgl_akhir' => 'date',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 }

@@ -1434,8 +1434,7 @@
             <div class="user-area">
 
                 <a
-                    href="{{ route('profil.index') }}"
-                    class="profile-link"
+                    href="#"
                 >
 
                     <div class="user-info">

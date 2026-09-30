@@ -1747,7 +1747,7 @@
             </span>
 
                 <span>
-                    Logout
+                    Keluar
                 </span>
 
         </a>

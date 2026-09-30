@@ -35,5 +35,7 @@ class KeluargaPart1 extends Model
 
         'created_by',
         'updated_by',
+        'status',
+        'current_part',
     ];
 }

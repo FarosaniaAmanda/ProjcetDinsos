@@ -8,9 +8,6 @@ use Illuminate\Http\Request;
 
 class PeriodeController extends Controller
 {
-    /**
-     * Menampilkan data periode
-     */
     public function index(Request $request)
     {
         $query = Periode::query();
@@ -19,14 +16,14 @@ class PeriodeController extends Controller
             $search = $request->search;
 
             $query->where(
-                'nama_periode',
+                'nama',
                 'like',
                 '%' . $search . '%'
             );
         }
 
         $periodes = $query
-            ->latest()
+            ->latest('created_at')
             ->get();
 
         return view(
@@ -35,80 +32,43 @@ class PeriodeController extends Controller
         );
     }
 
-
-    /**
-     * Halaman tambah
-     *
-     * Tambah periode menggunakan modal
-     * di halaman index.
-     */
     public function create()
     {
         return redirect()->route('periode.index');
     }
 
-
-    /**
-     * Menyimpan periode baru
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'nama_periode' => 'required|string|max:255',
-
-            'tanggal_mulai' => 'required|date',
-
-            'tanggal_selesai' =>
-                'required|date|after_or_equal:tanggal_mulai',
-
-            'status' =>
-                'required|string|max:50',
-
+            'nama' => 'required|string|max:255',
+            'tgl_awal' => 'required|date',
+            'tgl_akhir' => 'required|date|after_or_equal:tgl_awal',
+            'status_periode' => 'required|string|max:255',
         ], [
-
-            'nama_periode.required' =>
+            'nama.required' =>
                 'Nama kegiatan wajib diisi.',
 
-            'tanggal_mulai.required' =>
+            'tgl_awal.required' =>
                 'Tanggal mulai wajib diisi.',
 
-            'tanggal_selesai.required' =>
+            'tgl_akhir.required' =>
                 'Tanggal selesai wajib diisi.',
 
-            'tanggal_selesai.after_or_equal' =>
+            'tgl_akhir.after_or_equal' =>
                 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
 
-            'status.required' =>
+            'status_periode.required' =>
                 'Status wajib dipilih.',
         ]);
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Simpan ke database
-        |--------------------------------------------------------------------------
-        */
-
         Periode::create([
-            'nama_periode' =>
-                $request->nama_periode,
-
-            'tanggal_mulai' =>
-                $request->tanggal_mulai,
-
-            'tanggal_selesai' =>
-                $request->tanggal_selesai,
-
-            'status' =>
-                $request->status,
+            'kode' => 'PER-' . now()->format('YmdHis'),
+            'nama' => $request->nama,
+            'tgl_awal' => $request->tgl_awal,
+            'tgl_akhir' => $request->tgl_akhir,
+            'status_periode' => $request->status_periode,
+            'created_by' => auth()->user()->name ?? 'Admin',
         ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Kembali ke halaman Manajemen Periode
-        |--------------------------------------------------------------------------
-        */
 
         return redirect()
             ->route('periode.index')
@@ -118,76 +78,44 @@ class PeriodeController extends Controller
             );
     }
 
-
-    /**
-     * Edit menggunakan modal di index.
-     *
-     * Tidak membutuhkan edit.blade.php.
-     */
     public function edit($id)
     {
         return redirect()->route('periode.index');
     }
 
-
-    /**
-     * Memperbarui periode
-     */
-    public function update(
-        Request $request,
-        $id
-    ) {
+    public function update(Request $request, $id)
+    {
         $request->validate([
-
-            'nama_periode' =>
-                'required|string|max:255',
-
-            'tanggal_mulai' =>
-                'required|date',
-
-            'tanggal_selesai' =>
-                'required|date|after_or_equal:tanggal_mulai',
-
-            'status' =>
-                'required|string|max:50',
-
+            'nama' => 'required|string|max:255',
+            'tgl_awal' => 'required|date',
+            'tgl_akhir' => 'required|date|after_or_equal:tgl_awal',
+            'status_periode' => 'required|string|max:255',
         ], [
-
-            'nama_periode.required' =>
+            'nama.required' =>
                 'Nama kegiatan wajib diisi.',
 
-            'tanggal_mulai.required' =>
+            'tgl_awal.required' =>
                 'Tanggal mulai wajib diisi.',
 
-            'tanggal_selesai.required' =>
+            'tgl_akhir.required' =>
                 'Tanggal selesai wajib diisi.',
 
-            'tanggal_selesai.after_or_equal' =>
+            'tgl_akhir.after_or_equal' =>
                 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
 
-            'status.required' =>
+            'status_periode.required' =>
                 'Status wajib dipilih.',
         ]);
 
-
         $periode = Periode::findOrFail($id);
 
-
         $periode->update([
-
-            'nama_periode' =>
-                $request->nama_periode,
-
-            'tanggal_mulai' =>
-                $request->tanggal_mulai,
-
-            'tanggal_selesai' =>
-                $request->tanggal_selesai,
-
-            'status' =>
-                $request->status,
+            'nama' => $request->nama,
+            'tgl_awal' => $request->tgl_awal,
+            'tgl_akhir' => $request->tgl_akhir,
+            'status_periode' => $request->status_periode,
+            'updated_by' => auth()->user()->name ?? 'Admin',
         ]);
-
 
         return redirect()
             ->route('periode.index')
@@ -197,16 +125,11 @@ class PeriodeController extends Controller
             );
     }
 
-
-    /**
-     * Menghapus periode
-     */
     public function destroy($id)
     {
         $periode = Periode::findOrFail($id);
 
         $periode->delete();
-
 
         return redirect()
             ->route('periode.index')

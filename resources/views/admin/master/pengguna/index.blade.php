@@ -5,10 +5,6 @@
 @section('content')
 
 <style>
-    /* =====================================================
-       CONTENT
-    ===================================================== */
-
     .pengguna-content {
         width: 100%;
     }
@@ -35,25 +31,23 @@
         margin-bottom: 25px;
     }
 
-
     /* =====================================================
        TABS
-    ===================================================== */
+    ====================================================== */
 
     .tabs-card {
-        background: #ffffff;
+        background: #fff;
         border: 1px solid #e5e7eb;
-        border-radius: 9px;
+        border-radius: 10px;
         overflow: hidden;
     }
 
     .tabs {
         display: flex;
         align-items: center;
-        gap: 0;
         border-bottom: 1px solid #e5e7eb;
         padding: 0 20px;
-        background: #ffffff;
+        background: #fff;
     }
 
     .tab-button {
@@ -66,7 +60,7 @@
         font-weight: 600;
         color: #6b7280;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: .2s;
     }
 
     .tab-button:hover {
@@ -86,13 +80,7 @@
         bottom: -1px;
         height: 2px;
         background: #252A86;
-        border-radius: 2px 2px 0 0;
     }
-
-
-    /* =====================================================
-       TAB CONTENT
-    ===================================================== */
 
     .tab-content {
         display: none;
@@ -103,10 +91,9 @@
         display: block;
     }
 
-
     /* =====================================================
-       TABLE HEADER
-    ===================================================== */
+       HEADER
+    ====================================================== */
 
     .table-header {
         display: flex;
@@ -141,17 +128,16 @@
         flex-shrink: 0;
     }
 
-
     /* =====================================================
        SEARCH
-    ===================================================== */
+    ====================================================== */
 
     .search-box {
         width: 220px;
         height: 38px;
         border: 1px solid #d1d5db;
         border-radius: 7px;
-        background: #ffffff;
+        background: #fff;
         padding: 0 12px;
         font-family: inherit;
         font-size: 12px;
@@ -159,19 +145,18 @@
         outline: none;
     }
 
+    .search-box:focus {
+        border-color: #252A86;
+        box-shadow: 0 0 0 3px rgba(37,42,134,.08);
+    }
+
     .search-box::placeholder {
         color: #9ca3af;
     }
 
-    .search-box:focus {
-        border-color: #252A86;
-        box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08);
-    }
-
-
     /* =====================================================
-       PRIMARY BUTTON
-    ===================================================== */
+       BUTTON
+    ====================================================== */
 
     .btn-primary {
         display: inline-flex;
@@ -181,16 +166,15 @@
         height: 38px;
         padding: 0 15px;
         background: #252A86;
-        color: #ffffff;
+        color: #fff;
         border: 1px solid #252A86;
         border-radius: 7px;
         font-family: inherit;
         font-size: 12px;
         font-weight: 600;
         cursor: pointer;
-        text-decoration: none;
         white-space: nowrap;
-        transition: all 0.2s ease;
+        transition: .2s;
     }
 
     .btn-primary:hover {
@@ -203,10 +187,9 @@
         line-height: 1;
     }
 
-
     /* =====================================================
        TABLE
-    ===================================================== */
+    ====================================================== */
 
     .table-wrapper {
         width: 100%;
@@ -219,7 +202,7 @@
         width: 100%;
         min-width: 850px;
         border-collapse: collapse;
-        background: #ffffff;
+        background: #fff;
     }
 
     th {
@@ -239,7 +222,6 @@
         padding: 13px 12px;
         border-bottom: 1px solid #eef0f4;
         vertical-align: middle;
-        white-space: nowrap;
     }
 
     tbody tr:last-child td {
@@ -250,10 +232,9 @@
         background: #fafbff;
     }
 
-
     /* =====================================================
        ACTION
-    ===================================================== */
+    ====================================================== */
 
     .action-buttons {
         display: flex;
@@ -273,43 +254,41 @@
         font-size: 10px;
         font-weight: 600;
         cursor: pointer;
-        text-decoration: none;
         white-space: nowrap;
-        transition: all 0.2s ease;
+        transition: .2s;
     }
 
     .btn-edit {
-        background: #ffffff;
+        background: #fff;
         color: #252A86;
         border: 1px solid #252A86;
     }
 
     .btn-edit:hover {
         background: #252A86;
-        color: #ffffff;
+        color: #fff;
     }
 
     .btn-delete {
-        background: #ffffff;
+        background: #fff;
         color: #dc2626;
         border: 1px solid #dc2626;
     }
 
     .btn-delete:hover {
         background: #dc2626;
-        color: #ffffff;
+        color: #fff;
     }
-
 
     /* =====================================================
        MODAL
-    ===================================================== */
+    ====================================================== */
 
     .modal-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.48);
+        background: rgba(15,23,42,.48);
         z-index: 2000;
         padding: 25px;
         overflow-y: auto;
@@ -325,19 +304,19 @@
         width: 100%;
         max-width: 560px;
         max-height: calc(100vh - 50px);
-        background: #ffffff;
+        background: #fff;
         border-radius: 12px;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.20);
+        box-shadow: 0 20px 50px rgba(0,0,0,.20);
         overflow: hidden;
-        animation: modalShow 0.18s ease;
         display: flex;
         flex-direction: column;
+        animation: modalShow .18s ease;
     }
 
     @keyframes modalShow {
         from {
             opacity: 0;
-            transform: translateY(12px) scale(0.98);
+            transform: translateY(12px) scale(.98);
         }
 
         to {
@@ -353,10 +332,6 @@
         padding: 20px 22px;
         border-bottom: 1px solid #e5e7eb;
         flex-shrink: 0;
-    }
-
-    .modal-header-text {
-        min-width: 0;
     }
 
     .modal-kicker {
@@ -381,9 +356,7 @@
         background: #f3f4f6;
         color: #6b7280;
         font-size: 20px;
-        line-height: 1;
         cursor: pointer;
-        flex-shrink: 0;
     }
 
     .modal-close:hover {
@@ -403,10 +376,9 @@
         margin-bottom: 20px;
     }
 
-
     /* =====================================================
        FORM
-    ===================================================== */
+    ====================================================== */
 
     .form-group {
         margin-bottom: 17px;
@@ -432,17 +404,18 @@
         border: 1px solid #d1d5db;
         border-radius: 7px;
         outline: none;
-        background: #ffffff;
+        background: #fff;
         font-family: inherit;
         font-size: 12px;
         color: #1f2937;
-        transition: 0.2s;
+        transition: .2s;
+        box-sizing: border-box;
     }
 
     .form-input:focus,
     .form-select:focus {
         border-color: #252A86;
-        box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08);
+        box-shadow: 0 0 0 3px rgba(37,42,134,.08);
     }
 
     .form-input::placeholder {
@@ -453,75 +426,57 @@
         margin-top: 5px;
         font-size: 10px;
         color: #9ca3af;
+        line-height: 1.5;
     }
-
 
     /* =====================================================
-       RT RW
-    ===================================================== */
+       PASSWORD
+    ====================================================== */
 
-    .rtrw-box {
-        border: 1px solid #d1d5db;
-        border-radius: 7px;
-        padding: 10px;
-        background: #fafbfc;
-        max-height: 190px;
-        overflow-y: auto;
-    }
-
-    .rtrw-placeholder {
-        padding: 10px;
-        font-size: 11px;
-        color: #9ca3af;
-        text-align: center;
-    }
-
-    .rtrw-item {
+    .password-reset-box {
         display: flex;
         align-items: center;
-        gap: 9px;
-        padding: 9px 10px;
-        background: #ffffff;
-        border: 1px solid #eef0f4;
-        border-radius: 6px;
-        margin-bottom: 7px;
-        cursor: pointer;
-        transition: 0.2s;
+        gap: 8px;
     }
 
-    .rtrw-item:last-child {
-        margin-bottom: 0;
+    .password-reset-box .form-input {
+        flex: 1;
     }
 
-    .rtrw-item:hover {
-        border-color: #252A86;
-        background: #f8f9ff;
+    .password-default {
+        background: #f8f9fc;
+        color: #6b7280;
+        cursor: default;
     }
 
-    .rtrw-item input {
-        width: 15px;
-        height: 15px;
-        accent-color: #252A86;
-        cursor: pointer;
-    }
-
-    .rtrw-text {
+    .btn-reset-password {
+        height: 41px;
+        padding: 0 13px;
+        border-radius: 7px;
+        border: 1px solid #252A86;
+        background: #fff;
+        color: #252A86;
+        font-family: inherit;
         font-size: 11px;
-        color: #374151;
         font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: .2s;
     }
 
-    .rtrw-empty {
-        padding: 12px;
-        font-size: 11px;
-        color: #dc2626;
-        text-align: center;
+    .btn-reset-password:hover {
+        background: #252A86;
+        color: #fff;
     }
 
+    .btn-reset-password:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
 
     /* =====================================================
-       MODAL FOOTER
-    ===================================================== */
+       FOOTER
+    ====================================================== */
 
     .modal-footer {
         display: flex;
@@ -545,7 +500,7 @@
     }
 
     .btn-modal-cancel {
-        background: #ffffff;
+        background: #fff;
         color: #6b7280;
         border: 1px solid #d1d5db;
     }
@@ -556,7 +511,7 @@
 
     .btn-modal-save {
         background: #252A86;
-        color: #ffffff;
+        color: #fff;
         border: 1px solid #252A86;
     }
 
@@ -565,25 +520,9 @@
     }
 
     .btn-modal-save:disabled {
-        opacity: 0.65;
+        opacity: .65;
         cursor: not-allowed;
     }
-
-
-    /* =====================================================
-       ALERT ERROR
-    ===================================================== */
-
-    .form-error {
-        margin-top: 5px;
-        color: #dc2626;
-        font-size: 10px;
-    }
-
-
-    /* =====================================================
-       RESPONSIVE
-    ===================================================== */
 
     @media (max-width: 900px) {
 
@@ -596,8 +535,8 @@
             width: 100%;
             justify-content: flex-start;
         }
-    }
 
+    }
 
     @media (max-width: 600px) {
 
@@ -633,13 +572,9 @@
         .modal {
             max-height: calc(100vh - 24px);
             margin-top: 12px;
-            border-radius: 10px;
         }
 
-        .modal-header {
-            padding: 17px;
-        }
-
+        .modal-header,
         .modal-body {
             padding: 17px;
         }
@@ -647,14 +582,19 @@
         .modal-footer {
             padding: 14px 17px;
         }
+
+        .password-reset-box {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-reset-password {
+            width: 100%;
+        }
+
     }
 
-
     @media (max-width: 400px) {
-
-        .content {
-            padding: 12px;
-        }
 
         .modal-footer {
             flex-direction: column-reverse;
@@ -663,19 +603,16 @@
         .btn-modal {
             width: 100%;
         }
+
     }
 </style>
 
 
 <div class="pengguna-content">
 
-    <div class="page-kicker">
-        MASTER
-    </div>
+    <div class="page-kicker">MASTER</div>
 
-    <h1 class="page-title">
-        Pengguna
-    </h1>
+    <h1 class="page-title">Pengguna</h1>
 
     <p class="page-description">
         Kelola data pengguna yang memiliki akses dalam sistem
@@ -685,47 +622,43 @@
 
     <div class="tabs-card">
 
-        {{-- =================================================
+        {{-- =====================================================
              TABS
-        ================================================== --}}
+        ====================================================== --}}
 
         <div class="tabs">
 
             <button
                 type="button"
                 class="tab-button active"
-                data-tab="operator"
-            >
+                data-tab="operator">
                 Operator
             </button>
 
             <button
                 type="button"
                 class="tab-button"
-                data-tab="verifikator"
-            >
+                data-tab="verifikator">
                 Verifikator
             </button>
 
             <button
                 type="button"
                 class="tab-button"
-                data-tab="petugas"
-            >
+                data-tab="petugas">
                 Petugas
             </button>
 
         </div>
 
 
-        {{-- =================================================
+        {{-- =====================================================
              OPERATOR
-        ================================================== --}}
+        ====================================================== --}}
 
         <div
             class="tab-content active"
-            id="operator"
-        >
+            id="operator">
 
             <div class="table-header">
 
@@ -741,7 +674,6 @@
 
                 </div>
 
-
                 <div class="table-header-actions">
 
                     <input
@@ -749,16 +681,16 @@
                         class="search-box"
                         id="searchOperator"
                         placeholder="Cari operator..."
-                        onkeyup="searchTable('searchOperator', 'operatorTable')"
-                    >
+                        onkeyup="searchTable('searchOperator','operatorTable')">
 
                     <button
                         type="button"
                         class="btn-primary"
-                        onclick="openAddModal('operator')"
-                    >
+                        onclick="openAddModal('operator')">
+
                         <span class="btn-plus">+</span>
                         Tambah Operator
+
                     </button>
 
                 </div>
@@ -771,6 +703,7 @@
                 <table id="operatorTable">
 
                     <thead>
+
                         <tr>
                             <th>No</th>
                             <th>Nomor Identitas</th>
@@ -778,11 +711,12 @@
                             <th>Email</th>
                             <th>Aksi</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
 
-                        @forelse ($operators as $index => $operator)
+                        @forelse($operators as $index => $operator)
 
                             <tr>
 
@@ -806,18 +740,21 @@
 
                                     <div class="action-buttons">
 
+                                        @php
+                                            $operatorData = [
+                                                'id' => $operator->id,
+                                                'role' => 'operator',
+                                                'nomor_identitas' => $operator->nomor_identitas,
+                                                'name' => $operator->name,
+                                                'email' => $operator->email,
+                                            ];
+                                        @endphp
+
                                         <button
                                             type="button"
                                             class="btn-edit"
-                                            data-user="{{ json_encode([
-                                            'id' => $operator->id,
-                                            'role' => 'operator',
-                                            'nomor_identitas' => $operator->nomor_identitas,
-                                            'name' => $operator->name,
-                                            'email' => $operator->email,
-                                        ]) }}"
-                                            onclick="editFromButton(this)"
-                                        >
+                                            data-user='{{ json_encode($operatorData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                            onclick="editFromButton(this)">
                                             Edit
                                         </button>
 
@@ -827,8 +764,7 @@
                                             data-id="{{ $operator->id }}"
                                             data-name="{{ $operator->name }}"
                                             data-role="operator"
-                                            onclick="hapusData(this)"
-                                        >
+                                            onclick="hapusData(this)">
                                             Hapus
                                         </button>
 
@@ -841,12 +777,15 @@
                         @empty
 
                             <tr>
+
                                 <td
                                     colspan="5"
-                                    style="text-align:center; color:#9ca3af;"
-                                >
+                                    style="text-align:center;color:#9ca3af;">
+
                                     Belum ada data operator.
+
                                 </td>
+
                             </tr>
 
                         @endforelse
@@ -860,14 +799,13 @@
         </div>
 
 
-        {{-- =================================================
+        {{-- =====================================================
              VERIFIKATOR
-        ================================================== --}}
+        ====================================================== --}}
 
         <div
             class="tab-content"
-            id="verifikator"
-        >
+            id="verifikator">
 
             <div class="table-header">
 
@@ -883,7 +821,6 @@
 
                 </div>
 
-
                 <div class="table-header-actions">
 
                     <input
@@ -891,16 +828,16 @@
                         class="search-box"
                         id="searchVerifikator"
                         placeholder="Cari verifikator..."
-                        onkeyup="searchTable('searchVerifikator', 'verifikatorTable')"
-                    >
+                        onkeyup="searchTable('searchVerifikator','verifikatorTable')">
 
                     <button
                         type="button"
                         class="btn-primary"
-                        onclick="openAddModal('verifikator')"
-                    >
+                        onclick="openAddModal('verifikator')">
+
                         <span class="btn-plus">+</span>
                         Tambah Verifikator
+
                     </button>
 
                 </div>
@@ -913,6 +850,7 @@
                 <table id="verifikatorTable">
 
                     <thead>
+
                         <tr>
                             <th>No</th>
                             <th>Nomor Identitas</th>
@@ -920,11 +858,12 @@
                             <th>Email</th>
                             <th>Aksi</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
 
-                        @forelse ($verifikators as $index => $verifikator)
+                        @forelse($verifikators as $index => $verifikator)
 
                             <tr>
 
@@ -948,18 +887,21 @@
 
                                     <div class="action-buttons">
 
+                                        @php
+                                            $verifikatorData = [
+                                                'id' => $verifikator->id,
+                                                'role' => 'verifikator',
+                                                'nomor_identitas' => $verifikator->nomor_identitas,
+                                                'name' => $verifikator->name,
+                                                'email' => $verifikator->email,
+                                            ];
+                                        @endphp
+
                                         <button
                                             type="button"
                                             class="btn-edit"
-                                            data-user="{{ json_encode([
-                                            'id' => $verifikator->id,
-                                            'role' => 'verifikator',
-                                            'nomor_identitas' => $verifikator->nomor_identitas,
-                                            'name' => $verifikator->name,
-                                            'email' => $verifikator->email,
-                                        ]) }}"
-                                            onclick="editFromButton(this)"
-                                        >
+                                            data-user='{{ json_encode($verifikatorData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                            onclick="editFromButton(this)">
                                             Edit
                                         </button>
 
@@ -969,8 +911,7 @@
                                             data-id="{{ $verifikator->id }}"
                                             data-name="{{ $verifikator->name }}"
                                             data-role="verifikator"
-                                            onclick="hapusData(this)"
-                                        >
+                                            onclick="hapusData(this)">
                                             Hapus
                                         </button>
 
@@ -983,12 +924,15 @@
                         @empty
 
                             <tr>
+
                                 <td
                                     colspan="5"
-                                    style="text-align:center; color:#9ca3af;"
-                                >
+                                    style="text-align:center;color:#9ca3af;">
+
                                     Belum ada data verifikator.
+
                                 </td>
+
                             </tr>
 
                         @endforelse
@@ -1002,14 +946,13 @@
         </div>
 
 
-        {{-- =================================================
+        {{-- =====================================================
              PETUGAS
-        ================================================== --}}
+        ====================================================== --}}
 
         <div
             class="tab-content"
-            id="petugas"
-        >
+            id="petugas">
 
             <div class="table-header">
 
@@ -1025,7 +968,6 @@
 
                 </div>
 
-
                 <div class="table-header-actions">
 
                     <input
@@ -1033,16 +975,16 @@
                         class="search-box"
                         id="searchPetugas"
                         placeholder="Cari petugas..."
-                        onkeyup="searchTable('searchPetugas', 'petugasTable')"
-                    >
+                        onkeyup="searchTable('searchPetugas','petugasTable')">
 
                     <button
                         type="button"
                         class="btn-primary"
-                        onclick="openAddModal('petugas')"
-                    >
+                        onclick="openAddModal('petugas')">
+
                         <span class="btn-plus">+</span>
                         Tambah Petugas
+
                     </button>
 
                 </div>
@@ -1055,32 +997,21 @@
                 <table id="petugasTable">
 
                     <thead>
+
                         <tr>
                             <th>No</th>
                             <th>Nomor Identitas</th>
                             <th>Nama Lengkap</th>
                             <th>Email</th>
                             <th>Kelurahan</th>
-                            <th>RT/RW</th>
                             <th>Aksi</th>
                         </tr>
+
                     </thead>
 
                     <tbody>
 
-                        @forelse ($petugas as $index => $user)
-
-                            @php
-                                $kelurahanUser = $kelurahans->firstWhere(
-                                    'deskripsi',
-                                    $user->kelurahan
-                                );
-
-                                $selectedRtRwIds = $user->petugasWilayah
-                                    ->pluck('rt_rw_id')
-                                    ->values()
-                                    ->all();
-                            @endphp
+                        @forelse($petugas as $index => $user)
 
                             <tr>
 
@@ -1105,42 +1036,25 @@
                                 </td>
 
                                 <td>
-                                    <div class="space-y-1">
-                                        @forelse ($user->petugasWilayah as $wilayah)
-                                            @if ($wilayah->rtRw)
-                                                <div>
-                                                    <span class="inline-block px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-xs">
-                                                        RT {{ $wilayah->rtRw->rt }} / RW {{ $wilayah->rtRw->rw }}
-                                                    </span>
-                                                </div>
-                                            @endif
-                                        @empty
-                                            <span class="text-gray-400 text-xs">
-                                                Belum ada wilayah
-                                            </span>
-                                        @endforelse
-                                    </div>
-                                </td>
-
-                                <td>
 
                                     <div class="action-buttons">
 
-                                        <button
-                                            type="button"
-                                            class="btn-edit"
-                                            data-user="{{ json_encode([
+                                        @php
+                                            $petugasData = [
                                                 'id' => $user->id,
                                                 'role' => 'petugas',
                                                 'nomor_identitas' => $user->nomor_identitas,
                                                 'name' => $user->name,
                                                 'email' => $user->email,
                                                 'kelurahan' => $user->kelurahan,
-                                                'kelurahan_id' => $kelurahanUser ? $kelurahanUser->kelurahan_id : '',
-                                                'rt_rw_ids' => $selectedRtRwIds
-                                            ]) }}"
-                                            onclick="editFromButton(this)"
-                                        >
+                                            ];
+                                        @endphp
+
+                                        <button
+                                            type="button"
+                                            class="btn-edit"
+                                            data-user='{{ json_encode($petugasData, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) }}'
+                                            onclick="editFromButton(this)">
                                             Edit
                                         </button>
 
@@ -1150,8 +1064,7 @@
                                             data-id="{{ $user->id }}"
                                             data-name="{{ $user->name }}"
                                             data-role="petugas"
-                                            onclick="hapusData(this)"
-                                        >
+                                            onclick="hapusData(this)">
                                             Hapus
                                         </button>
 
@@ -1164,12 +1077,15 @@
                         @empty
 
                             <tr>
+
                                 <td
-                                    colspan="7"
-                                    style="text-align:center; color:#9ca3af;"
-                                >
+                                    colspan="6"
+                                    style="text-align:center;color:#9ca3af;">
+
                                     Belum ada data petugas.
+
                                 </td>
+
                             </tr>
 
                         @endforelse
@@ -1188,36 +1104,36 @@
 
 
 {{-- =====================================================
-     MODAL TAMBAH / EDIT
+     MODAL
 ===================================================== --}}
 
 <div
     class="modal-overlay"
-    id="userModal"
->
+    id="userModal">
 
     <div
         class="modal"
         role="dialog"
-        aria-modal="true"
-    >
+        aria-modal="true">
 
         <div class="modal-header">
 
-            <div class="modal-header-text">
+            <div>
 
                 <div
                     class="modal-kicker"
-                    id="modalKicker"
-                >
+                    id="modalKicker">
+
                     PENGGUNA
+
                 </div>
 
                 <div
                     class="modal-title"
-                    id="modalTitle"
-                >
+                    id="modalTitle">
+
                     Tambah Operator
+
                 </div>
 
             </div>
@@ -1225,9 +1141,10 @@
             <button
                 type="button"
                 class="modal-close"
-                onclick="closeModal()"
-            >
+                onclick="closeModal()">
+
                 ×
+
             </button>
 
         </div>
@@ -1237,9 +1154,10 @@
 
             <div
                 class="modal-description"
-                id="modalDescription"
-            >
+                id="modalDescription">
+
                 Masukkan data pengguna baru.
+
             </div>
 
 
@@ -1247,13 +1165,11 @@
 
                 <input
                     type="hidden"
-                    id="userId"
-                >
+                    id="userId">
 
                 <input
                     type="hidden"
-                    id="userRole"
-                >
+                    id="userRole">
 
 
                 {{-- NOMOR IDENTITAS --}}
@@ -1262,10 +1178,11 @@
 
                     <label
                         for="nomorIdentitas"
-                        class="form-label"
-                    >
+                        class="form-label">
+
                         Nomor Identitas
                         <span class="required">*</span>
+
                     </label>
 
                     <input
@@ -1274,8 +1191,7 @@
                         class="form-input"
                         placeholder="Masukkan nomor identitas"
                         maxlength="50"
-                        required
-                    >
+                        required>
 
                 </div>
 
@@ -1286,10 +1202,11 @@
 
                     <label
                         for="namaLengkap"
-                        class="form-label"
-                    >
+                        class="form-label">
+
                         Nama Lengkap
                         <span class="required">*</span>
+
                     </label>
 
                     <input
@@ -1297,8 +1214,7 @@
                         id="namaLengkap"
                         class="form-input"
                         placeholder="Masukkan nama lengkap"
-                        required
-                    >
+                        required>
 
                 </div>
 
@@ -1309,10 +1225,11 @@
 
                     <label
                         for="email"
-                        class="form-label"
-                    >
+                        class="form-label">
+
                         Email
                         <span class="required">*</span>
+
                     </label>
 
                     <input
@@ -1320,120 +1237,117 @@
                         id="email"
                         class="form-input"
                         placeholder="Masukkan email"
-                        required
-                    >
+                        required>
 
                 </div>
 
 
-                {{-- PASSWORD --}}
+                {{-- =================================================
+                     PASSWORD
+                ================================================== --}}
 
                 <div
                     class="form-group"
-                    id="passwordGroup"
-                >
+                    id="passwordGroup">
 
                     <label
-                        for="password"
-                        class="form-label"
-                    >
+                        for="passwordDisplay"
+                        class="form-label">
+
                         Password
 
-                        <span
-                            class="required"
-                            id="passwordRequired"
-                        >
-                            *
-                        </span>
                     </label>
 
-                    <input
-                        type="password"
-                        id="password"
-                        class="form-input"
-                        placeholder="Masukkan password"
-                    >
+
+                    <div
+                        class="password-reset-box"
+                        id="passwordAddBox">
+
+                        <input
+                            type="text"
+                            id="passwordDisplay"
+                            class="form-input password-default"
+                            value="perlinsos123"
+                            readonly>
+
+                    </div>
+
+
+                    <div
+                        class="password-reset-box"
+                        id="passwordEditBox"
+                        style="display:none;">
+
+                        <input
+                            type="text"
+                            class="form-input password-default"
+                            value="Password tersimpan"
+                            readonly>
+
+                        <button
+                            type="button"
+                            class="btn-reset-password"
+                            id="resetPasswordButton"
+                            onclick="resetPassword()">
+
+                            Reset Password
+
+                        </button>
+
+                    </div>
+
 
                     <div
                         class="form-help"
-                        id="passwordHelp"
-                    >
-                        Password digunakan untuk login ke sistem.
+                        id="passwordHelp">
+
+                        Password awal pengguna adalah
+                        <strong>perlinsos123</strong>.
+                        Pengguna dapat mengganti password melalui Profile.
+
                     </div>
 
                 </div>
 
 
-                {{-- KELURAHAN --}}
+                {{-- =================================================
+                     WILAYAH TUGAS
+                ================================================== --}}
 
                 <div
                     class="form-group"
                     id="wilayahGroup"
-                    style="display:none;"
-                >
+                    style="display:none;">
 
                     <label
                         for="wilayah"
-                        class="form-label"
-                    >
-                        Kelurahan
+                        class="form-label">
+
+                        Wilayah Tugas
                         <span class="required">*</span>
+
                     </label>
 
                     <select
                         id="wilayah"
-                        class="form-select"
-                    >
+                        class="form-select">
 
                         <option value="">
                             Pilih Kelurahan
                         </option>
 
-                        @foreach ($kelurahans as $kelurahan)
+                        @foreach($kelurahans as $kelurahan)
 
                             <option
-                                value="{{ $kelurahan->kelurahan_id }}"
-                            >
+                                value="{{ $kelurahan->kelurahan_id }}">
+
                                 {{ $kelurahan->deskripsi }}
+
                             </option>
 
                         @endforeach
 
                     </select>
-
-                </div>
-
-
-                {{-- RT/RW --}}
-
-                <div
-                    class="form-group"
-                    id="rtRwGroup"
-                    style="display:none;"
-                >
-
-                    <label class="form-label">
-                        RT/RW
-                        <span class="required">*</span>
-                    </label>
-
-                    <div
-                        class="form-help"
-                        style="margin-bottom:7px;"
-                    >
-                        Pilih satu atau beberapa RT/RW yang menjadi wilayah tugas.
-                    </div>
-
-                    <div
-                        class="rtrw-box"
-                        id="rtRwContainer"
-                    >
-
-                        <div class="rtrw-placeholder">
-                            Pilih Kelurahan terlebih dahulu.
-                        </div>
-
-                    </div>
 
                 </div>
 
@@ -1447,18 +1361,20 @@
             <button
                 type="button"
                 class="btn-modal btn-modal-cancel"
-                onclick="closeModal()"
-            >
+                onclick="closeModal()">
+
                 Batal
+
             </button>
 
             <button
                 type="button"
                 class="btn-modal btn-modal-save"
                 id="saveButton"
-                onclick="saveUser()"
-            >
+                onclick="saveUser()">
+
                 Simpan
+
             </button>
 
         </div>
@@ -1471,13 +1387,16 @@
 <script>
 
     /* =====================================================
-       URL & CSRF
+       URL
     ===================================================== */
 
-    const csrfToken = @json(csrf_token());
+    const csrfToken =
+        @json(csrf_token());
+
 
     const storeUrl =
         @json(route('master.pengguna.store'));
+
 
     const updateUrlTemplate =
         @json(route(
@@ -1485,16 +1404,18 @@
             ['user' => '__USER_ID__']
         ));
 
+
     const deleteUrlTemplate =
         @json(route(
             'master.pengguna.destroy',
             ['user' => '__USER_ID__']
         ));
 
-    const rtRwUrlTemplate =
+
+    const resetPasswordUrlTemplate =
         @json(route(
-            'master.petugas.rt-rw',
-            ['kelurahanId' => '__KELURAHAN_ID__']
+            'master.pengguna.reset-password',
+            ['user' => '__USER_ID__']
         ));
 
 
@@ -1535,26 +1456,23 @@
     const email =
         document.getElementById('email');
 
-    const password =
-        document.getElementById('password');
-
     const wilayah =
         document.getElementById('wilayah');
 
     const wilayahGroup =
         document.getElementById('wilayahGroup');
 
-    const rtRwGroup =
-        document.getElementById('rtRwGroup');
+    const passwordAddBox =
+        document.getElementById('passwordAddBox');
 
-    const rtRwContainer =
-        document.getElementById('rtRwContainer');
-
-    const passwordRequired =
-        document.getElementById('passwordRequired');
+    const passwordEditBox =
+        document.getElementById('passwordEditBox');
 
     const passwordHelp =
         document.getElementById('passwordHelp');
+
+    const resetPasswordButton =
+        document.getElementById('resetPasswordButton');
 
 
     let currentMode = 'add';
@@ -1577,12 +1495,12 @@
         }
 
         const filter =
-            input.value.toLowerCase();
+            input.value.toLowerCase().trim();
 
         const rows =
             table.querySelectorAll('tbody tr');
 
-        rows.forEach(function (row) {
+        rows.forEach(function(row) {
 
             const text =
                 row.textContent.toLowerCase();
@@ -1610,14 +1528,14 @@
 
     function showTab(tabName) {
 
-        tabButtons.forEach(function (button) {
+        tabButtons.forEach(function(button) {
 
             button.classList.remove('active');
 
         });
 
 
-        tabContents.forEach(function (content) {
+        tabContents.forEach(function(content) {
 
             content.classList.remove('active');
 
@@ -1630,6 +1548,7 @@
                 tabName +
                 '"]'
             );
+
 
         const selectedContent =
             document.getElementById(tabName);
@@ -1649,11 +1568,11 @@
     }
 
 
-    tabButtons.forEach(function (button) {
+    tabButtons.forEach(function(button) {
 
         button.addEventListener(
             'click',
-            function () {
+            function() {
 
                 showTab(
                     this.getAttribute('data-tab')
@@ -1666,183 +1585,7 @@
 
 
     /* =====================================================
-       RESET RT/RW
-    ===================================================== */
-
-    function resetRtRw() {
-
-        rtRwContainer.innerHTML = `
-            <div class="rtrw-placeholder">
-                Pilih Kelurahan terlebih dahulu.
-            </div>
-        `;
-
-    }
-
-
-    /* =====================================================
-       LOAD RT/RW
-    ===================================================== */
-
-    async function loadRtRw(
-        kelurahanId,
-        selectedIds = []
-    ) {
-
-        if (!kelurahanId) {
-
-            resetRtRw();
-
-            return;
-
-        }
-
-
-        rtRwContainer.innerHTML = `
-            <div class="rtrw-placeholder">
-                Memuat data RT/RW...
-            </div>
-        `;
-
-
-        try {
-
-            const url =
-                rtRwUrlTemplate.replace(
-                    '__KELURAHAN_ID__',
-                    encodeURIComponent(kelurahanId)
-                );
-
-
-            const response =
-                await fetch(url, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
-                });
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    'Gagal mengambil data RT/RW.'
-                );
-
-            }
-
-
-            const data =
-                await response.json();
-
-
-            if (!data.length) {
-
-                rtRwContainer.innerHTML = `
-                    <div class="rtrw-empty">
-                        Belum ada data RT/RW untuk kelurahan ini.
-                    </div>
-                `;
-
-                return;
-
-            }
-
-
-            const selected =
-                selectedIds.map(
-                    id => String(id)
-                );
-
-
-            rtRwContainer.innerHTML = '';
-
-
-            data.forEach(function (item) {
-
-                const wrapper =
-                    document.createElement('label');
-
-                wrapper.className =
-                    'rtrw-item';
-
-
-                const checkbox =
-                    document.createElement('input');
-
-                checkbox.type =
-                    'checkbox';
-
-                checkbox.name =
-                    'rt_rw_ids[]';
-
-                checkbox.value =
-                    item.id;
-
-                checkbox.checked =
-                    selected.includes(
-                        String(item.id)
-                    );
-
-
-                const text =
-                    document.createElement('span');
-
-                text.className =
-                    'rtrw-text';
-
-                text.textContent =
-                    'RT ' +
-                    item.rt +
-                    ' / RW ' +
-                    item.rw;
-
-
-                wrapper.appendChild(checkbox);
-
-                wrapper.appendChild(text);
-
-                rtRwContainer.appendChild(wrapper);
-
-            });
-
-        } catch (error) {
-
-            console.error(error);
-
-            rtRwContainer.innerHTML = `
-                <div class="rtrw-empty">
-                    Gagal memuat data RT/RW.
-                </div>
-            `;
-
-        }
-
-    }
-
-
-    /* =====================================================
-       KELURAHAN CHANGE
-    ===================================================== */
-
-    wilayah.addEventListener(
-        'change',
-        function () {
-
-            if (userRole.value !== 'petugas') {
-                return;
-            }
-
-            loadRtRw(
-                this.value,
-                []
-            );
-
-        }
-    );
-
-
-    /* =====================================================
-       OPEN ADD MODAL
+       ADD MODAL
     ===================================================== */
 
     function openAddModal(role) {
@@ -1854,9 +1597,6 @@
         userId.value = '';
 
         userRole.value = role;
-
-
-        resetRtRw();
 
 
         modalKicker.textContent =
@@ -1915,32 +1655,28 @@
                 : 'none';
 
 
-        rtRwGroup.style.display =
-            isPetugas
-                ? 'block'
-                : 'none';
-
-
         wilayah.required =
             isPetugas;
 
 
-        password.required =
-            true;
+        passwordAddBox.style.display =
+            'flex';
 
 
-        passwordRequired.style.display =
-            'inline';
+        passwordEditBox.style.display =
+            'none';
 
 
-        passwordHelp.textContent =
-            'Password digunakan untuk login ke sistem.';
+        passwordHelp.innerHTML =
+            'Password awal pengguna adalah ' +
+            '<strong>perlinsos123</strong>. ' +
+            'Pengguna dapat mengganti password melalui Profile.';
 
 
         userModal.classList.add('show');
 
 
-        setTimeout(function () {
+        setTimeout(function() {
 
             nomorIdentitas.focus();
 
@@ -1950,15 +1686,32 @@
 
 
     /* =====================================================
-       OPEN EDIT
+       EDIT
     ===================================================== */
 
     function editFromButton(button) {
 
-        const data =
-            JSON.parse(
-                button.getAttribute('data-user')
+        let data = {};
+
+
+        try {
+
+            data =
+                JSON.parse(
+                    button.getAttribute('data-user')
+                );
+
+        } catch(error) {
+
+            console.error(error);
+
+            alert(
+                'Data pengguna tidak dapat dibaca.'
             );
+
+            return;
+
+        }
 
 
         openEditModal(data);
@@ -1966,28 +1719,29 @@
     }
 
 
-    async function openEditModal(data) {
+    function openEditModal(data) {
 
         currentMode = 'edit';
 
 
         userId.value =
-            data.id;
+            data.id || '';
+
 
         userRole.value =
-            data.role;
+            data.role || '';
+
 
         nomorIdentitas.value =
             data.nomor_identitas || '';
 
+
         namaLengkap.value =
             data.name || '';
 
+
         email.value =
             data.email || '';
-
-        password.value =
-            '';
 
 
         modalKicker.textContent =
@@ -2041,44 +1795,63 @@
                 : 'none';
 
 
-        rtRwGroup.style.display =
-            isPetugas
-                ? 'block'
-                : 'none';
-
-
         wilayah.required =
             isPetugas;
 
 
-        password.required =
-            false;
-
-
-        passwordRequired.style.display =
+        /*
+         * Password pada mode Edit
+         */
+        passwordAddBox.style.display =
             'none';
 
 
-        passwordHelp.textContent =
-            'Kosongkan jika password tidak ingin diubah.';
+        passwordEditBox.style.display =
+            'flex';
 
 
+        passwordHelp.innerHTML =
+            'Jika pengguna lupa password, klik ' +
+            '<strong>Reset Password</strong> ' +
+            'untuk mengembalikannya ke ' +
+            '<strong>perlinsos123</strong>.';
+
+
+        /*
+         * Set Kelurahan Petugas
+         */
         if (isPetugas) {
 
-            wilayah.value =
-                data.kelurahan_id || '';
+            wilayah.value = '';
 
 
-            await loadRtRw(
-                data.kelurahan_id,
-                data.rt_rw_ids || []
-            );
+            const options =
+                wilayah.options;
+
+
+            for (
+                let i = 0;
+                i < options.length;
+                i++
+            ) {
+
+                if (
+                    options[i].textContent.trim() ===
+                    String(data.kelurahan || '').trim()
+                ) {
+
+                    wilayah.value =
+                        options[i].value;
+
+                    break;
+
+                }
+
+            }
 
         } else {
 
             wilayah.value = '';
-
-            resetRtRw();
 
         }
 
@@ -2086,7 +1859,7 @@
         userModal.classList.add('show');
 
 
-        setTimeout(function () {
+        setTimeout(function() {
 
             nomorIdentitas.focus();
 
@@ -2096,7 +1869,114 @@
 
 
     /* =====================================================
-       CLOSE MODAL
+       RESET PASSWORD
+    ===================================================== */
+
+    async function resetPassword() {
+
+        const id =
+            userId.value;
+
+
+        if (!id) {
+
+            alert(
+                'ID pengguna tidak ditemukan.'
+            );
+
+            return;
+
+        }
+
+
+        const yakin =
+            confirm(
+                'Yakin ingin mereset password pengguna ini?\n\n' +
+                'Password akan dikembalikan menjadi:\n' +
+                'perlinsos123'
+            );
+
+
+        if (!yakin) {
+            return;
+        }
+
+
+        const url =
+            resetPasswordUrlTemplate.replace(
+                '__USER_ID__',
+                id
+            );
+
+
+        resetPasswordButton.disabled =
+            true;
+
+
+        resetPasswordButton.textContent =
+            'Mereset...';
+
+
+        try {
+
+            const response =
+                await fetch(url, {
+
+                    method: 'POST',
+
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    }
+
+                });
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                alert(
+                    result.message ||
+                    'Password gagal direset.'
+                );
+
+                return;
+
+            }
+
+
+            alert(
+                result.message ||
+                'Password berhasil direset.'
+            );
+
+
+        } catch(error) {
+
+            console.error(error);
+
+            alert(
+                'Terjadi kesalahan koneksi ke server.'
+            );
+
+        } finally {
+
+            resetPasswordButton.disabled =
+                false;
+
+            resetPasswordButton.textContent =
+                'Reset Password';
+
+        }
+
+    }
+
+
+    /* =====================================================
+       CLOSE
     ===================================================== */
 
     function closeModal() {
@@ -2112,16 +1992,17 @@
         wilayahGroup.style.display =
             'none';
 
-        rtRwGroup.style.display =
-            'none';
+        passwordAddBox.style.display =
+            'flex';
 
-        resetRtRw();
+        passwordEditBox.style.display =
+            'none';
 
     }
 
 
     /* =====================================================
-       SAVE USER
+       SAVE
     ===================================================== */
 
     async function saveUser() {
@@ -2150,27 +2031,6 @@
         }
 
 
-        if (role === 'petugas') {
-
-            const checked =
-                document.querySelectorAll(
-                    'input[name="rt_rw_ids[]"]:checked'
-                );
-
-
-            if (!checked.length) {
-
-                alert(
-                    'Pilih minimal satu RT/RW untuk petugas.'
-                );
-
-                return;
-
-            }
-
-        }
-
-
         const formData =
             new FormData();
 
@@ -2180,15 +2040,18 @@
             role
         );
 
+
         formData.append(
             'nomor_identitas',
             nomorIdentitas.value.trim()
         );
 
+
         formData.append(
             'name',
             namaLengkap.value.trim()
         );
+
 
         formData.append(
             'email',
@@ -2196,15 +2059,22 @@
         );
 
 
-        if (password.value.trim()) {
+        /*
+         * Password TIDAK dikirim dari form.
+         *
+         * Saat tambah:
+         * Controller otomatis menggunakan
+         * perlinsos123.
+         *
+         * Saat edit:
+         * Password hanya bisa direset
+         * menggunakan tombol Reset Password.
+         */
 
-            formData.append(
-                'password',
-                password.value.trim()
-            );
 
-        }
-
+        /*
+         * Kelurahan hanya untuk Petugas.
+         */
 
         if (role === 'petugas') {
 
@@ -2212,22 +2082,6 @@
                 'kelurahan_id',
                 wilayah.value
             );
-
-
-            const selectedRtRw =
-                document.querySelectorAll(
-                    'input[name="rt_rw_ids[]"]:checked'
-                );
-
-
-            selectedRtRw.forEach(function (checkbox) {
-
-                formData.append(
-                    'rt_rw_ids[]',
-                    checkbox.value
-                );
-
-            });
 
         }
 
@@ -2244,6 +2098,7 @@
                     userId.value
                 );
 
+
             formData.append(
                 '_method',
                 'PUT'
@@ -2254,6 +2109,7 @@
 
         saveButton.disabled =
             true;
+
 
         saveButton.textContent =
             'Menyimpan...';
@@ -2292,6 +2148,7 @@
                             result.errors
                         ).flat();
 
+
                     alert(
                         messages.join('\n')
                     );
@@ -2325,7 +2182,8 @@
             window.location.href =
                 @json(route('master.pengguna.index'));
 
-        } catch (error) {
+
+        } catch(error) {
 
             console.error(error);
 
@@ -2337,6 +2195,7 @@
 
             saveButton.disabled =
                 false;
+
 
             saveButton.textContent =
                 currentMode === 'edit'
@@ -2357,9 +2216,11 @@
         const id =
             button.dataset.id;
 
+
         const name =
             button.dataset.name ||
             'data ini';
+
 
         const role =
             button.dataset.role ||
@@ -2402,6 +2263,7 @@
         button.disabled =
             true;
 
+
         button.textContent =
             'Menghapus...';
 
@@ -2416,10 +2278,12 @@
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type':
+                            'application/x-www-form-urlencoded'
                     },
 
-                    body: '_method=DELETE'
+                    body:
+                        '_method=DELETE'
 
                 });
 
@@ -2435,11 +2299,14 @@
                     'Data gagal dihapus.'
                 );
 
+
                 button.disabled =
                     false;
 
+
                 button.textContent =
                     'Hapus';
+
 
                 return;
 
@@ -2461,16 +2328,20 @@
             window.location.href =
                 @json(route('master.pengguna.index'));
 
-        } catch (error) {
+
+        } catch(error) {
 
             console.error(error);
+
 
             alert(
                 'Terjadi kesalahan koneksi ke server.'
             );
 
+
             button.disabled =
                 false;
+
 
             button.textContent =
                 'Hapus';
@@ -2481,16 +2352,14 @@
 
 
     /* =====================================================
-       KLIK LUAR MODAL
+       CLICK OUTSIDE
     ===================================================== */
 
     userModal.addEventListener(
         'click',
-        function (event) {
+        function(event) {
 
-            if (
-                event.target === userModal
-            ) {
+            if (event.target === userModal) {
 
                 closeModal();
 
@@ -2506,7 +2375,7 @@
 
     document.addEventListener(
         'keydown',
-        function (event) {
+        function(event) {
 
             if (
                 event.key === 'Escape' &&
@@ -2522,7 +2391,7 @@
 
 
     /* =====================================================
-       TAB AKTIF SETELAH RELOAD
+       ACTIVE TAB AFTER RELOAD
     ===================================================== */
 
     const savedTab =
