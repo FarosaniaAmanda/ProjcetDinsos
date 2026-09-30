@@ -2,10 +2,17 @@
 <html lang="id">
 
 <head>
-
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="csrf-token"
+        content="{{ csrf_token() }}"
+    >
 
     <title>
         @yield('title', 'Sistem Pendataan Dinas Sosial Kota Pasuruan')
@@ -13,17 +20,46 @@
 
     <style>
 
+        /* =====================================================
+           RESET
+        ====================================================== */
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        html {
+            width: 100%;
+            min-height: 100%;
+            scroll-behavior: smooth;
+        }
+
         body {
+            width: 100%;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
             font-family: Arial, Helvetica, sans-serif;
             background: #f5f6fa;
             color: #252525;
-            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font-family: inherit;
+        }
+
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a {
+            -webkit-tap-highlight-color: transparent;
         }
 
 
@@ -41,6 +77,7 @@
             max-width: 260px;
 
             height: 100vh;
+            height: 100dvh;
 
             background: #252A86;
             color: #ffffff;
@@ -48,19 +85,23 @@
             display: flex;
             flex-direction: column;
 
-            z-index: 1000;
+            z-index: 1100;
 
             overflow-x: hidden;
             overflow-y: auto;
 
-            scrollbar-gutter: stable;
+            scrollbar-width: thin;
 
-            transition: transform .3s ease;
+            transform: translateX(0);
+
+            transition:
+                transform .3s ease,
+                box-shadow .3s ease;
         }
 
 
         /* =====================================================
-           LOGO
+           SIDEBAR LOGO
         ====================================================== */
 
         .sidebar-logo {
@@ -92,7 +133,7 @@
 
 
         /* =====================================================
-           MENU
+           SIDEBAR MENU
         ====================================================== */
 
         .sidebar-menu {
@@ -105,7 +146,6 @@
 
             overflow: visible;
         }
-
 
         .menu-title {
             font-size: 11px;
@@ -122,7 +162,7 @@
 
 
         /* =====================================================
-           SEMUA MENU UTAMA
+           MENU UTAMA
         ====================================================== */
 
         .menu-link {
@@ -132,6 +172,7 @@
             gap: 12px;
 
             width: 100%;
+            min-width: 0;
             height: 48px;
 
             padding: 0 14px;
@@ -150,34 +191,28 @@
             transition:
                 background .2s ease,
                 color .2s ease,
-                box-shadow .2s ease;
+                box-shadow .2s ease,
+                transform .15s ease;
         }
-
-
-        /* HOVER */
 
         .menu-link:hover {
             background: rgba(255,255,255,.10);
             color: #ffffff;
         }
 
-
-        /* =====================================================
-           MENU AKTIF
-           
-           HANYA MENU YANG MEMILIKI .active YANG PUTIH
-        ====================================================== */
+        .menu-link:active {
+            transform: scale(.985);
+        }
 
         .menu-link.active {
             background: #ffffff;
-
             color: #252A86;
 
             font-weight: 700;
 
-            box-shadow: 0 4px 12px rgba(0,0,0,.10);
+            box-shadow:
+                0 4px 12px rgba(0,0,0,.10);
         }
-
 
         .menu-link.active:hover {
             background: #ffffff;
@@ -191,6 +226,7 @@
 
         .menu-icon {
             width: 20px;
+            min-width: 20px;
             height: 20px;
 
             display: flex;
@@ -200,6 +236,14 @@
             flex-shrink: 0;
         }
 
+        .menu-link > span:last-child {
+            min-width: 0;
+            overflow: hidden;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
 
         /* =====================================================
            MASTER BUTTON
@@ -207,6 +251,7 @@
 
         .master-toggle {
             border: none;
+            outline: none;
 
             background: transparent;
 
@@ -218,18 +263,19 @@
 
             appearance: none;
 
-            outline: none;
+            user-select: none;
         }
 
 
         /* =====================================================
-           PANAH MASTER
+           MASTER ARROW
         ====================================================== */
 
         .master-arrow {
             margin-left: auto;
 
             width: 18px;
+            min-width: 18px;
             height: 18px;
 
             display: flex;
@@ -241,31 +287,24 @@
             transition: transform .25s ease;
         }
 
-
-        /* PANAH TERBALIK SAAT OPEN */
-
         .master-toggle.open .master-arrow {
             transform: rotate(180deg);
         }
 
 
         /* =====================================================
-           MASTER AKTIF
-
-           Master putih HANYA ketika class .active diberikan.
-           .open TIDAK OTOMATIS MEMBUAT MASTER PUTIH.
+           MASTER ACTIVE
         ====================================================== */
 
         .master-toggle.active {
             background: #ffffff;
-
             color: #252A86;
 
             font-weight: 700;
 
-            box-shadow: 0 4px 12px rgba(0,0,0,.10);
+            box-shadow:
+                0 4px 12px rgba(0,0,0,.10);
         }
-
 
         .master-toggle.active:hover {
             background: #ffffff;
@@ -274,7 +313,7 @@
 
 
         /* =====================================================
-           SUBMENU MASTER
+           MASTER SUBMENU
         ====================================================== */
 
         .master-submenu {
@@ -291,16 +330,14 @@
                 opacity .2s ease;
         }
 
-
         .master-submenu.open {
             max-height: 200px;
-
             opacity: 1;
         }
 
 
         /* =====================================================
-           SUBMENU LINK
+           SUBMENU
         ====================================================== */
 
         .submenu-link {
@@ -323,48 +360,42 @@
             text-decoration: none;
 
             font-size: 13px;
-
             font-weight: 500;
 
             transition:
                 background .2s ease,
                 color .2s ease,
-                box-shadow .2s ease;
+                box-shadow .2s ease,
+                transform .15s ease;
         }
-
 
         .submenu-link:hover {
             background: rgba(255,255,255,.10);
             color: #ffffff;
         }
 
-
-        /* =====================================================
-           SUBMENU AKTIF
-
-           HANYA submenu yang diklik menjadi putih.
-        ====================================================== */
+        .submenu-link:active {
+            transform: scale(.985);
+        }
 
         .submenu-link.active {
             background: #ffffff;
-
             color: #252A86;
 
             font-weight: 700;
 
-            box-shadow: 0 3px 8px rgba(0,0,0,.08);
+            box-shadow:
+                0 3px 8px rgba(0,0,0,.08);
         }
-
 
         .submenu-link.active:hover {
             background: #ffffff;
-
             color: #252A86;
         }
 
-
         .submenu-icon {
             width: 18px;
+            min-width: 18px;
             height: 18px;
 
             display: flex;
@@ -376,7 +407,7 @@
 
 
         /* =====================================================
-           FOOTER SIDEBAR
+           SIDEBAR FOOTER
         ====================================================== */
 
         .sidebar-footer {
@@ -386,7 +417,6 @@
 
             flex-shrink: 0;
         }
-
 
         .logout-link {
             display: flex;
@@ -412,7 +442,6 @@
                 color .2s ease;
         }
 
-
         .logout-link:hover {
             background: rgba(255,255,255,.10);
             color: #ffffff;
@@ -427,69 +456,84 @@
             margin-left: 260px;
 
             min-height: 100vh;
+            min-height: 100dvh;
 
             width: calc(100% - 260px);
 
             display: flex;
-
             flex-direction: column;
+
+            min-width: 0;
         }
 
 
         /* =====================================================
-           HEADER
+           HEADER / TOP BAR
         ====================================================== */
 
         .header {
+            position: sticky;
+
+            top: 0;
+
+            z-index: 900;
+
+            width: 100%;
+
             height: 75px;
+            min-height: 75px;
 
             background: #ffffff;
 
             border-bottom: 1px solid #e8e9ef;
 
             display: flex;
-
             align-items: center;
 
-            justify-content: space-between;
+            gap: 16px;
 
             padding: 0 30px;
 
-            position: sticky;
-
-            top: 0;
-
-            z-index: 900;
+            box-shadow:
+                0 1px 4px rgba(0,0,0,.03);
         }
 
 
+        /* =====================================================
+           HEADER LEFT
+        ====================================================== */
+
         .header-left {
             display: flex;
-
             align-items: center;
 
             gap: 14px;
 
-            flex: 1;
+            flex: 1 1 auto;
 
             min-width: 0;
+
+            overflow: hidden;
         }
 
+        .header-left > div {
+            min-width: 0;
+            max-width: 100%;
+        }
 
         .header-title {
             font-size: 16px;
-
             font-weight: 700;
+
+            line-height: 1.3;
 
             color: #252A86;
 
             white-space: nowrap;
 
             overflow: hidden;
-
             text-overflow: ellipsis;
         }
-
 
         .header-subtitle {
             font-size: 12px;
@@ -497,22 +541,40 @@
             color: #777;
 
             margin-top: 3px;
+
+            white-space: nowrap;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
+
+        /* =====================================================
+           ADMIN PROFILE
+        ====================================================== */
 
         .admin-profile {
             display: flex;
-
             align-items: center;
 
             gap: 10px;
-        }
 
+            flex: 0 0 auto;
+
+            min-width: max-content;
+
+            position: relative;
+
+            z-index: 2;
+        }
 
         .admin-info {
             text-align: right;
-        }
 
+            min-width: 0;
+
+            white-space: nowrap;
+        }
 
         .admin-name {
             font-size: 13px;
@@ -522,7 +584,6 @@
             color: #333;
         }
 
-
         .admin-role {
             font-size: 11px;
 
@@ -531,10 +592,12 @@
             margin-top: 2px;
         }
 
-
         .admin-avatar {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            min-width: 40px;
+
+            height: 40px;
+            min-height: 40px;
 
             border-radius: 50%;
 
@@ -543,25 +606,29 @@
             color: #ffffff;
 
             display: flex;
-
             align-items: center;
             justify-content: center;
 
             font-size: 14px;
 
             font-weight: 700;
+
+            flex-shrink: 0;
         }
 
 
         /* =====================================================
-           MOBILE BUTTON
+           MOBILE MENU BUTTON
         ====================================================== */
 
         .mobile-menu-btn {
             display: none;
 
             width: 42px;
+            min-width: 42px;
+
             height: 42px;
+            min-height: 42px;
 
             border: none;
 
@@ -579,8 +646,19 @@
             gap: 5px;
 
             flex-shrink: 0;
+
+            transition:
+                background .2s ease,
+                transform .15s ease;
         }
 
+        .mobile-menu-btn:hover {
+            background: #e7e8f2;
+        }
+
+        .mobile-menu-btn:active {
+            transform: scale(.95);
+        }
 
         .mobile-menu-btn span {
             display: block;
@@ -592,19 +670,18 @@
 
             border-radius: 2px;
 
-            transition: all .25s ease;
+            transition:
+                transform .25s ease,
+                opacity .2s ease;
         }
-
 
         .mobile-menu-btn.active span:nth-child(1) {
             transform: translateY(7px) rotate(45deg);
         }
 
-
         .mobile-menu-btn.active span:nth-child(2) {
             opacity: 0;
         }
-
 
         .mobile-menu-btn.active span:nth-child(3) {
             transform: translateY(-7px) rotate(-45deg);
@@ -612,11 +689,32 @@
 
 
         /* =====================================================
-           OVERLAY
+           SIDEBAR OVERLAY
         ====================================================== */
 
         .sidebar-overlay {
             display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(0,0,0,.40);
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition:
+                opacity .3s ease,
+                visibility .3s ease;
+
+            z-index: 1050;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
 
@@ -625,14 +723,41 @@
         ====================================================== */
 
         .content {
+            width: 100%;
+
             padding: 30px;
 
-            flex: 1;
+            flex: 1 1 auto;
+
+            min-width: 0;
+
+            overflow: visible;
         }
 
 
         /* =====================================================
            TABLET
+        ====================================================== */
+
+        @media (max-width: 1100px) {
+
+            .header {
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+
+            .content {
+                padding: 24px;
+            }
+
+            .header-title {
+                font-size: 15px;
+            }
+        }
+
+
+        /* =====================================================
+           TABLET / MOBILE
         ====================================================== */
 
         @media (max-width: 900px) {
@@ -644,40 +769,17 @@
 
                 transform: translateX(-100%);
 
-                z-index: 1100;
+                box-shadow:
+                    8px 0 30px rgba(0,0,0,.18);
             }
-
 
             .sidebar.active {
                 transform: translateX(0);
             }
 
-
             .sidebar-overlay {
                 display: block;
-
-                position: fixed;
-
-                inset: 0;
-
-                background: rgba(0,0,0,.40);
-
-                opacity: 0;
-
-                visibility: hidden;
-
-                transition: all .3s ease;
-
-                z-index: 1050;
             }
-
-
-            .sidebar-overlay.active {
-                opacity: 1;
-
-                visibility: visible;
-            }
-
 
             .main {
                 margin-left: 0;
@@ -685,38 +787,46 @@
                 width: 100%;
             }
 
-
             .header {
                 height: 70px;
+                min-height: 70px;
 
                 padding: 0 20px;
-            }
 
+                gap: 12px;
+            }
 
             .mobile-menu-btn {
                 display: flex;
             }
 
-
             .header-left {
-                gap: 12px;
+                gap: 10px;
             }
-
 
             .header-title {
                 font-size: 15px;
             }
 
-
             .header-subtitle {
                 display: none;
             }
 
+            .admin-info {
+                display: block;
+            }
+
+            .admin-avatar {
+                width: 38px;
+                min-width: 38px;
+
+                height: 38px;
+                min-height: 38px;
+            }
 
             .content {
                 padding: 20px;
             }
-
         }
 
 
@@ -726,66 +836,96 @@
 
         @media (max-width: 600px) {
 
+            .sidebar {
+                width: 270px;
+                min-width: 270px;
+                max-width: 270px;
+            }
+
             .sidebar-logo {
                 height: 100px;
             }
-
 
             .sidebar-logo img {
                 width: 64px;
                 height: 64px;
             }
 
-
             .header {
                 height: 64px;
-
                 min-height: 64px;
 
                 padding: 0 14px;
-            }
 
+                gap: 9px;
+            }
 
             .mobile-menu-btn {
                 width: 38px;
-                height: 38px;
-            }
+                min-width: 38px;
 
+                height: 38px;
+                min-height: 38px;
+            }
 
             .mobile-menu-btn span {
                 width: 18px;
             }
 
+            .header-left {
+                flex: 1 1 auto;
+
+                min-width: 0;
+
+                overflow: hidden;
+            }
 
             .header-title {
+                width: 100%;
+
                 font-size: 13px;
 
                 line-height: 1.3;
+
+                white-space: nowrap;
+
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
+            .header-subtitle {
+                display: none;
+            }
+
+            .admin-profile {
+                gap: 0;
+
+                flex: 0 0 auto;
+            }
 
             .admin-info {
                 display: none;
             }
 
-
             .admin-avatar {
                 width: 34px;
+                min-width: 34px;
+
                 height: 34px;
+                min-height: 34px;
 
                 font-size: 13px;
             }
 
-
             .content {
                 padding: 16px;
-            }
 
+                width: 100%;
+            }
 
             .master-submenu {
                 padding-left: 14px;
             }
-
         }
 
 
@@ -795,42 +935,130 @@
 
         @media (max-width: 400px) {
 
-            .header-title {
-                font-size: 12px;
-            }
-
-
-            .content {
-                padding: 12px;
-            }
-
-
             .sidebar {
                 width: 250px;
                 min-width: 250px;
                 max-width: 250px;
             }
 
-
             .sidebar-logo {
                 height: 95px;
             }
-
 
             .sidebar-logo img {
                 width: 60px;
                 height: 60px;
             }
 
+            .header {
+                height: 60px;
+                min-height: 60px;
+
+                padding: 0 10px;
+
+                gap: 7px;
+            }
+
+            .mobile-menu-btn {
+                width: 36px;
+                min-width: 36px;
+
+                height: 36px;
+                min-height: 36px;
+            }
+
+            .mobile-menu-btn span {
+                width: 17px;
+            }
+
+            .header-title {
+                font-size: 12px;
+
+                max-width: 100%;
+            }
+
+            .admin-avatar {
+                width: 32px;
+                min-width: 32px;
+
+                height: 32px;
+                min-height: 32px;
+
+                font-size: 12px;
+            }
+
+            .content {
+                padding: 12px;
+            }
 
             .master-submenu {
                 padding-left: 10px;
             }
+        }
 
+
+        /* =====================================================
+           EXTRA SMALL MOBILE
+        ====================================================== */
+
+        @media (max-width: 360px) {
+
+            .header {
+                padding: 0 8px;
+
+                gap: 6px;
+            }
+
+            .mobile-menu-btn {
+                width: 34px;
+                min-width: 34px;
+
+                height: 34px;
+                min-height: 34px;
+            }
+
+            .mobile-menu-btn span {
+                width: 16px;
+            }
+
+            .header-title {
+                font-size: 11.5px;
+            }
+
+            .admin-avatar {
+                width: 30px;
+                min-width: 30px;
+
+                height: 30px;
+                min-height: 30px;
+
+                font-size: 11px;
+            }
+
+            .content {
+                padding: 10px;
+            }
+        }
+
+
+        /* =====================================================
+           REDUCE MOTION
+        ====================================================== */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+
+                transition-duration: .01ms !important;
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+            }
         }
 
     </style>
-
 
     @stack('styles')
 
@@ -844,8 +1072,10 @@
          SIDEBAR
     ====================================================== -->
 
-    <aside class="sidebar" id="sidebar">
-
+    <aside
+        class="sidebar"
+        id="sidebar"
+    >
 
         <!-- LOGO -->
 
@@ -862,7 +1092,6 @@
         <!-- MENU -->
 
         <nav class="sidebar-menu">
-
 
             <div class="menu-title">
                 Menu Utama
@@ -889,16 +1118,41 @@
                         stroke-width="2"
                     >
 
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect
+                            x="3"
+                            y="3"
+                            width="7"
+                            height="7"
+                        ></rect>
+
+                        <rect
+                            x="14"
+                            y="3"
+                            width="7"
+                            height="7"
+                        ></rect>
+
+                        <rect
+                            x="3"
+                            y="14"
+                            width="7"
+                            height="7"
+                        ></rect>
+
+                        <rect
+                            x="14"
+                            y="14"
+                            width="7"
+                            height="7"
+                        ></rect>
 
                     </svg>
 
                 </span>
 
-                <span>Dashboard</span>
+                <span>
+                    Dashboard
+                </span>
 
             </a>
 
@@ -937,7 +1191,9 @@
 
                 </span>
 
-                <span>Responden</span>
+                <span>
+                    Responden
+                </span>
 
             </a>
 
@@ -988,7 +1244,9 @@
 
                 </span>
 
-                <span>Kuisioner</span>
+                <span>
+                    Kuisioner
+                </span>
 
             </a>
 
@@ -1023,7 +1281,9 @@
 
                 </span>
 
-                <span>Verifikasi</span>
+                <span>
+                    Verifikasi
+                </span>
 
             </a>
 
@@ -1060,7 +1320,9 @@
 
                 </span>
 
-                <span>Monitoring</span>
+                <span>
+                    Monitoring
+                </span>
 
             </a>
 
@@ -1111,7 +1373,9 @@
 
                 </span>
 
-                <span>Laporan</span>
+                <span>
+                    Laporan
+                </span>
 
             </a>
 
@@ -1122,27 +1386,11 @@
 
             @php
 
-                /*
-                |--------------------------------------------------
-                | Master dianggap berada di area Master hanya
-                | ketika halaman Pengguna / Master sedang dibuka.
-                |
-                | Periode memiliki active sendiri.
-                |--------------------------------------------------
-                */
-
                 $isMasterPage =
                     request()->is('master*');
 
                 $isPeriodePage =
                     request()->is('periode*');
-
-                /*
-                |--------------------------------------------------
-                | Dropdown otomatis terbuka jika sedang berada
-                | di Master atau Periode.
-                |--------------------------------------------------
-                */
 
                 $masterOpen =
                     $isMasterPage ||
@@ -1152,10 +1400,11 @@
 
 
             <button
-            type="button"
-            class="menu-link master-toggle {{ $masterOpen ? 'open' : '' }}"
-            id="masterToggle"
-            aria-expanded="{{ $masterOpen ? 'true' : 'false' }}"
+                type="button"
+                class="menu-link master-toggle {{ $masterOpen ? 'open' : '' }}"
+                id="masterToggle"
+                aria-expanded="{{ $masterOpen ? 'true' : 'false' }}"
+                aria-controls="masterSubmenu"
             >
 
                 <span class="menu-icon">
@@ -1219,7 +1468,6 @@
                 class="master-submenu {{ $masterOpen ? 'open' : '' }}"
                 id="masterSubmenu"
             >
-
 
                 <!-- PERIODE -->
 
@@ -1383,7 +1631,7 @@
 
 
     <!-- =====================================================
-         OVERLAY MOBILE
+         MOBILE OVERLAY
     ====================================================== -->
 
     <div
@@ -1399,7 +1647,9 @@
     <div class="main">
 
 
-        <!-- HEADER -->
+        <!-- =================================================
+             HEADER / TOP BAR
+        ================================================== -->
 
         <header class="header">
 
@@ -1441,7 +1691,7 @@
             </div>
 
 
-            <!-- ADMIN -->
+            <!-- ADMIN PROFILE -->
 
             <div class="admin-profile">
 
@@ -1458,7 +1708,10 @@
                 </div>
 
 
-                <div class="admin-avatar">
+                <div
+                    class="admin-avatar"
+                    title="Operator - Admin"
+                >
                     A
                 </div>
 
@@ -1486,75 +1739,103 @@
 
     <script>
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
 
-            const mobileMenuBtn =
-                document.getElementById('mobileMenuBtn');
+                const mobileMenuBtn =
+                    document.getElementById(
+                        'mobileMenuBtn'
+                    );
 
-            const sidebar =
-                document.getElementById('sidebar');
+                const sidebar =
+                    document.getElementById(
+                        'sidebar'
+                    );
 
-            const sidebarOverlay =
-                document.getElementById('sidebarOverlay');
+                const sidebarOverlay =
+                    document.getElementById(
+                        'sidebarOverlay'
+                    );
 
-            const masterToggle =
-                document.getElementById('masterToggle');
+                const masterToggle =
+                    document.getElementById(
+                        'masterToggle'
+                    );
 
-            const masterSubmenu =
-                document.getElementById('masterSubmenu');
-
-
-            /* =================================================
-               SIDEBAR MOBILE
-            ================================================== */
-
-            function openSidebar() {
-
-                sidebar.classList.add('active');
-
-                sidebarOverlay.classList.add('active');
-
-                mobileMenuBtn.classList.add('active');
-
-                mobileMenuBtn.setAttribute(
-                    'aria-expanded',
-                    'true'
-                );
-
-                mobileMenuBtn.setAttribute(
-                    'aria-label',
-                    'Tutup menu'
-                );
-
-                document.body.style.overflow = 'hidden';
-            }
+                const masterSubmenu =
+                    document.getElementById(
+                        'masterSubmenu'
+                    );
 
 
-            function closeSidebar() {
+                /* =================================================
+                   SIDEBAR MOBILE
+                ================================================== */
 
-                sidebar.classList.remove('active');
+                function openSidebar() {
 
-                sidebarOverlay.classList.remove('active');
+                    if (!sidebar) return;
 
-                mobileMenuBtn.classList.remove('active');
+                    sidebar.classList.add('active');
 
-                mobileMenuBtn.setAttribute(
-                    'aria-expanded',
-                    'false'
-                );
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.add('active');
+                    }
 
-                mobileMenuBtn.setAttribute(
-                    'aria-label',
-                    'Buka menu'
-                );
+                    if (mobileMenuBtn) {
 
-                document.body.style.overflow = '';
-            }
+                        mobileMenuBtn.classList.add('active');
+
+                        mobileMenuBtn.setAttribute(
+                            'aria-expanded',
+                            'true'
+                        );
+
+                        mobileMenuBtn.setAttribute(
+                            'aria-label',
+                            'Tutup menu'
+                        );
+
+                    }
+
+                    document.body.style.overflow = 'hidden';
+                }
 
 
-            mobileMenuBtn.addEventListener(
-                'click',
-                function () {
+                function closeSidebar() {
+
+                    if (!sidebar) return;
+
+                    sidebar.classList.remove('active');
+
+                    if (sidebarOverlay) {
+                        sidebarOverlay.classList.remove('active');
+                    }
+
+                    if (mobileMenuBtn) {
+
+                        mobileMenuBtn.classList.remove('active');
+
+                        mobileMenuBtn.setAttribute(
+                            'aria-expanded',
+                            'false'
+                        );
+
+                        mobileMenuBtn.setAttribute(
+                            'aria-label',
+                            'Buka menu'
+                        );
+
+                    }
+
+                    document.body.style.overflow = '';
+                }
+
+
+                function toggleSidebar() {
+
+                    if (!sidebar) return;
 
                     if (
                         sidebar.classList.contains('active')
@@ -1567,110 +1848,414 @@
                         openSidebar();
 
                     }
+                }
+
+
+                if (mobileMenuBtn) {
+
+                    mobileMenuBtn.addEventListener(
+                        'click',
+                        toggleSidebar
+                    );
 
                 }
-            );
 
 
-            sidebarOverlay.addEventListener(
-                'click',
-                closeSidebar
-            );
+                if (sidebarOverlay) {
+
+                    sidebarOverlay.addEventListener(
+                        'click',
+                        closeSidebar
+                    );
+
+                }
 
 
-            /* =================================================
-               MASTER DROPDOWN
-            ================================================== */
+                /* =================================================
+                   MASTER DROPDOWN
+                ================================================== */
 
-            if (
-                masterToggle &&
-                masterSubmenu
-            ) {
+                if (
+                    masterToggle &&
+                    masterSubmenu
+                ) {
 
-                masterToggle.addEventListener(
-                    'click',
+                    masterToggle.addEventListener(
+                        'click',
+                        function (event) {
+
+                            event.preventDefault();
+
+                            const isOpen =
+                                masterSubmenu.classList.contains(
+                                    'open'
+                                );
+
+
+                            if (isOpen) {
+
+                                masterSubmenu.classList.remove(
+                                    'open'
+                                );
+
+                                masterToggle.classList.remove(
+                                    'open'
+                                );
+
+                                masterToggle.classList.remove(
+                                    'active'
+                                );
+
+                                masterToggle.setAttribute(
+                                    'aria-expanded',
+                                    'false'
+                                );
+
+                            } else {
+
+                                document
+                                    .querySelectorAll(
+                                        '.sidebar .menu-link.active'
+                                    )
+                                    .forEach(
+                                        function (item) {
+
+                                            item.classList.remove(
+                                                'active'
+                                            );
+
+                                        }
+                                    );
+
+
+                                document
+                                    .querySelectorAll(
+                                        '.sidebar .submenu-link.active'
+                                    )
+                                    .forEach(
+                                        function (item) {
+
+                                            item.classList.remove(
+                                                'active'
+                                            );
+
+                                        }
+                                    );
+
+
+                                masterToggle.classList.add(
+                                    'active'
+                                );
+
+                                masterToggle.classList.add(
+                                    'open'
+                                );
+
+                                masterSubmenu.classList.add(
+                                    'open'
+                                );
+
+                                masterToggle.setAttribute(
+                                    'aria-expanded',
+                                    'true'
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+
+
+                /* =================================================
+                   MENU UTAMA
+                ================================================== */
+
+                document
+                    .querySelectorAll(
+                        '.sidebar .menu-link:not(.master-toggle)'
+                    )
+                    .forEach(
+                        function (link) {
+
+                            link.addEventListener(
+                                'click',
+                                function () {
+
+                                    document
+                                        .querySelectorAll(
+                                            '.sidebar .menu-link'
+                                        )
+                                        .forEach(
+                                            function (item) {
+
+                                                item.classList.remove(
+                                                    'active'
+                                                );
+
+                                            }
+                                        );
+
+
+                                    document
+                                        .querySelectorAll(
+                                            '.sidebar .submenu-link'
+                                        )
+                                        .forEach(
+                                            function (item) {
+
+                                                item.classList.remove(
+                                                    'active'
+                                                );
+
+                                            }
+                                        );
+
+
+                                    this.classList.add(
+                                        'active'
+                                    );
+
+
+                                    if (masterToggle) {
+
+                                        masterToggle.classList.remove(
+                                            'active'
+                                        );
+
+                                        masterToggle.classList.remove(
+                                            'open'
+                                        );
+
+                                        masterToggle.setAttribute(
+                                            'aria-expanded',
+                                            'false'
+                                        );
+
+                                    }
+
+
+                                    if (masterSubmenu) {
+
+                                        masterSubmenu.classList.remove(
+                                            'open'
+                                        );
+
+                                    }
+
+
+                                    if (
+                                        window.innerWidth <= 900
+                                    ) {
+
+                                        closeSidebar();
+
+                                    }
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+                /* =================================================
+                   SUBMENU MASTER
+                ================================================== */
+
+                document
+                    .querySelectorAll(
+                        '.sidebar .submenu-link'
+                    )
+                    .forEach(
+                        function (link) {
+
+                            link.addEventListener(
+                                'click',
+                                function () {
+
+                                    document
+                                        .querySelectorAll(
+                                            '.sidebar .menu-link'
+                                        )
+                                        .forEach(
+                                            function (item) {
+
+                                                item.classList.remove(
+                                                    'active'
+                                                );
+
+                                            }
+                                        );
+
+
+                                    document
+                                        .querySelectorAll(
+                                            '.sidebar .submenu-link'
+                                        )
+                                        .forEach(
+                                            function (item) {
+
+                                                item.classList.remove(
+                                                    'active'
+                                                );
+
+                                            }
+                                        );
+
+
+                                    this.classList.add(
+                                        'active'
+                                    );
+
+
+                                    if (masterToggle) {
+
+                                        masterToggle.classList.remove(
+                                            'active'
+                                        );
+
+                                        masterToggle.classList.add(
+                                            'open'
+                                        );
+
+                                        masterToggle.setAttribute(
+                                            'aria-expanded',
+                                            'true'
+                                        );
+
+                                    }
+
+
+                                    if (masterSubmenu) {
+
+                                        masterSubmenu.classList.add(
+                                            'open'
+                                        );
+
+                                    }
+
+
+                                    if (
+                                        window.innerWidth <= 900
+                                    ) {
+
+                                        closeSidebar();
+
+                                    }
+
+                                }
+                            );
+
+                        }
+                    );
+
+
+                /* =================================================
+                   LOGOUT
+                ================================================== */
+
+                const logoutLink =
+                    document.querySelector(
+                        '.logout-link'
+                    );
+
+                if (logoutLink) {
+
+                    logoutLink.addEventListener(
+                        'click',
+                        function () {
+
+                            if (
+                                window.innerWidth <= 900
+                            ) {
+
+                                closeSidebar();
+
+                            }
+
+                        }
+                    );
+
+                }
+
+
+                /* =================================================
+                   ESC
+                ================================================== */
+
+                document.addEventListener(
+                    'keydown',
                     function (event) {
 
-                        event.preventDefault();
+                        if (
+                            event.key === 'Escape' ||
+                            event.key === 'Esc'
+                        ) {
+
+                            if (
+                                sidebar &&
+                                sidebar.classList.contains(
+                                    'active'
+                                )
+                            ) {
+
+                                closeSidebar();
+
+                            }
+
+                        }
+
+                    }
+                );
 
 
-                        const isOpen =
-                            masterSubmenu.classList.contains('open');
+                /* =================================================
+                   RESIZE
+                ================================================== */
 
+                let resizeTimer = null;
 
-                        if (isOpen) {
+                window.addEventListener(
+                    'resize',
+                    function () {
 
-                            /*
-                            Tutup dropdown.
+                        clearTimeout(resizeTimer);
 
-                            PENTING:
-                            class active juga dihapus.
-                            Jadi Master tidak akan tetap putih
-                            hanya karena sebelumnya diklik.
-                            */
+                        resizeTimer =
+                            setTimeout(
+                                function () {
 
-                            masterSubmenu.classList.remove('open');
+                                    if (
+                                        window.innerWidth > 900
+                                    ) {
 
-                            masterToggle.classList.remove('open');
+                                        closeSidebar();
 
-                            masterToggle.classList.remove('active');
+                                    }
 
-                            masterToggle.setAttribute(
-                                'aria-expanded',
-                                'false'
+                                },
+                                100
                             );
 
-
-                        } else {
-
-                            /*
-                            Buka dropdown.
-
-                            Semua menu utama lain dilepas
-                            dari keadaan active.
-                            */
-
-                            document
-                                .querySelectorAll(
-                                    '.sidebar .menu-link.active'
-                                )
-                                .forEach(function (item) {
-
-                                    item.classList.remove('active');
-
-                                });
+                    }
+                );
 
 
-                            /*
-                            Semua submenu juga dilepas.
-                            */
+                /* =================================================
+                   PREVENT BODY LOCK WHEN DESKTOP
+                ================================================== */
 
-                            document
-                                .querySelectorAll(
-                                    '.sidebar .submenu-link.active'
-                                )
-                                .forEach(function (item) {
+                window.addEventListener(
+                    'pageshow',
+                    function () {
 
-                                    item.classList.remove('active');
+                        if (
+                            window.innerWidth > 900
+                        ) {
 
-                                });
-
-
-                            /*
-                            Master menjadi satu-satunya
-                            menu yang putih.
-                            */
-
-                            masterToggle.classList.add('active');
-
-                            masterToggle.classList.add('open');
-
-                            masterSubmenu.classList.add('open');
-
-                            masterToggle.setAttribute(
-                                'aria-expanded',
-                                'true'
-                            );
+                            document.body.style.overflow = '';
 
                         }
 
@@ -1678,249 +2263,7 @@
                 );
 
             }
-
-
-            /* =================================================
-               KLIK MENU UTAMA
-            ================================================== */
-
-            document
-                .querySelectorAll(
-                    '.sidebar .menu-link:not(.master-toggle)'
-                )
-                .forEach(function (link) {
-
-                    link.addEventListener(
-                        'click',
-                        function () {
-
-                            /*
-                            Hapus active dari SEMUA menu utama.
-                            */
-
-                            document
-                                .querySelectorAll(
-                                    '.sidebar .menu-link'
-                                )
-                                .forEach(function (item) {
-
-                                    item.classList.remove('active');
-
-                                });
-
-
-                            /*
-                            Hapus active dari submenu.
-                            */
-
-                            document
-                                .querySelectorAll(
-                                    '.sidebar .submenu-link'
-                                )
-                                .forEach(function (item) {
-
-                                    item.classList.remove('active');
-
-                                });
-
-
-                            /*
-                            Menu yang baru diklik menjadi active.
-                            */
-
-                            this.classList.add('active');
-
-
-                            /*
-                            Kalau menu biasa diklik,
-                            dropdown Master ditutup.
-                            */
-
-                            if (masterToggle) {
-
-                                masterToggle.classList.remove('active');
-
-                                masterToggle.classList.remove('open');
-
-                                masterToggle.setAttribute(
-                                    'aria-expanded',
-                                    'false'
-                                );
-
-                            }
-
-
-                            if (masterSubmenu) {
-
-                                masterSubmenu.classList.remove('open');
-
-                            }
-
-
-                            /*
-                            Mobile: tutup sidebar.
-                            */
-
-                            if (
-                                window.innerWidth <= 900
-                            ) {
-
-                                closeSidebar();
-
-                            }
-
-                        }
-                    );
-
-                });
-
-
-            /* =================================================
-               KLIK SUBMENU MASTER
-            ================================================== */
-
-            document
-                .querySelectorAll(
-                    '.sidebar .submenu-link'
-                )
-                .forEach(function (link) {
-
-                    link.addEventListener(
-                        'click',
-                        function () {
-
-                            /*
-                            Hapus active dari semua menu utama.
-                            */
-
-                            document
-                                .querySelectorAll(
-                                    '.sidebar .menu-link'
-                                )
-                                .forEach(function (item) {
-
-                                    item.classList.remove('active');
-
-                                });
-
-
-                            /*
-                            Hapus active dari submenu lain.
-                            */
-
-                            document
-                                .querySelectorAll(
-                                    '.sidebar .submenu-link'
-                                )
-                                .forEach(function (item) {
-
-                                    item.classList.remove('active');
-
-                                });
-
-
-                            /*
-                            Hanya submenu yang diklik yang putih.
-                            */
-
-                            this.classList.add('active');
-
-
-                            /*
-                            Master tetap terbuka,
-                            tetapi TIDAK putih.
-                            */
-
-                            masterToggle.classList.remove('active');
-
-                            masterToggle.classList.add('open');
-
-                            masterSubmenu.classList.add('open');
-
-                            masterToggle.setAttribute(
-                                'aria-expanded',
-                                'true'
-                            );
-
-
-                            /*
-                            Mobile: tutup sidebar.
-                            */
-
-                            if (
-                                window.innerWidth <= 900
-                            ) {
-
-                                closeSidebar();
-
-                            }
-
-                        }
-                    );
-
-                });
-
-
-            /* =================================================
-               LOGOUT
-            ================================================== */
-
-            document
-                .querySelector('.logout-link')
-                ?.addEventListener(
-                    'click',
-                    function () {
-
-                        if (
-                            window.innerWidth <= 900
-                        ) {
-
-                            closeSidebar();
-
-                        }
-
-                    }
-                );
-
-
-            /* =================================================
-               ESC
-            ================================================== */
-
-            document.addEventListener(
-                'keydown',
-                function (event) {
-
-                    if (event.key === 'Escape') {
-
-                        closeSidebar();
-
-                    }
-
-                }
-            );
-
-
-            /* =================================================
-               RESIZE
-            ================================================== */
-
-            window.addEventListener(
-                'resize',
-                function () {
-
-                    if (
-                        window.innerWidth > 900
-                    ) {
-
-                        closeSidebar();
-
-                    }
-
-                }
-            );
-
-        });
+        );
 
     </script>
 

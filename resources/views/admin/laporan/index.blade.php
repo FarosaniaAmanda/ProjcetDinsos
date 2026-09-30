@@ -197,83 +197,97 @@
     }
 
 
-    /* =====================================================
-       FILTER
-    ===================================================== */
+     /* =====================================================
+ FILTER
+ ===================================================== */
+ .laporan-filter {
+ display: grid;
+ grid-template-columns: minmax(280px, 1.8fr) minmax(160px, .9fr) minmax(180px, 1fr) auto;
+ gap: 12px;
+ margin-top: 17px;
+ align-items: end;
+ }
+ .laporan-filter-group {
+ min-width: 0;
+ }
+ .laporan-filter-label {
+ display: block;
+ margin: 0 0 7px;
+ color: #555555;
+ font-size: 12px;
+ line-height: 1.4;
+ font-weight: 600;
+ }
+ .laporan-filter-label-hidden {
+ visibility: hidden;
+ }
+ .laporan-search {
+ position: relative;
+ width: 100%;
+ }
+ .laporan-search input,
+ .laporan-filter select {
+ width: 100%;
+ height: 43px;
+ border: 1px solid #d9dce3;
+ border-radius: 9px;
+ background: #ffffff;
+ color: #222222;
+ font-size: 13px;
+ outline: none;
+ box-sizing: border-box;
+ transition: .2s ease;
+ }
+ .laporan-search input {
+ padding: 0 42px 0 14px;
+ }
+ .laporan-filter select {
+ padding: 0 35px 0 13px;
+ cursor: pointer;
+ }
+ .laporan-search input::placeholder {
+ color: #999999;
+ }
+ .laporan-search input:focus,
+ .laporan-filter select:focus {
+ border-color: #55B5D5;
+ box-shadow: 0 0 0 3px rgba(85, 181, 213, .12);
+ }
+ .laporan-search-icon {
+ position: absolute;
+ top: 50%;
+ right: 14px;
+ transform: translateY(-50%);
+ color: #777777;
+ pointer-events: none;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ }
+ .laporan-reset-btn {
+ width: 100%;
+ min-height: 43px;
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ padding: 0 15px;
+ border: 1px solid #252A86;
+ border-radius: 9px;
+ background: #ffffff;
+ color: #252A86;
+ font-size: 13px;
+ font-weight: 600;
+ text-decoration: none;
+ box-sizing: border-box;
+ transition: .2s ease;
+ white-space: nowrap;
+ }
+ .laporan-reset-btn:hover {
+ background: #f1f3ff;
+ color: #252A86;
+ }
 
-    .laporan-filter {
-        display: grid;
-        grid-template-columns: minmax(250px, 1.8fr) minmax(150px, .9fr) minmax(150px, .9fr) auto;
-        gap: 10px;
-        margin-top: 17px;
-    }
-
-    .laporan-search {
-        position: relative;
-    }
-
-    .laporan-search input,
-    .laporan-filter select {
-        width: 100%;
-        height: 43px;
-        border: 1px solid #d9dce3;
-        border-radius: 9px;
-        background: #ffffff;
-        color: #222222;
-        font-size: 13px;
-        outline: none;
-        box-sizing: border-box;
-        transition: .2s ease;
-    }
-
-    .laporan-search input {
-        padding: 0 42px 0 14px;
-    }
-
-    .laporan-filter select {
-        padding: 0 35px 0 13px;
-        cursor: pointer;
-    }
-
-    .laporan-search input::placeholder {
-        color: #999999;
-    }
-
-    .laporan-search input:focus,
-    .laporan-filter select:focus {
-        border-color: #55B5D5;
-        box-shadow: 0 0 0 3px rgba(85, 181, 213, .12);
-    }
-
-    .laporan-search-icon {
-        position: absolute;
-        top: 50%;
-        right: 14px;
-        transform: translateY(-50%);
-        color: #777777;
-        pointer-events: none;
-    }
-
-    .laporan-reset-btn {
-        height: 43px;
-        padding: 0 15px;
-        border: 1px solid #252A86;
-        border-radius: 9px;
-        background: #ffffff;
-        color: #252A86;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: .2s ease;
-        white-space: nowrap;
-    }
-
-    .laporan-reset-btn:hover {
-        background: #f1f3ff;
-    }
-
-
-    /* =====================================================
+/* =====================================================
        TABLE
     ===================================================== */
 
@@ -704,23 +718,21 @@
     ===================================================== */
 
     @media (max-width: 1200px) {
+ .laporan-stats {
+ grid-template-columns: repeat(2, minmax(0, 1fr));
+ }
+ .laporan-filter {
+ grid-template-columns: 1fr 1fr;
+ }
+ .laporan-filter-reset-group {
+ grid-column: 1 / -1;
+ }
+ .laporan-reset-btn {
+ width: 100%;
+ }
+ }
 
-        .laporan-stats {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .laporan-filter {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .laporan-reset-btn {
-            width: 100%;
-        }
-
-    }
-
-
-    @media (max-width: 800px) {
+ @media (max-width: 800px) {
 
         .laporan-page {
             padding: 20px 18px 30px;
@@ -966,96 +978,145 @@
 
             {{-- FILTER --}}
 
-            <div class="laporan-filter">
+            <form
+                method="GET"
+                action="{{ route('laporan.index') }}"
+                class="laporan-filter"
+                id="laporanFilterForm"
+            >
 
+                {{-- PENCARIAN --}}
+                <div class="laporan-filter-group laporan-filter-search">
 
-                {{-- SEARCH --}}
-
-                <div class="laporan-search">
-
-                    <input
-                        type="text"
-                        id="laporanSearch"
-                        placeholder="Cari No. KK, NIK, atau Nama Kepala Keluarga..."
-                        autocomplete="off"
+                    <label
+                        for="laporanSearch"
+                        class="laporan-filter-label"
                     >
+                        Pencarian Data
+                    </label>
 
-                    <div class="laporan-search-icon">
+                    <div class="laporan-search">
 
-                        <svg
-                            width="17"
-                            height="17"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
+                        <input
+                            type="text"
+                            name="search"
+                            id="laporanSearch"
+                            value="{{ $search ?? request('search') }}"
+                            placeholder="Cari No. KK, NIK, atau Nama Kepala Keluarga..."
+                            autocomplete="off"
                         >
-                            <circle cx="11" cy="11" r="7"></circle>
-                            <line
-                                x1="16.5"
-                                y1="16.5"
-                                x2="21"
-                                y2="21"
-                            ></line>
-                        </svg>
+
+                        <span
+                            class="laporan-search-icon"
+                            aria-hidden="true"
+                        >
+                            <svg
+                                width="17"
+                                height="17"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <circle cx="11" cy="11" r="7"></circle>
+                                <line
+                                    x1="16.5"
+                                    y1="16.5"
+                                    x2="21"
+                                    y2="21"
+                                ></line>
+                            </svg>
+                        </span>
 
                     </div>
 
                 </div>
 
-
                 {{-- PERIODE --}}
+                <div class="laporan-filter-group">
 
-                <select id="filterPeriode">
+                    <label
+                        for="filterPeriode"
+                        class="laporan-filter-label"
+                    >
+                        Periode
+                    </label>
 
-                    <option value="">
-                        Semua Periode
-                    </option>
-
-                    @foreach(($periodeList ?? []) as $periode)
-                        <option value="{{ strtolower($periode) }}">
-                            {{ $periode }}
+                    <select
+                        name="periode"
+                        id="filterPeriode"
+                    >
+                        <option value="">
+                            Semua Periode
                         </option>
-                    @endforeach
 
-                </select>
+                        @foreach(($periodeList ?? []) as $itemPeriode)
 
+                            <option
+                                value="{{ $itemPeriode }}"
+                                {{ ($periode ?? request('periode')) == $itemPeriode ? 'selected' : '' }}
+                            >
+                                {{ $itemPeriode }}
+                            </option>
+
+                        @endforeach
+                    </select>
+
+                </div>
 
                 {{-- WILAYAH --}}
+                <div class="laporan-filter-group">
 
-                <select id="filterWilayah">
+                    <label
+                        for="filterWilayah"
+                        class="laporan-filter-label"
+                    >
+                        Wilayah
+                    </label>
 
-                    <option value="">
-                        Semua Wilayah
-                    </option>
-
-                    @foreach(($wilayahList ?? []) as $wilayah)
-                        <option value="{{ strtolower($wilayah) }}">
-                            {{ $wilayah }}
+                    <select
+                        name="wilayah"
+                        id="filterWilayah"
+                    >
+                        <option value="">
+                            Semua Wilayah
                         </option>
-                    @endforeach
 
-                </select>
+                        @foreach(($wilayahList ?? []) as $itemWilayah)
 
+                            <option
+                                value="{{ $itemWilayah }}"
+                                {{ ($wilayah ?? request('wilayah')) == $itemWilayah ? 'selected' : '' }}
+                            >
+                                {{ $itemWilayah }}
+                            </option>
+
+                        @endforeach
+                    </select>
+
+                </div>
 
                 {{-- RESET --}}
+                <div class="laporan-filter-group laporan-filter-reset-group">
 
-                <button
-                    type="button"
-                    class="laporan-reset-btn"
-                    id="resetLaporanFilter"
-                >
-                    Reset Filter
-                </button>
+                    <span
+                        class="laporan-filter-label laporan-filter-label-hidden"
+                        aria-hidden="true"
+                    >
+                        Filter
+                    </span>
 
-            </div>
+                    <a
+                        href="{{ route('laporan.index') }}"
+                        class="laporan-reset-btn"
+                        id="resetLaporanFilter"
+                    >
+                        Reset Filter
+                    </a>
 
-        </div>
+                </div>
 
-
-        {{-- =====================================================
-             TABLE
-        ===================================================== --}}
+            </form>
 
         <div class="laporan-table-wrapper">
 
@@ -1346,53 +1407,7 @@
                     @endforelse
 
 
-                    {{-- EMPTY FILTER --}}
-
-                    <tr
-                        id="laporanFilterEmpty"
-                        style="display:none;"
-                    >
-
-                        <td colspan="10">
-
-                            <div class="laporan-empty">
-
-                                <div class="laporan-empty-icon">
-
-                                    <svg
-                                        width="25"
-                                        height="25"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="1.8"
-                                    >
-                                        <circle cx="11" cy="11" r="7"></circle>
-                                        <line
-                                            x1="16.5"
-                                            y1="16.5"
-                                            x2="21"
-                                            y2="21"
-                                        ></line>
-                                    </svg>
-
-                                </div>
-
-                                <div class="laporan-empty-title">
-                                    Data Tidak Ditemukan
-                                </div>
-
-                                <div class="laporan-empty-text">
-                                    Tidak ada data yang sesuai dengan pencarian atau filter.
-                                </div>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                </tbody>
+                    </tbody>
 
             </table>
 
@@ -1716,157 +1731,214 @@
 
 
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
     /* =====================================================
-       ELEMENT
+       ELEMENT FILTER
     ===================================================== */
-
-    const searchInput =
-        document.getElementById('laporanSearch');
-
-    const periodeFilter =
-        document.getElementById('filterPeriode');
-
-    const wilayahFilter =
-        document.getElementById('filterWilayah');
-
-    const resetButton =
-        document.getElementById('resetLaporanFilter');
-
-    const tableBody =
-        document.getElementById('laporanTableBody');
-
-    const filterEmpty =
-        document.getElementById('laporanFilterEmpty');
-
+    const laporanFilterForm = document.getElementById('laporanFilterForm');
+    const searchInput = document.getElementById('laporanSearch');
+    const periodeFilter = document.getElementById('filterPeriode');
+    const wilayahFilter = document.getElementById('filterWilayah');
+    const tableBody = document.getElementById('laporanTableBody');
 
     /* =====================================================
-       FILTER TABLE
+       REALTIME SEARCH + FILTER
     ===================================================== */
 
-    function filterLaporan() {
+    function filterLaporanTable() {
 
-        const search =
-            (searchInput?.value || '')
-                .trim()
-                .toLowerCase();
+        if (!tableBody) return;
 
-        const periode =
-            (periodeFilter?.value || '')
-                .trim()
-                .toLowerCase();
+        const rows = tableBody.querySelectorAll('tr[data-search]');
 
-        const wilayah =
-            (wilayahFilter?.value || '')
-                .trim()
-                .toLowerCase();
+        const searchValue = searchInput
+            ? searchInput.value.trim().toLowerCase()
+            : '';
 
+        const periodeValue = periodeFilter
+            ? periodeFilter.value.trim().toLowerCase()
+            : '';
 
-        const rows =
-            Array.from(
-                tableBody.querySelectorAll(
-                    'tr[data-search]'
-                )
-            );
-
+        const wilayahValue = wilayahFilter
+            ? wilayahFilter.value.trim().toLowerCase()
+            : '';
 
         let visibleCount = 0;
 
-
         rows.forEach(function (row) {
 
-            const searchableText =
-                row.getAttribute('data-search') || '';
+            const searchData = (
+                row.dataset.search || ''
+            ).toLowerCase();
 
-            const rowPeriode =
-                row.getAttribute('data-periode') || '';
+            const rowPeriode = (
+                row.dataset.periode || ''
+            ).toLowerCase();
 
-            const rowWilayah =
-                row.getAttribute('data-wilayah') || '';
+            const rowWilayah = (
+                row.dataset.wilayah || ''
+            ).toLowerCase();
 
+            const cocokSearch =
+                searchValue === '' ||
+                searchData.includes(searchValue);
 
-            const matchSearch =
-                !search ||
-                searchableText.includes(search);
+            const cocokPeriode =
+                periodeValue === '' ||
+                rowPeriode === periodeValue;
 
+            const cocokWilayah =
+                wilayahValue === '' ||
+                rowWilayah === wilayahValue;
 
-            const matchPeriode =
-                !periode ||
-                rowPeriode === periode;
+            const cocok =
+                cocokSearch &&
+                cocokPeriode &&
+                cocokWilayah;
 
-
-            const matchWilayah =
-                !wilayah ||
-                rowWilayah === wilayah;
-
-
-            const visible =
-                matchSearch &&
-                matchPeriode &&
-                matchWilayah;
-
-
-            row.style.display =
-                visible ? '' : 'none';
-
-
-            if (visible) {
+            if (cocok) {
+                row.style.display = '';
                 visibleCount++;
+            } else {
+                row.style.display = 'none';
             }
-
         });
 
+        /* =================================================
+           EMPTY RESULT
+        ================================================= */
 
-        if (filterEmpty) {
+        let emptyRow = document.getElementById(
+            'laporanRealtimeEmpty'
+        );
 
-            filterEmpty.style.display =
-                rows.length > 0 &&
-                visibleCount === 0
-                    ? ''
-                    : 'none';
+        if (visibleCount === 0 && rows.length > 0) {
 
+            if (!emptyRow) {
+
+                emptyRow = document.createElement('tr');
+
+                emptyRow.id = 'laporanRealtimeEmpty';
+
+                emptyRow.innerHTML = `
+                    <td colspan="10">
+                        <div class="laporan-empty">
+
+                            <div class="laporan-empty-icon">
+                                <svg
+                                    width="25"
+                                    height="25"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                >
+                                    <circle
+                                        cx="11"
+                                        cy="11"
+                                        r="7"
+                                    ></circle>
+
+                                    <line
+                                        x1="16.5"
+                                        y1="16.5"
+                                        x2="21"
+                                        y2="21"
+                                    ></line>
+                                </svg>
+                            </div>
+
+                            <div class="laporan-empty-title">
+                                Data Tidak Ditemukan
+                            </div>
+
+                            <div class="laporan-empty-text">
+                                Tidak ada data yang sesuai dengan pencarian atau filter.
+                            </div>
+
+                        </div>
+                    </td>
+                `;
+
+                tableBody.appendChild(emptyRow);
+            }
+
+            emptyRow.style.display = '';
+
+        } else if (emptyRow) {
+
+            emptyRow.style.display = 'none';
         }
-
     }
 
+
+    /* =====================================================
+       SEARCH REALTIME
+    ===================================================== */
 
     if (searchInput) {
 
         searchInput.addEventListener(
             'input',
-            filterLaporan
-        );
+            function () {
 
+                filterLaporanTable();
+
+            }
+        );
     }
 
+
+    /* =====================================================
+       FILTER PERIODE REALTIME
+    ===================================================== */
 
     if (periodeFilter) {
 
         periodeFilter.addEventListener(
             'change',
-            filterLaporan
-        );
+            function () {
 
+                filterLaporanTable();
+
+            }
+        );
     }
 
+
+    /* =====================================================
+       FILTER WILAYAH REALTIME
+    ===================================================== */
 
     if (wilayahFilter) {
 
         wilayahFilter.addEventListener(
             'change',
-            filterLaporan
-        );
+            function () {
 
+                filterLaporanTable();
+
+            }
+        );
     }
 
+
+    /* =====================================================
+       RESET FILTER
+    ===================================================== */
+
+    const resetButton = document.getElementById(
+        'resetLaporanFilter'
+    );
 
     if (resetButton) {
 
         resetButton.addEventListener(
             'click',
-            function () {
+            function (event) {
+
+                event.preventDefault();
 
                 if (searchInput) {
                     searchInput.value = '';
@@ -1880,11 +1952,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     wilayahFilter.value = '';
                 }
 
-                filterLaporan();
+                filterLaporanTable();
 
             }
         );
-
     }
 
 
@@ -1892,86 +1963,70 @@ document.addEventListener('DOMContentLoaded', function () {
        MODAL
     ===================================================== */
 
-    const modal =
-        document.getElementById(
-            'laporanDetailModal'
-        );
+    const modal = document.getElementById(
+        'laporanDetailModal'
+    );
 
-    const closeModal =
-        document.getElementById(
-            'closeLaporanModal'
-        );
+    const closeModal = document.getElementById(
+        'closeLaporanModal'
+    );
 
-    const closeModalBottom =
-        document.getElementById(
-            'closeLaporanModalBottom'
-        );
+    const closeModalBottom = document.getElementById(
+        'closeLaporanModalBottom'
+    );
 
-    const downloadPdf =
-        document.getElementById(
-            'downloadLaporanPdf'
-        );
+    const downloadPdf = document.getElementById(
+        'downloadLaporanPdf'
+    );
 
 
-    const modalNamaSummary =
-        document.getElementById(
-            'modalNamaSummary'
-        );
+    const modalNamaSummary = document.getElementById(
+        'modalNamaSummary'
+    );
 
-    const modalKkSummary =
-        document.getElementById(
-            'modalKkSummary'
-        );
+    const modalKkSummary = document.getElementById(
+        'modalKkSummary'
+    );
 
-    const modalStatusSummary =
-        document.getElementById(
-            'modalStatusSummary'
-        );
+    const modalStatusSummary = document.getElementById(
+        'modalStatusSummary'
+    );
 
-    const modalNoKk =
-        document.getElementById(
-            'modalNoKk'
-        );
+    const modalNoKk = document.getElementById(
+        'modalNoKk'
+    );
 
-    const modalNik =
-        document.getElementById(
-            'modalNik'
-        );
+    const modalNik = document.getElementById(
+        'modalNik'
+    );
 
-    const modalNama =
-        document.getElementById(
-            'modalNama'
-        );
+    const modalNama = document.getElementById(
+        'modalNama'
+    );
 
-    const modalJumlahAnggota =
-        document.getElementById(
-            'modalJumlahAnggota'
-        );
+    const modalJumlahAnggota = document.getElementById(
+        'modalJumlahAnggota'
+    );
 
-    const modalWilayah =
-        document.getElementById(
-            'modalWilayah'
-        );
+    const modalWilayah = document.getElementById(
+        'modalWilayah'
+    );
 
-    const modalPeriode =
-        document.getElementById(
-            'modalPeriode'
-        );
+    const modalPeriode = document.getElementById(
+        'modalPeriode'
+    );
 
-    const modalTanggal =
-        document.getElementById(
-            'modalTanggal'
-        );
+    const modalTanggal = document.getElementById(
+        'modalTanggal'
+    );
 
-    const modalStatus =
-        document.getElementById(
-            'modalStatus'
-        );
+    const modalStatus = document.getElementById(
+        'modalStatus'
+    );
 
-    const modalComplete =
-        document.getElementById(
-            'modalComplete'
-        );
+    const modalComplete = document.getElementById(
+        'modalComplete'
+    );
 
 
     /* =====================================================
@@ -1980,65 +2035,94 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function openLaporanModal(button) {
 
-        const data =
-            button.dataset;
+        const data = button.dataset;
 
-
-        modalNamaSummary.textContent =
-            data.nama || '-';
-
-        modalKkSummary.textContent =
-            data.noKk || '-';
-
-        modalStatusSummary.textContent =
-            data.status || '-';
-
-
-        modalNoKk.textContent =
-            data.noKk || '-';
-
-        modalNik.textContent =
-            data.nik || '-';
-
-        modalNama.textContent =
-            data.nama || '-';
-
-        modalJumlahAnggota.textContent =
-            (data.jumlahAnggota || '0') + ' Orang';
-
-        modalWilayah.textContent =
-            data.wilayah || '-';
-
-        modalPeriode.textContent =
-            data.periode || '-';
-
-        modalTanggal.textContent =
-            data.tanggal || '-';
-
-        modalStatus.textContent =
-            data.status || '-';
-
-
-        if (data.complete === '1') {
-
-            modalComplete.innerHTML = `
-                <span class="laporan-complete yes">
-                    <span class="laporan-check yes">✓</span>
-                    Data lengkap
-                </span>
-            `;
-
-        } else {
-
-            modalComplete.innerHTML = `
-                <span class="laporan-complete no">
-                    <span class="laporan-check no">−</span>
-                    Belum lengkap
-                </span>
-            `;
-
+        if (modalNamaSummary) {
+            modalNamaSummary.textContent =
+                data.nama || '-';
         }
 
+        if (modalKkSummary) {
+            modalKkSummary.textContent =
+                data.noKk || '-';
+        }
+
+        if (modalStatusSummary) {
+            modalStatusSummary.textContent =
+                data.status || '-';
+        }
+
+        if (modalNoKk) {
+            modalNoKk.textContent =
+                data.noKk || '-';
+        }
+
+        if (modalNik) {
+            modalNik.textContent =
+                data.nik || '-';
+        }
+
+        if (modalNama) {
+            modalNama.textContent =
+                data.nama || '-';
+        }
+
+        if (modalJumlahAnggota) {
+            modalJumlahAnggota.textContent =
+                (data.jumlahAnggota || '0') + ' Orang';
+        }
+
+        if (modalWilayah) {
+            modalWilayah.textContent =
+                data.wilayah || '-';
+        }
+
+        if (modalPeriode) {
+            modalPeriode.textContent =
+                data.periode || '-';
+        }
+
+        if (modalTanggal) {
+            modalTanggal.textContent =
+                data.tanggal || '-';
+        }
+
+        if (modalStatus) {
+            modalStatus.textContent =
+                data.status || '-';
+        }
+
+
+        /* =================================================
+           KELENGKAPAN DATA
+        ================================================= */
+
+        if (modalComplete) {
+
+            if (data.complete === '1') {
+
+                modalComplete.innerHTML = `
+                    <span class="laporan-complete yes">
+                        <span class="laporan-check yes">✓</span>
+                        Data lengkap
+                    </span>
+                `;
+
+            } else {
+
+                modalComplete.innerHTML = `
+                    <span class="laporan-complete no">
+                        <span class="laporan-check no">−</span>
+                        Belum lengkap
+                    </span>
+                `;
+            }
+        }
+
+
+        /* =================================================
+           PDF
+        ================================================= */
 
         if (downloadPdf && data.id) {
 
@@ -2048,16 +2132,22 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        modal.classList.add('active');
+        /* =================================================
+           SHOW MODAL
+        ================================================= */
 
-        modal.setAttribute(
-            'aria-hidden',
-            'false'
-        );
+        if (modal) {
 
-        document.body.style.overflow =
-            'hidden';
+            modal.classList.add('active');
 
+            modal.setAttribute(
+                'aria-hidden',
+                'false'
+            );
+
+            document.body.style.overflow =
+                'hidden';
+        }
     }
 
 
@@ -2067,6 +2157,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function closeLaporanModal() {
 
+        if (!modal) return;
+
         modal.classList.remove('active');
 
         modal.setAttribute(
@@ -2074,8 +2166,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'true'
         );
 
-        document.body.style.overflow =
-            '';
+        document.body.style.overflow = '';
 
     }
 
@@ -2085,18 +2176,14 @@ document.addEventListener('DOMContentLoaded', function () {
     ===================================================== */
 
     document
-        .querySelectorAll(
-            '.btn-detail-laporan'
-        )
+        .querySelectorAll('.btn-detail-laporan')
         .forEach(function (button) {
 
             button.addEventListener(
                 'click',
                 function () {
 
-                    openLaporanModal(
-                        this
-                    );
+                    openLaporanModal(this);
 
                 }
             );
@@ -2105,7 +2192,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       CLOSE
+       CLOSE BUTTON
     ===================================================== */
 
     if (closeModal) {
@@ -2129,7 +2216,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       CLICK OUTSIDE
+       CLICK OUTSIDE MODAL
     ===================================================== */
 
     if (modal) {
@@ -2138,9 +2225,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'click',
             function (event) {
 
-                if (
-                    event.target === modal
-                ) {
+                if (event.target === modal) {
 
                     closeLaporanModal();
 
@@ -2173,8 +2258,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     );
 
-});
 
+
+    filterLaporanTable();
+
+});
 </script>
 
 @endsection

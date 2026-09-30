@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\RespondenController;
 use App\Http\Controllers\Admin\VerifikasiController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\LaporanController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -220,25 +222,15 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/laporan', function () {
+Route::get(
+    '/laporan',
+    [LaporanController::class, 'index']
+)->name('laporan.index');
 
-    return view('admin.laporan.index');
-
-})->name('laporan.index');
-
-Route::get('/laporan/export', function () {
-
-    return response()->streamDownload(function () {
-
-        echo "No. KK,Periode,Tanggal Pendataan,Status\n";
-
-    }, 'laporan-pendataan.csv', [
-
-        'Content-Type' => 'text/csv',
-
-    ]);
-
-})->name('admin.laporan.export');
+Route::get(
+    '/laporan/export',
+    [LaporanController::class, 'export']
+)->name('admin.laporan.export');
 
 /*
 |--------------------------------------------------------------------------
@@ -247,10 +239,8 @@ Route::get('/laporan/export', function () {
 */
 
 Route::get('/master', function () {
-
     return redirect()
         ->route('master.pengguna.index');
-
 })->name('master.index');
 
 /*
