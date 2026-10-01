@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Keluarga;
 use App\Models\KeluargaPart1;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class KuisionerController extends Controller
 {
@@ -78,67 +80,121 @@ class KuisionerController extends Controller
     public function part1(Request $request)
     {
         /*
-        | Jika klik "Mulai Kuisioner Baru"
+        |--------------------------------------------------------------------------
+        | AMBIL SEMUA KELUARGA
+        |--------------------------------------------------------------------------
         */
-        if ($request->has('new')) {
 
-            session()->forget([
-                'draft_keluarga_id',
-                'part1_selesai',
-                'part2_selesai',
-                'part3_selesai',
-                'part4_selesai',
-            ]);
+        $keluargas = Keluarga::with('anggota')
+            ->orderBy('id')
+            ->get();
 
-            return view('admin.kuisioner.part1', [
-                'data' => null,
-            ]);
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL DATA KECAMATAN DAN KELURAHAN
+        |--------------------------------------------------------------------------
+        */
+
+        $kecamatans = DB::table('kecamatans')
+            ->orderBy('deskripsi')
+            ->get();
+
+        $kelurahans = DB::table('kelurahans')
+            ->orderBy('deskripsi')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | DEFAULT
+        |--------------------------------------------------------------------------
+        */
+
+        $selectedKeluarga = null;
+        $data = null;
+
+        $selectedKecamatan = null;
+        $selectedKelurahan = null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | JIKA SUDAH MEMILIH KELUARGA
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('keluarga')) {
+
+            $selectedKeluarga = $keluargas
+                ->firstWhere('kode', $request->keluarga);
+
+            if ($selectedKeluarga) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | CARI DRAFT PART 1 MILIK KELUARGA
+                |--------------------------------------------------------------------------
+                */
+
+                $data = KeluargaPart1::where('nik', $selectedKeluarga->nik)
+                    ->where('status', 'draft')
+                    ->latest('id')
+                    ->first();
+
+                /*
+                |--------------------------------------------------------------------------
+                | KONVERSI KECAMATAN ID -> DESKRIPSI
+                |--------------------------------------------------------------------------
+                */
+
+                if ($selectedKeluarga->kecamatan_id) {
+                    $selectedKecamatan = DB::table('kecamatans')
+                        ->where(
+                            'kecamatan_id',
+                            $selectedKeluarga->kecamatan_id
+                        )
+                        ->value('deskripsi');
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | KONVERSI KELURAHAN ID -> DESKRIPSI
+                |--------------------------------------------------------------------------
+                */
+
+                if ($selectedKeluarga->kelurahan_id) {
+                    $selectedKelurahan = DB::table('kelurahans')
+                        ->where(
+                            'kelurahan_id',
+                            $selectedKeluarga->kelurahan_id
+                        )
+                        ->value('deskripsi');
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | SIMPAN KELUARGA YANG SEDANG DIPILIH
+                |--------------------------------------------------------------------------
+                */
+
+                session([
+                    'selected_keluarga_kode' => $selectedKeluarga->kode,
+                ]);
+            }
         }
 
-        /*
-        | Ambil ID Part 1 dari session
-        */
-        $draftId = session('draft_keluarga_id');
-
-        /*
-        | Kalau tidak ada session
-        */
-        if (!$draftId) {
-            return view('admin.kuisioner.part1', [
-                'data' => null,
-            ]);
-        }
-
-        /*
-        | Ambil data Part 1
-        */
-        $data = KeluargaPart1::where('id', $draftId)
-            ->where('status', 'draft')
-            ->first();
-
-        /*
-        | Kalau data tidak ditemukan
-        */
-        if (!$data) {
-
-            session()->forget([
-                'draft_keluarga_id',
-                'part1_selesai',
-                'part2_selesai',
-                'part3_selesai',
-                'part4_selesai',
-            ]);
-
-            return view('admin.kuisioner.part1', [
-                'data' => null,
-            ]);
-        }
-
-        /*
-        | Tampilkan data draft
-        */
         return view('admin.kuisioner.part1', [
+            'keluargas' => $keluargas,
+
+            'selectedKeluarga' => $selectedKeluarga,
+
             'data' => $data,
+
+            'kecamatans' => $kecamatans,
+
+            'kelurahans' => $kelurahans,
+
+            'selectedKecamatan' => $selectedKecamatan,
+
+            'selectedKelurahan' => $selectedKelurahan,
         ]);
     }
 
@@ -258,6 +314,12 @@ class KuisionerController extends Controller
                 'string',
                 'max:255',
             ],
+
+            'keluarga_kode' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ]);
 
         $user = auth()->user()->name ?? 'admin';
@@ -280,7 +342,7 @@ class KuisionerController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | KALAU BELUM ADA DRAFT → BUAT BARU
+        | JIKA BELUM ADA DRAFT -> BUAT BARU
         |--------------------------------------------------------------------------
         */
 
@@ -297,12 +359,111 @@ class KuisionerController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | MASUKKAN SEMUA DATA
+        | DATA DASAR
         |--------------------------------------------------------------------------
         */
 
-        foreach ($validated as $field => $value) {
-            $draft->{$field} = $value;
+        $draft->nik = $validated['nik'] ?? null;
+
+        $draft->nama_kepala_keluarga =
+            $validated['nama_kepala_keluarga'] ?? null;
+
+        $draft->no_kk =
+            $validated['no_kk'] ?? null;
+
+        $draft->jml_keluarga =
+            $validated['jml_keluarga'] ?? null;
+
+        $draft->provinsi =
+            $validated['provinsi'] ?? null;
+
+        $draft->daerah =
+            $validated['daerah'] ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | KECAMATAN
+        | Disimpan sebagai deskripsi, bukan ID
+        |--------------------------------------------------------------------------
+        */
+
+        $draft->kecamatan =
+            $validated['kecamatan'] ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | KELURAHAN
+        | Disimpan sebagai deskripsi, bukan ID
+        |--------------------------------------------------------------------------
+        */
+
+        $draft->kelurahan =
+            $validated['kelurahan'] ?? null;
+
+        $draft->kode_pos =
+            $validated['kode_pos'] ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | ALAMAT
+        | RT/RW digabung ke alamat_lengkap
+        |--------------------------------------------------------------------------
+        */
+
+        $rtRw = trim($validated['rt_rw'] ?? '');
+
+        $alamat = trim($validated['alamat_lengkap'] ?? '');
+
+        if ($rtRw && $alamat) {
+            $draft->alamat_lengkap = $rtRw . ', ' . $alamat;
+        } elseif ($rtRw) {
+            $draft->alamat_lengkap = $rtRw;
+        } else {
+            $draft->alamat_lengkap = $alamat;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | JALAN DAN NOMOR RUMAH
+        |--------------------------------------------------------------------------
+        */
+
+        $draft->jalan_rumah =
+            $validated['jalan_rumah'] ?? null;
+
+        $draft->nomor_rumah =
+            $validated['nomor_rumah'] ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | ALAMAT SESUAI
+        |--------------------------------------------------------------------------
+        */
+
+        $draft->is_alamat_sesuai =
+            $validated['is_alamat_sesuai'] ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | GEOTAGGING
+        |--------------------------------------------------------------------------
+        */
+
+        $draft->geotangging =
+            $validated['geotangging'] ?? null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | HUBUNGKAN DENGAN KELUARGA
+        |--------------------------------------------------------------------------
+        */
+
+        $keluargaKode =
+            $validated['keluarga_kode']
+            ?? session('selected_keluarga_kode');
+
+        if ($keluargaKode) {
+            $draft->keluarga_periode_kode = $keluargaKode;
         }
 
         /*
@@ -333,13 +494,9 @@ class KuisionerController extends Controller
 
         session([
             'draft_keluarga_id' => $draft->id,
-
             'part1_selesai' => true,
-
             'part2_selesai' => false,
-
             'part3_selesai' => false,
-
             'part4_selesai' => false,
         ]);
 
@@ -381,7 +538,6 @@ class KuisionerController extends Controller
             ->first();
 
         if (!$draft) {
-
             session()->forget([
                 'draft_keluarga_id',
                 'part1_selesai',
@@ -565,21 +721,16 @@ class KuisionerController extends Controller
 
         $draft->update([
             'status' => 'selesai',
-
             'current_part' => 5,
-
             'updated_by' => auth()->user()->name ?? 'admin',
         ]);
 
         session()->forget([
             'draft_keluarga_id',
-
+            'selected_keluarga_kode',
             'part1_selesai',
-
             'part2_selesai',
-
             'part3_selesai',
-
             'part4_selesai',
         ]);
 

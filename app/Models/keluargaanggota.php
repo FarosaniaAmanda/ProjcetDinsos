@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class KeluargaAnggota extends Model
 {
@@ -17,4 +18,13 @@ class KeluargaAnggota extends Model
         'created_by',
         'updated_by',
     ];
+
+    public function keluarga(): BelongsTo
+    {
+        return $this->belongsTo(
+            Keluarga::class,
+            'keluarga_kode',
+            'kode'
+        );
+    }
 }
