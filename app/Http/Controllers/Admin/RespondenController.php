@@ -14,18 +14,40 @@ class RespondenController extends Controller
     /**
      * Menampilkan daftar responden.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $keluargas = Keluarga::with([
+        $search = $request->query('search');
+        $search = is_string($search) ? trim($search) : '';
+
+        $query = Keluarga::with([
             'anggota' => function ($query) {
                 $query
                     ->where('status_keluarga', '!=', 'Kepala Keluarga')
                     ->orderBy('id');
             },
-        ])
+        ]);
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $keyword = "%{$search}%";
+
+                $query
+                    ->where('no_kk', 'like', $keyword)
+                    ->orWhere('nik', 'like', $keyword)
+                    ->orWhere('nama_lengkap', 'like', $keyword)
+                    ->orWhere('alamat_lengkap', 'like', $keyword)
+                    ->orWhereHas('anggota', function ($query) use ($keyword) {
+                        $query
+                            ->where('nik', 'like', $keyword)
+                            ->orWhere('nama_lengkap', 'like', $keyword);
+                    });
+            });
+        }
+
+        $keluargas = $query
             ->latest()
-            ->paginate(10);
-            
+            ->paginate(10)
+            ->withQueryString();
 
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')

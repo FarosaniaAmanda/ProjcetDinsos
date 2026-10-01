@@ -141,7 +141,7 @@
 .responden-search input {
     width: 100%;
     height: 38px;
-    padding: 0 13px 0 38px;
+    padding: 0 42px 0 38px;
     border: 1px solid #dfe1e8;
     border-radius: 8px;
     outline: none;
@@ -163,6 +163,25 @@
     color: #999;
     font-size: 14px;
     pointer-events: none;
+}
+
+.responden-search-button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #777;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.responden-search-button:hover {
+    background: #f2f3f8;
+    color: #252A86;
 }
 
 
@@ -1192,7 +1211,12 @@ textarea.responden-form-control {
             </div>
 
 
-            <div class="responden-search">
+            <form
+                class="responden-search"
+                id="searchRespondenForm"
+                method="GET"
+                action="{{ route('responden.index') }}"
+            >
 
                 <span class="responden-search-icon">
                     ⌕
@@ -1201,11 +1225,22 @@ textarea.responden-form-control {
                 <input
                     type="text"
                     id="searchResponden"
+                    name="search"
                     placeholder="Cari No. KK atau nama..."
                     autocomplete="off"
+                    value="{{ request('search') }}"
                 >
 
-            </div>
+                <button
+                    type="submit"
+                    class="responden-search-button"
+                    aria-label="Cari responden"
+                    title="Cari responden"
+                >
+                    ⌕
+                </button>
+
+            </form>
 
         </div>
 
@@ -1846,7 +1881,7 @@ textarea.responden-form-control {
                     <div class="responden-form-grid">
                         <div class="responden-form-group">
                             <label class="responden-form-label">
-                                Jumlah Anggota Tambahan
+                                Jumlah Anggota 
                                 <span class="required">*</span>
                             </label>
                             <input
@@ -3522,43 +3557,6 @@ function parseGeotangging(value) {
 /* =========================================================
    SEARCH
 ========================================================= */
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const search = document.getElementById('searchResponden');
-
-    if (search) {
-
-        search.addEventListener('input', function () {
-
-            const keyword = this.value.toLowerCase().trim();
-
-            const rows = document.querySelectorAll(
-                '#respondenTableBody .responden-family-main'
-            );
-
-            rows.forEach(function (row) {
-
-                const familyId = row.id.replace('keluarga-row-', '');
-                const memberRows = document.querySelectorAll(
-                    '.responden-member-row[data-keluarga="' + familyId + '"]'
-                );
-
-                const text = row.textContent.toLowerCase();
-                const match = text.includes(keyword);
-
-                row.style.display = match ? '' : 'none';
-
-                if (!match) {
-                    memberRows.forEach(function (member) {
-                        member.style.display = 'none';
-                    });
-                }
-            });
-        });
-    }
-});
-
 
 /* =========================================================
    ESCAPE HTML
