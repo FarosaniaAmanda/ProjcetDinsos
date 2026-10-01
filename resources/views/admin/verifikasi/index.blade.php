@@ -4,16 +4,28 @@
  
 @push('styles') 
 <style> 
-    /* ===================================================== 
-       CARD BESAR VERIFIKASI 
-    ====================================================== */ 
- 
-    .verification-card { 
-        background: #ffffff; 
-        border: 1px solid #e8e9ef; 
-        border-radius: 16px; 
-        overflow: hidden; 
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04); 
+    /* =====================================================
+       HALAMAN VERIFIKASI
+    ====================================================== */
+
+    .verification-page {
+        padding: 24px 32px 40px;
+        background: #f5f7fb;
+        min-height: calc(100vh - 70px);
+        box-sizing: border-box;
+    }
+
+    /* =====================================================
+       CARD UTAMA VERIFIKASI
+    ====================================================== */
+
+    .verification-card {
+        width: 100%;
+        background: #ffffff;
+        border: 1px solid #e2e6f2;
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(37, 42, 134, 0.06);
+        overflow: hidden;
     } 
  
     /* ===================================================== 
@@ -2428,7 +2440,9 @@
          SATU CARD BESAR 
     ====================================================== --}} 
  
-    <div class="verification-card"> 
+    <div class="verification-page">
+
+        <div class="verification-card"> 
  
         {{-- ================================================= 
              HEADER VERIFIKASI 
@@ -2994,9 +3008,11 @@
  
         </div> 
  
-    </div> 
- 
- 
+        </div>
+
+    </div>
+
+
     {{-- ===================================================== 
          MODAL DETAIL VERIFIKASI 
     ====================================================== --}} 
