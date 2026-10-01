@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
 use App\Models\KeluargaAnggota;
-use App\Models\RtRw;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -15,20 +14,63 @@ class RespondenController extends Controller
     /**
      * Menampilkan daftar responden.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $keluargas = Keluarga::with([
+        $search = $request->query('search');
+        $search = is_string($search) ? trim($search) : '';
+
+        $query = Keluarga::with([
             'anggota' => function ($query) {
-                $query->orderBy('id');
+                $query
+                    ->where('status_keluarga', '!=', 'Kepala Keluarga')
+                    ->orderBy('id');
             },
-            'rtRw',
-        ])
+        ]);
+
+        if ($search !== '') {
+            $query->where(function ($query) use ($search) {
+                $keyword = "%{$search}%";
+
+                $query
+                    ->where('no_kk', 'like', $keyword)
+                    ->orWhere('nik', 'like', $keyword)
+                    ->orWhere('nama_lengkap', 'like', $keyword)
+                    ->orWhere('alamat_lengkap', 'like', $keyword)
+                    ->orWhereHas('anggota', function ($query) use ($keyword) {
+                        $query
+                            ->where('nik', 'like', $keyword)
+                            ->orWhere('nama_lengkap', 'like', $keyword);
+                    });
+            });
+        }
+
+        $keluargas = $query
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
             ->get();
+
+        $kelurahans = DB::table('kelurahans')
+            ->get()
+            ->keyBy('kelurahan_id');
+
+        $kecamatansById = $kecamatans->keyBy('kecamatan_id');
+
+        foreach ($keluargas as $keluarga) {
+            $keluarga->nama_kepala_keluarga = $keluarga->nama_lengkap;
+
+            $keluarga->kecamatan =
+                $kecamatansById->get($keluarga->kecamatan_id)?->deskripsi;
+
+            $keluarga->kelurahan =
+                $kelurahans->get($keluarga->kelurahan_id)?->deskripsi;
+
+            $keluarga->jml_keluarga =
+                1 + $keluarga->anggota->count();
+        }
 
         return view(
             'admin.responden.index',
@@ -59,20 +101,43 @@ class RespondenController extends Controller
      */
     public function store(Request $request)
     {
-        if (!$request->filled('nomor_kk') && $request->filled('no_kk')) {
+        /*
+        |--------------------------------------------------------------------------
+        | Samakan nomor KK
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! $request->filled('nomor_kk')
+            && $request->filled('no_kk')
+        ) {
             $request->merge([
                 'nomor_kk' => $request->input('no_kk'),
             ]);
         }
 
-        if (!$request->filled('no_kk') && $request->filled('nomor_kk')) {
+        if (
+            ! $request->filled('no_kk')
+            && $request->filled('nomor_kk')
+        ) {
             $request->merge([
                 'no_kk' => $request->input('nomor_kk'),
             ]);
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Validasi
+        |--------------------------------------------------------------------------
+        */
+
         $request->validate([
             'nomor_kk' => [
+                'required',
+                'digits:16',
+            ],
+
+            'nik_kepala_keluarga' => [
                 'required',
                 'digits:16',
             ],
@@ -84,9 +149,9 @@ class RespondenController extends Controller
             ],
 
             'anggota' => [
-                'required',
+                'nullable',
                 'array',
-                'min:1',
+                'max:19',
             ],
 
             'anggota.*.nik' => [
@@ -142,29 +207,30 @@ class RespondenController extends Controller
                 'max:10',
             ],
 
-            'rt_rw' => [
-                'nullable',
-                'string',
-                'max:20',
-                'regex:/^\d{1,3}\s*\/\s*\d{1,3}$/',
-            ],
-
             'alamat_lengkap' => [
                 'nullable',
                 'string',
                 'max:255',
             ],
+
+            'geotangging' => [
+                'nullable',
+                'string',
+                'max:100',
+            ],
         ]);
 
         DB::transaction(function () use ($request) {
 
-            $createdBy = auth()->user()?->name ?? 'admin';
+            $createdBy =
+                auth()->user()?->name ?? 'admin';
 
             /*
             |--------------------------------------------------------------------------
             | Generate kode keluarga
             |--------------------------------------------------------------------------
             */
+
             $kodeKeluarga =
                 'KLG-' . strtoupper(Str::random(10));
 
@@ -173,53 +239,28 @@ class RespondenController extends Controller
             | Cari NIK Kepala Keluarga
             |--------------------------------------------------------------------------
             */
-            $nikKepalaKeluarga = null;
 
-            foreach ($request->anggota as $anggota) {
-
-                if (
-                    isset($anggota['status_keluarga']) &&
-                    $anggota['status_keluarga'] === 'Kepala Keluarga'
-                ) {
-                    $nikKepalaKeluarga =
-                        $anggota['nik'] ?? null;
-
-                    break;
-                }
-            }
-
-            if (
-                !$nikKepalaKeluarga &&
-                !empty($request->anggota)
-            ) {
-                $nikKepalaKeluarga =
-                    $request->anggota[0]['nik'] ?? null;
-            }
+            $nikKepalaKeluarga =
+                $request->nik_kepala_keluarga;
 
             /*
             |--------------------------------------------------------------------------
-            | Simpan RT/RW
+            | Siapkan alamat lengkap + geotagging
             |--------------------------------------------------------------------------
             */
-            $rtRwId = null;
 
-            if (
-                $request->filled('rt_rw') &&
-                $request->filled('kelurahan_id')
-            ) {
-                $rtRw = $this->simpanRtRw(
-                    $request->kelurahan_id,
-                    $request->rt_rw
+            $alamatLengkap =
+                $this->gabungkanAlamatDenganGeotag(
+                    $request->alamat_lengkap,
+                    $request->geotangging
                 );
-
-                $rtRwId = $rtRw?->id;
-            }
 
             /*
             |--------------------------------------------------------------------------
             | Simpan keluarga
             |--------------------------------------------------------------------------
             */
+
             $keluarga = Keluarga::create([
                 'kode' => $kodeKeluarga,
 
@@ -239,14 +280,11 @@ class RespondenController extends Controller
                 'kelurahan_id' =>
                     $request->kelurahan_id,
 
-                'rt_rw_id' =>
-                    $rtRwId,
-
                 'kode_pos' =>
                     $request->kode_pos,
 
                 'alamat_lengkap' =>
-                    $request->alamat_lengkap,
+                    $alamatLengkap,
 
                 'created_by' =>
                     $createdBy,
@@ -257,10 +295,20 @@ class RespondenController extends Controller
             | Simpan anggota keluarga
             |--------------------------------------------------------------------------
             */
-            foreach ($request->anggota as $anggota) {
+
+            foreach (
+                $request->input('anggota', [])
+                as $anggota
+            ) {
 
                 $statusKeluarga =
                     $anggota['status_keluarga'] ?? '';
+
+                /*
+                |--------------------------------------------------------------------------
+                | Jika status = Lainnya
+                |--------------------------------------------------------------------------
+                */
 
                 if ($statusKeluarga === 'Lainnya') {
 
@@ -317,10 +365,9 @@ class RespondenController extends Controller
      */
     public function edit($id)
     {
-        $keluarga = Keluarga::with([
-            'anggota',
-            'rtRw',
-        ])->findOrFail($id);
+        $keluarga =
+            Keluarga::with('anggota')
+                ->findOrFail($id);
 
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
@@ -340,25 +387,27 @@ class RespondenController extends Controller
      */
     public function editData($id)
     {
-        $keluarga = Keluarga::with([
-            'anggota',
-            'rtRw',
-        ])->findOrFail($id);
+        $keluarga =
+            Keluarga::with('anggota')
+                ->findOrFail($id);
 
         /*
         |--------------------------------------------------------------------------
         | Ambil nama kecamatan
         |--------------------------------------------------------------------------
         */
+
         $kecamatan = null;
 
         if ($keluarga->kecamatan_id) {
-            $kecamatan = DB::table('kecamatans')
-                ->where(
-                    'kecamatan_id',
-                    $keluarga->kecamatan_id
-                )
-                ->first();
+
+            $kecamatan =
+                DB::table('kecamatans')
+                    ->where(
+                        'kecamatan_id',
+                        $keluarga->kecamatan_id
+                    )
+                    ->first();
         }
 
         /*
@@ -366,30 +415,132 @@ class RespondenController extends Controller
         | Ambil nama kelurahan
         |--------------------------------------------------------------------------
         */
+
         $kelurahan = null;
 
         if ($keluarga->kelurahan_id) {
-            $kelurahan = DB::table('kelurahans')
-                ->where(
-                    'kelurahan_id',
-                    $keluarga->kelurahan_id
-                )
-                ->first();
+
+            $kelurahan =
+                DB::table('kelurahans')
+                    ->where(
+                        'kelurahan_id',
+                        $keluarga->kelurahan_id
+                    )
+                    ->first();
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Bentuk RT/RW untuk form
+        | Ambil koordinat dari alamat_lengkap
         |--------------------------------------------------------------------------
         */
-        $rtRw = null;
 
-        if ($keluarga->rtRw) {
-            $rtRw =
-                $keluarga->rtRw->rt .
-                '/' .
-                $keluarga->rtRw->rw;
-        }
+        $geotangging =
+            $this->ambilGeotagDariAlamat(
+                $keluarga->alamat_lengkap
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil alamat tanpa koordinat
+        |--------------------------------------------------------------------------
+        */
+
+        $alamatBersih =
+            $this->hapusGeotagDariAlamat(
+                $keluarga->alamat_lengkap
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Urutkan anggota
+        |--------------------------------------------------------------------------
+        */
+
+        $anggota =
+            $keluarga->anggota
+                ->where(
+                    'status_keluarga',
+                    '!=',
+                    'Kepala Keluarga'
+                )
+                ->sortBy(
+                    function ($anggota) {
+
+                        $statusPriority = [
+                            'Kepala Keluarga' => 1,
+                            'Istri' => 2,
+                            'Suami' => 3,
+                            'Anak' => 4,
+                            'Orang Tua' => 5,
+                            'Saudara' => 6,
+                            'Famili' => 7,
+                        ];
+
+                        $status =
+                            (string) (
+                                $anggota->status_keluarga
+                                ?? ''
+                            );
+
+                        return (
+                            $statusPriority[$status]
+                            ?? 999
+                        ) * 1000000
+                        + (
+                            $anggota->id
+                            ?? 0
+                        );
+                    }
+                )
+                ->map(
+                    function ($anggota) {
+
+                        $statusNormal = [
+                            'Kepala Keluarga',
+                            'Istri',
+                            'Suami',
+                            'Anak',
+                            'Orang Tua',
+                            'Saudara',
+                            'Famili',
+                        ];
+
+                        $status =
+                            (string) (
+                                $anggota->status_keluarga
+                                ?? ''
+                            );
+
+                        return [
+                            'id' =>
+                                $anggota->id,
+
+                            'kode' =>
+                                $anggota->kode,
+
+                            'nik' =>
+                                $anggota->nik,
+
+                            'nama_lengkap' =>
+                                $anggota->nama_lengkap,
+
+                            'status_keluarga' =>
+                                $status,
+
+                            'status_keluarga_lainnya' =>
+                                $status !== ''
+                                && ! in_array(
+                                    $status,
+                                    $statusNormal,
+                                    true
+                                )
+                                    ? $status
+                                    : '',
+                        ];
+                    }
+                )
+                ->values();
 
         return response()->json([
             'id' =>
@@ -404,7 +555,13 @@ class RespondenController extends Controller
             'nik' =>
                 $keluarga->nik,
 
+            'nik_kepala_keluarga' =>
+                $keluarga->nik,
+
             'nama_lengkap' =>
+                $keluarga->nama_lengkap,
+
+            'nama_kepala_keluarga' =>
                 $keluarga->nama_lengkap,
 
             'status_keluarga' =>
@@ -431,58 +588,30 @@ class RespondenController extends Controller
             'kode_pos' =>
                 $keluarga->kode_pos,
 
-            'rt_rw' =>
-                $rtRw,
-
             'alamat_lengkap' =>
-                $keluarga->alamat_lengkap,
+                $alamatBersih,
+
+            /*
+            |--------------------------------------------------------------------------
+            | Kirim geotagging ke JavaScript
+            |--------------------------------------------------------------------------
+            */
+
+            'geotangging' =>
+                $geotangging,
 
             'jml_keluarga' =>
-                $keluarga->anggota->count(),
+                1 +
+                $keluarga->anggota
+                    ->where(
+                        'status_keluarga',
+                        '!=',
+                        'Kepala Keluarga'
+                    )
+                    ->count(),
 
             'anggota' =>
-                $keluarga->anggota
-                    ->sortBy(function ($anggota) {
-                        $statusPriority = [
-                            'Kepala Keluarga' => 1,
-                            'Istri' => 2,
-                            'Suami' => 3,
-                            'Anak' => 4,
-                            'Orang Tua' => 5,
-                            'Saudara' => 6,
-                            'Famili' => 7,
-                        ];
-
-                        $status = (string) ($anggota->status_keluarga ?? '');
-
-                        return ($statusPriority[$status] ?? 999) * 1000000 + ($anggota->id ?? 0);
-                    })
-                    ->map(function ($anggota) {
-                        $statusNormal = [
-                            'Kepala Keluarga',
-                            'Istri',
-                            'Suami',
-                            'Anak',
-                            'Orang Tua',
-                            'Saudara',
-                            'Famili',
-                        ];
-
-                        $status = (string) ($anggota->status_keluarga ?? '');
-
-                        return [
-                            'id' => $anggota->id,
-                            'kode' => $anggota->kode,
-                            'nik' => $anggota->nik,
-                            'nama_lengkap' => $anggota->nama_lengkap,
-                            'status_keluarga' => $status,
-                            'status_keluarga_lainnya' =>
-                                $status !== '' && !in_array($status, $statusNormal, true)
-                                    ? $status
-                                    : '',
-                        ];
-                    })
-                    ->values(),
+                $anggota,
         ]);
     }
 
@@ -491,40 +620,47 @@ class RespondenController extends Controller
      */
     public function getKelurahan($kecamatanId)
     {
-        $kecamatan = DB::table('kecamatans')
-            ->where(
-                'kecamatan_id',
-                $kecamatanId
-            )
-            ->first();
+        $kecamatan =
+            DB::table('kecamatans')
+                ->where(
+                    'kecamatan_id',
+                    $kecamatanId
+                )
+                ->first();
 
-        if (!$kecamatan) {
+        if (! $kecamatan) {
+
             return response()->json([
                 'success' => false,
+
                 'message' =>
                     'Kecamatan tidak ditemukan.',
+
                 'data' => [],
             ], 404);
         }
 
-        $kelurahans = DB::table('kelurahans')
-            ->where(
-                'kecamatan_id',
-                $kecamatanId
-            )
-            ->orderBy(
-                'deskripsi',
-                'asc'
-            )
-            ->get([
-                'kelurahan_id',
-                'kecamatan_id',
-                'deskripsi',
-            ]);
+        $kelurahans =
+            DB::table('kelurahans')
+                ->where(
+                    'kecamatan_id',
+                    $kecamatanId
+                )
+                ->orderBy(
+                    'deskripsi',
+                    'asc'
+                )
+                ->get([
+                    'kelurahan_id',
+                    'kecamatan_id',
+                    'deskripsi',
+                ]);
 
         return response()->json([
             'success' => true,
-            'data' => $kelurahans,
+
+            'data' =>
+                $kelurahans,
         ]);
     }
 
@@ -535,20 +671,46 @@ class RespondenController extends Controller
         Request $request,
         $id
     ) {
-        if (!$request->filled('nomor_kk') && $request->filled('no_kk')) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Samakan nomor KK
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            ! $request->filled('nomor_kk')
+            && $request->filled('no_kk')
+        ) {
             $request->merge([
-                'nomor_kk' => $request->input('no_kk'),
+                'nomor_kk' =>
+                    $request->input('no_kk'),
             ]);
         }
 
-        if (!$request->filled('no_kk') && $request->filled('nomor_kk')) {
+        if (
+            ! $request->filled('no_kk')
+            && $request->filled('nomor_kk')
+        ) {
             $request->merge([
-                'no_kk' => $request->input('nomor_kk'),
+                'no_kk' =>
+                    $request->input('nomor_kk'),
             ]);
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validasi
+        |--------------------------------------------------------------------------
+        */
 
         $request->validate([
             'nomor_kk' => [
+                'required',
+                'digits:16',
+            ],
+
+            'nik_kepala_keluarga' => [
                 'required',
                 'digits:16',
             ],
@@ -560,9 +722,9 @@ class RespondenController extends Controller
             ],
 
             'anggota' => [
-                'required',
+                'nullable',
                 'array',
-                'min:1',
+                'max:19',
             ],
 
             'anggota.*.nik' => [
@@ -618,17 +780,16 @@ class RespondenController extends Controller
                 'max:10',
             ],
 
-            'rt_rw' => [
-                'nullable',
-                'string',
-                'max:20',
-                'regex:/^\d{1,3}\s*\/\s*\d{1,3}$/',
-            ],
-
             'alamat_lengkap' => [
                 'nullable',
                 'string',
                 'max:255',
+            ],
+
+            'geotangging' => [
+                'nullable',
+                'string',
+                'max:100',
             ],
         ]);
 
@@ -640,6 +801,12 @@ class RespondenController extends Controller
             $updatedBy =
                 auth()->user()?->name ?? 'admin';
 
+            /*
+            |--------------------------------------------------------------------------
+            | Cari keluarga
+            |--------------------------------------------------------------------------
+            */
+
             $keluarga =
                 Keluarga::findOrFail($id);
 
@@ -648,54 +815,28 @@ class RespondenController extends Controller
             | Cari NIK Kepala Keluarga
             |--------------------------------------------------------------------------
             */
-            $nikKepalaKeluarga = null;
 
-            foreach ($request->anggota as $anggota) {
-
-                if (
-                    isset($anggota['status_keluarga']) &&
-                    $anggota['status_keluarga']
-                    === 'Kepala Keluarga'
-                ) {
-                    $nikKepalaKeluarga =
-                        $anggota['nik'] ?? null;
-
-                    break;
-                }
-            }
-
-            if (
-                !$nikKepalaKeluarga &&
-                !empty($request->anggota)
-            ) {
-                $nikKepalaKeluarga =
-                    $request->anggota[0]['nik'] ?? null;
-            }
+            $nikKepalaKeluarga =
+                $request->nik_kepala_keluarga;
 
             /*
             |--------------------------------------------------------------------------
-            | Simpan / ambil RT RW
+            | Gabungkan alamat + geotagging
             |--------------------------------------------------------------------------
             */
-            $rtRwId = null;
 
-            if (
-                $request->filled('rt_rw') &&
-                $request->filled('kelurahan_id')
-            ) {
-                $rtRw = $this->simpanRtRw(
-                    $request->kelurahan_id,
-                    $request->rt_rw
+            $alamatLengkap =
+                $this->gabungkanAlamatDenganGeotag(
+                    $request->alamat_lengkap,
+                    $request->geotangging
                 );
-
-                $rtRwId = $rtRw?->id;
-            }
 
             /*
             |--------------------------------------------------------------------------
             | Update keluarga
             |--------------------------------------------------------------------------
             */
+
             $keluarga->update([
                 'no_kk' =>
                     $request->nomor_kk,
@@ -715,14 +856,11 @@ class RespondenController extends Controller
                 'kelurahan_id' =>
                     $request->kelurahan_id,
 
-                'rt_rw_id' =>
-                    $rtRwId,
-
                 'kode_pos' =>
                     $request->kode_pos,
 
                 'alamat_lengkap' =>
-                    $request->alamat_lengkap,
+                    $alamatLengkap,
 
                 'updated_by' =>
                     $updatedBy,
@@ -733,17 +871,31 @@ class RespondenController extends Controller
             | Hapus anggota lama
             |--------------------------------------------------------------------------
             */
-            $keluarga->anggota()->delete();
+
+            $keluarga
+                ->anggota()
+                ->delete();
 
             /*
             |--------------------------------------------------------------------------
             | Simpan anggota terbaru
             |--------------------------------------------------------------------------
             */
-            foreach ($request->anggota as $anggota) {
+
+            foreach (
+                $request->input('anggota', [])
+                as $anggota
+            ) {
 
                 $statusKeluarga =
-                    $anggota['status_keluarga'] ?? '';
+                    $anggota['status_keluarga']
+                    ?? '';
+
+                /*
+                |--------------------------------------------------------------------------
+                | Jika status = Lainnya
+                |--------------------------------------------------------------------------
+                */
 
                 if ($statusKeluarga === 'Lainnya') {
 
@@ -796,58 +948,6 @@ class RespondenController extends Controller
     }
 
     /**
-     * Menyimpan RT/RW ke tabel rt_rws.
-     */
-    private function simpanRtRw(
-        $kelurahanId,
-        $rtRwValue
-    ) {
-        $rtRwValue =
-            trim((string) $rtRwValue);
-
-        $parts =
-            preg_split(
-                '/\s*\/\s*/',
-                $rtRwValue
-            );
-
-        if (
-            count($parts) !== 2 ||
-            $parts[0] === '' ||
-            $parts[1] === ''
-        ) {
-            return null;
-        }
-
-        $rt =
-            str_pad(
-                trim($parts[0]),
-                3,
-                '0',
-                STR_PAD_LEFT
-            );
-
-        $rw =
-            str_pad(
-                trim($parts[1]),
-                3,
-                '0',
-                STR_PAD_LEFT
-            );
-
-        return RtRw::firstOrCreate([
-            'kelurahan_id' =>
-                $kelurahanId,
-
-            'rt' =>
-                $rt,
-
-            'rw' =>
-                $rw,
-        ]);
-    }
-
-    /**
      * Menghapus data responden.
      */
     public function destroy($id)
@@ -857,7 +957,9 @@ class RespondenController extends Controller
             $keluarga =
                 Keluarga::findOrFail($id);
 
-            $keluarga->anggota()->delete();
+            $keluarga
+                ->anggota()
+                ->delete();
 
             $keluarga->delete();
         });
@@ -875,41 +977,51 @@ class RespondenController extends Controller
      */
     public function detail($id)
     {
-        $keluarga = Keluarga::with([
-            'anggota',
-            'rtRw',
-        ])->findOrFail($id);
+        $keluarga =
+            Keluarga::with('anggota')
+                ->findOrFail($id);
 
         $kecamatan = null;
 
         if ($keluarga->kecamatan_id) {
-            $kecamatan = DB::table('kecamatans')
-                ->where(
-                    'kecamatan_id',
-                    $keluarga->kecamatan_id
-                )
-                ->first();
+
+            $kecamatan =
+                DB::table('kecamatans')
+                    ->where(
+                        'kecamatan_id',
+                        $keluarga->kecamatan_id
+                    )
+                    ->first();
         }
 
         $kelurahan = null;
 
         if ($keluarga->kelurahan_id) {
-            $kelurahan = DB::table('kelurahans')
-                ->where(
-                    'kelurahan_id',
-                    $keluarga->kelurahan_id
-                )
-                ->first();
+
+            $kelurahan =
+                DB::table('kelurahans')
+                    ->where(
+                        'kelurahan_id',
+                        $keluarga->kelurahan_id
+                    )
+                    ->first();
         }
 
-        $rtRw = null;
+        /*
+        |--------------------------------------------------------------------------
+        | Pisahkan alamat dari koordinat
+        |--------------------------------------------------------------------------
+        */
 
-        if ($keluarga->rtRw) {
-            $rtRw =
-                $keluarga->rtRw->rt .
-                '/' .
-                $keluarga->rtRw->rw;
-        }
+        $alamatBersih =
+            $this->hapusGeotagDariAlamat(
+                $keluarga->alamat_lengkap
+            );
+
+        $geotangging =
+            $this->ambilGeotagDariAlamat(
+                $keluarga->alamat_lengkap
+            );
 
         return response()->json([
             'id' =>
@@ -951,11 +1063,11 @@ class RespondenController extends Controller
             'kode_pos' =>
                 $keluarga->kode_pos,
 
-            'rt_rw' =>
-                $rtRw,
-
             'alamat_lengkap' =>
-                $keluarga->alamat_lengkap,
+                $alamatBersih,
+
+            'geotangging' =>
+                $geotangging,
 
             'jml_keluarga' =>
                 $keluarga->anggota->count(),
@@ -963,5 +1075,154 @@ class RespondenController extends Controller
             'anggota' =>
                 $keluarga->anggota,
         ]);
+    }
+
+    /**
+     * Menggabungkan alamat lengkap dengan koordinat.
+     *
+     * Contoh hasil:
+     *
+     * Jl. Panglima Sudirman No. 10
+     * Koordinat: -7.645321, 112.906543
+     */
+    private function gabungkanAlamatDenganGeotag(
+        ?string $alamat,
+        ?string $geotangging
+    ): string {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Bersihkan alamat dari koordinat lama
+        |--------------------------------------------------------------------------
+        */
+
+        $alamat =
+            $this->hapusGeotagDariAlamat(
+                $alamat
+            );
+
+        $alamat =
+            trim($alamat);
+
+        $geotangging =
+            trim((string) $geotangging);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Jika tidak ada geotagging
+        |--------------------------------------------------------------------------
+        */
+
+        if ($geotangging === '') {
+            return mb_substr(
+                $alamat,
+                0,
+                255
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tambahkan koordinat
+        |--------------------------------------------------------------------------
+        */
+
+        $tambahan =
+            'Koordinat: ' .
+            $geotangging;
+
+        if ($alamat !== '') {
+
+            $hasil =
+                $alamat .
+                "\n" .
+                $tambahan;
+
+        } else {
+
+            $hasil =
+                $tambahan;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pastikan tidak melebihi 255 karakter
+        |--------------------------------------------------------------------------
+        */
+
+        return mb_substr(
+            $hasil,
+            0,
+            255
+        );
+    }
+
+    /**
+     * Menghapus bagian "Koordinat: ..." dari alamat.
+     */
+    private function hapusGeotagDariAlamat(
+        ?string $alamat
+    ): string {
+
+        if (
+            $alamat === null
+            || trim($alamat) === ''
+        ) {
+            return '';
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hapus:
+        |
+        | Koordinat: -7.123456, 112.123456
+        |--------------------------------------------------------------------------
+        */
+
+        $alamat =
+            preg_replace(
+                '/\s*Koordinat:\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/i',
+                '',
+                $alamat
+            );
+
+        return trim(
+            (string) $alamat
+        );
+    }
+
+    /**
+     * Mengambil koordinat dari alamat_lengkap.
+     *
+     * Hasil:
+     *
+     * -7.645321, 112.906543
+     */
+    private function ambilGeotagDariAlamat(
+        ?string $alamat
+    ): ?string {
+
+        if (
+            $alamat === null
+            || trim($alamat) === ''
+        ) {
+            return null;
+        }
+
+        if (
+            preg_match(
+                '/Koordinat:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i',
+                $alamat,
+                $matches
+            )
+        ) {
+
+            return
+                $matches[1] .
+                ', ' .
+                $matches[2];
+        }
+
+        return null;
     }
 }

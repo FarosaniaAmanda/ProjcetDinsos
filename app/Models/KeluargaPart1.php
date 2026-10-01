@@ -10,30 +10,30 @@ class KeluargaPart1 extends Model
 
     protected $fillable = [
         'keluarga_periode_kode',
+
         'nik',
+        'nama_kepala_keluarga',
         'no_kk',
         'jml_keluarga',
+
         'provinsi',
         'daerah',
         'kecamatan',
         'kelurahan',
         'kode_pos',
-        'rt_rw',
+
         'alamat_lengkap',
+
         'jalan_rumah',
+        'nomor_rumah',
+
         'is_alamat_sesuai',
         'geotangging',
 
-        // Draft
         'status',
         'current_part',
 
         'created_by',
         'updated_by',
-    ];
-
-    protected $casts = [
-        'is_alamat_sesuai' => 'boolean',
-        'current_part' => 'integer',
     ];
 }

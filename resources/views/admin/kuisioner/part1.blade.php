@@ -950,58 +950,6 @@
                     <span class="question-number">12</span>
 
                     <span>
-                        Nama jalan Rumah/Tempat Tinggal Anda?
-                    </span>
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="jalan_rumah"
-                        id="jalan_rumah"
-                        class="form-input"
-                        placeholder="Contoh: Jl. Raya Bugul"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- 13 --}}
-            <div class="question">
-
-                <div class="question-title">
-                    <span class="question-number">13</span>
-
-                    <span>
-                        Nomor Rumah
-                    </span>
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="nomor_rumah"
-                        id="nomor_rumah"
-                        class="form-input"
-                        placeholder="Contoh: 12"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- 14 --}}
-            <div class="question">
-
-                <div class="question-title">
-                    <span class="question-number">14</span>
-
-                    <span>
                         Apakah alamat tempat tinggal saat ini sesuai dengan
                         Kartu Keluarga?
                     </span>
@@ -1069,11 +1017,11 @@
             </div>
 
 
-            {{-- 15 --}}
+            {{-- 13 --}}
             <div class="question">
 
                 <div class="question-title">
-                    <span class="question-number">15</span>
+                    <span class="question-number">13</span>
 
                     <span>
                         Titik lokasi (geotagging) tempat tinggal saat ini
@@ -1222,12 +1170,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const rtRw =
         document.getElementById('rt_rw');
 
-    const jalanRumah =
-        document.getElementById('jalan_rumah');
-
-    const nomorRumah =
-        document.getElementById('nomor_rumah');
-
     const coordinateInput =
         document.getElementById('geotangging');
 
@@ -1290,16 +1232,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     rtRw.addEventListener('blur', function () {
-        updateMapFromAddress();
-    });
-
-
-    jalanRumah.addEventListener('change', function () {
-        updateMapFromAddress();
-    });
-
-
-    nomorRumah.addEventListener('change', function () {
         updateMapFromAddress();
     });
 
@@ -1447,13 +1379,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const rtRwValue =
             rtRw.value.trim();
 
-        const jalanValue =
-            jalanRumah.value.trim();
-
-        const nomorValue =
-            nomorRumah.value.trim();
-
-
         /*
          * Minimal kecamatan harus dipilih
          */
@@ -1477,32 +1402,6 @@ document.addEventListener('DOMContentLoaded', function () {
          */
         if (rtRwValue) {
             queryParts.push(rtRwValue);
-        }
-
-
-        /*
-         * Jalan + nomor rumah
-         */
-        if (jalanValue) {
-
-            if (nomorValue) {
-
-                queryParts.push(
-                    jalanValue + ' No. ' + nomorValue
-                );
-
-            } else {
-
-                queryParts.push(jalanValue);
-
-            }
-
-        } else if (nomorValue) {
-
-            queryParts.push(
-                'No. ' + nomorValue
-            );
-
         }
 
 
@@ -1620,11 +1519,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (rtRwValue) {
                             zoom = 17;
                         }
-
-                        if (jalanValue) {
-                            zoom = 18;
-                        }
-
 
                         map.setView(
                             [lat, lng],

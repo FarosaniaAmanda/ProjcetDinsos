@@ -3,6 +3,12 @@
 @section('title', 'Manajemen Responden')
 
 @push('styles')
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+>
+
 <style>
 
 /* =========================================================
@@ -135,7 +141,7 @@
 .responden-search input {
     width: 100%;
     height: 38px;
-    padding: 0 13px 0 38px;
+    padding: 0 42px 0 38px;
     border: 1px solid #dfe1e8;
     border-radius: 8px;
     outline: none;
@@ -157,6 +163,25 @@
     color: #999;
     font-size: 14px;
     pointer-events: none;
+}
+
+.responden-search-button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #777;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.responden-search-button:hover {
+    background: #f2f3f8;
+    color: #252A86;
 }
 
 
@@ -207,6 +232,87 @@
 .responden-number {
     width: 45px;
     color: #999;
+}
+
+.responden-pagination {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 20px;
+    border-top: 1px solid #e8e9ef;
+}
+
+.responden-pagination-links {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.responden-pagination-link,
+.responden-pagination-current,
+.responden-pagination-disabled,
+.responden-pagination-ellipsis {
+    min-width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border: 1px solid #dfe1e8;
+    border-radius: 6px;
+    background: #fff;
+    color: #555;
+    font-size: 11px;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.responden-pagination-link:hover {
+    border-color: #252A86;
+    color: #252A86;
+}
+
+.responden-pagination-current {
+    border-color: #252A86;
+    background: #252A86;
+    color: #fff;
+    font-weight: 700;
+}
+
+.responden-pagination-disabled,
+.responden-pagination-ellipsis {
+    color: #aaa;
+}
+
+.responden-pagination-disabled {
+    background: #fafafd;
+}
+
+.responden-pagination-direction {
+    gap: 6px;
+    padding: 0 11px;
+}
+
+@media (max-width: 500px) {
+    .responden-pagination {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .responden-pagination-links {
+        gap: 3px;
+    }
+
+    .responden-pagination-link,
+    .responden-pagination-current,
+    .responden-pagination-disabled,
+    .responden-pagination-ellipsis {
+        min-width: 30px;
+        padding: 0 7px;
+    }
+
+    .responden-pagination-direction span:not([aria-hidden="true"]) {
+        display: none;
+    }
 }
 
 
@@ -275,6 +381,152 @@
     color: #252A86;
     font-size: 11px;
     font-weight: 700;
+}
+
+.responden-count-column {
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.responden-member-count-cell {
+    text-align: center !important;
+    vertical-align: middle;
+    font-weight: 600;
+    color: #555;
+}
+
+.responden-count-column .responden-member-count {
+    margin: 0 auto;
+}
+
+/* =========================================================
+   EDIT - TAMBAH ANGGOTA
+========================================================= */
+
+.anggota-edit-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 14px;
+    background: #f8f9ff;
+    border: 1px solid #e4e6f2;
+    border-radius: 9px;
+    margin-top: 12px;
+}
+
+.anggota-edit-info {
+    min-width: 0;
+}
+
+.anggota-edit-info-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #252A86;
+}
+
+.anggota-edit-info-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: #eef0ff;
+    color: #252A86;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.anggota-edit-info-text {
+    margin-top: 4px;
+    font-size: 10px;
+    line-height: 1.5;
+    color: #777;
+}
+
+.anggota-edit-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 7px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid #e0e3f0;
+    color: #252A86;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.btn-tambah-anggota-edit {
+    flex: 0 0 auto;
+    height: 36px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: 1px solid #252A86;
+    background: #252A86;
+    color: #fff;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s ease;
+}
+
+.btn-tambah-anggota-edit:hover {
+    background: #1d226f;
+}
+
+.anggota-card-new {
+    border-color: #bfc5ef;
+    background: #fbfbff;
+}
+
+.anggota-baru-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 7px;
+    border-radius: 5px;
+    background: #eef0ff;
+    color: #252A86;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.btn-hapus-anggota-baru {
+    height: 29px;
+    padding: 0 9px;
+    border: 1px solid #edd5d5;
+    background: #fff7f7;
+    color: #b34a4a;
+    border-radius: 6px;
+    font-size: 9px;
+    cursor: pointer;
+}
+
+.btn-hapus-anggota-baru:hover {
+    background: #b34a4a;
+    color: #fff;
+}
+
+@media (max-width: 700px) {
+    .anggota-edit-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .btn-tambah-anggota-edit {
+        width: 100%;
+    }
 }
 
 
@@ -723,6 +975,98 @@ textarea.responden-form-control {
 
 
 /* =========================================================
+   MAP GEOTAGGING
+========================================================= */
+
+.responden-map {
+    width: 100%;
+    height: 320px;
+    border: 1px solid #dfe1e8;
+    border-radius: 9px;
+    overflow: hidden;
+    margin-top: 10px;
+    z-index: 1;
+}
+
+.geotagging-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid #e5e6ed;
+    border-radius: 7px;
+    background: #fff;
+    font-size: 11px;
+    color: #777;
+}
+
+.geotagging-coordinate {
+    font-weight: 700;
+    color: #252A86;
+}
+
+.btn-lokasi {
+    height: 35px;
+    padding: 0 12px;
+    border: 1px solid #252A86;
+    background: #252A86;
+    color: #fff;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-lokasi:hover {
+    background: #1d226f;
+}
+
+.geotagging-confirm {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.geotagging-save,
+.geotagging-cancel {
+    height: 35px;
+    padding: 0 14px;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.geotagging-save {
+    border: 1px solid #252A86;
+    background: #252A86;
+    color: #fff;
+}
+
+.geotagging-save:hover {
+    background: #1d226f;
+}
+
+.geotagging-cancel {
+    border: 1px solid #dfe1e8;
+    background: #fff;
+    color: #666;
+}
+
+.geotagging-cancel:hover {
+    background: #f5f5f8;
+}
+
+.geotagging-help {
+    margin-top: 6px;
+    font-size: 10px;
+    color: #888;
+    line-height: 1.5;
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
@@ -867,7 +1211,12 @@ textarea.responden-form-control {
             </div>
 
 
-            <div class="responden-search">
+            <form
+                class="responden-search"
+                id="searchRespondenForm"
+                method="GET"
+                action="{{ route('responden.index') }}"
+            >
 
                 <span class="responden-search-icon">
                     ⌕
@@ -876,11 +1225,22 @@ textarea.responden-form-control {
                 <input
                     type="text"
                     id="searchResponden"
+                    name="search"
                     placeholder="Cari No. KK atau nama..."
                     autocomplete="off"
+                    value="{{ request('search') }}"
                 >
 
-            </div>
+                <button
+                    type="submit"
+                    class="responden-search-button"
+                    aria-label="Cari responden"
+                    title="Cari responden"
+                >
+                    ⌕
+                </button>
+
+            </form>
 
         </div>
 
@@ -908,7 +1268,7 @@ textarea.responden-form-control {
                             NIK Anggota
                         </th>
 
-                        <th>
+                        <th class="responden-count-column">
                             Jumlah Anggota
                         </th>
 
@@ -921,7 +1281,7 @@ textarea.responden-form-control {
                         </th>
 
                         <th>
-                            Wilayah
+                            Alamat Lengkap
                         </th>
 
                         <th>
@@ -938,188 +1298,76 @@ textarea.responden-form-control {
                     @forelse ($keluargas as $index => $keluarga)
 
                         @php
-
-                            $kecamatan = $keluarga->kecamatan_id
-                                ? DB::table('kecamatans')
-                                    ->where(
-                                        'kecamatan_id',
-                                        $keluarga->kecamatan_id
-                                    )
-                                    ->value('deskripsi')
-                                : null;
-
-                            $kelurahan = $keluarga->kelurahan_id
-                                ? DB::table('kelurahans')
-                                    ->where(
-                                        'kelurahan_id',
-                                        $keluarga->kelurahan_id
-                                    )
-                                    ->value('deskripsi')
-                                : null;
-
-                            $rtRw = $keluarga->rtRw
-                                ? $keluarga->rtRw->rt .
-                                  '/' .
-                                  $keluarga->rtRw->rw
-                                : null;
-
-                            $jumlahAnggota =
-                                $keluarga->anggota->count();
-
-                            $kepalaKeluarga = $keluarga->anggota
-                                ->first(function ($anggota) {
-                                    return strtoupper(trim((string) ($anggota->status_keluarga ?? ''))) === 'KEPALA KELUARGA';
-                                }) ?? $keluarga->anggota->first();
-
+                            $jumlahAnggota = (int) ($keluarga->jml_keluarga ?? $keluarga->anggota->count());
                         @endphp
 
-
-                        {{-- =================================================
-                             BARIS UTAMA KELUARGA
-                        ================================================== --}}
-
+                        {{-- BARIS UTAMA KEPALA KELUARGA --}}
                         <tr
                             class="responden-row responden-family-main"
                             id="keluarga-row-{{ $keluarga->id }}"
                         >
 
-
-                            {{-- NO --}}
-
                             <td class="responden-number">
-
-                                {{ $index + 1 }}
-
+                                {{ $keluargas->firstItem() + $index }}
                             </td>
 
-
-                            {{-- NO KK --}}
-
                             <td>
-
                                 <button
                                     type="button"
                                     class="responden-kk-toggle"
                                     id="kkToggle-{{ $keluarga->id }}"
                                     onclick="toggleKeluarga({{ $keluarga->id }})"
                                 >
-
                                     <span
                                         class="responden-kk-icon"
                                         id="kkIcon-{{ $keluarga->id }}"
                                     >
                                         ⌄
                                     </span>
-
                                     <span>
                                         {{ $keluarga->no_kk ?? '-' }}
                                     </span>
-
                                 </button>
-
                             </td>
 
-
-                            {{-- NIK ANGGOTA --}}
-
                             <td>
-
-                                @if ($kepalaKeluarga)
-                                    <strong>
-                                        {{ $kepalaKeluarga->nik ?? '-' }}
-                                    </strong>
-                                @else
-                                    <span style="color:#999;">
-                                        —
-                                    </span>
-                                @endif
-
+                                <strong>
+                                    {{ $keluarga->nik ?? '-' }}
+                                </strong>
                             </td>
 
-
-                            {{-- JUMLAH ANGGOTA --}}
-
-                            <td>
-
+                            <td class="responden-count-column">
                                 <span class="responden-member-count">
                                     {{ $jumlahAnggota }}
                                 </span>
-
                             </td>
 
-
-                            {{-- NAMA ANGGOTA --}}
-
                             <td>
-
-                                @if ($kepalaKeluarga)
-                                    <span class="responden-member-name">
-                                        {{ $kepalaKeluarga->nama_lengkap ?? '-' }}
-                                    </span>
-                                @else
-                                    <span style="color:#999;">
-                                        —
-                                    </span>
-                                @endif
-
+                                <span class="responden-member-name">
+                                    {{ $keluarga->nama_lengkap ?? '-' }}
+                                </span>
                             </td>
 
-
-                            {{-- STATUS KELUARGA --}}
-
                             <td>
-
-                                @if ($kepalaKeluarga)
-                                    <span class="responden-member-status">
-                                        {{ $kepalaKeluarga->status_keluarga ?? '-' }}
-                                    </span>
-                                @else
-                                    <span style="color:#999;">
-                                        —
-                                    </span>
-                                @endif
-
+                                <span class="responden-member-status">
+                                    Kepala Keluarga
+                                </span>
                             </td>
 
-
-                            {{-- WILAYAH --}}
-
                             <td>
-
                                 <div>
-                                    {{ $kelurahan ?? '-' }}
+                                    {{ $keluarga->kelurahan ?? '-' }}
                                 </div>
-
-                                <div
-                                    style="
-                                        font-size:11px;
-                                        color:#777;
-                                        margin-top:3px;
-                                    "
-                                >
-                                    {{ $kecamatan ?? '-' }}
+                                <div style="font-size:11px;color:#777;margin-top:3px;">
+                                    {{ $keluarga->kecamatan ?? '-' }}
                                 </div>
-
-                                <div
-                                    style="
-                                        font-size:11px;
-                                        color:#777;
-                                        margin-top:3px;
-                                    "
-                                >
-                                    RT/RW:
-                                    {{ $rtRw ?? '-' }}
+                                <div style="font-size:11px;color:#777;margin-top:3px;">
+                                    {{ $keluarga->alamat_lengkap ?? '-' }}
                                 </div>
-
                             </td>
 
-
-                            {{-- AKSI --}}
-
                             <td>
-
                                 <div class="responden-action">
-
                                     <button
                                         type="button"
                                         class="responden-edit-btn"
@@ -1135,18 +1383,12 @@ textarea.responden-form-control {
                                     >
                                         Hapus
                                     </button>
-
                                 </div>
-
                             </td>
 
                         </tr>
 
-
-                        {{-- =================================================
-                             BARIS ANGGOTA
-                        ================================================== --}}
-
+                        {{-- BARIS ANGGOTA LAIN --}}
                         @foreach ($keluarga->anggota as $anggota)
 
                             <tr
@@ -1154,144 +1396,59 @@ textarea.responden-form-control {
                                 id="member-{{ $keluarga->id }}-{{ $anggota->id }}"
                                 data-keluarga="{{ $keluarga->id }}"
                             >
-
-                                {{-- NO --}}
-
                                 <td></td>
-
-
-                                {{-- NO KK --}}
-
                                 <td>
-
                                     <div class="responden-member-indent">
-
-                                        <span
-                                            class="responden-member-indent-line"
-                                        ></span>
-
-                                        <span
-                                            style="
-                                                font-size:10px;
-                                                color:#999;
-                                            "
-                                        >
+                                        <span class="responden-member-indent-line"></span>
+                                        <span style="font-size:10px;color:#999;">
                                             Anggota
                                         </span>
-
                                     </div>
-
                                 </td>
-
-
-                                {{-- NIK ANGGOTA --}}
-
                                 <td>
-
-                                    <strong>
-                                        {{ $anggota->nik ?? '-' }}
-                                    </strong>
-
+                                    <strong>{{ $anggota->nik ?? '-' }}</strong>
                                 </td>
-
-
-                                {{-- JUMLAH ANGGOTA --}}
-
-                                <td>
-
+                                <td class="responden-member-count-cell">
                                     {{ $jumlahAnggota }}
-
                                 </td>
-
-
-                                {{-- NAMA ANGGOTA --}}
-
                                 <td>
-
                                     <span class="responden-member-name">
                                         {{ $anggota->nama_lengkap ?? '-' }}
                                     </span>
-
                                 </td>
-
-
-                                {{-- STATUS KELUARGA --}}
-
                                 <td>
-
                                     <span class="responden-member-status">
                                         {{ $anggota->status_keluarga ?? '-' }}
                                     </span>
-
                                 </td>
-
-
-                                {{-- WILAYAH --}}
-
                                 <td>
-
-                                    <div>
-                                        {{ $kelurahan ?? '-' }}
+                                    <div>{{ $keluarga->kelurahan ?? '-' }}</div>
+                                    <div style="font-size:11px;color:#777;margin-top:3px;">
+                                        {{ $keluarga->kecamatan ?? '-' }}
                                     </div>
-
-                                    <div
-                                        style="
-                                            font-size:11px;
-                                            color:#777;
-                                            margin-top:3px;
-                                        "
-                                    >
-                                        {{ $kecamatan ?? '-' }}
+                                    <div style="font-size:11px;color:#777;margin-top:3px;">
+                                        {{ $keluarga->alamat_lengkap ?? '-' }}
                                     </div>
-
                                 </td>
-
-
-                                {{-- AKSI --}}
-
                                 <td>
-
-                                    <span
-                                        style="
-                                            font-size:10px;
-                                            color:#aaa;
-                                        "
-                                    >
-                                        —
-                                    </span>
-
+                                    <span style="font-size:10px;color:#aaa;">—</span>
                                 </td>
-
                             </tr>
 
                         @endforeach
 
-
                     @empty
-
                         <tr>
-
-                            <td
-                                colspan="8"
-                                class="responden-empty"
-                            >
-
-                                <div class="responden-empty-icon">
-                                    👨‍👩‍👧
-                                </div>
-
+                            <td colspan="8" class="responden-empty">
+                                <div class="responden-empty-icon"></div>
                                 <div class="responden-empty-title">
                                     Belum ada data responden
                                 </div>
-
                                 <div class="responden-empty-text">
                                     Silakan tambahkan data responden terlebih dahulu.
                                 </div>
-
                             </td>
-
                         </tr>
-
                     @endforelse
 
                 </tbody>
@@ -1299,6 +1456,68 @@ textarea.responden-form-control {
             </table>
 
         </div>
+
+        @if ($keluargas->hasPages())
+            <nav class="responden-pagination" aria-label="Navigasi halaman responden">
+                <div class="responden-pagination-links">
+                    @if ($keluargas->previousPageUrl())
+                        <a
+                            href="{{ $keluargas->previousPageUrl() }}"
+                            class="responden-pagination-link responden-pagination-direction"
+                            rel="prev"
+                            aria-label="Halaman sebelumnya"
+                        >
+                            <span aria-hidden="true">&lsaquo;</span>
+                            <span>Sebelumnya</span>
+                        </a>
+                    @else
+                        <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
+                            <span aria-hidden="true">&lsaquo;</span>
+                            <span>Sebelumnya</span>
+                        </span>
+                    @endif
+
+                    @if ($keluargas->currentPage() > 2)
+                        <a href="{{ $keluargas->url(1) }}" class="responden-pagination-link">1</a>
+                        @if ($keluargas->currentPage() > 3)
+                            <span class="responden-pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                        @endif
+                    @endif
+
+                    @foreach ($keluargas->getUrlRange(max(1, $keluargas->currentPage() - 1), min($keluargas->lastPage(), $keluargas->currentPage() + 1)) as $page => $url)
+                        @if ($page === $keluargas->currentPage())
+                            <span class="responden-pagination-current" aria-current="page">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="responden-pagination-link" aria-label="Halaman {{ $page }}">{{ $page }}</a>
+                        @endif
+                    @endforeach
+
+                    @if ($keluargas->currentPage() < $keluargas->lastPage() - 1)
+                        @if ($keluargas->currentPage() < $keluargas->lastPage() - 2)
+                            <span class="responden-pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                        @endif
+                        <a href="{{ $keluargas->url($keluargas->lastPage()) }}" class="responden-pagination-link">{{ $keluargas->lastPage() }}</a>
+                    @endif
+
+                    @if ($keluargas->nextPageUrl())
+                        <a
+                            href="{{ $keluargas->nextPageUrl() }}"
+                            class="responden-pagination-link responden-pagination-direction"
+                            rel="next"
+                            aria-label="Halaman berikutnya"
+                        >
+                            <span>Berikutnya</span>
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </a>
+                    @else
+                        <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
+                            <span>Berikutnya</span>
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </span>
+                    @endif
+                </div>
+            </nav>
+        @endif
 
     </div>
 
@@ -1494,33 +1713,12 @@ textarea.responden-form-control {
                         </div>
 
 
-                        {{-- RT RW --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                RT/RW
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                name="rt_rw"
-                                class="responden-form-control"
-                                placeholder="Contoh: 001/002"
-                                maxlength="20"
-                                required
-                            >
-
-                        </div>
-
-
                         {{-- ALAMAT --}}
 
                         <div class="responden-form-group full">
 
                             <label class="responden-form-label">
-                                Alamat Lengkap
+                                Alamat Lengkap 
                                 <span class="required">*</span>
                             </label>
 
@@ -1551,7 +1749,7 @@ textarea.responden-form-control {
                     </div>
 
                     <div class="responden-section-description">
-                        Masukkan nomor KK dan nama kepala keluarga.
+                        Masukkan data kepala keluarga 
                     </div>
 
                     <div class="responden-form-grid">
@@ -1591,6 +1789,30 @@ textarea.responden-form-control {
                         </div>
 
 
+                        {{-- NIK KEPALA KELUARGA --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                NIK Kepala Keluarga
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="nik_kepala_keluarga"
+                                class="responden-form-control nomor-16-digit"
+                                maxlength="16"
+                                minlength="16"
+                                pattern="[0-9]{16}"
+                                inputmode="numeric"
+                                placeholder="Masukkan 16 digit NIK"
+                                required
+                            >
+
+                        </div>
+
+
                         {{-- NAMA KEPALA KELUARGA --}}
 
                         <div class="responden-form-group">
@@ -1611,6 +1833,28 @@ textarea.responden-form-control {
 
                         </div>
 
+
+                        {{-- STATUS KEPALA KELUARGA --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Status Keluarga
+                                <span class="required">*</span>
+                            </label>
+
+                            <select
+                                name="status_kepala_keluarga"
+                                class="responden-form-control"
+                                required
+                            >
+                                <option value="Kepala Keluarga" selected>
+                                    Kepala Keluarga
+                                </option>
+                            </select>
+
+                        </div>
+
                     </div>
 
                 </div>
@@ -1624,182 +1868,110 @@ textarea.responden-form-control {
                 <div class="responden-section">
 
                     <div class="anggota-header">
-
                         <div>
-
                             <div class="anggota-header-text">
                                 Anggota Keluarga
                             </div>
+                            <div class="responden-section-description" style="margin-bottom:0;margin-top:4px;">
+                                Tambahkan anggota selain kepala keluarga.
+                            </div>
+                        </div>
+                    </div>
 
-                            <div
-                                class="responden-section-description"
-                                style="margin-bottom:0;margin-top:4px;"
+                    <div class="responden-form-grid">
+                        <div class="responden-form-group">
+                            <label class="responden-form-label">
+                                Jumlah Anggota 
+                                <span class="required">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                name="jumlah_anggota"
+                                id="jumlah_anggota"
+                                class="responden-form-control"
+                                min="0"
+                                max="19"
+                                value="0"
+                                required
                             >
-                                Tambahkan anggota keluarga yang akan didata.
+                            <div style="font-size:10px;color:#888;margin-top:5px;">
+                                
                             </div>
-
                         </div>
-
-
-                        <button
-                            type="button"
-                            class="btn-tambah-anggota"
-                            onclick="tambahAnggota()"
-                        >
-                            + Tambah Anggota
-                        </button>
-
                     </div>
 
-
-                    <div id="anggotaContainer">
-
-
-                        {{-- ANGGOTA PERTAMA --}}
-
-                        <div
-                            class="anggota-card"
-                            data-index="0"
-                        >
-
-                            <div class="anggota-card-header">
-
-                                <div class="anggota-card-title">
-
-                                    <div class="anggota-number">
-                                        1
-                                    </div>
-
-                                    <span>
-                                        Anggota Keluarga 1
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="responden-form-grid">
-
-
-                                {{-- NIK --}}
-
-                                <div class="responden-form-group">
-
-                                    <label class="responden-form-label">
-                                        NIK
-                                        <span class="required">*</span>
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="anggota[0][nik]"
-                                        class="responden-form-control nomor-16-digit"
-                                        maxlength="16"
-                                        minlength="16"
-                                        pattern="[0-9]{16}"
-                                        inputmode="numeric"
-                                        placeholder="Masukkan 16 digit NIK"
-                                        required
-                                    >
-
-                                </div>
-
-
-                                {{-- NAMA --}}
-
-                                <div class="responden-form-group">
-
-                                    <label class="responden-form-label">
-                                        Nama Lengkap
-                                        <span class="required">*</span>
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        name="anggota[0][nama_lengkap]"
-                                        class="responden-form-control"
-                                        maxlength="255"
-                                        placeholder="Masukkan nama lengkap"
-                                        required
-                                    >
-
-                                </div>
-
-
-                                {{-- STATUS --}}
-
-                                <div class="responden-form-group full">
-
-                                    <label class="responden-form-label">
-                                        Status Keluarga
-                                        <span class="required">*</span>
-                                    </label>
-
-                                    <select
-                                        name="anggota[0][status_keluarga]"
-                                        class="responden-form-control status-keluarga"
-                                        onchange="toggleStatusLainnya(this)"
-                                        required
-                                    >
-
-                                        <option value="">
-                                            Pilih Status Keluarga
-                                        </option>
-
-                                        <option value="Kepala Keluarga">
-                                            Kepala Keluarga
-                                        </option>
-
-                                        <option value="Istri">
-                                            Istri
-                                        </option>
-
-                                        <option value="Suami">
-                                            Suami
-                                        </option>
-
-                                        <option value="Anak">
-                                            Anak
-                                        </option>
-
-                                        <option value="Orang Tua">
-                                            Orang Tua
-                                        </option>
-
-                                        <option value="Saudara">
-                                            Saudara
-                                        </option>
-
-                                        <option value="Famili">
-                                            Famili
-                                        </option>
-
-                                        <option value="Lainnya">
-                                            Lainnya
-                                        </option>
-
-                                    </select>
-
-
-                                    <input
-                                        type="text"
-                                        name="anggota[0][status_keluarga_lainnya]"
-                                        class="responden-form-control status-lainnya"
-                                        placeholder="Ketik status keluarga"
-                                        style="display:none;margin-top:8px;"
-                                    >
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
+                    <div id="anggotaContainer" style="margin-top:15px;"></div>
 
                 </div>
 
+
+                {{-- =================================================
+                     GEOTAGGING
+                ================================================== --}}
+
+                <div class="responden-section">
+
+                    <div class="responden-section-heading">
+                        Geotagging Lokasi Rumah
+                    </div>
+
+                    <div class="responden-section-description">
+                        Lokasi rumah akan diambil secara otomatis berdasarkan lokasi perangkat. Pastikan GPS/lokasi perangkat aktif dan izinkan akses lokasi pada browser.
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-lokasi"
+                        onclick="ambilLokasi('tambah', this)"
+                    >
+                        📍 Ambil Lokasi Saya
+                    </button>
+
+                    <div id="mapTambah" class="responden-map"></div>
+
+                    <div class="geotagging-info">
+                        <span>Koordinat tersimpan:</span>
+                        <span
+                            id="koordinatTambahText"
+                            class="geotagging-coordinate"
+                        >
+                            Belum dipilih
+                        </span>
+                    </div>
+
+                    <div class="geotagging-help">
+                        Peta hanya menampilkan lokasi yang diperoleh dari perangkat dan tidak dapat dipilih secara manual.
+                    </div>
+
+                    <div
+                        id="konfirmasiLokasiTambah"
+                        class="geotagging-confirm"
+                        style="display:none;"
+                    >
+                        <button
+                            type="button"
+                            class="geotagging-save"
+                            onclick="simpanLokasi('tambah')"
+                        >
+                            Simpan Lokasi
+                        </button>
+
+                        <button
+                            type="button"
+                            class="geotagging-cancel"
+                            onclick="batalLokasi('tambah')"
+                        >
+                            Batal
+                        </button>
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="geotangging"
+                        id="geotangging"
+                    >
+
+                </div>
             </div>
 
 
@@ -1890,7 +2062,7 @@ textarea.responden-form-control {
                     </div>
 
                     <div class="responden-section-description">
-                        Ubah wilayah dan alamat tempat tinggal keluarga.
+                        
                     </div>
 
 
@@ -2022,26 +2194,7 @@ textarea.responden-form-control {
                         </div>
 
 
-                        {{-- RT RW --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                RT/RW
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                name="rt_rw"
-                                id="edit_rt_rw"
-                                class="responden-form-control"
-                                maxlength="20"
-                                placeholder="Contoh: 001/002"
-                                required
-                            >
-
-                        </div>
+                        
 
 
                         {{-- ALAMAT --}}
@@ -2081,7 +2234,7 @@ textarea.responden-form-control {
                     </div>
 
                     <div class="responden-section-description">
-                        Ubah nomor KK dan nama kepala keluarga.
+                        
                     </div>
 
 
@@ -2123,6 +2276,31 @@ textarea.responden-form-control {
                         </div>
 
 
+                        {{-- NIK KEPALA KELUARGA --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                NIK Kepala Keluarga
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="nik_kepala_keluarga"
+                                id="edit_nik_kepala_keluarga"
+                                class="responden-form-control nomor-16-digit"
+                                maxlength="16"
+                                minlength="16"
+                                pattern="[0-9]{16}"
+                                inputmode="numeric"
+                                placeholder="Masukkan 16 digit NIK"
+                                required
+                            >
+
+                        </div>
+
+
                         {{-- NAMA KEPALA KELUARGA --}}
 
                         <div class="responden-form-group">
@@ -2143,6 +2321,29 @@ textarea.responden-form-control {
 
                         </div>
 
+
+                        {{-- STATUS KEPALA KELUARGA --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Status Keluarga
+                                <span class="required">*</span>
+                            </label>
+
+                            <select
+                                name="status_kepala_keluarga"
+                                id="edit_status_kepala_keluarga"
+                                class="responden-form-control"
+                                required
+                            >
+                                <option value="Kepala Keluarga" selected>
+                                    Kepala Keluarga
+                                </option>
+                            </select>
+
+                        </div>
+
                     </div>
 
                 </div>
@@ -2156,38 +2357,108 @@ textarea.responden-form-control {
                 <div class="responden-section">
 
                     <div class="anggota-header">
-
                         <div>
-
                             <div class="anggota-header-text">
                                 Anggota Keluarga
                             </div>
-
-                            <div
-                                class="responden-section-description"
-                                style="margin-bottom:0;margin-top:4px;"
-                            >
-                                Ubah data anggota keluarga yang telah terdaftar.
+                            <div class="responden-section-description" style="margin-bottom:0;margin-top:4px;">
+                                
                             </div>
-
                         </div>
+                    </div>
 
+                    <div class="anggota-edit-toolbar">
+                        <div class="anggota-edit-info">
+                            <div class="anggota-edit-info-title">
+                                <span class="anggota-edit-info-icon"></span>
+                                <span></span>
+                            </div>
+                            <div class="anggota-edit-info-text">
+                            </div>
+                        </div>
 
                         <button
                             type="button"
-                            class="btn-tambah-anggota"
-                            onclick="tambahAnggotaEdit()"
+                            class="btn-tambah-anggota-edit"
+                            onclick="tambahAnggotaEditBaru()"
                         >
-                            + Tambah Anggota
+                            <span style="font-size:15px;line-height:1;">+</span>
+                            <span>Tambah Anggota</span>
                         </button>
-
                     </div>
 
-
-                    <div id="anggotaEditContainer"></div>
+                    <div id="anggotaEditContainer" style="margin-top:14px;"></div>
 
                 </div>
 
+
+                {{-- =================================================
+                     GEOTAGGING EDIT
+                ================================================== --}}
+
+                <div class="responden-section">
+
+                    <div class="responden-section-heading">
+                        Geotagging Lokasi Rumah
+                    </div>
+
+                    <div class="responden-section-description">
+                        Lokasi tersimpan dapat dilihat pada peta dan dapat diperbarui dengan mengambil lokasi dari perangkat.
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-lokasi"
+                        onclick="ambilLokasi('edit', this)"
+                    >
+                        📍 Ambil Lokasi Saya
+                    </button>
+
+                    <div id="mapEdit" class="responden-map"></div>
+
+                    <div class="geotagging-info">
+                        <span>Koordinat tersimpan:</span>
+                        <span
+                            id="koordinatEditText"
+                            class="geotagging-coordinate"
+                        >
+                            Belum dipilih
+                        </span>
+                    </div>
+
+                    <div class="geotagging-help">
+                        Peta hanya menampilkan lokasi yang diperoleh dari perangkat dan tidak dapat dipilih secara manual.
+                    </div>
+
+                    <div
+                        id="konfirmasiLokasiEdit"
+                        class="geotagging-confirm"
+                        style="display:none;"
+                    >
+                        <button
+                            type="button"
+                            class="geotagging-save"
+                            onclick="simpanLokasi('edit')"
+                        >
+                            Simpan Lokasi
+                        </button>
+
+                        <button
+                            type="button"
+                            class="geotagging-cancel"
+                            onclick="batalLokasi('edit')"
+                        >
+                            Batal
+                        </button>
+                    </div>
+
+                    <input
+                        type="hidden"
+                        name="geotangging"
+                        id="edit_geotangging"
+                    >
+
+                </div>
             </div>
 
 
@@ -2222,107 +2493,81 @@ textarea.responden-form-control {
 
 @push('scripts')
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 
 /* =========================================================
-   MODAL TAMBAH
+   MODAL
 ========================================================= */
 
 function bukaModalTambah() {
 
-    const modal =
-        document.getElementById(
-            'modalTambahResponden'
-        );
+    const modal = document.getElementById('modalTambahResponden');
+    const form = modal ? modal.querySelector('form') : null;
+
+    if (form) {
+        form.reset();
+    }
+
+    pendingTambah = null;
+    savedTambah = null;
+
+    setSavedLocation('tambah', '');
+    tampilkanKonfirmasiLokasi('tambah', false);
+
+    if (markerTambah) {
+        markerTambah.remove();
+        markerTambah = null;
+    }
+
+    const jumlah = document.getElementById('jumlah_anggota');
+
+    if (jumlah) {
+        jumlah.value = 0;
+    }
+
+    const container = document.getElementById('anggotaContainer');
+
+    if (container) {
+        container.innerHTML = '';
+    }
+
+    renderAnggotaTambah();
+
+    setTimeout(function () {
+        initMapTambah();
+    }, 200);
 
     if (modal) {
-
         modal.classList.add('active');
-
     }
 
     document.body.style.overflow = 'hidden';
-
 }
 
 
 function tutupModalTambah() {
 
-    const modal =
-        document.getElementById(
-            'modalTambahResponden'
-        );
+    const modal = document.getElementById('modalTambahResponden');
 
     if (modal) {
-
         modal.classList.remove('active');
-
     }
 
     document.body.style.overflow = '';
-
 }
 
-
-/* =========================================================
-   MODAL EDIT
-========================================================= */
 
 function tutupModalEdit() {
 
-    const modal =
-        document.getElementById(
-            'modalEditResponden'
-        );
+    const modal = document.getElementById('modalEditResponden');
 
     if (modal) {
-
         modal.classList.remove('active');
-
     }
 
     document.body.style.overflow = '';
-
-}
-
-
-/* =========================================================
-   STATUS LAINNYA
-========================================================= */
-
-function toggleStatusLainnya(select) {
-
-    const parent =
-        select.closest(
-            '.responden-form-group'
-        );
-
-    if (!parent) {
-        return;
-    }
-
-    const input =
-        parent.querySelector(
-            '.status-lainnya'
-        );
-
-    if (!input) {
-        return;
-    }
-
-    if (select.value === 'Lainnya') {
-
-        input.style.display = 'block';
-        input.required = true;
-
-    } else {
-
-        input.style.display = 'none';
-        input.required = false;
-        input.value = '';
-
-    }
-
 }
 
 
@@ -2330,267 +2575,537 @@ function toggleStatusLainnya(select) {
    NOMOR HANYA ANGKA
 ========================================================= */
 
-document.addEventListener(
-    'input',
-    function(event) {
+document.addEventListener('input', function (event) {
 
-        if (
-            event.target.classList.contains(
-                'nomor-16-digit'
-            )
-        ) {
+    if (event.target.classList.contains('nomor-16-digit')) {
 
-            event.target.value =
-                event.target.value
-                    .replace(/\D/g, '')
-                    .slice(0, 16);
-
-        }
-
+        event.target.value = event.target.value
+            .replace(/\D/g, '')
+            .slice(0, 16);
     }
-);
+});
 
 
 /* =========================================================
-   TAMBAH ANGGOTA
+   FORM ANGGOTA TAMBAH
 ========================================================= */
 
-let anggotaIndex = 1;
+let anggotaIndex = 0;
 
 
-function tambahAnggota() {
+function renderAnggotaTambah() {
 
-    const container =
-        document.getElementById(
-            'anggotaContainer'
-        );
+    const container = document.getElementById('anggotaContainer');
+    const input = document.getElementById('jumlah_anggota');
+
+    if (!container || !input) {
+        return;
+    }
+
+    let jumlah = parseInt(input.value) || 0;
+
+    if (jumlah < 0) {
+        jumlah = 0;
+        input.value = 0;
+    }
+
+    if (jumlah > 19) {
+        jumlah = 19;
+        input.value = 19;
+    }
+
+    container.innerHTML = '';
+    anggotaIndex = 0;
+
+    for (let i = 0; i < jumlah; i++) {
+        tambahAnggota(false, null, false);
+    }
+}
+
+
+function tambahAnggota(keepExisting = false, data = null, isKepala = false) {
+
+    const container = document.getElementById('anggotaContainer');
 
     if (!container) {
         return;
     }
 
-    const index =
-        anggotaIndex;
+    const index = anggotaIndex;
+    const nomor = index + 1;
 
-    const nomor =
-        index + 1;
+    const nik = data?.nik ?? '';
+    const nama = data?.nama_lengkap ?? '';
+    const status = data?.status_keluarga ?? '';
 
+    const card = document.createElement('div');
+    card.className = 'anggota-card';
+    card.dataset.index = index;
 
-    const html = `
-
-        <div
-            class="anggota-card"
-            data-index="${index}"
-        >
-
-            <div class="anggota-card-header">
-
-                <div class="anggota-card-title">
-
-                    <div class="anggota-number">
-                        ${nomor}
-                    </div>
-
-                    <span>
-                        Anggota Keluarga ${nomor}
-                    </span>
-
-                </div>
-
+    card.innerHTML = `
+        <div class="anggota-card-header">
+            <div class="anggota-card-title">
+                <div class="anggota-number">${nomor}</div>
+                <span>Anggota Keluarga ${nomor}</span>
+                ${!data?.id && !isKepala ? '<span class="anggota-baru-badge">Anggota Baru</span>' : ''}
+            </div>
+            ${!data?.id && !isKepala ? `
                 <button
                     type="button"
-                    class="btn-hapus-anggota"
-                    onclick="hapusAnggota(this)"
+                    class="btn-hapus-anggota-baru"
+                    onclick="hapusAnggotaEditBaru(${index})"
                 >
                     Hapus
                 </button>
-
-            </div>
-
-
-            <div class="responden-form-grid">
-
-
-                <div class="responden-form-group">
-
-                    <label class="responden-form-label">
-                        NIK
-                        <span class="required">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="anggota[${index}][nik]"
-                        class="responden-form-control nomor-16-digit"
-                        maxlength="16"
-                        minlength="16"
-                        pattern="[0-9]{16}"
-                        inputmode="numeric"
-                        placeholder="Masukkan 16 digit NIK"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="responden-form-group">
-
-                    <label class="responden-form-label">
-                        Nama Lengkap
-                        <span class="required">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="anggota[${index}][nama_lengkap]"
-                        class="responden-form-control"
-                        maxlength="255"
-                        placeholder="Masukkan nama lengkap"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="responden-form-group full">
-
-                    <label class="responden-form-label">
-                        Status Keluarga
-                        <span class="required">*</span>
-                    </label>
-
-                    <select
-                        name="anggota[${index}][status_keluarga]"
-                        class="responden-form-control status-keluarga"
-                        onchange="toggleStatusLainnya(this)"
-                        required
-                    >
-
-                        <option value="">
-                            Pilih Status Keluarga
-                        </option>
-
-                        <option value="Kepala Keluarga">
-                            Kepala Keluarga
-                        </option>
-
-                        <option value="Istri">
-                            Istri
-                        </option>
-
-                        <option value="Suami">
-                            Suami
-                        </option>
-
-                        <option value="Anak">
-                            Anak
-                        </option>
-
-                        <option value="Orang Tua">
-                            Orang Tua
-                        </option>
-
-                        <option value="Saudara">
-                            Saudara
-                        </option>
-
-                        <option value="Famili">
-                            Famili
-                        </option>
-
-                        <option value="Lainnya">
-                            Lainnya
-                        </option>
-
-                    </select>
-
-
-                    <input
-                        type="text"
-                        name="anggota[${index}][status_keluarga_lainnya]"
-                        class="responden-form-control status-lainnya"
-                        placeholder="Ketik status keluarga"
-                        style="display:none;margin-top:8px;"
-                    >
-
-                </div>
-
-            </div>
-
+            ` : ''}
         </div>
 
+        <div class="responden-form-grid">
+
+            <div class="responden-form-group">
+                <label class="responden-form-label">
+                    NIK <span class="required">*</span>
+                </label>
+                <input
+                    type="text"
+                    name="anggota[${index}][nik]"
+                    class="responden-form-control nomor-16-digit"
+                    maxlength="16"
+                    minlength="16"
+                    pattern="[0-9]{16}"
+                    inputmode="numeric"
+                    placeholder="Masukkan 16 digit NIK"
+                    value="${escapeHtml(nik)}"
+                    required
+                >
+            </div>
+
+            <div class="responden-form-group">
+                <label class="responden-form-label">
+                    Nama Lengkap <span class="required">*</span>
+                </label>
+                <input
+                    type="text"
+                    name="anggota[${index}][nama_lengkap]"
+                    class="responden-form-control anggota-nama-input"
+                    maxlength="255"
+                    placeholder="Masukkan nama lengkap"
+                    value="${escapeHtml(nama)}"
+                    required
+                >
+            </div>
+
+            <div class="responden-form-group full">
+                <label class="responden-form-label">
+                    Status Keluarga <span class="required">*</span>
+                </label>
+
+                <select
+                    name="anggota[${index}][status_keluarga]"
+                    class="responden-form-control status-keluarga"
+                    required
+                >
+                    <option value="">Pilih Status Keluarga</option>
+                    <option value="Istri">Istri</option>
+                    <option value="Suami">Suami</option>
+                    <option value="Anak">Anak</option>
+                    <option value="Orang Tua">Orang Tua</option>
+                    <option value="Saudara">Saudara</option>
+                    <option value="Famili">Famili</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+        </div>
     `;
 
-
-    container.insertAdjacentHTML(
-        'beforeend',
-        html
-    );
-
+    container.appendChild(card);
 
     anggotaIndex++;
-
-    updateNomorAnggota();
-
 }
 
 
-function hapusAnggota(button) {
+/* =========================================================
+   JUMLAH ANGGOTA
+========================================================= */
 
-    const card =
-        button.closest(
-            '.anggota-card'
-        );
+document.addEventListener('DOMContentLoaded', function () {
 
-    if (card) {
+    const jumlah = document.getElementById('jumlah_anggota');
 
-        card.remove();
-
+    if (jumlah) {
+        jumlah.addEventListener('input', renderAnggotaTambah);
+        renderAnggotaTambah();
     }
 
-    updateNomorAnggota();
+});
 
+
+/* =========================================================
+   MAP GEOTAGGING
+========================================================= */
+
+let mapTambah = null;
+let markerTambah = null;
+let mapEdit = null;
+let markerEdit = null;
+
+let pendingTambah = null;
+let pendingEdit = null;
+let savedTambah = null;
+let savedEdit = null;
+
+const DEFAULT_LAT = -7.6453;
+const DEFAULT_LNG = 112.9075;
+
+
+function formatKoordinat(lat, lng) {
+    return Number(lat).toFixed(7) + ', ' + Number(lng).toFixed(7);
 }
 
 
-function updateNomorAnggota() {
+function setMarkerOnly(type, lat, lng) {
 
-    const cards =
-        document.querySelectorAll(
-            '#anggotaContainer .anggota-card'
+    const isTambah = type === 'tambah';
+    const map = isTambah ? mapTambah : mapEdit;
+
+    if (!map) {
+        return;
+    }
+
+    const latLng = [Number(lat), Number(lng)];
+
+    if (isTambah) {
+
+        if (markerTambah) {
+            markerTambah.setLatLng(latLng);
+        } else {
+            markerTambah = L.marker(latLng, {
+                draggable: false
+            }).addTo(map);
+        }
+
+    } else {
+
+        if (markerEdit) {
+            markerEdit.setLatLng(latLng);
+        } else {
+            markerEdit = L.marker(latLng, {
+                draggable: false
+            }).addTo(map);
+        }
+    }
+
+    map.setView(latLng, 17);
+}
+
+
+function setSavedLocation(type, value) {
+
+    const isTambah = type === 'tambah';
+
+    const inputId = isTambah
+        ? 'geotangging'
+        : 'edit_geotangging';
+
+    const textId = isTambah
+        ? 'koordinatTambahText'
+        : 'koordinatEditText';
+
+    const input = document.getElementById(inputId);
+    const text = document.getElementById(textId);
+
+    if (input) {
+        input.value = value || '';
+    }
+
+    if (text) {
+        text.textContent = value || 'Belum dipilih';
+    }
+}
+
+
+function tampilkanKonfirmasiLokasi(type, tampil) {
+
+    const id = type === 'tambah'
+        ? 'konfirmasiLokasiTambah'
+        : 'konfirmasiLokasiEdit';
+
+    const element = document.getElementById(id);
+
+    if (element) {
+        element.style.display = tampil ? 'flex' : 'none';
+    }
+}
+
+
+function setPendingLocation(type, lat, lng) {
+
+    const value = formatKoordinat(lat, lng);
+
+    const pending = {
+        lat: Number(lat),
+        lng: Number(lng),
+        value: value
+    };
+
+    if (type === 'tambah') {
+        pendingTambah = pending;
+    } else {
+        pendingEdit = pending;
+    }
+
+    setMarkerOnly(type, lat, lng);
+
+    const textId = type === 'tambah'
+        ? 'koordinatTambahText'
+        : 'koordinatEditText';
+
+    const text = document.getElementById(textId);
+
+    if (text) {
+        text.textContent = value + ' (belum disimpan)';
+    }
+
+    tampilkanKonfirmasiLokasi(type, true);
+}
+
+
+function simpanLokasi(type) {
+
+    const pending = type === 'tambah'
+        ? pendingTambah
+        : pendingEdit;
+
+    if (!pending) {
+        alert('Ambil lokasi terlebih dahulu.');
+        return;
+    }
+
+    setSavedLocation(type, pending.value);
+
+    if (type === 'tambah') {
+        savedTambah = pending;
+        pendingTambah = null;
+    } else {
+        savedEdit = pending;
+        pendingEdit = null;
+    }
+
+    tampilkanKonfirmasiLokasi(type, false);
+}
+
+
+function batalLokasi(type) {
+
+    const saved = type === 'tambah'
+        ? savedTambah
+        : savedEdit;
+
+    if (saved) {
+
+        setMarkerOnly(
+            type,
+            saved.lat,
+            saved.lng
         );
 
-    cards.forEach(
-        function(card, index) {
+        setSavedLocation(
+            type,
+            saved.value
+        );
 
-            const number =
-                card.querySelector(
-                    '.anggota-number'
-                );
+    } else {
 
-            const title =
-                card.querySelector(
-                    '.anggota-card-title span'
-                );
+        const marker = type === 'tambah'
+            ? markerTambah
+            : markerEdit;
 
-            if (number) {
+        if (marker) {
+            marker.remove();
 
-                number.textContent =
-                    index + 1;
+            if (type === 'tambah') {
+                markerTambah = null;
+            } else {
+                markerEdit = null;
+            }
+        }
 
+        setSavedLocation(type, '');
+    }
+
+    if (type === 'tambah') {
+        pendingTambah = null;
+    } else {
+        pendingEdit = null;
+    }
+
+    tampilkanKonfirmasiLokasi(type, false);
+}
+
+
+function kunciInteraksiPeta(map) {
+
+    if (!map) {
+        return;
+    }
+
+    map.dragging.disable();
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
+
+    if (map.tap) {
+        map.tap.disable();
+    }
+
+    if (map.zoomControl) {
+        map.zoomControl.remove();
+    }
+}
+
+
+function initMapTambah() {
+
+    const element = document.getElementById('mapTambah');
+
+    if (!element || typeof L === 'undefined') {
+        return;
+    }
+
+    if (!mapTambah) {
+
+        mapTambah = L.map('mapTambah', {
+            zoomControl: false,
+            dragging: false,
+            touchZoom: false,
+            doubleClickZoom: false,
+            scrollWheelZoom: false,
+            boxZoom: false,
+            keyboard: false
+        }).setView(
+            [DEFAULT_LAT, DEFAULT_LNG],
+            14
+        );
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(mapTambah);
+
+        kunciInteraksiPeta(mapTambah);
+    }
+
+    setTimeout(function () {
+        mapTambah.invalidateSize();
+    }, 100);
+}
+
+
+function initMapEdit(latitude = null, longitude = null) {
+
+    const element = document.getElementById('mapEdit');
+
+    if (!element || typeof L === 'undefined') {
+        return;
+    }
+
+    if (!mapEdit) {
+
+        mapEdit = L.map('mapEdit', {
+            zoomControl: false,
+            dragging: false,
+            touchZoom: false,
+            doubleClickZoom: false,
+            scrollWheelZoom: false,
+            boxZoom: false,
+            keyboard: false
+        }).setView(
+            [DEFAULT_LAT, DEFAULT_LNG],
+            14
+        );
+
+        L.tileLayer(
+            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }
+        ).addTo(mapEdit);
+
+        kunciInteraksiPeta(mapEdit);
+    }
+
+    if (latitude !== null && longitude !== null) {
+        setMarkerOnly('edit', latitude, longitude);
+    }
+
+    setTimeout(function () {
+        mapEdit.invalidateSize();
+    }, 100);
+}
+
+
+function ambilLokasi(type, button) {
+
+    if (!navigator.geolocation) {
+        alert('Browser ini tidak mendukung pengambilan lokasi perangkat.');
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = '📍 Mengambil lokasi...';
+    }
+
+    navigator.geolocation.getCurrentPosition(
+
+        function (position) {
+
+            setPendingLocation(
+                type,
+                position.coords.latitude,
+                position.coords.longitude
+            );
+
+            if (button) {
+                button.disabled = false;
+                button.textContent = '📍 Ambil Lokasi Saya';
+            }
+        },
+
+        function (error) {
+
+            console.error('Geolocation:', error);
+
+            if (button) {
+                button.disabled = false;
+                button.textContent = '📍 Ambil Lokasi Saya';
             }
 
-            if (title) {
+            let message = 'Lokasi tidak dapat diambil. Pastikan GPS/lokasi perangkat aktif dan coba lagi.';
 
-                title.textContent =
-                    'Anggota Keluarga ' +
-                    (index + 1);
-
+            if (error.code === 1) {
+                message = 'Izin lokasi ditolak. Izinkan akses lokasi pada browser kemudian coba lagi.';
+            } else if (error.code === 2) {
+                message = 'Lokasi perangkat tidak tersedia. Pastikan GPS/lokasi perangkat aktif kemudian coba lagi.';
+            } else if (error.code === 3) {
+                message = 'Pengambilan lokasi terlalu lama. Pastikan GPS/lokasi perangkat aktif kemudian coba lagi.';
             }
 
+            alert(message);
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
         }
     );
-
 }
 
 
@@ -2599,207 +3114,288 @@ function updateNomorAnggota() {
 ========================================================= */
 
 let anggotaEditIndex = 0;
+let anggotaEditData = [];
 
 
-function editResponden(id) {
+window.editResponden = function (id) {
 
-    fetch(
-        '/responden/' +
-        id +
-        '/edit-data'
-    )
+    const editDataUrl = @json(route('responden.editData', ['id' => '__ID__']));
+    const updateUrl = @json(route('responden.update', ['id' => '__ID__']));
 
-        .then(
-            response => {
+    fetch(editDataUrl.replace('__ID__', id))
+        .then(function (response) {
 
-                if (!response.ok) {
-
-                    throw new Error(
-                        'Gagal mengambil data.'
-                    );
-
-                }
-
-                return response.json();
-
+            if (!response.ok) {
+                throw new Error('Gagal mengambil data.');
             }
-        )
 
-        .then(
-            data => {
+            return response.json();
+        })
+        .then(function (data) {
 
-                const modal =
-                    document.getElementById(
-                        'modalEditResponden'
-                    );
+            const modal = document.getElementById('modalEditResponden');
+            const form = document.getElementById('formEditResponden');
 
-                const form =
-                    document.getElementById(
-                        'formEditResponden'
-                    );
+            if (!modal || !form) {
+                return;
+            }
 
+            form.action = updateUrl.replace('__ID__', id);
 
-                /* =========================
-                   ACTION FORM
-                ========================= */
+            document.getElementById('edit_provinsi').value = data.provinsi ?? 'Jawa Timur';
+            document.getElementById('edit_daerah').value = data.daerah ?? 'Kota Pasuruan';
+            document.getElementById('edit_kode_pos').value = data.kode_pos ?? '';
+            document.getElementById('edit_alamat_lengkap').value = data.alamat_lengkap ?? '';
+            document.getElementById('edit_nomor_kk').value = data.no_kk ?? '';
+            document.getElementById('edit_nik_kepala_keluarga').value = data.nik_kepala_keluarga ?? data.nik ?? '';
+            document.getElementById('edit_nama_kepala_keluarga').value = data.nama_kepala_keluarga ?? data.nama_lengkap ?? '';
 
-                form.action =
-                    '/responden/update/' +
-                    id;
+            const kecamatan = document.getElementById('edit_kecamatan');
 
+            if (kecamatan) {
+                kecamatan.value = data.kecamatan_id ?? '';
+            }
 
-                /* =========================
-                   WILAYAH
-                ========================= */
+            if (data.kecamatan_id) {
+                loadKelurahan(data.kecamatan_id, 'edit_kelurahan', data.kelurahan_id);
+            }
 
-                document.getElementById(
-                    'edit_provinsi'
-                ).value =
-                    'Jawa Timur';
+            anggotaEditData = Array.isArray(data.anggota)
+                ? data.anggota.map(function (item) {
+                    return {
+                        id: item.id ?? null,
+                        nik: item.nik ?? '',
+                        nama_lengkap: item.nama_lengkap ?? '',
+                        status_keluarga: item.status_keluarga ?? ''
+                    };
+                })
+                : [];
 
-                document.getElementById(
-                    'edit_daerah'
-                ).value =
-                    'Kota Pasuruan';
+            const kepalaIndex = anggotaEditData.findIndex(function (item) {
+                return String(item.status_keluarga ?? '').trim().toUpperCase() === 'KEPALA KELUARGA';
+            });
 
+            if (kepalaIndex > 0) {
+                const kepala = anggotaEditData.splice(kepalaIndex, 1)[0];
+                anggotaEditData.unshift(kepala);
+            }
 
-                document.getElementById(
-                    'edit_kode_pos'
-                ).value =
-                    data.kode_pos ?? '';
+            renderAnggotaEdit();
 
+            const geo = parseGeotangging(data.geotangging);
 
-                document.getElementById(
-                    'edit_rt_rw'
-                ).value =
-                    data.rt_rw ?? '';
-
-
-                document.getElementById(
-                    'edit_alamat_lengkap'
-                ).value =
-                    data.alamat_lengkap ?? '';
-
-
-                /* =========================
-                   DATA KELUARGA
-                ========================= */
-
-                document.getElementById(
-                    'edit_nomor_kk'
-                ).value =
-                    data.no_kk ?? '';
-
-
-                document.getElementById(
-                    'edit_nama_kepala_keluarga'
-                ).value =
-                    data.nama_lengkap ?? '';
-
-
-                /* =========================
-                   KECAMATAN
-                ========================= */
-
-                const kecamatan =
-                    document.getElementById(
-                        'edit_kecamatan'
-                    );
-
-                kecamatan.value =
-                    data.kecamatan_id ?? '';
-
-
-                /* =========================
-                   KELURAHAN
-                ========================= */
-
-                if (data.kecamatan_id) {
-
-                    loadKelurahan(
-                        data.kecamatan_id,
-                        'edit_kelurahan',
-                        data.kelurahan_id
-                    );
-
-                } else {
-
-                    const kelurahan =
-                        document.getElementById(
-                            'edit_kelurahan'
-                        );
-
-                    kelurahan.innerHTML = `
-                        <option value="">
-                            Pilih Kecamatan terlebih dahulu
-                        </option>
-                    `;
-
+            pendingEdit = null;
+            savedEdit = geo
+                ? {
+                    lat: geo.lat,
+                    lng: geo.lng,
+                    value: formatKoordinat(geo.lat, geo.lng)
                 }
+                : null;
 
+            setSavedLocation(
+                'edit',
+                savedEdit ? savedEdit.value : ''
+            );
 
-                /* =========================
-                   ANGGOTA
-                ========================= */
+            tampilkanKonfirmasiLokasi('edit', false);
 
-                const container =
-                    document.getElementById(
-                        'anggotaEditContainer'
-                    );
-
-                container.innerHTML = '';
-
-                anggotaEditIndex = 0;
-
-
-                if (
-                    data.anggota &&
-                    data.anggota.length > 0
-                ) {
-
-                    data.anggota.forEach(
-                        function(anggota) {
-
-                            tambahAnggotaEdit(
-                                anggota
-                            );
-
-                        }
-                    );
-
-                } else {
-
-                    tambahAnggotaEdit();
-
-                }
-
-
-                /* =========================
-                   TAMPILKAN MODAL
-                ========================= */
-
-                modal.classList.add(
-                    'active'
+            setTimeout(function () {
+                initMapEdit(
+                    geo ? geo.lat : null,
+                    geo ? geo.lng : null
                 );
+            }, 200);
 
-                document.body.style.overflow =
-                    'hidden';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        })
+        .catch(function (error) {
+            console.error(error);
+            alert('Data responden gagal dimuat.');
+        });
+};
 
-            }
-        )
 
-        .catch(
-            error => {
+function renderAnggotaEdit() {
 
-                console.error(error);
+    const container = document.getElementById('anggotaEditContainer');
 
-                alert(
-                    'Data responden gagal dimuat.'
-                );
+    if (!container) {
+        return;
+    }
 
-            }
+    container.innerHTML = '';
+    anggotaEditIndex = 0;
+
+    const countElement = document.getElementById('anggotaEditCount');
+
+    if (countElement) {
+        countElement.textContent = anggotaEditData.length + ' anggota';
+    }
+
+    anggotaEditData.forEach(function (data, index) {
+        tambahAnggotaEdit(
+            data,
+            false
         );
+    });
+}
 
+
+function tambahAnggotaEditBaru() {
+
+    anggotaEditData.push({
+        id: null,
+        nik: '',
+        nama_lengkap: '',
+        status_keluarga: ''
+    });
+
+    renderAnggotaEdit();
+
+    const container = document.getElementById('anggotaEditContainer');
+
+    if (container) {
+        const cards = container.querySelectorAll('.anggota-card');
+        const lastCard = cards[cards.length - 1];
+
+        if (lastCard) {
+            lastCard.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
+    }
+}
+
+
+function hapusAnggotaEditBaru(index) {
+
+    const item = anggotaEditData[index];
+
+    if (!item || item.id) {
+        return;
+    }
+
+    if (!confirm('Hapus anggota baru ini dari form?')) {
+        return;
+    }
+
+    anggotaEditData.splice(index, 1);
+    renderAnggotaEdit();
+}
+
+
+function tambahAnggotaEdit(data = null, isKepala = false) {
+
+    const container = document.getElementById('anggotaEditContainer');
+
+    if (!container) {
+        return;
+    }
+
+    const index = anggotaEditIndex;
+    const nomor = index + 1;
+
+    const id = data?.id ?? '';
+    const nik = data?.nik ?? '';
+    const nama = data?.nama_lengkap ?? '';
+    const status = data?.status_keluarga ?? (isKepala ? 'Kepala Keluarga' : '');
+
+    const card = document.createElement('div');
+    card.className = 'anggota-card' + (!id ? ' anggota-card-new' : '');
+
+    card.innerHTML = `
+        <input
+            type="hidden"
+            name="anggota[${index}][id]"
+            value="${escapeHtml(id)}"
+        >
+
+        <div class="anggota-card-header">
+            <div class="anggota-card-title">
+                <div class="anggota-number">${nomor}</div>
+                <span>${isKepala ? 'Kepala Keluarga' : 'Anggota Keluarga ' + nomor}</span>
+            </div>
+        </div>
+
+        <div class="responden-form-grid">
+
+            <div class="responden-form-group">
+                <label class="responden-form-label">
+                    NIK <span class="required">*</span>
+                </label>
+                <input
+                    type="text"
+                    name="anggota[${index}][nik]"
+                    class="responden-form-control nomor-16-digit"
+                    maxlength="16"
+                    minlength="16"
+                    pattern="[0-9]{16}"
+                    inputmode="numeric"
+                    placeholder="Masukkan 16 digit NIK"
+                    value="${escapeHtml(nik)}"
+                    required
+                >
+            </div>
+
+            <div class="responden-form-group">
+                <label class="responden-form-label">
+                    Nama Lengkap <span class="required">*</span>
+                </label>
+                <input
+                    type="text"
+                    name="anggota[${index}][nama_lengkap]"
+                    class="responden-form-control anggota-nama-input"
+                    maxlength="255"
+                    placeholder="Masukkan nama lengkap"
+                    value="${escapeHtml(nama)}"
+                    required
+                >
+            </div>
+
+            <div class="responden-form-group full">
+                <label class="responden-form-label">
+                    Status Keluarga <span class="required">*</span>
+                </label>
+                <select
+                    name="anggota[${index}][status_keluarga]"
+                    class="responden-form-control status-keluarga"
+                    required
+                >
+                    ${isKepala
+                        ? '<option value="Kepala Keluarga" selected>Kepala Keluarga</option>'
+                        : `
+                            <option value="">Pilih Status Keluarga</option>
+                            <option value="Istri" ${status === 'Istri' ? 'selected' : ''}>Istri</option>
+                            <option value="Suami" ${status === 'Suami' ? 'selected' : ''}>Suami</option>
+                            <option value="Anak" ${status === 'Anak' ? 'selected' : ''}>Anak</option>
+                            <option value="Orang Tua" ${status === 'Orang Tua' ? 'selected' : ''}>Orang Tua</option>
+                            <option value="Saudara" ${status === 'Saudara' ? 'selected' : ''}>Saudara</option>
+                            <option value="Famili" ${status === 'Famili' ? 'selected' : ''}>Famili</option>
+                            <option value="Lainnya" ${status === 'Lainnya' ? 'selected' : ''}>Lainnya</option>
+                        `
+                    }
+                </select>
+            </div>
+        </div>
+    `;
+
+    container.appendChild(card);
+
+    const namaInput = card.querySelector('.anggota-nama-input');
+
+    if (isKepala && namaInput) {
+        namaInput.addEventListener('input', function () {
+            const namaKepala = document.getElementById('edit_nama_kepala_keluarga');
+            if (namaKepala) {
+                namaKepala.value = this.value;
+            }
+        });
+    }
+
+    anggotaEditIndex++;
 }
 
 
@@ -2809,760 +3405,158 @@ function editResponden(id) {
 
 function toggleKeluarga(id) {
 
-    const button =
-        document.getElementById(
-            'kkToggle-' + id
-        );
-
-    const mainRow =
-        document.getElementById(
-            'keluarga-row-' + id
-        );
-
-    const memberRows =
-        document.querySelectorAll(
-            '.responden-member-row[data-keluarga="' +
-            id +
-            '"]'
-        );
-
+    const button = document.getElementById('kkToggle-' + id);
+    const mainRow = document.getElementById('keluarga-row-' + id);
+    const memberRows = document.querySelectorAll(
+        '.responden-member-row[data-keluarga="' + id + '"]'
+    );
 
     if (!button) {
         return;
     }
 
+    const sedangTerbuka = button.classList.contains('active');
 
-    const sedangTerbuka =
-        button.classList.contains(
-            'active'
-        );
+    button.classList.toggle('active', !sedangTerbuka);
 
-
-    if (sedangTerbuka) {
-
-        /* =========================
-           TUTUP ANGGOTA
-        ========================= */
-
-        button.classList.remove(
-            'active'
-        );
-
-        if (mainRow) {
-
-            mainRow.classList.remove(
-                'expanded'
-            );
-
-        }
-
-
-        memberRows.forEach(
-            function(row) {
-
-                row.classList.remove(
-                    'active'
-                );
-
-            }
-        );
-
-
-    } else {
-
-        /* =========================
-           BUKA ANGGOTA
-        ========================= */
-
-        button.classList.add(
-            'active'
-        );
-
-        if (mainRow) {
-
-            mainRow.classList.add(
-                'expanded'
-            );
-
-        }
-
-
-        memberRows.forEach(
-            function(row) {
-
-                row.classList.add(
-                    'active'
-                );
-
-            }
-        );
-
+    if (mainRow) {
+        mainRow.classList.toggle('expanded', !sedangTerbuka);
     }
 
+    memberRows.forEach(function (row) {
+        row.classList.toggle('active', !sedangTerbuka);
+    });
 }
-
-
-/* =========================================================
-   TAMBAH ANGGOTA EDIT
-========================================================= */
-
-function tambahAnggotaEdit(
-    data = null
-) {
-
-    const container =
-        document.getElementById(
-            'anggotaEditContainer'
-        );
-
-    if (!container) {
-        return;
-    }
-
-
-    const index =
-        anggotaEditIndex;
-
-    const nomor =
-        index + 1;
-
-
-    const nik =
-        data?.nik ?? '';
-
-    const nama =
-        data?.nama_lengkap ?? '';
-
-    const status =
-        data?.status_keluarga ?? '';
-
-
-    const statusNormal = [
-        'Kepala Keluarga',
-        'Istri',
-        'Suami',
-        'Anak',
-        'Orang Tua',
-        'Saudara',
-        'Famili'
-    ];
-
-
-    const statusLainnya =
-        status !== '' &&
-        !statusNormal.includes(status)
-            ? status
-            : '';
-
-
-    const statusValue =
-        statusLainnya !== ''
-            ? 'Lainnya'
-            : status;
-
-
-    const html = `
-
-        <div
-            class="anggota-card"
-            data-edit-index="${index}"
-        >
-
-            <div class="anggota-card-header">
-
-                <div class="anggota-card-title">
-
-                    <div class="anggota-number">
-                        ${nomor}
-                    </div>
-
-                    <span>
-                        Anggota Keluarga ${nomor}
-                    </span>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    class="btn-hapus-anggota"
-                    onclick="hapusAnggotaEdit(this)"
-                >
-                    Hapus
-                </button>
-
-            </div>
-
-
-            <div class="responden-form-grid">
-
-
-                {{-- NIK --}}
-
-                <div class="responden-form-group">
-
-                    <label class="responden-form-label">
-                        NIK
-                        <span class="required">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="anggota[${index}][nik]"
-                        class="responden-form-control nomor-16-digit"
-                        maxlength="16"
-                        minlength="16"
-                        pattern="[0-9]{16}"
-                        inputmode="numeric"
-                        value="${escapeHtml(nik)}"
-                        required
-                    >
-
-                </div>
-
-
-                {{-- NAMA --}}
-
-                <div class="responden-form-group">
-
-                    <label class="responden-form-label">
-                        Nama Lengkap
-                        <span class="required">*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        name="anggota[${index}][nama_lengkap]"
-                        class="responden-form-control"
-                        maxlength="255"
-                        value="${escapeHtml(nama)}"
-                        required
-                    >
-
-                </div>
-
-
-                {{-- STATUS --}}
-
-                <div class="responden-form-group full">
-
-                    <label class="responden-form-label">
-                        Status Keluarga
-                        <span class="required">*</span>
-                    </label>
-
-                    <select
-                        name="anggota[${index}][status_keluarga]"
-                        class="responden-form-control status-keluarga"
-                        onchange="toggleStatusLainnya(this)"
-                        required
-                    >
-
-                        <option value="">
-                            Pilih Status Keluarga
-                        </option>
-
-                        <option
-                            value="Kepala Keluarga"
-                            ${statusValue === 'Kepala Keluarga' ? 'selected' : ''}
-                        >
-                            Kepala Keluarga
-                        </option>
-
-                        <option
-                            value="Istri"
-                            ${statusValue === 'Istri' ? 'selected' : ''}
-                        >
-                            Istri
-                        </option>
-
-                        <option
-                            value="Suami"
-                            ${statusValue === 'Suami' ? 'selected' : ''}
-                        >
-                            Suami
-                        </option>
-
-                        <option
-                            value="Anak"
-                            ${statusValue === 'Anak' ? 'selected' : ''}
-                        >
-                            Anak
-                        </option>
-
-                        <option
-                            value="Orang Tua"
-                            ${statusValue === 'Orang Tua' ? 'selected' : ''}
-                        >
-                            Orang Tua
-                        </option>
-
-                        <option
-                            value="Saudara"
-                            ${statusValue === 'Saudara' ? 'selected' : ''}
-                        >
-                            Saudara
-                        </option>
-
-                        <option
-                            value="Famili"
-                            ${statusValue === 'Famili' ? 'selected' : ''}
-                        >
-                            Famili
-                        </option>
-
-                        <option
-                            value="Lainnya"
-                            ${statusValue === 'Lainnya' ? 'selected' : ''}
-                        >
-                            Lainnya
-                        </option>
-
-                    </select>
-
-
-                    <input
-                        type="text"
-                        name="anggota[${index}][status_keluarga_lainnya]"
-                        class="responden-form-control status-lainnya"
-                        placeholder="Ketik status keluarga"
-                        value="${escapeHtml(statusLainnya)}"
-                        style="
-                            display:${statusLainnya !== '' ? 'block' : 'none'};
-                            margin-top:8px;
-                        "
-                        ${statusLainnya !== '' ? 'required' : ''}
-                    >
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-
-    container.insertAdjacentHTML(
-        'beforeend',
-        html
-    );
-
-
-    anggotaEditIndex++;
-
-    updateNomorAnggotaEdit();
-
-}
-
-
-function hapusAnggotaEdit(button) {
-
-    const card =
-        button.closest(
-            '.anggota-card'
-        );
-
-    if (card) {
-
-        card.remove();
-
-    }
-
-    updateNomorAnggotaEdit();
-
-}
-
-
-function updateNomorAnggotaEdit() {
-
-    const cards =
-        document.querySelectorAll(
-            '#anggotaEditContainer .anggota-card'
-        );
-
-    cards.forEach(
-        function(card, index) {
-
-            const number =
-                card.querySelector(
-                    '.anggota-number'
-                );
-
-            const title =
-                card.querySelector(
-                    '.anggota-card-title span'
-                );
-
-
-            if (number) {
-
-                number.textContent =
-                    index + 1;
-
-            }
-
-
-            if (title) {
-
-                title.textContent =
-                    'Anggota Keluarga ' +
-                    (index + 1);
-
-            }
-
-        }
-    );
-
-}
-
-
 /* =========================================================
    HAPUS RESPONDEN
 ========================================================= */
 
 function hapusResponden(id) {
 
-    const konfirmasi =
-        confirm(
-            'Apakah Anda yakin ingin menghapus data responden ini?'
-        );
-
-
-    if (!konfirmasi) {
+    if (!confirm('Apakah Anda yakin ingin menghapus data responden ini?')) {
         return;
     }
 
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/responden/hapus/' + id;
 
-    const form =
-        document.createElement(
-            'form'
-        );
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = '{{ csrf_token() }}';
 
-    form.method =
-        'POST';
+    const method = document.createElement('input');
+    method.type = 'hidden';
+    method.name = '_method';
+    method.value = 'DELETE';
 
-    form.action =
-        '/responden/hapus/' +
-        id;
-
-
-    const csrf =
-        document.createElement(
-            'input'
-        );
-
-    csrf.type =
-        'hidden';
-
-    csrf.name =
-        '_token';
-
-    csrf.value =
-        '{{ csrf_token() }}';
-
-
-    const method =
-        document.createElement(
-            'input'
-        );
-
-    method.type =
-        'hidden';
-
-    method.name =
-        '_method';
-
-    method.value =
-        'DELETE';
-
-
-    form.appendChild(
-        csrf
-    );
-
-    form.appendChild(
-        method
-    );
-
-    document.body.appendChild(
-        form
-    );
-
+    form.appendChild(csrf);
+    form.appendChild(method);
+    document.body.appendChild(form);
     form.submit();
-
 }
 
 
 /* =========================================================
-   KELURAHAN BERDASARKAN KECAMATAN
+   KELURAHAN
 ========================================================= */
 
-function loadKelurahan(
-    kecamatanId,
-    targetId,
-    selectedId = null
-) {
+function loadKelurahan(kecamatanId, targetId, selectedId = null) {
 
-    const select =
-        document.getElementById(
-            targetId
-        );
-
+    const select = document.getElementById(targetId);
 
     if (!select) {
         return;
     }
 
-
-    select.innerHTML = `
-        <option value="">
-            Memuat Kelurahan/Desa...
-        </option>
-    `;
-
-
     if (!kecamatanId) {
-
-        select.innerHTML = `
-            <option value="">
-                Pilih Kecamatan terlebih dahulu
-            </option>
-        `;
-
+        select.innerHTML = '<option value="">Pilih Kecamatan terlebih dahulu</option>';
         return;
-
     }
 
+    select.innerHTML = '<option value="">Memuat Kelurahan/Desa...</option>';
 
-    fetch(
-        '/responden/kelurahan/' +
-        kecamatanId
-    )
+    fetch('/responden/kelurahan/' + kecamatanId)
+        .then(function (response) {
 
-        .then(
-            response => {
+            if (!response.ok) {
+                throw new Error('Gagal mengambil data kelurahan.');
+            }
 
-                if (!response.ok) {
+            return response.json();
+        })
+        .then(function (result) {
 
-                    throw new Error(
-                        'Gagal mengambil data kelurahan.'
-                    );
+            const data = result.data ?? [];
 
+            select.innerHTML = '<option value="">Pilih Kelurahan/Desa</option>';
+
+            data.forEach(function (item) {
+
+                const option = document.createElement('option');
+                option.value = item.kelurahan_id;
+                option.textContent = item.deskripsi;
+
+                if (
+                    selectedId !== null &&
+                    String(item.kelurahan_id) === String(selectedId)
+                ) {
+                    option.selected = true;
                 }
 
-                return response.json();
+                select.appendChild(option);
+            });
 
+            if (data.length === 0) {
+                select.innerHTML = '<option value="">Kelurahan/Desa tidak ditemukan</option>';
             }
-        )
+        })
+        .catch(function (error) {
 
-        .then(
-            result => {
-
-                console.log(
-                    'Response Kelurahan:',
-                    result
-                );
-
-
-                const data =
-                    result.data ?? [];
-
-
-                select.innerHTML = `
-                    <option value="">
-                        Pilih Kelurahan/Desa
-                    </option>
-                `;
-
-
-                if (data.length === 0) {
-
-                    select.innerHTML = `
-                        <option value="">
-                            Kelurahan/Desa tidak ditemukan
-                        </option>
-                    `;
-
-                    return;
-
-                }
-
-
-                data.forEach(
-                    function(item) {
-
-                        const option =
-                            document.createElement(
-                                'option'
-                            );
-
-
-                        option.value =
-                            item.kelurahan_id;
-
-
-                        option.textContent =
-                            item.deskripsi;
-
-
-                        if (
-                            selectedId !== null &&
-                            String(item.kelurahan_id) ===
-                            String(selectedId)
-                        ) {
-
-                            option.selected =
-                                true;
-
-                        }
-
-
-                        select.appendChild(
-                            option
-                        );
-
-                    }
-                );
-
-            }
-        )
-
-        .catch(
-            error => {
-
-                console.error(
-                    'Error Kelurahan:',
-                    error
-                );
-
-
-                select.innerHTML = `
-                    <option value="">
-                        Kelurahan gagal dimuat
-                    </option>
-                `;
-
-            }
-        );
-
+            console.error(error);
+            select.innerHTML = '<option value="">Kelurahan gagal dimuat</option>';
+        });
 }
 
 
 /* =========================================================
-   KECAMATAN TAMBAH & EDIT
+   PARSE GEOTAGGING
 ========================================================= */
 
-document.addEventListener(
-    'DOMContentLoaded',
-    function() {
+function parseGeotangging(value) {
 
-        const kecamatan =
-            document.getElementById(
-                'kecamatan'
-            );
-
-
-        if (kecamatan) {
-
-            kecamatan.addEventListener(
-                'change',
-                function() {
-
-                    loadKelurahan(
-                        this.value,
-                        'kelurahan'
-                    );
-
-                }
-            );
-
-        }
-
-
-        const editKecamatan =
-            document.getElementById(
-                'edit_kecamatan'
-            );
-
-
-        if (editKecamatan) {
-
-            editKecamatan.addEventListener(
-                'change',
-                function() {
-
-                    loadKelurahan(
-                        this.value,
-                        'edit_kelurahan'
-                    );
-
-                }
-            );
-
-        }
-
+    if (!value) {
+        return null;
     }
-);
+
+    const parts = String(value)
+        .split(',')
+        .map(function (item) {
+            return item.trim();
+        });
+
+    if (parts.length < 2) {
+        return null;
+    }
+
+    const lat = parseFloat(parts[0]);
+    const lng = parseFloat(parts[1]);
+
+    if (Number.isNaN(lat) || Number.isNaN(lng)) {
+        return null;
+    }
+
+    return {
+        lat: lat,
+        lng: lng
+    };
+}
 
 
 /* =========================================================
    SEARCH
 ========================================================= */
-
-document.addEventListener(
-    'DOMContentLoaded',
-    function() {
-
-        const search =
-            document.getElementById(
-                'searchResponden'
-            );
-
-
-        if (!search) {
-            return;
-        }
-
-
-        search.addEventListener(
-            'input',
-            function() {
-
-                const keyword =
-                    this.value
-                        .toLowerCase()
-                        .trim();
-
-
-                const rows =
-                    document.querySelectorAll(
-                        '#respondenTableBody .responden-row'
-                    );
-
-
-                rows.forEach(
-                    function(row) {
-
-                        const text =
-                            row.textContent
-                                .toLowerCase();
-
-
-                        row.style.display =
-                            text.includes(keyword)
-                                ? ''
-                                : 'none';
-
-                    }
-                );
-
-            }
-        );
-
-    }
-);
-
 
 /* =========================================================
    ESCAPE HTML
@@ -3570,105 +3564,70 @@ document.addEventListener(
 
 function escapeHtml(value) {
 
-    const div =
-        document.createElement(
-            'div'
-        );
-
-    div.textContent =
-        value ?? '';
-
+    const div = document.createElement('div');
+    div.textContent = value ?? '';
     return div.innerHTML;
-
 }
 
 
 /* =========================================================
-   CLICK OUTSIDE MODAL
+   EVENT KECAMATAN
 ========================================================= */
 
-document.addEventListener(
-    'DOMContentLoaded',
-    function() {
+document.addEventListener('DOMContentLoaded', function () {
 
-        const modalTambah =
-            document.getElementById(
-                'modalTambahResponden'
-            );
+    const kecamatan = document.getElementById('kecamatan');
 
-
-        const modalEdit =
-            document.getElementById(
-                'modalEditResponden'
-            );
-
-
-        if (modalTambah) {
-
-            modalTambah.addEventListener(
-                'click',
-                function(event) {
-
-                    if (
-                        event.target ===
-                        this
-                    ) {
-
-                        tutupModalTambah();
-
-                    }
-
-                }
-            );
-
-        }
-
-
-        if (modalEdit) {
-
-            modalEdit.addEventListener(
-                'click',
-                function(event) {
-
-                    if (
-                        event.target ===
-                        this
-                    ) {
-
-                        tutupModalEdit();
-
-                    }
-
-                }
-            );
-
-        }
-
+    if (kecamatan) {
+        kecamatan.addEventListener('change', function () {
+            loadKelurahan(this.value, 'kelurahan');
+        });
     }
-);
+
+    const editKecamatan = document.getElementById('edit_kecamatan');
+
+    if (editKecamatan) {
+        editKecamatan.addEventListener('change', function () {
+            loadKelurahan(this.value, 'edit_kelurahan');
+        });
+    }
+});
 
 
 /* =========================================================
-   ESC KEY
+   CLICK OUTSIDE + ESC
 ========================================================= */
 
-document.addEventListener(
-    'keydown',
-    function(event) {
+document.addEventListener('DOMContentLoaded', function () {
 
-        if (
-            event.key ===
-            'Escape'
-        ) {
+    const modalTambah = document.getElementById('modalTambahResponden');
+    const modalEdit = document.getElementById('modalEditResponden');
 
-            tutupModalTambah();
-
-            tutupModalEdit();
-
-        }
-
+    if (modalTambah) {
+        modalTambah.addEventListener('click', function (event) {
+            if (event.target === this) {
+                tutupModalTambah();
+            }
+        });
     }
-);
+
+    if (modalEdit) {
+        modalEdit.addEventListener('click', function (event) {
+            if (event.target === this) {
+                tutupModalEdit();
+            }
+        });
+    }
+});
+
+
+document.addEventListener('keydown', function (event) {
+
+    if (event.key === 'Escape') {
+        tutupModalTambah();
+        tutupModalEdit();
+    }
+});
 
 </script>
 
