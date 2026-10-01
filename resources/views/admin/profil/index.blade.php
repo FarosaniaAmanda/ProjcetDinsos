@@ -18,7 +18,6 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
-
         body {
             background: #f3f7fd;
             color: #252525;
@@ -46,13 +45,13 @@
         ====================================================== */
 
         .profile-header {
-             width: 100%;
-             max-width: 850px;
-             margin: 0 auto 25px;
-             text-align: center;
-        }
-        
+            width: 100%;
+            max-width: 850px;
 
+            margin: 0 auto 25px;
+
+            text-align: center;
+        }
 
         .profile-header h1 {
             font-size: 28px;
@@ -61,7 +60,6 @@
 
             margin-bottom: 8px;
         }
-
 
         .profile-header p {
             color: #777;
@@ -77,12 +75,17 @@
         .profile-card {
             width: 100%;
             max-width: 650px;
+
             margin: 0 auto;
+
             background: #fff;
+
             border-radius: 16px;
+
             padding: 25px;
+
             box-shadow: 0 5px 20px rgba(0,0,0,.08);
-}
+        }
 
 
         /* =====================================================
@@ -90,7 +93,6 @@
         ====================================================== */
 
         .profile-top {
-
             display: flex;
 
             align-items: center;
@@ -106,7 +108,6 @@
 
 
         .profile-avatar {
-
             width: 85px;
             height: 85px;
 
@@ -130,7 +131,6 @@
 
 
         .profile-name h2 {
-
             font-size: 22px;
 
             margin-bottom: 5px;
@@ -140,7 +140,6 @@
 
 
         .profile-name span {
-
             color: #777;
 
             font-size: 14px;
@@ -152,7 +151,6 @@
         ====================================================== */
 
         .profile-info {
-
             display: grid;
 
             grid-template-columns: repeat(2, 1fr);
@@ -162,7 +160,6 @@
 
 
         .info-item {
-
             background: #f7f9fc;
 
             border-radius: 10px;
@@ -172,7 +169,6 @@
 
 
         .info-item label {
-
             display: block;
 
             font-size: 12px;
@@ -186,7 +182,6 @@
 
 
         .info-item strong {
-
             font-size: 15px;
 
             color: #333;
@@ -194,7 +189,6 @@
 
 
         .status {
-
             color: #16803c !important;
         }
 
@@ -204,7 +198,6 @@
         ====================================================== */
 
         .profile-actions {
-
             margin-top: 30px;
 
             padding-top: 25px;
@@ -220,7 +213,6 @@
 
 
         .btn-password {
-
             display: inline-block;
 
             background: #252A86;
@@ -242,13 +234,11 @@
 
 
         .btn-password:hover {
-
             background: #1d216d;
         }
 
 
         .btn-back {
-
             display: inline-block;
 
             padding: 12px 20px;
@@ -268,7 +258,6 @@
 
 
         .btn-back:hover {
-
             background: #e2e2e2;
         }
 
@@ -278,7 +267,6 @@
         ====================================================== */
 
         .success-message {
-
             width: 100%;
 
             max-width: 650px;
@@ -304,43 +292,36 @@
         @media (max-width: 700px) {
 
             .profile-container {
-
                 padding: 20px;
             }
 
 
             .profile-header {
-
                 margin-bottom: 20px;
             }
 
 
             .profile-header h1 {
-
                 font-size: 24px;
             }
 
 
             .profile-card {
-
                 padding: 22px;
             }
 
 
             .profile-info {
-
                 grid-template-columns: 1fr;
             }
 
 
             .profile-top {
-
                 align-items: flex-start;
             }
 
 
             .profile-actions {
-
                 flex-direction: column;
 
                 align-items: stretch;
@@ -349,7 +330,6 @@
 
             .btn-password,
             .btn-back {
-
                 display: block;
 
                 text-align: center;
@@ -363,25 +343,21 @@
         @media (max-width: 450px) {
 
             .profile-container {
-
                 padding: 15px;
             }
 
 
             .profile-card {
-
                 padding: 18px;
             }
 
 
             .profile-top {
-
                 gap: 14px;
             }
 
 
             .profile-avatar {
-
                 width: 65px;
                 height: 65px;
 
@@ -390,13 +366,11 @@
 
 
             .profile-name h2 {
-
                 font-size: 19px;
             }
 
 
             .profile-name span {
-
                 font-size: 12px;
             }
 
@@ -459,19 +433,29 @@
         <div class="profile-top">
 
 
+            <!-- AVATAR OTOMATIS DARI HURUF PERTAMA NAMA -->
+
             <div class="profile-avatar">
-                A
+
+                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+
             </div>
 
+
+            <!-- NAMA USER YANG SEDANG LOGIN -->
 
             <div class="profile-name">
 
                 <h2>
-                    Operator
+
+                    {{ Auth::user()->name }}
+
                 </h2>
 
                 <span>
+
                     Administrator Sistem Pendataan Perlinsos
+
                 </span>
 
             </div>
@@ -487,7 +471,7 @@
         <div class="profile-info">
 
 
-            <!-- NAMA -->
+            <!-- NAMA OPERATOR -->
 
             <div class="info-item">
 
@@ -496,7 +480,9 @@
                 </label>
 
                 <strong>
-                    Operator
+
+                    {{ Auth::user()->name }}
+
                 </strong>
 
             </div>
@@ -511,7 +497,9 @@
                 </label>
 
                 <strong>
-                    Admin
+
+                    {{ ucfirst(Auth::user()->role) }}
+
                 </strong>
 
             </div>
@@ -526,7 +514,9 @@
                 </label>
 
                 <strong class="status">
+
                     Aktif
+
                 </strong>
 
             </div>
@@ -541,7 +531,9 @@
                 </label>
 
                 <strong>
-                    Administrator
+
+                    {{ ucfirst(Auth::user()->role) }}
+
                 </strong>
 
             </div>
@@ -561,7 +553,9 @@
                 href="{{ route('profil.password') }}"
                 class="btn-password"
             >
-                 Ubah Password
+
+                Ubah Password
+
             </a>
 
 
@@ -569,7 +563,9 @@
                 href="{{ route('dashboard') }}"
                 class="btn-back"
             >
+
                 ← Kembali ke Dashboard
+
             </a>
 
 

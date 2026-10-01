@@ -9,7 +9,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $periodeAktif = Periode::where('status', 'Aktif')->count();
+        $periodeAktif = Periode::where('status_periode', 'Aktif')->count();
 
         return view('admin.dashboard', compact('periodeAktif'));
     }

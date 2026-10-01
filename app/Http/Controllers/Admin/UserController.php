@@ -9,6 +9,7 @@ use App\Models\RtRw;
 use App\Models\PetugasWilayah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -35,12 +36,15 @@ class UserController extends Controller
 
         $kelurahans = Kelurahan::orderBy('deskripsi')->get();
 
-        return view('admin.master.pengguna.index', compact(
-            'operators',
-            'verifikators',
-            'petugas',
-            'kelurahans'
-        ));
+        return view(
+            'admin.master.pengguna.index',
+            compact(
+                'operators',
+                'verifikators',
+                'petugas',
+                'kelurahans'
+            )
+        );
     }
 
 
@@ -111,6 +115,12 @@ class UserController extends Controller
 
             $kelurahan = null;
 
+            /*
+            |--------------------------------------------------------------------------
+            | Validasi wilayah jika Petugas
+            |--------------------------------------------------------------------------
+            */
+
             if ($validated['role'] === 'petugas') {
 
                 $kelurahan = Kelurahan::where(
@@ -118,12 +128,6 @@ class UserController extends Controller
                     $validated['kelurahan_id']
                 )->firstOrFail();
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | Pastikan RT/RW memang milik Kelurahan yang dipilih
-                |--------------------------------------------------------------------------
-                */
 
                 $validRtRwIds = RtRw::where(
                     'kelurahan_id',
@@ -171,16 +175,22 @@ class UserController extends Controller
                 'email' => $validated['email'],
 
                 /*
-                 * User.php sudah menggunakan cast "hashed".
-                 * Jadi password tidak perlu Hash::make().
+                 * Password otomatis diubah menjadi hash Bcrypt.
+                 *
+                 * Contoh:
+                 * perlinsos
+                 * menjadi
+                 * $2y$12$............
                  */
-                'password' => $validated['password'],
+                'password' => Hash::make($validated['password']),
 
                 'role' => $validated['role'],
 
                 'kelurahan' => $kelurahan
                     ? $kelurahan->deskripsi
                     : null,
+
+                'is_active' => 1,
             ]);
 
 
@@ -247,6 +257,12 @@ class UserController extends Controller
                 Rule::unique('users', 'email')
                     ->ignore($user->id),
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Password boleh kosong ketika edit
+            |--------------------------------------------------------------------------
+            */
 
             'password' => [
                 'nullable',
@@ -343,6 +359,7 @@ class UserController extends Controller
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'role' => $validated['role'],
+
                 'kelurahan' => $kelurahan
                     ? $kelurahan->deskripsi
                     : null,
@@ -353,12 +370,17 @@ class UserController extends Controller
             |--------------------------------------------------------------------------
             | Password
             |--------------------------------------------------------------------------
+            |
+            | Kalau password diisi saat edit,
+            | password otomatis diubah menjadi hash.
+            |
             */
 
             if (!empty($validated['password'])) {
 
-                $data['password'] =
-                    $validated['password'];
+                $data['password'] = Hash::make(
+                    $validated['password']
+                );
             }
 
 

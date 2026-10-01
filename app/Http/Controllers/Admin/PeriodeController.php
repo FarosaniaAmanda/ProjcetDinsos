@@ -5,28 +5,30 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Periode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PeriodeController extends Controller
 {
     /**
-     * Menampilkan data periode
+     * Menampilkan halaman manajemen periode.
      */
     public function index(Request $request)
     {
         $query = Periode::query();
 
         if ($request->filled('search')) {
+
             $search = $request->search;
 
             $query->where(
-                'nama_periode',
+                'nama',
                 'like',
                 '%' . $search . '%'
             );
         }
 
         $periodes = $query
-            ->latest()
+            ->latest('id')
             ->get();
 
         return view(
@@ -37,35 +39,16 @@ class PeriodeController extends Controller
 
 
     /**
-     * Halaman tambah
-     *
-     * Tambah periode menggunakan modal
-     * di halaman index.
-     */
-    public function create()
-    {
-        return redirect()->route('periode.index');
-    }
-
-
-    /**
-     * Menyimpan periode baru
+     * Menyimpan periode baru.
      */
     public function store(Request $request)
     {
         $request->validate([
             'nama_periode' => 'required|string|max:255',
-
             'tanggal_mulai' => 'required|date',
-
-            'tanggal_selesai' =>
-                'required|date|after_or_equal:tanggal_mulai',
-
-            'status' =>
-                'required|string|max:50',
-
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'status' => 'required|string|max:255',
         ], [
-
             'nama_periode.required' =>
                 'Nama kegiatan wajib diisi.',
 
@@ -85,30 +68,49 @@ class PeriodeController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Simpan ke database
+        | Generate kode periode
         |--------------------------------------------------------------------------
         */
 
-        Periode::create([
-            'nama_periode' =>
-                $request->nama_periode,
-
-            'tanggal_mulai' =>
-                $request->tanggal_mulai,
-
-            'tanggal_selesai' =>
-                $request->tanggal_selesai,
-
-            'status' =>
-                $request->status,
-        ]);
+        $kode = 'PER-' . str_pad(
+            (Periode::max('id') ?? 0) + 1,
+            3,
+            '0',
+            STR_PAD_LEFT
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Kembali ke halaman Manajemen Periode
+        | Simpan periode
         |--------------------------------------------------------------------------
         */
+
+        $periode = new Periode();
+
+        $periode->kode =
+            $kode;
+
+        $periode->nama =
+            $request->nama_periode;
+
+        $periode->tgl_awal =
+            $request->tanggal_mulai;
+
+        $periode->tgl_akhir =
+            $request->tanggal_selesai;
+
+        $periode->status_periode =
+            $request->status;
+
+        $periode->created_by =
+            auth()->user()?->name ?? 'admin';
+
+        $periode->updated_by =
+            null;
+
+        $periode->save();
+
 
         return redirect()
             ->route('periode.index')
@@ -120,39 +122,16 @@ class PeriodeController extends Controller
 
 
     /**
-     * Edit menggunakan modal di index.
-     *
-     * Tidak membutuhkan edit.blade.php.
+     * Memperbarui periode.
      */
-    public function edit($id)
+    public function update(Request $request, $id)
     {
-        return redirect()->route('periode.index');
-    }
-
-
-    /**
-     * Memperbarui periode
-     */
-    public function update(
-        Request $request,
-        $id
-    ) {
         $request->validate([
-
-            'nama_periode' =>
-                'required|string|max:255',
-
-            'tanggal_mulai' =>
-                'required|date',
-
-            'tanggal_selesai' =>
-                'required|date|after_or_equal:tanggal_mulai',
-
-            'status' =>
-                'required|string|max:50',
-
+            'nama_periode' => 'required|string|max:255',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'status' => 'required|string|max:255',
         ], [
-
             'nama_periode.required' =>
                 'Nama kegiatan wajib diisi.',
 
@@ -173,20 +152,22 @@ class PeriodeController extends Controller
         $periode = Periode::findOrFail($id);
 
 
-        $periode->update([
+        $periode->nama =
+            $request->nama_periode;
 
-            'nama_periode' =>
-                $request->nama_periode,
+        $periode->tgl_awal =
+            $request->tanggal_mulai;
 
-            'tanggal_mulai' =>
-                $request->tanggal_mulai,
+        $periode->tgl_akhir =
+            $request->tanggal_selesai;
 
-            'tanggal_selesai' =>
-                $request->tanggal_selesai,
+        $periode->status_periode =
+            $request->status;
 
-            'status' =>
-                $request->status,
-        ]);
+        $periode->updated_by =
+            auth()->user()?->name ?? 'admin';
+
+        $periode->save();
 
 
         return redirect()
@@ -199,14 +180,13 @@ class PeriodeController extends Controller
 
 
     /**
-     * Menghapus periode
+     * Menghapus periode.
      */
     public function destroy($id)
     {
         $periode = Periode::findOrFail($id);
 
         $periode->delete();
-
 
         return redirect()
             ->route('periode.index')
