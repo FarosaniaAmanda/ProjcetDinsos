@@ -1,702 +1,981 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('admin.kuisioner.layout')
 
-    <title>Kuisioner - Part 3</title>
+@section('kuisioner-content')
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f6fb;
-            color: #1f2937;
-        }
+/* =========================================================
+   PART 3 CONTENT
+   ========================================================= */
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 35px 20px 60px;
-        }
+.part3-card {
+    width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #E2E4EF;
+    border-radius: 17px;
+    box-shadow: 0 5px 20px rgba(41, 45, 143, 0.05);
+    overflow: hidden;
+}
 
-        .header {
-            background: #252A86;
-            color: white;
-            border-radius: 16px;
-            padding: 25px 30px;
-            margin-bottom: 25px;
-        }
 
-        .header h1 {
-            margin: 0 0 8px;
-            font-size: 25px;
-        }
+/* =========================================================
+   HEADER
+   ========================================================= */
 
-        .header p {
-            margin: 0;
-            font-size: 14px;
-            opacity: .9;
-        }
+.part3-card-header {
+    padding: 25px 28px;
+    border-bottom: 1px solid #E2E4EF;
+    background: #FFFFFF;
+}
 
-        .progress {
-            margin-top: 20px;
-            height: 8px;
-            background: rgba(255,255,255,.25);
-            border-radius: 20px;
-            overflow: hidden;
-        }
+.part3-card-header h2 {
+    margin: 0;
+    color: #292D8F;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.3;
+}
 
-        .progress-bar {
-            width: 60%;
-            height: 100%;
-            background: white;
-            border-radius: 20px;
-        }
+.part3-card-header p {
+    margin: 7px 0 0;
+    color: #777D91;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.5;
+}
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #252A86;
-            margin: 30px 0 8px;
-        }
 
-        .instruction {
-            background: #eef0ff;
-            color: #4b5563;
-            padding: 13px 16px;
-            border-radius: 9px;
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 18px;
-        }
+/* =========================================================
+   FORM
+   ========================================================= */
 
-        .question-card {
-            background: white;
-            border-radius: 14px;
-            padding: 23px 25px;
-            margin-bottom: 18px;
-            box-shadow: 0 3px 12px rgba(0,0,0,.06);
-            border: 1px solid #e5e7eb;
-        }
+.part3-form {
+    padding: 28px;
+}
 
-        .question-title {
-            font-size: 16px;
-            font-weight: 700;
-            line-height: 1.6;
-            margin-bottom: 18px;
-            color: #1f2937;
-        }
 
-        .option-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+/* =========================================================
+   QUESTION
+   ========================================================= */
 
-        .radio-option {
-            position: relative;
-        }
+.part3-question {
+    padding: 22px 0;
+    border-bottom: 1px solid #E9EAF2;
+}
 
-        .radio-option input {
-            display: none;
-        }
+.part3-question:first-child {
+    padding-top: 0;
+}
 
-        .radio-label {
-            display: block;
-            padding: 12px 15px;
-            border: 1px solid #d8dce8;
-            border-radius: 9px;
-            cursor: pointer;
-            transition: .2s;
-            background: white;
-        }
+.part3-question:last-child {
+    border-bottom: none;
+}
 
-        .radio-label:hover {
-            border-color: #252A86;
-            background: #f5f6ff;
-        }
 
-        .radio-option input:checked + .radio-label {
-            background: #252A86;
-            border-color: #252A86;
-            color: white;
-        }
+/* =========================================================
+   QUESTION TITLE
+   ========================================================= */
 
-        .jumlah {
-            display: none;
-            margin-top: 15px;
-            padding: 16px;
-            background: #f7f8ff;
-            border-left: 4px solid #252A86;
-            border-radius: 8px;
-        }
+.part3-question-title {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: #25283A;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.6;
+}
 
-        .jumlah.show {
-            display: block;
-        }
+.part3-number {
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
 
-        .form-label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #374151;
-        }
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        .form-input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 9px;
-            outline: none;
-            font-size: 14px;
-            background: white;
-        }
+    border-radius: 9px;
+    background: #F0F1FF;
+    color: #292D8F;
 
-        .form-input:focus {
-            border-color: #252A86;
-            box-shadow: 0 0 0 3px rgba(37,42,134,.10);
-        }
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+}
 
-        .button-area {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            margin-top: 30px;
-        }
 
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 13px 22px;
-            border-radius: 9px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
+/* =========================================================
+   INPUT WRAPPER
+   ========================================================= */
 
-        .btn-back {
-            background: white;
-            color: #252A86;
-            border: 1px solid #252A86;
-        }
+.part3-input-wrap {
+    padding-left: 42px;
+}
 
-        .btn-back:hover {
-            background: #f4f5ff;
-        }
 
-        .btn-next {
-            background: #252A86;
-            color: white;
-        }
+/* =========================================================
+   INPUT
+   ========================================================= */
 
-        .btn-next:hover {
-            background: #1d216d;
-        }
+.part3-input {
+    width: 100%;
+    height: 43px;
 
-        @media (max-width: 640px) {
-            .container {
-                padding: 20px 12px 40px;
-            }
+    padding: 0 13px;
 
-            .header {
-                padding: 20px;
-            }
+    border: 1px solid #D9DCE8;
+    border-radius: 9px;
 
-            .question-card {
-                padding: 18px;
-            }
+    background: #FFFFFF;
+    color: #25283A;
 
-            .button-area {
-                flex-direction: column;
-            }
+    font-family: inherit;
+    font-size: 14px;
 
-            .btn {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
+    outline: none;
+    transition: 0.2s ease;
+}
 
-<body>
+.part3-input:focus {
+    border-color: #292D8F;
+    box-shadow: 0 0 0 3px rgba(41, 45, 143, 0.08);
+}
 
-<div class="container">
+.part3-input::placeholder {
+    color: #A2A6B5;
+}
 
-    {{-- HEADER --}}
-    <div class="header">
-        <h1>Kuisioner Keluarga</h1>
-        <p>Part 3 — Kepemilikan Aset Keluarga</p>
 
-        <div class="progress">
-            <div class="progress-bar"></div>
-        </div>
+/* =========================================================
+   NOMINAL INPUT
+   ========================================================= */
+
+.part3-money-wrap {
+    position: relative;
+}
+
+.part3-money-prefix {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    color: #555A6D;
+    font-size: 14px;
+    font-weight: 600;
+
+    pointer-events: none;
+}
+
+.part3-money-input {
+    padding-left: 38px;
+}
+
+
+/* =========================================================
+   RADIO
+   ========================================================= */
+
+.part3-radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 22px;
+    padding-left: 42px;
+}
+
+.part3-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #555A6D;
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+.part3-radio input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+
+    accent-color: #292D8F;
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   CONDITIONAL
+   ========================================================= */
+
+.part3-conditional {
+    display: none;
+
+    margin-top: 15px;
+    margin-left: 42px;
+
+    padding: 17px;
+
+    border: 1px solid #E2E4EF;
+    border-radius: 11px;
+
+    background: #FAFAFD;
+}
+
+.part3-conditional.show {
+    display: block;
+}
+
+.part3-conditional-title {
+    margin-bottom: 12px;
+
+    color: #4D5265;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   VALIDATION ERROR
+   ========================================================= */
+
+.part3-error {
+    margin-bottom: 18px;
+    padding: 13px 16px;
+
+    border: 1px solid #F2B8B5;
+    border-radius: 10px;
+
+    background: #FFF4F3;
+    color: #A32924;
+
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.part3-error ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+
+/* =========================================================
+   SUCCESS
+   ========================================================= */
+
+.part3-success {
+    margin-bottom: 18px;
+    padding: 13px 16px;
+
+    border: 1px solid #B9DFC9;
+    border-radius: 10px;
+
+    background: #F1FBF5;
+    color: #176B3A;
+
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.part3-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 20px 28px;
+
+    border-top: 1px solid #E2E4EF;
+    background: #FBFBFD;
+}
+
+.part3-back,
+.part3-next {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 43px;
+
+    border-radius: 9px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    transition: 0.2s ease;
+}
+
+.part3-back {
+    padding: 0 19px;
+
+    border: 1px solid #D9DCE8;
+
+    background: #FFFFFF;
+    color: #656A7C;
+}
+
+.part3-back:hover {
+    background: #F5F6FB;
+    border-color: #C8CBF7;
+    color: #292D8F;
+}
+
+.part3-next {
+    padding: 0 21px;
+
+    border: none;
+
+    background: #292D8F;
+    color: #FFFFFF;
+
+    cursor: pointer;
+}
+
+.part3-next:hover {
+    background: #25297F;
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 750px) {
+
+    .part3-form {
+        padding: 22px 20px;
+    }
+
+    .part3-radio-group,
+    .part3-input-wrap {
+        padding-left: 0;
+    }
+
+    .part3-conditional {
+        margin-left: 0;
+    }
+
+    .part3-footer {
+        padding: 18px 20px;
+    }
+
+}
+
+
+@media (max-width: 560px) {
+
+    .part3-card {
+        border-radius: 13px;
+    }
+
+    .part3-card-header {
+        padding: 20px;
+    }
+
+    .part3-card-header h2 {
+        font-size: 18px;
+    }
+
+    .part3-form {
+        padding: 20px;
+    }
+
+    .part3-question-title {
+        font-size: 14px;
+    }
+
+    .part3-radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .part3-footer {
+        flex-direction: column;
+    }
+
+    .part3-back,
+    .part3-next {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+{{-- =========================================================
+     ERROR
+     ========================================================= --}}
+
+@if ($errors->any())
+
+    <div class="part3-error">
+
+        <strong>Terjadi kesalahan:</strong>
+
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+
     </div>
 
-    <form method="POST" action="#">
+@endif
+
+
+{{-- =========================================================
+     SUCCESS
+     ========================================================= --}}
+
+@if (session('success'))
+
+    <div class="part3-success">
+        {{ session('success') }}
+    </div>
+
+@endif
+
+
+{{-- =========================================================
+     PART 3 CARD
+     ========================================================= --}}
+
+<div class="part3-card">
+
+
+    {{-- =====================================================
+         HEADER
+         ===================================================== --}}
+
+    <div class="part3-card-header">
+
+        <h2>
+            Part 3 — Pengeluaran dan Pendapatan Keluarga
+        </h2>
+
+        <p>
+            Silakan lengkapi data pengeluaran dan pendapatan seluruh anggota keluarga dengan benar.
+        </p>
+
+    </div>
+
+
+    {{-- =====================================================
+         FORM
+         ===================================================== --}}
+
+    <form
+        action="{{ route('kuisioner.part3.store') }}"
+        method="POST"
+    >
+
         @csrf
 
-        {{-- ============================= --}}
-        {{-- ASET BERGERAK --}}
-        {{-- ============================= --}}
 
-        <div class="section-title">
-            Kepemilikan Aset Bergerak Keluarga
-        </div>
-
-        <div class="instruction">
-            <strong>Petunjuk:</strong>
-            Pilih <strong>Ya</strong> dan isikan jumlahnya jika memiliki,
-            atau pilih <strong>Tidak</strong> jika tidak memiliki.
-        </div>
+        <div class="part3-form">
 
 
-        {{-- 43 --}}
-        <div class="question-card">
-            <div class="question-title">
-                43. Tabung Gas 3 KG
+            {{-- =================================================
+                 34
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        34
+                    </div>
+
+                    <div>
+                        Berapa rata-rata pengeluaran listrik selama sebulan?
+                    </div>
+
+                </div>
+
+                <div class="part3-input-wrap">
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="pengeluaran_listrik_bulanan"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('pengeluaran_listrik_bulanan', $dataPart3->pengeluaran_listrik_bulanan ?? '') }}"
+                            placeholder="Masukkan pengeluaran listrik sebulan"
+                        >
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="gas_3kg"
-                        value="1"
-                        onchange="toggleJumlah('gas3kg', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
 
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="gas_3kg"
-                        value="0"
-                        onchange="toggleJumlah('gas3kg', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
+            {{-- =================================================
+                 35
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        35
+                    </div>
+
+                    <div>
+                        Berapa rata-rata pengeluaran pulsa untuk seluruh anggota keluarga selama sebulan?
+                    </div>
+
+                </div>
+
+                <div class="part3-input-wrap">
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="pengeluaran_pulsa_bulanan"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('pengeluaran_pulsa_bulanan', $dataPart3->pengeluaran_pulsa_bulanan ?? '') }}"
+                            placeholder="Masukkan total pengeluaran pulsa sebulan"
+                        >
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div id="gas3kg" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_gas_3kg"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
+
+            {{-- =================================================
+                 36
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        36
+                    </div>
+
+                    <div>
+                        Berapa rata-rata pengeluaran internet untuk seluruh anggota keluarga selama sebulan?
+                    </div>
+
+                </div>
+
+                <div class="part3-input-wrap">
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="pengeluaran_internet_bulanan"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('pengeluaran_internet_bulanan', $dataPart3->pengeluaran_internet_bulanan ?? '') }}"
+                            placeholder="Masukkan total pengeluaran internet sebulan"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- =================================================
+                 37
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        37
+                    </div>
+
+                    <div>
+                        Berapa rata-rata pengeluaran makanan keluarga selama seminggu?
+                    </div>
+
+                </div>
+
+                <div class="part3-input-wrap">
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="pengeluaran_makan_mingguan"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('pengeluaran_makan_mingguan', $dataPart3->pengeluaran_makan_mingguan ?? '') }}"
+                            placeholder="Masukkan total pengeluaran makanan seminggu"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- =================================================
+                 38
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        38
+                    </div>
+
+                    <div>
+                        Berapa rata-rata pengeluaran bukan makanan rutin keluarga selama sebulan?
+                    </div>
+
+                </div>
+
+                <div class="part3-input-wrap">
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="pengeluaran_nonmakan_bulanan"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('pengeluaran_nonmakan_bulanan', $dataPart3->pengeluaran_nonmakan_bulanan ?? '') }}"
+                            placeholder="Masukkan total pengeluaran bukan makanan bulanan"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- =================================================
+                 39
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        39
+                    </div>
+
+                    <div>
+                        Berapa rata-rata pengeluaran bukan makanan rutin keluarga selama setahun?
+                    </div>
+
+                </div>
+
+                <div class="part3-input-wrap">
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="pengeluaran_nonmakan_tahunan"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('pengeluaran_nonmakan_tahunan', $dataPart3->pengeluaran_nonmakan_tahunan ?? '') }}"
+                            placeholder="Masukkan total pengeluaran bukan makanan tahunan"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- =================================================
+                 40
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        40
+                    </div>
+
+                    <div>
+                        Total pendapatan seluruh anggota keluarga dari pekerjaan baik berupa uang maupun barang/jasa (Gaji, tunjangan, uang makan, honor, lembur, dll)
+                    </div>
+
+                </div>
+
+
+                <div class="part3-radio-group">
+
+                    <label class="part3-radio">
+
+                        <input
+                            type="radio"
+                            name="pendapatan_pekerjaan"
+                            value="Ada"
+                            {{ old('pendapatan_pekerjaan', ($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'checked' : '' }}
+                            onchange="togglePendapatanPekerjaan(true)"
+                        >
+
+                        Ada
+
+                    </label>
+
+
+                    <label class="part3-radio">
+
+                        <input
+                            type="radio"
+                            name="pendapatan_pekerjaan"
+                            value="Tidak"
+                            {{ old('pendapatan_pekerjaan', ($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '') === 'Tidak' ? 'checked' : '' }}
+                            onchange="togglePendapatanPekerjaan(false)"
+                        >
+
+                        Tidak
+
+                    </label>
+
+                </div>
+
+
+                <div
+                    id="pendapatanPekerjaanBox"
+                    class="part3-conditional
+                    {{ old('pendapatan_pekerjaan', ($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'show' : '' }}"
                 >
-            </div>
-        </div>
 
+                    <div class="part3-conditional-title">
+                        Total Pendapatan Bekerja Sebulan
+                    </div>
 
-        {{-- 44 --}}
-        <div class="question-card">
-            <div class="question-title">
-                44. Tabung Gas 5,5 KG atau Lebih
-            </div>
+                    <div class="part3-money-wrap">
 
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="gas_55kg"
-                        value="1"
-                        onchange="toggleJumlah('gas55kg', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
 
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="gas_55kg"
-                        value="0"
-                        onchange="toggleJumlah('gas55kg', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
+                        <input
+                            type="number"
+                            name="total_pendapatan_kerja"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('total_pendapatan_kerja', $dataPart3->total_pendapatan_kerja ?? '') }}"
+                            placeholder="Masukkan total pendapatan bekerja sebulan"
+                        >
+
+                    </div>
+
+                </div>
+
             </div>
 
-            <div id="gas55kg" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_gas_55kg"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
+
+            {{-- =================================================
+                 41
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        41
+                    </div>
+
+                    <div>
+                        Total pendapatan seluruh anggota keluarga dari usaha, baik offline maupun online (Offline seperti warung, kosan, rentenir, dll. Online seperti affiliate, online shop, endorse, youtuber, dll)
+                    </div>
+
+                </div>
+
+
+                <div class="part3-input-wrap">
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="total_pendapatan_usaha"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('total_pendapatan_usaha', $dataPart3->total_pendapatan_usaha ?? '') }}"
+                            placeholder="Masukkan total pendapatan usaha sebulan"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- =================================================
+                 42
+                 ================================================= --}}
+
+            <div class="part3-question">
+
+                <div class="part3-question-title">
+
+                    <div class="part3-number">
+                        42
+                    </div>
+
+                    <div>
+                        Total pendapatan seluruh anggota keluarga dari penerimaan lain (Misalnya transfer, pemberian, passive income, pensiunan, kupon SBN, Obligasi, dll)
+                    </div>
+
+                </div>
+
+
+                <div class="part3-radio-group">
+
+                    <label class="part3-radio">
+
+                        <input
+                            type="radio"
+                            name="pendapatan_lainnya"
+                            value="Ada"
+                            {{ old('pendapatan_lainnya', ($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'checked' : '' }}
+                            onchange="togglePendapatanLainnya(true)"
+                        >
+
+                        Ada
+
+                    </label>
+
+
+                    <label class="part3-radio">
+
+                        <input
+                            type="radio"
+                            name="pendapatan_lainnya"
+                            value="Tidak"
+                            {{ old('pendapatan_lainnya', ($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '') === 'Tidak' ? 'checked' : '' }}
+                            onchange="togglePendapatanLainnya(false)"
+                        >
+
+                        Tidak
+
+                    </label>
+
+                </div>
+
+
+                <div
+                    id="pendapatanLainnyaBox"
+                    class="part3-conditional
+                    {{ old('pendapatan_lainnya', ($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'show' : '' }}"
                 >
+
+                    <div class="part3-conditional-title">
+                        Total Pendapatan Lainnya Sebulan
+                    </div>
+
+                    <div class="part3-money-wrap">
+
+                        <span class="part3-money-prefix">
+                            Rp
+                        </span>
+
+                        <input
+                            type="number"
+                            name="total_pendapatan_lainnya"
+                            class="part3-input part3-money-input"
+                            min="0"
+                            value="{{ old('total_pendapatan_lainnya', $dataPart3->total_pendapatan_lainnya ?? '') }}"
+                            placeholder="Masukkan total pendapatan lainnya sebulan"
+                        >
+
+                    </div>
+
+                </div>
+
             </div>
+
+
         </div>
 
 
-        {{-- 45 --}}
-        <div class="question-card">
-            <div class="question-title">
-                45. Lemari Es/Kulkas
-            </div>
+        {{-- =====================================================
+             FOOTER
+             ===================================================== --}}
 
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="kulkas"
-                        value="1"
-                        onchange="toggleJumlah('kulkas', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="kulkas"
-                        value="0"
-                        onchange="toggleJumlah('kulkas', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="kulkas" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_kulkas"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- 46 --}}
-        <div class="question-card">
-            <div class="question-title">
-                46. AC (Air Conditioner)
-            </div>
-
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="ac"
-                        value="1"
-                        onchange="toggleJumlah('ac', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="ac"
-                        value="0"
-                        onchange="toggleJumlah('ac', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="ac" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_ac"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- 47 --}}
-        <div class="question-card">
-            <div class="question-title">
-                47. Emas/Perhiasan
-            </div>
-
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="emas_perhiasan"
-                        value="1"
-                        onchange="toggleJumlah('emas', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="emas_perhiasan"
-                        value="0"
-                        onchange="toggleJumlah('emas', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="emas" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_emas_perhiasan"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- 48 --}}
-        <div class="question-card">
-            <div class="question-title">
-                48. Komputer/Laptop/Tablet
-            </div>
-
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="komputer_laptop_tablet"
-                        value="1"
-                        onchange="toggleJumlah('komputer', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="komputer_laptop_tablet"
-                        value="0"
-                        onchange="toggleJumlah('komputer', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="komputer" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_komputer_laptop_tablet"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- 49 --}}
-        <div class="question-card">
-            <div class="question-title">
-                49. Sepeda Motor
-            </div>
-
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="sepeda_motor"
-                        value="1"
-                        onchange="toggleJumlah('motor', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="sepeda_motor"
-                        value="0"
-                        onchange="toggleJumlah('motor', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="motor" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_sepeda_motor"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- 50 --}}
-        <div class="question-card">
-            <div class="question-title">
-                50. Mobil
-            </div>
-
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="mobil"
-                        value="1"
-                        onchange="toggleJumlah('mobil', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="mobil"
-                        value="0"
-                        onchange="toggleJumlah('mobil', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="mobil" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_mobil"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- ============================= --}}
-        {{-- ASET TIDAK BERGERAK --}}
-        {{-- ============================= --}}
-
-        <div class="section-title">
-            Kepemilikan Aset Tidak Bergerak Keluarga
-        </div>
-
-        <div class="instruction">
-            <strong>Petunjuk:</strong>
-            Pilih <strong>Ya</strong> dan isikan jumlahnya jika memiliki,
-            atau pilih <strong>Tidak</strong> jika tidak memiliki.
-        </div>
-
-
-        {{-- 51 --}}
-        <div class="question-card">
-            <div class="question-title">
-                51. Rumah/Bangunan (selain yang ditempati)
-            </div>
-
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="rumah_bangunan_lain"
-                        value="1"
-                        onchange="toggleJumlah('rumahBangunan', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="rumah_bangunan_lain"
-                        value="0"
-                        onchange="toggleJumlah('rumahBangunan', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="rumahBangunan" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_rumah_bangunan_lain"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- LAHAN LAINNYA --}}
-        <div class="question-card">
-            <div class="question-title">
-                Lahan Lainnya
-            </div>
-
-            <div class="option-list">
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="lahan_lainnya"
-                        value="1"
-                        onchange="toggleJumlah('lahan', true)"
-                    >
-                    <span class="radio-label">Ya</span>
-                </label>
-
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="lahan_lainnya"
-                        value="0"
-                        onchange="toggleJumlah('lahan', false)"
-                    >
-                    <span class="radio-label">Tidak</span>
-                </label>
-            </div>
-
-            <div id="lahan" class="jumlah">
-                <label class="form-label">Jumlah</label>
-                <input
-                    type="number"
-                    name="jumlah_lahan_lainnya"
-                    class="form-input"
-                    min="1"
-                    placeholder="Masukkan jumlah"
-                >
-            </div>
-        </div>
-
-
-        {{-- BUTTON --}}
-        <div class="button-area">
+        <div class="part3-footer">
 
             <a
                 href="{{ route('kuisioner.part2') }}"
-                class="btn btn-back"
+                class="part3-back"
             >
                 ← Kembali
             </a>
 
+
             <button
                 type="submit"
-                class="btn btn-next"
+                class="part3-next"
             >
-                Simpan & Lanjut →
+                Lanjut ke Part 4 →
             </button>
 
         </div>
@@ -707,22 +986,80 @@
 
 
 <script>
-    function toggleJumlah(id, show) {
-        const element = document.getElementById(id);
 
-        if (show) {
-            element.classList.add('show');
-        } else {
-            element.classList.remove('show');
+/* =========================================================
+   PENDAPATAN PEKERJAAN
+   ========================================================= */
 
-            const input = element.querySelector('input');
+function togglePendapatanPekerjaan(show)
+{
+    const box =
+        document.getElementById('pendapatanPekerjaanBox');
 
-            if (input) {
-                input.value = '';
-            }
-        }
+    if (!box) {
+        return;
     }
+
+    if (show) {
+        box.classList.add('show');
+    } else {
+        box.classList.remove('show');
+    }
+}
+
+
+/* =========================================================
+   PENDAPATAN LAINNYA
+   ========================================================= */
+
+function togglePendapatanLainnya(show)
+{
+    const box =
+        document.getElementById('pendapatanLainnyaBox');
+
+    if (!box) {
+        return;
+    }
+
+    if (show) {
+        box.classList.add('show');
+    } else {
+        box.classList.remove('show');
+    }
+}
+
+
+/* =========================================================
+   RESTORE CONDITIONAL
+   ========================================================= */
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const pekerjaan =
+        document.querySelector(
+            'input[name="pendapatan_pekerjaan"]:checked'
+        );
+
+    if (pekerjaan) {
+        togglePendapatanPekerjaan(
+            pekerjaan.value === 'Ada'
+        );
+    }
+
+
+    const lainnya =
+        document.querySelector(
+            'input[name="pendapatan_lainnya"]:checked'
+        );
+
+    if (lainnya) {
+        togglePendapatanLainnya(
+            lainnya.value === 'Ada'
+        );
+    }
+
+});
+
 </script>
 
-</body>
-</html>
+@endsection

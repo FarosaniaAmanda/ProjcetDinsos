@@ -1,347 +1,368 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('admin.kuisioner.layout')
 
-    <title>Kuisioner - Part 5</title>
+@section('content')
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<style>
+    .part5-list-wrapper {
+        width: 100%;
+    }
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f4f6fb;
-            color: #1f2937;
-        }
+    .part5-info {
+        background: #f5f7ff;
+        border: 1px solid #dfe3f5;
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 18px;
+    }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 35px 20px 60px;
-        }
+    .part5-info-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #252A86;
+        margin-bottom: 5px;
+    }
 
-        .header {
-            background: #252A86;
-            color: white;
-            border-radius: 16px;
-            padding: 25px 30px;
-            margin-bottom: 25px;
-        }
+    .part5-info-text {
+        font-size: 13px;
+        color: #666;
+        margin: 0;
+        line-height: 1.5;
+    }
 
-        .header h1 {
-            margin: 0 0 8px;
-            font-size: 25px;
-        }
+    .part5-progress {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 18px;
+    }
 
-        .header p {
-            margin: 0;
-            font-size: 14px;
-            opacity: .9;
-        }
+    .part5-progress-label {
+        font-size: 13px;
+        color: #555;
+    }
 
-        .progress {
-            margin-top: 20px;
-            height: 8px;
-            background: rgba(255,255,255,.25);
-            border-radius: 20px;
-            overflow: hidden;
-        }
+    .part5-progress-number {
+        font-size: 15px;
+        font-weight: 700;
+        color: #252A86;
+    }
 
-        .progress-bar {
-            width: 100%;
-            height: 100%;
-            background: white;
-            border-radius: 20px;
-        }
+    .part5-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #e5e5e5;
+        border-radius: 10px;
+        background: #fff;
+    }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #252A86;
-            margin: 30px 0 15px;
-        }
+    .part5-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 650px;
+    }
 
-        .question-card {
-            background: white;
-            border-radius: 14px;
-            padding: 25px;
-            margin-bottom: 18px;
-            box-shadow: 0 3px 12px rgba(0,0,0,.06);
-            border: 1px solid #e5e7eb;
-        }
+    .part5-table th {
+        background: #252A86;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 11px 12px;
+        text-align: left;
+        white-space: nowrap;
+    }
 
-        .question-title {
-            font-size: 16px;
-            font-weight: 700;
-            line-height: 1.6;
-            margin-bottom: 18px;
-        }
+    .part5-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eeeeee;
+        font-size: 13px;
+        color: #444;
+        vertical-align: middle;
+    }
 
-        .form-label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #374151;
-        }
+    .part5-table tbody tr:last-child td {
+        border-bottom: none;
+    }
 
-        .form-input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 9px;
-            outline: none;
-            font-size: 14px;
-            background: white;
-        }
+    .part5-table tbody tr:hover {
+        background: #f8f9ff;
+    }
 
-        .form-input:focus {
-            border-color: #252A86;
-            box-shadow: 0 0 0 3px rgba(37,42,134,.10);
-        }
+    .part5-number {
+        width: 50px;
+        text-align: center !important;
+    }
 
-        textarea.form-input {
-            resize: vertical;
-            min-height: 120px;
-        }
+    .part5-nik {
+        white-space: nowrap;
+        font-size: 12px !important;
+    }
 
-        .option-list {
-            display: flex;
+    .part5-name {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .part5-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .part5-status-selesai {
+        background: #e8f7ef;
+        color: #087443;
+    }
+
+    .part5-status-belum {
+        background: #fff4df;
+        color: #a35b00;
+    }
+
+    .part5-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 90px;
+        padding: 7px 12px;
+        border: none;
+        border-radius: 6px;
+        background: #252A86;
+        color: #fff;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+    .part5-action:hover {
+        background: #1d216d;
+        color: #fff;
+    }
+
+    .part5-empty {
+        text-align: center;
+        padding: 30px 20px !important;
+        color: #777 !important;
+        font-size: 13px !important;
+    }
+
+    .part5-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .part5-back-btn,
+    .part5-next-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 15px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+    }
+
+    .part5-back-btn {
+        background: #eeeeee;
+        color: #444;
+    }
+
+    .part5-back-btn:hover {
+        background: #e2e2e2;
+        color: #333;
+    }
+
+    .part5-next-btn {
+        background: #252A86;
+        color: #fff;
+    }
+
+    .part5-next-btn:hover {
+        background: #1d216d;
+        color: #fff;
+    }
+
+    .part5-warning {
+        margin-top: 10px;
+        font-size: 11px;
+        color: #a35b00;
+        text-align: right;
+    }
+
+    @media (max-width: 768px) {
+        .part5-progress {
+            align-items: flex-start;
             flex-direction: column;
-            gap: 10px;
+            gap: 4px;
         }
 
-        .radio-option input {
-            display: none;
+        .part5-footer {
+            flex-direction: column;
+            align-items: stretch;
         }
 
-        .radio-label {
-            display: block;
-            padding: 12px 15px;
-            border: 1px solid #d8dce8;
-            border-radius: 9px;
-            cursor: pointer;
-            transition: .2s;
+        .part5-back-btn,
+        .part5-next-btn {
+            width: 100%;
         }
+    }
+</style>
 
-        .radio-label:hover {
-            border-color: #252A86;
-            background: #f5f6ff;
-        }
+<div class="part5-list-wrapper">
 
-        .radio-option input:checked + .radio-label {
-            background: #252A86;
-            border-color: #252A86;
-            color: white;
-        }
+    {{-- INFORMASI --}}
+    <div class="part5-info">
+        <div class="part5-info-title">
+            Part 5 — Data Anggota Keluarga
+        </div>
 
-        .finish-box {
-            text-align: center;
-            padding: 40px 25px;
-        }
+        <p class="part5-info-text">
+            Silakan pilih setiap anggota keluarga untuk mengisi data individu
+            pada pertanyaan nomor 52–68.
+        </p>
+    </div>
 
-        .finish-icon {
-            width: 70px;
-            height: 70px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            background: #eef0ff;
-            color: #252A86;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: bold;
-        }
+    {{-- PROGRESS --}}
+    <div class="part5-progress">
+        <div class="part5-progress-label">
+            Progress pengisian data anggota
+        </div>
 
-        .finish-box h2 {
-            margin: 0 0 10px;
-            color: #252A86;
-        }
-
-        .finish-box p {
-            margin: 0 auto;
-            max-width: 650px;
-            color: #6b7280;
-            line-height: 1.7;
-            font-size: 14px;
-        }
-
-        .button-area {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 13px 22px;
-            border-radius: 9px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .btn-back {
-            background: white;
-            color: #252A86;
-            border: 1px solid #252A86;
-        }
-
-        .btn-back:hover {
-            background: #f4f5ff;
-        }
-
-        .btn-finish {
-            background: #252A86;
-            color: white;
-        }
-
-        .btn-finish:hover {
-            background: #1d216d;
-        }
-
-        @media (max-width: 640px) {
-            .container {
-                padding: 20px 12px 40px;
-            }
-
-            .header {
-                padding: 20px;
-            }
-
-            .question-card {
-                padding: 18px;
-            }
-
-            .button-area {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="container">
-
-    {{-- HEADER --}}
-    <div class="header">
-        <h1>Kuisioner Keluarga</h1>
-        <p>Part 5 — Penutup</p>
-
-        <div class="progress">
-            <div class="progress-bar"></div>
+        <div class="part5-progress-number">
+            {{ $jumlahSelesai }} / {{ $jumlahAnggota }} anggota selesai
         </div>
     </div>
 
-    <form method="POST" action="#">
-        @csrf
+    {{-- DAFTAR ANGGOTA --}}
+    <div class="part5-table-wrapper">
+        <table class="part5-table">
+            <thead>
+                <tr>
+                    <th class="part5-number">No</th>
+                    <th>NIK</th>
+                    <th>Nama Lengkap</th>
+                    <th>Status Keluarga</th>
+                    <th>Status Pengisian</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
 
-        <div class="section-title">
-            Penutup
-        </div>
+            <tbody>
 
-        {{-- INFORMASI --}}
-        <div class="question-card">
-            <div class="finish-box">
+                @forelse ($anggota as $index => $item)
 
-                <div class="finish-icon">
-                    ✓
-                </div>
+                    @php
+                        $sudahDiisi = $dataPart5->has($item->kode);
+                    @endphp
 
-                <h2>Hampir Selesai</h2>
+                    <tr>
+                        <td class="part5-number">
+                            {{ $index + 1 }}
+                        </td>
 
-                <p>
-                    Terima kasih telah meluangkan waktu untuk mengisi
-                    kuisioner keluarga. Pastikan seluruh data yang telah
-                    dimasukkan sudah benar sebelum menyelesaikan kuisioner.
-                </p>
+                        <td class="part5-nik">
+                            {{ $item->nik }}
+                        </td>
 
-            </div>
-        </div>
+                        <td class="part5-name">
+                            {{ $item->nama_lengkap }}
+                        </td>
 
-        {{-- CATATAN --}}
-        <div class="question-card">
+                        <td>
+                            {{ $item->status_keluarga }}
+                        </td>
 
-            <div class="question-title">
-                Catatan Tambahan
-            </div>
+                        <td>
+                            @if ($sudahDiisi)
+                                <span class="part5-status part5-status-selesai">
+                                    ✓ Sudah Diisi
+                                </span>
+                            @else
+                                <span class="part5-status part5-status-belum">
+                                    Belum Diisi
+                                </span>
+                            @endif
+                        </td>
 
-            <label class="form-label">
-                Jika ada informasi tambahan yang ingin disampaikan,
-                silakan tuliskan di bawah ini.
-            </label>
+                        <td>
+                            <a
+                                href="{{ route('kuisioner.part5.anggota', $item->kode) }}"
+                                class="part5-action"
+                            >
+                                {{ $sudahDiisi ? 'Edit Data' : 'Isi Data' }}
+                            </a>
+                        </td>
+                    </tr>
 
-            <textarea
-                name="catatan_tambahan"
-                class="form-input"
-                placeholder="Tuliskan catatan tambahan..."
-            ></textarea>
+                @empty
 
-        </div>
+                    <tr>
+                        <td colspan="6" class="part5-empty">
+                            Belum ada anggota keluarga yang tersedia.
+                        </td>
+                    </tr>
 
-        {{-- KONFIRMASI --}}
-        <div class="question-card">
+                @endforelse
 
-            <div class="question-title">
-                Konfirmasi Data
-            </div>
+            </tbody>
+        </table>
+    </div>
 
-            <div class="option-list">
+    {{-- FOOTER --}}
+    <div class="part5-footer">
 
-                <label class="radio-option">
-                    <input
-                        type="radio"
-                        name="konfirmasi_data"
-                        value="1"
-                        required
-                    >
+        <a
+            href="{{ route('kuisioner.part4') }}"
+            class="part5-back-btn"
+        >
+            ← Kembali ke Part 4
+        </a>
 
-                    <span class="radio-label">
-                        Saya telah memeriksa dan memastikan data
-                        yang saya masukkan sudah benar.
-                    </span>
-                </label>
-
-            </div>
-
-        </div>
-
-        {{-- BUTTON --}}
-        <div class="button-area">
+        @if ($semuaAnggotaSelesai)
 
             <a
-                href="{{ route('kuisioner.part4') }}"
-                class="btn btn-back"
+                href="{{ route('kuisioner.part5.foto') }}"
+                class="part5-next-btn"
             >
-                ← Kembali
+                Lanjut →
             </a>
 
+        @else
+
             <button
-                type="submit"
-                class="btn btn-finish"
+                type="button"
+                class="part5-next-btn"
+                disabled
+                style="opacity: .5; cursor: not-allowed;"
             >
-                Selesaikan Kuisioner ✓
+                Lanjut →
             </button>
 
-        </div>
+        @endif
 
-    </form>
+    </div>
+
+    @if (!$semuaAnggotaSelesai && $jumlahAnggota > 0)
+        <div class="part5-warning">
+            Semua anggota keluarga harus selesai diisi sebelum melanjutkan.
+        </div>
+    @endif
 
 </div>
 
-</body>
-</html>
+@endsection
