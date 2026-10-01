@@ -2653,7 +2653,7 @@ function tambahAnggota(keepExisting = false, data = null, isKepala = false) {
                 <button
                     type="button"
                     class="btn-hapus-anggota-baru"
-                    onclick="hapusAnggotaEditBaru(${index})"
+                    onclick="hapusAnggotaTambah(${index})"
                 >
                     Hapus
                 </button>
@@ -2721,6 +2721,58 @@ function tambahAnggota(keepExisting = false, data = null, isKepala = false) {
     container.appendChild(card);
 
     anggotaIndex++;
+}
+
+
+function hapusAnggotaTambah(index) {
+
+    const container = document.getElementById('anggotaContainer');
+    const jumlah = document.getElementById('jumlah_anggota');
+
+    if (!container || !jumlah) {
+        return;
+    }
+
+    const cards = Array.from(container.querySelectorAll('.anggota-card'));
+    const cardToRemove = cards.find(function (card) {
+        return Number(card.dataset.index) === index;
+    });
+
+    if (!cardToRemove) {
+        return;
+    }
+
+    cardToRemove.remove();
+
+    const remainingCards = container.querySelectorAll('.anggota-card');
+
+    remainingCards.forEach(function (card, cardIndex) {
+        card.dataset.index = cardIndex;
+
+        const number = card.querySelector('.anggota-number');
+        const title = card.querySelector('.anggota-card-title > span');
+
+        if (number) {
+            number.textContent = cardIndex + 1;
+        }
+
+        if (title) {
+            title.textContent = 'Anggota Keluarga ' + (cardIndex + 1);
+        }
+
+        card.querySelectorAll('[name^="anggota["]').forEach(function (field) {
+            field.name = field.name.replace(/^anggota\[\d+\]/, 'anggota[' + cardIndex + ']');
+        });
+
+        const removeButton = card.querySelector('.btn-hapus-anggota-baru');
+
+        if (removeButton) {
+            removeButton.setAttribute('onclick', 'hapusAnggotaTambah(' + cardIndex + ')');
+        }
+    });
+
+    jumlah.value = remainingCards.length;
+    anggotaIndex = remainingCards.length;
 }
 
 
@@ -3317,7 +3369,17 @@ function tambahAnggotaEdit(data = null, isKepala = false) {
             <div class="anggota-card-title">
                 <div class="anggota-number">${nomor}</div>
                 <span>${isKepala ? 'Kepala Keluarga' : 'Anggota Keluarga ' + nomor}</span>
+                ${!id && !isKepala ? '<span class="anggota-baru-badge">Anggota Baru</span>' : ''}
             </div>
+            ${!id && !isKepala ? `
+                <button
+                    type="button"
+                    class="btn-hapus-anggota-baru"
+                    onclick="hapusAnggotaEditBaru(${index})"
+                >
+                    Hapus
+                </button>
+            ` : ''}
         </div>
 
         <div class="responden-form-grid">
