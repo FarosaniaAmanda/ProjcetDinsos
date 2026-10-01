@@ -402,6 +402,45 @@
 
 
         /* =====================================================
+           HAMBURGER MOBILE
+        ===================================================== */
+
+        .hamburger {
+            display: none;
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+            border: 1px solid #e5e7eb;
+            background: #ffffff;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 17px;
+            height: 2px;
+            background: #252A86;
+            border-radius: 2px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.35);
+            z-index: 950;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* =====================================================
            CONTENT
         ===================================================== */
 
@@ -832,6 +871,10 @@
                 width: 100%;
             }
 
+            .hamburger {
+                display: flex;
+            }
+
             .top-header {
                 height: 70px;
                 padding: 0 20px;
@@ -864,6 +907,14 @@
 
             table {
                 min-width: 720px;
+            }
+
+            /* Hanya memperpanjang area abu-abu kolom AKSI di HP.
+               Tombol dan fungsi lainnya tidak diubah. */
+            table th:last-child,
+            table td:last-child {
+                width: 130px !important;
+                min-width: 130px;
             }
 
             .user-info {
@@ -1403,6 +1454,14 @@
     </aside>
 
 
+    <!-- OVERLAY MOBILE -->
+
+    <div
+        class="overlay"
+        id="overlay"
+    ></div>
+
+
     <!-- =====================================================
          MAIN
     ===================================================== -->
@@ -1415,6 +1474,17 @@
         <header class="top-header">
 
             <div class="brand">
+
+                <button
+                    type="button"
+                    class="hamburger"
+                    id="hamburger"
+                    aria-label="Buka menu"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
 
                 <div>
 
@@ -1440,18 +1510,18 @@
                     <div class="user-info">
 
                         <div class="user-name">
-                            Operator
+                            {{ auth()->user()?->name ?? 'Pengguna' }}
                         </div>
 
                         <div class="user-role">
-                            Admin
+                            {{ ucfirst(auth()->user()?->role ?? 'Pengguna') }}
                         </div>
 
                     </div>
 
 
                     <div class="avatar">
-                        A
+                        {{ strtoupper(substr(auth()->user()?->name ?? 'P', 0, 1)) }}
                     </div>
 
                 </a>
@@ -1592,34 +1662,34 @@
 
                                     <td class="nama-kegiatan">
 
-                                        {{ $periode->nama_periode }}
+                                     {{ $periode->nama }}
 
                                     </td>
 
 
                                     <td class="tanggal-mulai">
 
-                                        {{ $periode->tanggal_mulai->format('d-m-Y') }}
+                                      {{ $periode->tgl_awal->format('d-m-Y') }}
 
                                     </td>
 
 
                                     <td class="tanggal-selesai">
 
-                                        {{ $periode->tanggal_selesai->format('d-m-Y') }}
+                                      {{ $periode->tgl_akhir->format('d-m-Y') }}
 
                                     </td>
 
 
                                     <td>
 
-                                        @if (strtolower($periode->status) == 'aktif')
+                                        @if (strtolower($periode->status_periode) == 'aktif')
 
                                             <span class="status aktif">
                                                 Aktif
                                             </span>
 
-                                        @elseif (strtolower($periode->status) == 'selesai')
+                                        @elseif (strtolower($periode->status_periode) == 'selesai')
 
                                             <span class="status selesai">
                                                 Selesai
@@ -1628,7 +1698,7 @@
                                         @else
 
                                             <span class="status akan-datang">
-                                                {{ $periode->status }}
+                                             {{ $periode->status_periode }}
                                             </span>
 
                                         @endif
@@ -1643,14 +1713,15 @@
 
                                             <!-- EDIT -->
 
-                                            <button
-                                                type="button"
+                                            <button 
+                                                type="button" 
                                                 class="btn-edit edit-button"
+
                                                 data-id="{{ $periode->id }}"
-                                                data-nama="{{ $periode->nama_periode }}"
-                                                data-mulai="{{ $periode->tanggal_mulai->format('Y-m-d') }}"
-                                                data-selesai="{{ $periode->tanggal_selesai->format('Y-m-d') }}"
-                                                data-status="{{ $periode->status }}"
+                                                data-nama="{{ $periode->nama }}"
+                                                data-mulai="{{ $periode->tgl_awal?->format('Y-m-d') }}"
+                                                data-selesai="{{ $periode->tgl_akhir?->format('Y-m-d') }}"
+                                                data-status="{{ $periode->status_periode }}"
                                             >
                                                 Edit
                                             </button>
@@ -2215,9 +2286,75 @@
         );
 
 
+    const hamburger =
+        document.getElementById(
+            "hamburger"
+        );
+
+    const overlay =
+        document.getElementById(
+            "overlay"
+        );
+
+
+    function openSidebar()
+    {
+        if (sidebar)
+        {
+            sidebar.classList.add("show");
+        }
+
+        if (overlay)
+        {
+            overlay.classList.add("show");
+        }
+    }
+
+
+    function closeSidebar()
+    {
+        if (sidebar)
+        {
+            sidebar.classList.remove("show");
+        }
+
+        if (overlay)
+        {
+            overlay.classList.remove("show");
+        }
+    }
+
+
+    if (hamburger)
+    {
+        hamburger.addEventListener(
+            "click",
+            function()
+            {
+                if (sidebar && sidebar.classList.contains("show"))
+                {
+                    closeSidebar();
+                }
+                else
+                {
+                    openSidebar();
+                }
+            }
+        );
+    }
+
+
+    if (overlay)
+    {
+        overlay.addEventListener(
+            "click",
+            closeSidebar
+        );
+    }
+
+
     if (sidebar)
     {
-
         sidebar
             .querySelectorAll("a")
             .forEach(

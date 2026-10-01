@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 
 class PeriodeController extends Controller
 {
+    /**
+     * Menampilkan halaman manajemen periode.
+     */
     public function index(Request $request)
     {
         $query = Periode::query();
@@ -37,6 +40,9 @@ class PeriodeController extends Controller
         return redirect()->route('periode.index');
     }
 
+    /**
+     * Menyimpan periode baru.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -67,7 +73,7 @@ class PeriodeController extends Controller
             'tgl_awal' => $request->tgl_awal,
             'tgl_akhir' => $request->tgl_akhir,
             'status_periode' => $request->status_periode,
-            'created_by' => auth()->user()->name ?? 'Admin',
+            'created_by' => auth()->user()?->name ?? 'Admin',
         ]);
 
         return redirect()
@@ -83,6 +89,9 @@ class PeriodeController extends Controller
         return redirect()->route('periode.index');
     }
 
+    /**
+     * Memperbarui periode.
+     */
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -114,7 +123,7 @@ class PeriodeController extends Controller
             'tgl_awal' => $request->tgl_awal,
             'tgl_akhir' => $request->tgl_akhir,
             'status_periode' => $request->status_periode,
-            'updated_by' => auth()->user()->name ?? 'Admin',
+            'updated_by' => auth()->user()?->name ?? 'Admin',
         ]);
 
         return redirect()
@@ -125,6 +134,9 @@ class PeriodeController extends Controller
             );
     }
 
+    /**
+     * Menghapus periode.
+     */
     public function destroy($id)
     {
         $periode = Periode::findOrFail($id);

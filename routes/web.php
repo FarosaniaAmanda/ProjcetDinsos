@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Http\Controllers\Admin\LaporanController;
 
+
 /*
 |--------------------------------------------------------------------------
 | LOGIN
@@ -68,20 +69,32 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 */
 
 Route::get('/profil', function () {
+
     return view('admin.profil.index');
+
 })->name('profil.index');
 
+
 Route::get('/profil/ubah-password', function () {
+
     return view('admin.profil.ubah-password');
+
 })->name('profil.password');
+
 
 Route::post('/profil/ubah-password', function (Request $request) {
 
     $request->validate([
+
         'password_lama' => 'required',
+
         'password_baru' => 'required|min:6',
-        'password_baru_confirmation' => 'required|same:password_baru',
+
+        'password_baru_confirmation' =>
+            'required|same:password_baru',
+
     ], [
+
         'password_lama.required' =>
             'Password lama wajib diisi.',
 
@@ -96,31 +109,42 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
         'password_baru_confirmation.same' =>
             'Konfirmasi password tidak sama.',
+
     ]);
+
 
     $user = Auth::user();
 
+
     if (!$user) {
+
         return redirect()
             ->route('login');
+
     }
+
 
     if (!Hash::check(
         $request->password_lama,
         $user->password
     )) {
+
         return back()
             ->withErrors([
-                'password_lama' => 'Password lama salah.'
+                'password_lama' =>
+                    'Password lama salah.'
             ])
             ->withInput();
+
     }
+
 
     $user->password = Hash::make(
         $request->password_baru
     );
 
     $user->save();
+
 
     return redirect()
         ->route('profil.index')
@@ -186,9 +210,6 @@ Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData']
 
 Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
     ->name('responden.kelurahan');
-
-Route::get('/responden/peta/{kelurahanId}', [RespondenController::class, 'map'])
-    ->name('responden.map');
 
 
 /*
@@ -268,8 +289,6 @@ Route::post('/kuisioner/part4', [KuisionerController::class, 'storePart4'])
 |--------------------------------------------------------------------------
 */
 
-// ==================== PART 5 ====================
-
 Route::get('/kuisioner/part5', [KuisionerController::class, 'part5'])
     ->name('kuisioner.part5');
 
@@ -279,13 +298,19 @@ Route::get('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'part
 Route::post('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'storePart5Anggota'])
     ->name('kuisioner.part5.anggota.store');
 
-// ==================== PART 5 FOTO RUMAH ====================
+
+/*
+|--------------------------------------------------------------------------
+| KUISIONER - PART 5 FOTO RUMAH
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/kuisioner/part5/foto', [KuisionerController::class, 'part5Foto'])
     ->name('kuisioner.part5.foto');
 
 Route::post('/kuisioner/part5/foto', [KuisionerController::class, 'storePart5Foto'])
     ->name('kuisioner.part5.foto.store');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -333,13 +358,25 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 */
 
 Route::get('/laporan', function () {
+
     return view('admin.laporan.index');
+
 })->name('laporan.index');
 
-Route::get(
-    '/laporan/export',
-    [LaporanController::class, 'export']
-)->name('admin.laporan.export');
+
+Route::get('/laporan/export', function () {
+
+    return response()->streamDownload(function () {
+
+        echo "No. KK,Periode,Tanggal Pendataan,Status\n";
+
+    }, 'laporan-pendataan.csv', [
+
+        'Content-Type' => 'text/csv',
+
+    ]);
+
+})->name('admin.laporan.export');
 
 
 /*
@@ -349,8 +386,10 @@ Route::get(
 */
 
 Route::get('/master', function () {
+
     return redirect()
         ->route('master.pengguna.index');
+
 })->name('master.index');
 
 
@@ -385,11 +424,16 @@ Route::delete('/master/pengguna/{user}', [UserController::class, 'destroy'])
 */
 
 Route::get('/master/operator/create', function () {
+
     return view('admin.master.operator.create');
+
 })->name('master.operator.create');
 
+
 Route::get('/master/operator/{id}/edit', function ($id) {
+
     return view('admin.master.operator.edit');
+
 })->name('master.operator.edit');
 
 
@@ -400,9 +444,14 @@ Route::get('/master/operator/{id}/edit', function ($id) {
 */
 
 Route::get('/master/verifikator/create', function () {
+
     return view('admin.master.verifikator.create');
+
 })->name('master.verifikator.create');
 
+
 Route::get('/master/verifikator/{id}/edit', function ($id) {
+
     return view('admin.master.verifikator.edit');
+
 })->name('master.verifikator.edit');

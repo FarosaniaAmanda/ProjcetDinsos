@@ -311,41 +311,6 @@
 
 
         /* =================================
-           LUPA PASSWORD
-        ================================= */
-
-        .forgot-wrapper {
-            display: flex;
-
-            justify-content: flex-end;
-
-            margin-top: -3px;
-
-            margin-bottom: 20px;
-        }
-
-
-        .forgot-wrapper a {
-            text-decoration: none;
-
-            font-size: 11.5px;
-
-            color: #243b8f;
-
-            font-weight: 600;
-
-            transition: .2s ease;
-        }
-
-
-        .forgot-wrapper a:hover {
-            text-decoration: underline;
-
-            color: #1b2e73;
-        }
-
-
-        /* =================================
            BUTTON LOGIN
         ================================= */
 
@@ -506,9 +471,7 @@
         </div>
 
 
-        {{-- =================================
-             ERROR LOGIN
-        ================================== --}}
+        {{-- ERROR LOGIN --}}
 
         @if ($errors->any())
 
@@ -521,9 +484,7 @@
         @endif
 
 
-        {{-- =================================
-             SUCCESS
-        ================================== --}}
+        {{-- SUCCESS --}}
 
         @if (session('success'))
 
@@ -548,12 +509,12 @@
             @csrf
 
 
-            {{-- ID --}}
+            {{-- NOMOR IDENTITAS --}}
 
             <div class="form-group">
 
-                <label for="id">
-                    ID
+                <label for="nomor_identitas">
+                    Nomor Identitas
                 </label>
 
 
@@ -587,10 +548,10 @@
 
                     <input
                         type="text"
-                        id="id"
-                        name="id"
-                        placeholder="Masukkan ID"
-                        value="{{ old('id') }}"
+                        id="nomor_identitas"
+                        name="nomor_identitas"
+                        placeholder="Masukkan nomor identitas"
+                        value="{{ old('nomor_identitas') }}"
                         required
                         autofocus
                     >
@@ -684,22 +645,7 @@
             </div>
 
 
-            {{-- =================================
-                 LUPA PASSWORD
-            ================================== --}}
-
-            <div class="forgot-wrapper">
-
-                <a href="{{ route('password.request') }}">
-                    Lupa Password?
-                </a>
-
-            </div>
-
-
-            {{-- =================================
-                 BUTTON LOGIN
-            ================================== --}}
+            {{-- BUTTON LOGIN --}}
 
             <button
                 type="submit"

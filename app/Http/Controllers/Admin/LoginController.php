@@ -8,84 +8,61 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Menampilkan halaman login
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Halaman login
+     */
     public function index()
     {
         return view('admin.auth.login');
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Proses Login
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Proses login
+     */
     public function login(Request $request)
     {
-        // Validasi input
         $credentials = $request->validate([
-            'id' => 'required',
+            'nomor_identitas' => 'required',
             'password' => 'required',
         ], [
-            'id.required' => 'ID wajib diisi.',
+            'nomor_identitas.required' => 'Nomor Identitas wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
-        | Coba Login
+        | LOGIN MENGGUNAKAN NOMOR IDENTITAS
         |--------------------------------------------------------------------------
-        |
-        | Laravel akan mencari:
-        | users.id = ID yang dimasukkan
-        |
-        | kemudian mengecek password.
-        |
         */
 
         if (Auth::attempt([
-            'id' => $credentials['id'],
+            'nomor_identitas' => $credentials['nomor_identitas'],
             'password' => $credentials['password'],
         ])) {
 
-            // Regenerasi session untuk keamanan
             $request->session()->regenerate();
 
-            // Berhasil → dashboard
-            return redirect()
-                ->route('dashboard');
+            return redirect()->route('dashboard');
         }
-
 
         /*
         |--------------------------------------------------------------------------
-        | Login Gagal
+        | LOGIN GAGAL
         |--------------------------------------------------------------------------
         */
 
         return back()
             ->withErrors([
-                'id' => 'ID atau password salah.',
+                'nomor_identitas' => 'Nomor Identitas atau password salah.',
             ])
             ->withInput(
-                $request->only('id')
+                $request->only('nomor_identitas')
             );
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Logout
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Logout
+     */
     public function logout(Request $request)
     {
         Auth::logout();
@@ -94,7 +71,6 @@ class LoginController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()
-            ->route('login');
+        return redirect()->route('login');
     }
 }

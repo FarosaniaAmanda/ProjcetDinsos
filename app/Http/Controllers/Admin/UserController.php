@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Kelurahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -41,7 +42,6 @@ class UserController extends Controller
             )
         );
     }
-
 
     /**
      * Simpan Operator / Verifikator / Petugas.
@@ -82,11 +82,6 @@ class UserController extends Controller
                 'unique:users,email',
             ],
 
-            /*
-             * Password TIDAK divalidasi dari request.
-             * Password otomatis diberikan oleh sistem.
-             */
-
             'kelurahan_id' => [
                 'required_if:role,petugas',
                 'nullable',
@@ -95,11 +90,9 @@ class UserController extends Controller
             ],
         ]);
 
-
         DB::transaction(function () use ($validated) {
 
             $kelurahan = null;
-
 
             /*
              * Ambil Kelurahan jika role Petugas.
@@ -111,7 +104,6 @@ class UserController extends Controller
                     $validated['kelurahan_id']
                 )->firstOrFail();
             }
-
 
             /*
              * Simpan User.
@@ -131,7 +123,7 @@ class UserController extends Controller
                     $validated['email'],
 
                 'password' =>
-                    'perlinsos123',
+                    Hash::make('perlinsos123'),
 
                 'role' =>
                     $validated['role'],
@@ -140,9 +132,10 @@ class UserController extends Controller
                     $kelurahan
                         ? $kelurahan->deskripsi
                         : null,
+
+                'is_active' => 1,
             ]);
         });
-
 
         return response()->json([
 
@@ -155,11 +148,10 @@ class UserController extends Controller
         ]);
     }
 
-
     /**
      * Update Operator / Verifikator / Petugas.
      *
-     * Password TIDAK diubah dari form Edit.
+     * Password tidak diubah dari form Edit.
      * Untuk mengembalikan password ke default,
      * gunakan tombol Reset Password.
      */
@@ -215,14 +207,12 @@ class UserController extends Controller
             ],
         ]);
 
-
         DB::transaction(function () use (
             $validated,
             $user
         ) {
 
             $kelurahan = null;
-
 
             /*
              * Ambil Kelurahan jika Petugas.
@@ -234,7 +224,6 @@ class UserController extends Controller
                     $validated['kelurahan_id']
                 )->firstOrFail();
             }
-
 
             /*
              * Data yang diperbarui.
@@ -261,10 +250,8 @@ class UserController extends Controller
                         : null,
             ];
 
-
             $user->update($data);
         });
-
 
         return response()->json([
 
@@ -275,7 +262,6 @@ class UserController extends Controller
 
         ]);
     }
-
 
     /**
      * Reset Password User.
@@ -288,10 +274,9 @@ class UserController extends Controller
         $user->update([
 
             'password' =>
-                'perlinsos123',
+                Hash::make('perlinsos123'),
 
         ]);
-
 
         return response()->json([
 
@@ -303,14 +288,12 @@ class UserController extends Controller
         ]);
     }
 
-
     /**
      * Hapus User.
      */
     public function destroy(User $user)
     {
         $user->delete();
-
 
         return response()->json([
 
