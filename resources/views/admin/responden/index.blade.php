@@ -141,7 +141,7 @@
 .responden-search input {
     width: 100%;
     height: 38px;
-    padding: 0 13px 0 38px;
+    padding: 0 42px 0 38px;
     border: 1px solid #dfe1e8;
     border-radius: 8px;
     outline: none;
@@ -163,6 +163,25 @@
     color: #999;
     font-size: 14px;
     pointer-events: none;
+}
+
+.responden-search-button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #777;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.responden-search-button:hover {
+    background: #f2f3f8;
+    color: #252A86;
 }
 
 
@@ -213,6 +232,87 @@
 .responden-number {
     width: 45px;
     color: #999;
+}
+
+.responden-pagination {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 20px;
+    border-top: 1px solid #e8e9ef;
+}
+
+.responden-pagination-links {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.responden-pagination-link,
+.responden-pagination-current,
+.responden-pagination-disabled,
+.responden-pagination-ellipsis {
+    min-width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border: 1px solid #dfe1e8;
+    border-radius: 6px;
+    background: #fff;
+    color: #555;
+    font-size: 11px;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.responden-pagination-link:hover {
+    border-color: #252A86;
+    color: #252A86;
+}
+
+.responden-pagination-current {
+    border-color: #252A86;
+    background: #252A86;
+    color: #fff;
+    font-weight: 700;
+}
+
+.responden-pagination-disabled,
+.responden-pagination-ellipsis {
+    color: #aaa;
+}
+
+.responden-pagination-disabled {
+    background: #fafafd;
+}
+
+.responden-pagination-direction {
+    gap: 6px;
+    padding: 0 11px;
+}
+
+@media (max-width: 500px) {
+    .responden-pagination {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .responden-pagination-links {
+        gap: 3px;
+    }
+
+    .responden-pagination-link,
+    .responden-pagination-current,
+    .responden-pagination-disabled,
+    .responden-pagination-ellipsis {
+        min-width: 30px;
+        padding: 0 7px;
+    }
+
+    .responden-pagination-direction span:not([aria-hidden="true"]) {
+        display: none;
+    }
 }
 
 
@@ -1111,7 +1211,12 @@ textarea.responden-form-control {
             </div>
 
 
-            <div class="responden-search">
+            <form
+                class="responden-search"
+                id="searchRespondenForm"
+                method="GET"
+                action="{{ route('responden.index') }}"
+            >
 
                 <span class="responden-search-icon">
                     ⌕
@@ -1120,11 +1225,22 @@ textarea.responden-form-control {
                 <input
                     type="text"
                     id="searchResponden"
+                    name="search"
                     placeholder="Cari No. KK atau nama..."
                     autocomplete="off"
+                    value="{{ request('search') }}"
                 >
 
-            </div>
+                <button
+                    type="submit"
+                    class="responden-search-button"
+                    aria-label="Cari responden"
+                    title="Cari responden"
+                >
+                    ⌕
+                </button>
+
+            </form>
 
         </div>
 
@@ -1192,7 +1308,7 @@ textarea.responden-form-control {
                         >
 
                             <td class="responden-number">
-                                {{ $index + 1 }}
+                                {{ $keluargas->firstItem() + $index }}
                             </td>
 
                             <td>
@@ -1340,6 +1456,68 @@ textarea.responden-form-control {
             </table>
 
         </div>
+
+        @if ($keluargas->hasPages())
+            <nav class="responden-pagination" aria-label="Navigasi halaman responden">
+                <div class="responden-pagination-links">
+                    @if ($keluargas->previousPageUrl())
+                        <a
+                            href="{{ $keluargas->previousPageUrl() }}"
+                            class="responden-pagination-link responden-pagination-direction"
+                            rel="prev"
+                            aria-label="Halaman sebelumnya"
+                        >
+                            <span aria-hidden="true">&lsaquo;</span>
+                            <span>Sebelumnya</span>
+                        </a>
+                    @else
+                        <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
+                            <span aria-hidden="true">&lsaquo;</span>
+                            <span>Sebelumnya</span>
+                        </span>
+                    @endif
+
+                    @if ($keluargas->currentPage() > 2)
+                        <a href="{{ $keluargas->url(1) }}" class="responden-pagination-link">1</a>
+                        @if ($keluargas->currentPage() > 3)
+                            <span class="responden-pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                        @endif
+                    @endif
+
+                    @foreach ($keluargas->getUrlRange(max(1, $keluargas->currentPage() - 1), min($keluargas->lastPage(), $keluargas->currentPage() + 1)) as $page => $url)
+                        @if ($page === $keluargas->currentPage())
+                            <span class="responden-pagination-current" aria-current="page">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" class="responden-pagination-link" aria-label="Halaman {{ $page }}">{{ $page }}</a>
+                        @endif
+                    @endforeach
+
+                    @if ($keluargas->currentPage() < $keluargas->lastPage() - 1)
+                        @if ($keluargas->currentPage() < $keluargas->lastPage() - 2)
+                            <span class="responden-pagination-ellipsis" aria-hidden="true">&hellip;</span>
+                        @endif
+                        <a href="{{ $keluargas->url($keluargas->lastPage()) }}" class="responden-pagination-link">{{ $keluargas->lastPage() }}</a>
+                    @endif
+
+                    @if ($keluargas->nextPageUrl())
+                        <a
+                            href="{{ $keluargas->nextPageUrl() }}"
+                            class="responden-pagination-link responden-pagination-direction"
+                            rel="next"
+                            aria-label="Halaman berikutnya"
+                        >
+                            <span>Berikutnya</span>
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </a>
+                    @else
+                        <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
+                            <span>Berikutnya</span>
+                            <span aria-hidden="true">&rsaquo;</span>
+                        </span>
+                    @endif
+                </div>
+            </nav>
+        @endif
 
     </div>
 
@@ -1703,7 +1881,7 @@ textarea.responden-form-control {
                     <div class="responden-form-grid">
                         <div class="responden-form-group">
                             <label class="responden-form-label">
-                                Jumlah Anggota Tambahan
+                                Jumlah Anggota 
                                 <span class="required">*</span>
                             </label>
                             <input
@@ -3249,8 +3427,6 @@ function toggleKeluarga(id) {
         row.classList.toggle('active', !sedangTerbuka);
     });
 }
-
-
 /* =========================================================
    HAPUS RESPONDEN
 ========================================================= */
@@ -3381,43 +3557,6 @@ function parseGeotangging(value) {
 /* =========================================================
    SEARCH
 ========================================================= */
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const search = document.getElementById('searchResponden');
-
-    if (search) {
-
-        search.addEventListener('input', function () {
-
-            const keyword = this.value.toLowerCase().trim();
-
-            const rows = document.querySelectorAll(
-                '#respondenTableBody .responden-family-main'
-            );
-
-            rows.forEach(function (row) {
-
-                const familyId = row.id.replace('keluarga-row-', '');
-                const memberRows = document.querySelectorAll(
-                    '.responden-member-row[data-keluarga="' + familyId + '"]'
-                );
-
-                const text = row.textContent.toLowerCase();
-                const match = text.includes(keyword);
-
-                row.style.display = match ? '' : 'none';
-
-                if (!match) {
-                    memberRows.forEach(function (member) {
-                        member.style.display = 'none';
-                    });
-                }
-            });
-        });
-    }
-});
-
 
 /* =========================================================
    ESCAPE HTML

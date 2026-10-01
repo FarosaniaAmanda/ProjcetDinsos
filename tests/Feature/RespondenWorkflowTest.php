@@ -168,6 +168,28 @@ class RespondenWorkflowTest extends TestCase
             ]);
     }
 
+    public function test_search_finds_respondent_beyond_the_first_page(): void
+    {
+        $createdAt = now();
+
+        foreach (range(1, 12) as $number) {
+            DB::table('keluargas')->insert([
+                'kode' => 'KLG-'.str_pad((string) $number, 10, '0', STR_PAD_LEFT),
+                'no_kk' => '357502010101'.str_pad((string) $number, 4, '0', STR_PAD_LEFT),
+                'nik' => '357502010102'.str_pad((string) $number, 4, '0', STR_PAD_LEFT),
+                'nama_lengkap' => $number === 1 ? 'Nama Responden Terpencil' : 'Responden '.$number,
+                'status_keluarga' => 'Kepala Keluarga',
+                'created_by' => 'admin',
+                'created_at' => $createdAt->copy()->subMinutes($number),
+                'updated_at' => $createdAt->copy()->subMinutes($number),
+            ]);
+        }
+
+        $this->withoutVite()
+            ->get(route('responden.index', ['search' => 'Nama Responden Terpencil']))
+            ->assertSee('Nama Responden Terpencil');
+    }
+
     public function test_region_lookup_uses_cached_nominatim_coordinates(): void
     {
         $this->seedWilayah();
