@@ -685,10 +685,7 @@
 
 
             {{-- JUMLAH RESPONDEN --}}
-            <a
-                href="{{ route('verifikasi.index') }}"
-                class="status-card respondent-card"
-            >
+            <div class="status-card respondent-card">
 
                 <div>
 
@@ -702,12 +699,12 @@
 
                 </div>
 
-            </a>
+            </div>
 
 
             {{-- DIAJUKAN --}}
             <a
-                href="{{ route('verifikasi.index', ['status' => 'menunggu']) }}"
+                href="{{ route('kuisioner.selesai') }}"
                 class="status-card submit-card"
             >
 
@@ -756,7 +753,7 @@
                 <div>
 
                     <h2 class="status-title">
-                        Diterima
+                        Disetujui
                     </h2>
 
                     <div class="status-count">
@@ -787,248 +784,648 @@
                     </p>
                 </div>
 
-                <div class="draft-total">
-                    Total {{ $draftCount ?? 0 }} draft
-                </div>
-
             </div>
 
 
             <div class="table-card">
 
-                @if(isset($drafts) && $drafts->count() > 0)
 
-                    <div class="table-wrapper">
+        @if(isset($drafts) && $drafts->count() > 0)
 
-                        <table class="draft-table">
+            <div class="draft-table-card">
 
-                            <thead>
+                <div class="table-responsive">
+
+                    <table class="draft-table">
+
+                        <thead>
+                            <tr>
+                                <th width="60">No.</th>
+
+                                <th>No. KK</th>
+
+                                <th>NIK</th>
+
+                                <th>Nama Kepala Keluarga</th>
+
+                                <th>Progress</th>
+
+                                <th>Terakhir Diperbarui</th>
+
+                                <th width="150">Aksi</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach($drafts as $index => $item)
+
+                                @php
+
+                                    /*
+                                    |--------------------------------------------------------------------------
+                                    | CURRENT PART
+                                    |--------------------------------------------------------------------------
+                                    */
+
+                                    $currentPart = (int) ($item->current_part ?? 1);
+
+                                    /*
+                                    |--------------------------------------------------------------------------
+                                    | PROGRESS
+                                    |--------------------------------------------------------------------------
+                                    |
+                                    | current_part menunjukkan part berikutnya
+                                    | yang harus dikerjakan.
+                                    |
+                                    | Contoh:
+                                    | current_part = 1 → belum menyelesaikan Part 1
+                                    | current_part = 2 → Part 1 selesai
+                                    | current_part = 3 → Part 2 selesai
+                                    | current_part = 4 → Part 3 selesai
+                                    | current_part = 5 → Part 4 selesai
+                                    |
+                                    */
+
+                                    $completedPart = max(
+                                        0,
+                                        min(5, $currentPart - 1)
+                                    );
+
+                                    $progressPercent = ($completedPart / 5) * 100;
+
+                                @endphp
+
 
                                 <tr>
-                                    <th>No</th>
-                                    <th>No. KK</th>
-                                    <th>NIK</th>
-                                    <th>Nama Kepala Keluarga</th>
-                                    <th>Alamat</th>
-                                    <th>Progress</th>
-                                    <th>Aksi</th>
-                                </tr>
 
-                            </thead>
+                                    {{-- NOMOR --}}
+                                    <td>
+                                        <span class="row-number">
+                                            {{ $drafts->firstItem() + $index }}
+                                        </span>
+                                    </td>
 
 
-                            <tbody>
+                                    {{-- NO KK --}}
+                                    <td>
 
-                                @foreach($drafts as $draft)
+                                        <span class="data-primary">
+                                            {{ $item->no_kk ?? '-' }}
+                                        </span>
 
-                                    @php
-
-                                        $currentPart = (int) ($draft->current_part ?? 1);
-
-                                        $progress = match ($currentPart) {
-                                            1 => 20,
-                                            2 => 40,
-                                            3 => 60,
-                                            4 => 80,
-                                            5 => 100,
-                                            default => 20,
-                                        };
-
-                                        /*
-                                         * Alamat dibuat dari data yang tersedia.
-                                         * Jika alamat_lengkap tersedia, gunakan langsung.
-                                         */
-                                        $alamat = $draft->alamat_lengkap ?? null;
-
-                                        if (!$alamat) {
-
-                                            $alamatParts = [];
-
-                                            if (!empty($draft->alamat)) {
-                                                $alamatParts[] = $draft->alamat;
-                                            }
-
-                                            if (!empty($draft->rt_rw)) {
-                                                $alamatParts[] = 'RT/RW ' . $draft->rt_rw;
-                                            }
-
-                                            if (!empty($draft->kelurahan)) {
-                                                $alamatParts[] = 'Kel. ' . $draft->kelurahan;
-                                            }
-
-                                            if (!empty($draft->kecamatan)) {
-                                                $alamatParts[] = 'Kec. ' . $draft->kecamatan;
-                                            }
-
-                                            $alamat = implode(', ', $alamatParts);
-                                        }
-
-                                    @endphp
+                                    </td>
 
 
-                                    <tr>
+                                    {{-- NIK --}}
+                                    <td>
 
-                                        {{-- NO --}}
-                                        <td class="number-cell">
-                                            {{ $drafts->firstItem() + $loop->index }}
-                                        </td>
+                                        <span class="data-primary">
+                                            {{ $item->nik ?? '-' }}
+                                        </span>
 
-
-                                        {{-- NO KK --}}
-                                        <td class="kk-cell">
-                                            {{ $draft->no_kk ?: '-' }}
-                                        </td>
+                                    </td>
 
 
-                                        {{-- NIK --}}
-                                        <td class="nik-cell">
-                                            {{ $draft->nik ?: '-' }}
-                                        </td>
+                                    {{-- NAMA --}}
+                                    <td>
+
+                                        <div class="family-name">
+                                            <strong>
+                                                {{ $item->nama_kepala_keluarga ?? '-' }}
+                                            </strong>
+
+                                            <small>
+                                                Data kuisioner keluarga
+                                            </small>
+                                        </div>
+
+                                    </td>
 
 
-                                        {{-- NAMA KEPALA KELUARGA --}}
-                                        <td class="name-cell">
-                                            {{ $draft->nama_kepala_keluarga ?: '-' }}
-                                        </td>
+                                    {{-- PROGRESS --}}
+                                    <td>
 
+                                        <div class="progress-wrapper">
 
-                                        {{-- ALAMAT --}}
-                                        <td class="address-cell">
-                                            {{ $alamat ?: '-' }}
-                                        </td>
+                                            <div class="progress-label">
 
+                                                <span>
+                                                    Part {{ $completedPart }}/5
+                                                </span>
 
-                                        {{-- PROGRESS --}}
-                                        <td class="progress-cell">
+                                                <strong>
+                                                    {{ number_format($progressPercent, 0) }}%
+                                                </strong>
 
-                                            <div class="progress-text">
-                                                Part {{ $currentPart }} / 5
-                                                · {{ $progress }}%
                                             </div>
 
-                                            <div class="progress-bar">
+                                            <div class="progress-track">
 
                                                 <div
                                                     class="progress-fill"
-                                                    style="width: {{ $progress }}%;"
+                                                    style="width: {{ $progressPercent }}%;"
                                                 ></div>
 
                                             </div>
 
-                                        </td>
+                                        </div>
+
+                                    </td>
 
 
-                                        {{-- AKSI --}}
-                                        <td>
+                                    {{-- TANGGAL UPDATE --}}
+                                    <td>
 
-                                            <a
-                                                href="{{ route('kuisioner.draft.resume', ['id' => $draft->id]) }}"
-                                                class="btn-continue"
-                                            >
-                                                Lanjutkan →
-                                            </a>
+                                        @if($item->updated_at)
 
-                                        </td>
+                                            <div class="date-info">
 
-                                    </tr>
+                                                <strong>
+                                                    {{ $item->updated_at->format('d/m/Y') }}
+                                                </strong>
 
-                                @endforeach
+                                                <small>
+                                                    {{ $item->updated_at->format('H:i') }}
+                                                </small>
 
-                            </tbody>
+                                            </div>
 
-                        </table>
+                                        @else
 
-                    </div>
+                                            -
+
+                                        @endif
+
+                                    </td>
 
 
-                    {{-- PAGINATION --}}
-                    <div class="pagination-wrapper">
+                                    {{-- AKSI --}}
+                                    <td>
+
+                                        <a
+                                            href="{{ route('kuisioner.draft.resume', $item->id) }}"
+                                            class="btn-lanjutkan"
+                                        >
+
+                                            <span class="btn-icon">
+                                                ↻
+                                            </span>
+
+                                            <span>
+                                                Lanjutkan
+                                            </span>
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                {{-- =================================================
+                    PAGINATION
+                ================================================== --}}
+
+                @if($drafts->hasPages())
+
+                    <div class="draft-pagination">
 
                         <div class="pagination-info">
 
                             Menampilkan
-                            {{ $drafts->firstItem() }}
-                            –
-                            {{ $drafts->lastItem() }}
+                            <strong>
+                                {{ $drafts->firstItem() }}
+                            </strong>
+
+                            sampai
+
+                            <strong>
+                                {{ $drafts->lastItem() }}
+                            </strong>
+
                             dari
-                            {{ $drafts->total() }}
-                            draft
+
+                            <strong>
+                                {{ $drafts->total() }}
+                            </strong>
+
+                            data draft
 
                         </div>
 
 
-                        <div class="pagination">
+                        <div class="pagination-links">
 
-                            {{-- PREVIOUS --}}
-                            @if($drafts->onFirstPage())
+                            {{ $drafts->onEachSide(1)->links() }}
 
-                                <span class="disabled">
-                                    ‹
-                                </span>
-
-                            @else
-
-                                <a href="{{ $drafts->previousPageUrl() }}">
-                                    ‹
-                                </a>
-
-                            @endif
-
-
-                            {{-- NOMOR HALAMAN --}}
-                            @foreach($drafts->getUrlRange(1, $drafts->lastPage()) as $page => $url)
-
-                                @if($page == $drafts->currentPage())
-
-                                    <span class="active">
-                                        {{ $page }}
-                                    </span>
-
-                                @else
-
-                                    <a href="{{ $url }}">
-                                        {{ $page }}
-                                    </a>
-
-                                @endif
-
-                            @endforeach
-
-
-                            {{-- NEXT --}}
-                            @if($drafts->hasMorePages())
-
-                                <a href="{{ $drafts->nextPageUrl() }}">
-                                    ›
-                                </a>
-
-                            @else
-
-                                <span class="disabled">
-                                    ›
-                                </span>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                @else
-
-                    <div class="empty-state">
-
-                        <div class="empty-title">
-                            Belum ada draft kuisioner
-                        </div>
-
-                        <div class="empty-description">
-                            Data kuisioner yang sudah mulai diisi tetapi belum selesai akan muncul di sini.
                         </div>
 
                     </div>
 
                 @endif
+
+            </div>
+
+
+    @else
+
+        {{-- =================================================
+             EMPTY STATE
+        ================================================== --}}
+
+        <div class="empty-draft">
+
+            <div class="empty-draft-icon">
+                ✓
+            </div>
+
+            <h4>
+                Belum ada draft kuisioner
+            </h4>
+
+            <p>
+                Data kuisioner yang belum selesai akan muncul di sini.
+            </p>
+
+        </div>
+
+    @endif
+        <style>
+            /* =========================================================
+                DRAFT KUISIONER
+                ========================================================= */
+
+                .draft-section {
+                    margin-top: 28px;
+                }
+
+                .section-heading {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-end;
+                    gap: 20px;
+                    margin-bottom: 14px;
+                }
+
+                .section-heading h3 {
+                    margin: 0 0 5px;
+                    font-size: 21px;
+                    font-weight: 800;
+                    color: #252A86;
+                }
+
+                .section-heading p {
+                    margin: 0;
+                    color: #68738a;
+                    font-size: 14px;
+                    line-height: 1.5;
+                }
+
+                .section-total {
+                    color: #68738a;
+                    font-size: 14px;
+                    font-weight: 600;
+                    white-space: nowrap;
+                }
+
+
+                /* =========================================================
+                TABLE CARD
+                ========================================================= */
+
+                .draft-table-card {
+                    background: #ffffff;
+                    border: 1px solid #e5e8f0;
+                    border-radius: 16px;
+                    overflow: hidden;
+                    box-shadow: 0 5px 18px rgba(25, 35, 70, 0.05);
+                }
+
+                .table-responsive {
+                    width: 100%;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                }
+
+                .draft-table {
+                    width: 100%;
+                    min-width: 1050px;
+                    border-collapse: collapse;
+                }
+
+                .draft-table thead {
+                    background: #f7f8fc;
+                }
+
+                .draft-table th {
+                    padding: 15px 16px;
+                    text-align: left;
+                    font-size: 13px;
+                    font-weight: 800;
+                    color: #39415c;
+                    border-bottom: 1px solid #e5e8f0;
+                    white-space: nowrap;
+                }
+
+                .draft-table td {
+                    padding: 16px;
+                    border-bottom: 1px solid #edf0f5;
+                    color: #3f465a;
+                    font-size: 14px;
+                    vertical-align: middle;
+                }
+
+                .draft-table tbody tr:last-child td {
+                    border-bottom: none;
+                }
+
+                .draft-table tbody tr:hover {
+                    background: #fafbfe;
+                }
+
+
+                /* =========================================================
+                DATA
+                ========================================================= */
+
+                .row-number {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    width: 32px;
+                    height: 32px;
+
+                    border-radius: 8px;
+
+                    background: #f1f3f8;
+                    color: #4b5368;
+
+                    font-weight: 700;
+                }
+
+                .data-primary {
+                    color: #3f465a;
+                    font-weight: 600;
+                    white-space: nowrap;
+                }
+
+                .family-name {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                }
+
+                .family-name strong {
+                    color: #30384d;
+                    font-size: 14px;
+                    font-weight: 700;
+                }
+
+                .family-name small {
+                    color: #8a92a5;
+                    font-size: 12px;
+                }
+
+
+                /* =========================================================
+                PROGRESS
+                ========================================================= */
+
+                .progress-wrapper {
+                    width: 145px;
+                }
+
+                .progress-label {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 6px;
+
+                    color: #596277;
+                    font-size: 12px;
+                }
+
+                .progress-label strong {
+                    color: #252A86;
+                    font-size: 12px;
+                }
+
+                .progress-track {
+                    width: 100%;
+                    height: 7px;
+
+                    background: #e9edf4;
+                    border-radius: 20px;
+                    overflow: hidden;
+                }
+
+                .progress-fill {
+                    height: 100%;
+                    background: #55B5D5;
+                    border-radius: 20px;
+                    transition: width .25s ease;
+                }
+
+
+                /* =========================================================
+                DATE
+                ========================================================= */
+
+                .date-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                    white-space: nowrap;
+                }
+
+                .date-info strong {
+                    color: #4a5266;
+                    font-size: 13px;
+                }
+
+                .date-info small {
+                    color: #8b93a5;
+                    font-size: 12px;
+                }
+
+
+                /* =========================================================
+                BUTTON LANJUTKAN
+                ========================================================= */
+
+                .btn-lanjutkan {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 7px;
+
+                    padding: 9px 13px;
+
+                    border-radius: 8px;
+
+                    background: #252A86;
+                    color: #ffffff !important;
+
+                    text-decoration: none;
+
+                    font-size: 13px;
+                    font-weight: 700;
+
+                    transition:
+                        transform .2s ease,
+                        opacity .2s ease,
+                        box-shadow .2s ease;
+                }
+
+                .btn-lanjutkan:hover {
+                    opacity: .92;
+                    transform: translateY(-1px);
+                    box-shadow: 0 5px 12px rgba(37, 42, 134, .18);
+                }
+
+                .btn-icon {
+                    font-size: 15px;
+                }
+
+
+                /* =========================================================
+                PAGINATION
+                ========================================================= */
+
+                .draft-pagination {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 20px;
+
+                    padding: 16px 18px;
+
+                    border-top: 1px solid #edf0f5;
+                }
+
+                .pagination-info {
+                    color: #737c91;
+                    font-size: 13px;
+                }
+
+                .pagination-info strong {
+                    color: #424a5f;
+                }
+
+                .pagination-links {
+                    display: flex;
+                    align-items: center;
+                }
+
+
+                /* =========================================================
+                EMPTY
+                ========================================================= */
+
+                .empty-draft {
+                    background: #ffffff;
+
+                    border: 1px solid #e5e8f0;
+                    border-radius: 16px;
+
+                    padding: 50px 20px;
+
+                    text-align: center;
+
+                    box-shadow: 0 5px 18px rgba(25, 35, 70, 0.04);
+                }
+
+                .empty-draft-icon {
+                    width: 52px;
+                    height: 52px;
+
+                    margin: 0 auto 14px;
+
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    border-radius: 50%;
+
+                    background: #edf8f1;
+                    color: #299447;
+
+                    font-size: 22px;
+                    font-weight: 800;
+                }
+
+                .empty-draft h4 {
+                    margin: 0 0 7px;
+
+                    color: #39415a;
+
+                    font-size: 17px;
+                    font-weight: 800;
+                }
+
+                .empty-draft p {
+                    margin: 0;
+
+                    color: #7d8598;
+
+                    font-size: 14px;
+                }
+
+
+                /* =========================================================
+                RESPONSIVE
+                ========================================================= */
+
+                @media (max-width: 768px) {
+
+                    .section-heading {
+                        align-items: flex-start;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+
+                    .section-total {
+                        font-size: 13px;
+                    }
+
+                    .draft-table {
+                        min-width: 1000px;
+                    }
+
+                    .draft-pagination {
+                        align-items: flex-start;
+                        flex-direction: column;
+                    }
+
+                }
+
+                @media (max-width: 480px) {
+
+                    .section-heading h3 {
+                        font-size: 19px;
+                    }
+
+                    .section-heading p {
+                        font-size: 13px;
+                    }
+
+                    .draft-table {
+                        min-width: 950px;
+                    }
+
+                }
+        </style>
+</section>
 
             </div>
 

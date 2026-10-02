@@ -4,28 +4,16 @@
  
 @push('styles') 
 <style> 
-    /* =====================================================
-       HALAMAN VERIFIKASI
-    ====================================================== */
-
-    .verification-page {
-        padding: 24px 32px 40px;
-        background: #f5f7fb;
-        min-height: calc(100vh - 70px);
-        box-sizing: border-box;
-    }
-
-    /* =====================================================
-       CARD UTAMA VERIFIKASI
-    ====================================================== */
-
-    .verification-card {
-        width: 100%;
-        background: #ffffff;
-        border: 1px solid #e2e6f2;
-        border-radius: 18px;
-        box-shadow: 0 4px 18px rgba(37, 42, 134, 0.06);
-        overflow: hidden;
+    /* ===================================================== 
+       CARD BESAR VERIFIKASI 
+    ====================================================== */ 
+ 
+    .verification-card { 
+        background: #ffffff; 
+        border: 1px solid #e8e9ef; 
+        border-radius: 16px; 
+        overflow: hidden; 
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04); 
     } 
  
     /* ===================================================== 
@@ -964,6 +952,65 @@
         font-size: 12px; 
     } 
  
+    /* =====================================================
+       DETAIL JAWABAN FOTO
+    ====================================================== */
+
+    .verification-info-item-full {
+        grid-column: 1 / -1;
+    }
+
+    .questionnaire-answer-image {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8f9fc;
+        border: 1px solid #e6e8ef;
+        border-radius: 10px;
+    }
+
+    .questionnaire-answer-image img {
+        display: block;
+        width: 100%;
+        max-width: 560px;
+        max-height: 380px;
+        margin: 0 auto;
+        object-fit: contain;
+        border-radius: 8px;
+        background: #ffffff;
+        border: 1px solid #e3e5eb;
+    }
+
+    .questionnaire-image-caption {
+        margin-top: 8px;
+        color: #666;
+        font-size: 11px;
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    .questionnaire-image-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 8px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        background: #eef0ff;
+        color: #252A86;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .questionnaire-image-link:hover {
+        background: #252A86;
+        color: #ffffff;
+    }
+
+    .questionnaire-answer.is-empty {
+        color: #888;
+    }
+
     /* ===================================================== 
        RESPONSIVE 
     ====================================================== */ 
@@ -2440,9 +2487,7 @@
          SATU CARD BESAR 
     ====================================================== --}} 
  
-    <div class="verification-page">
-
-        <div class="verification-card"> 
+    <div class="verification-card"> 
  
         {{-- ================================================= 
              HEADER VERIFIKASI 
@@ -2613,7 +2658,10 @@
                         autocomplete="off" 
                     > 
  
-                    
+                    <div 
+                        class="search-suggestions" 
+                        id="searchSuggestions" 
+                    ></div> 
  
                 </div> 
  
@@ -2790,10 +2838,11 @@
                                 data-petugas="{{ $item['petugas'] ?? '' }}" 
                                 data-status="{{ $item['status'] ?? '' }}" 
                                 data-status-label="{{ $statusLabel }}" 
-                                data-anggota="{{ $item['anggota'] ?? 0 }}" 
+                                data-anggota="{{ $item['jumlah_anggota'] ?? 0 }}"
                                 data-tanggal="{{ $item['tanggal'] ?? '' }}" 
+                                data-geotangging="{{ $item['geotangging'] ?? $item['geotagging'] ?? '' }}"
                                 data-kuisioner='@json($item["kuisioner"] ?? [])'
-                                data-anggota-detail="{{ e(json_encode($item['anggota_detail'] ?? [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)) }}"
+                               data-anggota-detail='@json($item["anggota_detail"] ?? [])'
                             > 
  
                                 <td class="row-number"> 
@@ -2813,11 +2862,11 @@
                                 </td> 
  
                                 <td class="member-count-cell">
-                                    <strong>
-                                        {{ $item['anggota'] ?? 0 }} Orang
-                                    </strong>
+                                <strong>
+                                 {{ $item['jumlah_anggota'] ?? 0 }} Orang
+                                </strong>
                                 </td>
- 
+
                                 <td> 
  
                                     @if ( 
@@ -3008,11 +3057,9 @@
  
         </div> 
  
-        </div>
-
-    </div>
-
-
+    </div> 
+ 
+ 
     {{-- ===================================================== 
          MODAL DETAIL VERIFIKASI 
     ====================================================== --}} 
@@ -3275,6 +3322,11 @@
                         <div class="verification-info-item"> 
                             <span>Status Saat Ini</span> 
                             <strong id="modalStatusLabel">-</strong> 
+                        </div>
+
+                        <div class="verification-info-item verification-info-item-full">
+                            <span>Titik Lokasi (Geotagging)</span>
+                            <strong id="modalGeotangging">-</strong>
                         </div> 
  
                     </div> 
@@ -3358,7 +3410,7 @@
                             </h3> 
  
                             <p> 
-                                Status dapat diubah kembali. Data yang sudah disetujui dapat ditolak, dan data yang sudah ditolak dapat disetujui kembali. 
+                                Pilih Setujui atau Tolak hanya untuk data dengan status Menunggu Verifikasi. Data Draft belum dapat diverifikasi. 
                             </p> 
                         </div> 
                     </div> 
@@ -3996,7 +4048,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('modalPetugas'); 
  
     const modalStatusLabel = 
-        document.getElementById('modalStatusLabel'); 
+        document.getElementById('modalStatusLabel');
+
+    const modalGeotangging =
+        document.getElementById('modalGeotangging'); 
  
     const modalStatus = 
         document.getElementById('modalStatus'); 
@@ -4233,69 +4288,61 @@ document.addEventListener('DOMContentLoaded', function () {
     } 
  
  
-    function normalizeQuestion(question, index) { 
- 
-        if ( 
-            question === null || 
-            question === undefined 
-        ) { 
-            return { 
-                number: index + 1, 
-                text: '', 
-                answer: '' 
-            }; 
-        } 
- 
-        if (typeof question !== 'object') { 
-            return { 
-                number: index + 1, 
-                text: String(question), 
-                answer: '' 
-            }; 
-        } 
- 
-        const text = 
-            getFirstValue( 
-                question, 
-                [ 
-                    'pertanyaan', 
-                    'question', 
-                    'question_text', 
-                    'nama_pertanyaan', 
-                    'text', 
-                    'judul', 
-                    'label' 
-                ], 
-                `Pertanyaan ${index + 1}` 
-            ); 
- 
-        const answer = 
-            getFirstValue( 
-                question, 
-                [ 
-                    'jawaban', 
-                    'answer', 
-                    'response', 
-                    'nilai', 
-                    'value', 
-                    'hasil' 
-                ], 
-                '' 
-            ); 
- 
-        return { 
-            number: 
-                getFirstValue( 
-                    question, 
-                    ['number', 'nomor', 'no', 'urutan'], 
-                    index + 1 
-                ), 
-            text: normalizeQuestionAnswer(text), 
-            answer: normalizeQuestionAnswer(answer) 
-        }; 
-    } 
- 
- 
+    function normalizeQuestion(question, index) {
+
+        if (question === null || question === undefined) {
+            return { number: index + 1, text: '', answer: '', type: 'text', imageUrl: '' };
+        }
+
+        if (typeof question !== 'object') {
+            return { number: index + 1, text: String(question), answer: '', type: 'text', imageUrl: '' };
+        }
+
+        const text = getFirstValue(question, [
+            'pertanyaan', 'question', 'question_text', 'nama_pertanyaan', 'text', 'judul', 'label'
+        ], `Pertanyaan ${index + 1}`);
+
+        const answer = getFirstValue(question, [
+            'jawaban', 'answer', 'response', 'nilai', 'value', 'hasil'
+        ], '');
+
+        const explicitType = String(getFirstValue(question, [
+            'type', 'tipe', 'answer_type', 'jenis'
+        ], '')).toLowerCase();
+
+        const imageUrl = getFirstValue(question, [
+            'image_url', 'image', 'url', 'foto_url', 'path_url'
+        ], '');
+
+        let finalType = explicitType;
+        if (!finalType && (imageUrl || question.path_file || question.nama_file || question.jenis_foto)) {
+            finalType = 'image';
+        }
+        if (finalType === 'foto' || finalType === 'photo' || finalType === 'gambar') {
+            finalType = 'image';
+        }
+
+        let finalImageUrl = String(imageUrl || '');
+        if (!finalImageUrl && question.path_file) {
+            finalImageUrl = String(question.path_file);
+        }
+        if (finalType === 'image' && !finalImageUrl && typeof answer === 'string') {
+            finalImageUrl = answer;
+        }
+
+        return {
+            number: getFirstValue(question, ['number', 'nomor', 'no', 'urutan'], index + 1),
+            text: normalizeQuestionAnswer(text),
+            answer: normalizeQuestionAnswer(answer),
+            type: finalType || 'text',
+            imageUrl: finalImageUrl,
+            imageName: normalizeQuestionAnswer(getFirstValue(question, [
+                'nama_file', 'filename', 'file_name', 'jenis_foto'
+            ], ''))
+        };
+    }
+
+
     function normalizeParts(raw) { 
  
         const source = 
@@ -4652,13 +4699,46 @@ document.addEventListener('DOMContentLoaded', function () {
                 answerElement.className =
                     'questionnaire-answer';
 
-                if (answerText === '') {
+                const isImage =
+                    String(question.type || '').toLowerCase() === 'image' &&
+                    String(question.imageUrl || '').trim() !== '';
+
+                if (isImage) {
+                    answerElement.classList.add('questionnaire-answer-image');
+
+                    const image = document.createElement('img');
+                    image.src = String(question.imageUrl);
+                    image.alt = question.imageName ? String(question.imageName) : questionText;
+                    image.loading = 'lazy';
+
+                    image.addEventListener('error', function () {
+                        answerElement.innerHTML = '';
+                        answerElement.classList.add('is-empty');
+                        answerElement.textContent = 'Gambar tidak dapat ditampilkan.';
+                    });
+
+                    answerElement.appendChild(image);
+
+                    if (question.imageName) {
+                        const caption = document.createElement('div');
+                        caption.className = 'questionnaire-image-caption';
+                        caption.textContent = String(question.imageName);
+                        answerElement.appendChild(caption);
+                    }
+
+                    const link = document.createElement('a');
+                    link.className = 'questionnaire-image-link';
+                    link.href = String(question.imageUrl);
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    link.textContent = 'Buka gambar';
+                    answerElement.appendChild(link);
+
+                } else if (answerText === '') {
                     answerElement.classList.add('is-empty');
-                    answerElement.textContent =
-                        'Belum diisi';
+                    answerElement.textContent = 'Belum diisi';
                 } else {
-                    answerElement.textContent =
-                        answerText;
+                    answerElement.textContent = answerText;
                 }
 
                 questionBox.appendChild(questionNumberElement);
@@ -4943,6 +5023,10 @@ document.addEventListener('DOMContentLoaded', function () {
  
         if (modalStatusLabel) { 
             modalStatusLabel.textContent = statusLabel; 
+        }
+
+        if (modalGeotangging) {
+            modalGeotangging.textContent = row.dataset.geotangging || 'Belum tersedia';
         } 
  
         if (modalSummaryNama) { 
