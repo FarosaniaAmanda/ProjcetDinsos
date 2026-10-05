@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -15,6 +16,7 @@ class LoginController extends Controller
     {
         return view('admin.auth.login');
     }
+
 
     /**
      * Proses login
@@ -29,36 +31,120 @@ class LoginController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
+
         /*
         |--------------------------------------------------------------------------
-        | LOGIN MENGGUNAKAN NOMOR IDENTITAS
+        | Cari user berdasarkan Nomor Identitas
         |--------------------------------------------------------------------------
         */
 
-        if (Auth::attempt([
-            'nomor_identitas' => $credentials['nomor_identitas'],
-            'password' => $credentials['password'],
-        ])) {
+        $user = \App\Models\User::where(
+            'nomor_identitas',
+            $credentials['nomor_identitas']
+        )->first();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | User tidak ditemukan
+        |--------------------------------------------------------------------------
+        */
+
+        if (!$user) {
+
+            return back()
+                ->withErrors([
+                    'nomor_identitas' =>
+                        'Nomor Identitas atau password salah.',
+                ])
+                ->withInput(
+                    $request->only('nomor_identitas')
+                );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Cek password
+        |--------------------------------------------------------------------------
+        |
+        | Password baru:
+        | langsung dibandingkan sebagai teks biasa.
+        |
+        | Password lama:
+        | jika masih berupa Bcrypt ($2y$),
+        | tetap diverifikasi menggunakan Hash::check().
+        |
+        */
+
+        $passwordBenar = false;
+
+        $passwordDatabase = $user->getRawOriginal('password');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Password Bcrypt lama
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            is_string($passwordDatabase) &&
+            str_starts_with($passwordDatabase, '$2y$')
+        ) {
+
+            $passwordBenar = Hash::check(
+                $credentials['password'],
+                $passwordDatabase
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Password teks biasa
+        |--------------------------------------------------------------------------
+        */
+
+        else {
+
+            $passwordBenar =
+                $passwordDatabase === $credentials['password'];
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Login berhasil
+        |--------------------------------------------------------------------------
+        */
+
+        if ($passwordBenar) {
+
+            Auth::login($user);
 
             $request->session()->regenerate();
 
             return redirect()->route('dashboard');
         }
 
+
         /*
         |--------------------------------------------------------------------------
-        | LOGIN GAGAL
+        | Login gagal
         |--------------------------------------------------------------------------
         */
 
         return back()
             ->withErrors([
-                'nomor_identitas' => 'Nomor Identitas atau password salah.',
+                'nomor_identitas' =>
+                    'Nomor Identitas atau password salah.',
             ])
             ->withInput(
                 $request->only('nomor_identitas')
             );
     }
+
 
     /**
      * Logout

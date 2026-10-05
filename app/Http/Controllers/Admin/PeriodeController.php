@@ -60,7 +60,7 @@ class PeriodeController extends Controller
 
             'tanggal_selesai.after_or_equal' =>
                 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
-
+ 
             'status.required' =>
                 'Status wajib dipilih.',
         ]);

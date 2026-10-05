@@ -9,7 +9,6 @@ use App\Models\RtRw;
 use App\Models\PetugasWilayah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -115,6 +114,7 @@ class UserController extends Controller
 
             $kelurahan = null;
 
+
             /*
             |--------------------------------------------------------------------------
             | Validasi wilayah jika Petugas
@@ -175,14 +175,12 @@ class UserController extends Controller
                 'email' => $validated['email'],
 
                 /*
-                 * Password otomatis diubah menjadi hash Bcrypt.
-                 *
-                 * Contoh:
-                 * perlinsos
-                 * menjadi
-                 * $2y$12$............
-                 */
-                'password' => Hash::make($validated['password']),
+                |--------------------------------------------------------------------------
+                | Password disimpan sebagai teks biasa
+                |--------------------------------------------------------------------------
+                */
+
+                'password' => $validated['password'],
 
                 'role' => $validated['role'],
 
@@ -258,12 +256,6 @@ class UserController extends Controller
                     ->ignore($user->id),
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Password boleh kosong ketika edit
-            |--------------------------------------------------------------------------
-            */
-
             'password' => [
                 'nullable',
                 'string',
@@ -292,10 +284,7 @@ class UserController extends Controller
         ]);
 
 
-        DB::transaction(function () use (
-            $validated,
-            $user
-        ) {
+        DB::transaction(function () use ($validated, $user) {
 
             $kelurahan = null;
 
@@ -370,17 +359,14 @@ class UserController extends Controller
             |--------------------------------------------------------------------------
             | Password
             |--------------------------------------------------------------------------
-            |
-            | Kalau password diisi saat edit,
-            | password otomatis diubah menjadi hash.
-            |
+            | Jika password diisi saat edit,
+            | password disimpan sebagai teks biasa.
+            |--------------------------------------------------------------------------
             */
 
             if (!empty($validated['password'])) {
 
-                $data['password'] = Hash::make(
-                    $validated['password']
-                );
+                $data['password'] = $validated['password'];
             }
 
 
