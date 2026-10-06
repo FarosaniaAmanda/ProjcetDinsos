@@ -1,21 +1,19 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\KuisionerController;
+use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\RespondenController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
-use App\Http\Controllers\Admin\LaporanController;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +29,6 @@ Route::post('/login', [LoginController::class, 'login'])
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -51,7 +48,6 @@ Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showRes
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
     ->name('password.update');
 
-
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD
@@ -60,7 +56,6 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -74,13 +69,11 @@ Route::get('/profil', function () {
 
 })->name('profil.index');
 
-
 Route::get('/profil/ubah-password', function () {
 
     return view('admin.profil.ubah-password');
 
 })->name('profil.password');
-
 
 Route::post('/profil/ubah-password', function (Request $request) {
 
@@ -90,61 +83,49 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
         'password_baru' => 'required|min:6',
 
-        'password_baru_confirmation' =>
-            'required|same:password_baru',
+        'password_baru_confirmation' => 'required|same:password_baru',
 
     ], [
 
-        'password_lama.required' =>
-            'Password lama wajib diisi.',
+        'password_lama.required' => 'Password lama wajib diisi.',
 
-        'password_baru.required' =>
-            'Password baru wajib diisi.',
+        'password_baru.required' => 'Password baru wajib diisi.',
 
-        'password_baru.min' =>
-            'Password baru minimal 6 karakter.',
+        'password_baru.min' => 'Password baru minimal 6 karakter.',
 
-        'password_baru_confirmation.required' =>
-            'Konfirmasi password wajib diisi.',
+        'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.',
 
-        'password_baru_confirmation.same' =>
-            'Konfirmasi password tidak sama.',
+        'password_baru_confirmation.same' => 'Konfirmasi password tidak sama.',
 
     ]);
 
-
     $user = Auth::user();
 
-
-    if (!$user) {
+    if (! $user) {
 
         return redirect()
             ->route('login');
 
     }
 
-
-    if (!Hash::check(
+    if (! Hash::check(
         $request->password_lama,
         $user->password
     )) {
 
         return back()
             ->withErrors([
-                'password_lama' =>
-                    'Password lama salah.'
+                'password_lama' => 'Password lama salah.',
             ])
             ->withInput();
 
     }
-
 
     $user->password = Hash::make(
         $request->password_baru
     );
 
     $user->save();
-
 
     return redirect()
         ->route('profil.index')
@@ -154,7 +135,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
         );
 
 })->name('profil.password.update');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -179,7 +159,6 @@ Route::put('/periode/{id}', [PeriodeController::class, 'update'])
 
 Route::delete('/periode/{id}', [PeriodeController::class, 'destroy'])
     ->name('periode.destroy');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -211,6 +190,8 @@ Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData']
 Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
     ->name('responden.kelurahan');
 
+Route::get('/responden/peta/{kelurahanId}', [RespondenController::class, 'map'])
+    ->name('responden.map');
 
 /*
 |--------------------------------------------------------------------------
@@ -230,7 +211,6 @@ Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
 Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
     ->name('kuisioner.selesai');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - PART 1
@@ -242,7 +222,6 @@ Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
 
 Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
     ->name('kuisioner.part1.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -256,7 +235,6 @@ Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
 Route::post('/kuisioner/part2', [KuisionerController::class, 'storePart2'])
     ->name('kuisioner.part2.store');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - PART 3
@@ -269,7 +247,6 @@ Route::get('/kuisioner/part3', [KuisionerController::class, 'part3'])
 Route::post('/kuisioner/part3', [KuisionerController::class, 'storePart3'])
     ->name('kuisioner.part3.store');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - PART 4
@@ -281,7 +258,6 @@ Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
 
 Route::post('/kuisioner/part4', [KuisionerController::class, 'storePart4'])
     ->name('kuisioner.part4.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -298,7 +274,6 @@ Route::get('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'part
 Route::post('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'storePart5Anggota'])
     ->name('kuisioner.part5.anggota.store');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - PART 5 FOTO RUMAH
@@ -310,7 +285,6 @@ Route::get('/kuisioner/part5/foto', [KuisionerController::class, 'part5Foto'])
 
 Route::post('/kuisioner/part5/foto', [KuisionerController::class, 'storePart5Foto'])
     ->name('kuisioner.part5.foto.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -339,7 +313,6 @@ Route::get('/verifikasi/{id}', [VerifikasiController::class, 'show'])
 Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])
     ->name('verifikasi.update');
 
-
 /*
 |--------------------------------------------------------------------------
 | MONITORING
@@ -352,34 +325,25 @@ Route::get('/monitoring', [MonitoringController::class, 'index'])
 Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
     ->name('monitoring.detail');
 
-
 /*
 |--------------------------------------------------------------------------
 | LAPORAN
 |--------------------------------------------------------------------------
 */
 
-Route::get('/laporan', function () {
+Route::get('/laporan/export', [LaporanController::class, 'export'])
+    ->name('admin.laporan.export');
 
-    return view('admin.laporan.index');
+Route::get('/laporan/{id}/pdf', [LaporanController::class, 'pdf'])
+    ->whereNumber('id')
+    ->name('laporan.pdf');
 
-})->name('laporan.index');
+Route::get('/laporan/{id}', [LaporanController::class, 'showDetail'])
+    ->whereNumber('id')
+    ->name('laporan.detail');
 
-
-Route::get('/laporan/export', function () {
-
-    return response()->streamDownload(function () {
-
-        echo "No. KK,Periode,Tanggal Pendataan,Status\n";
-
-    }, 'laporan-pendataan.csv', [
-
-        'Content-Type' => 'text/csv',
-
-    ]);
-
-})->name('admin.laporan.export');
-
+Route::get('/laporan', [LaporanController::class, 'index'])
+    ->name('laporan.index');
 
 /*
 |--------------------------------------------------------------------------
@@ -393,7 +357,6 @@ Route::get('/master', function () {
         ->route('master.pengguna.index');
 
 })->name('master.index');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -418,7 +381,6 @@ Route::post(
 Route::delete('/master/pengguna/{user}', [UserController::class, 'destroy'])
     ->name('master.pengguna.destroy');
 
-
 /*
 |--------------------------------------------------------------------------
 | MASTER - OPERATOR
@@ -431,13 +393,11 @@ Route::get('/master/operator/create', function () {
 
 })->name('master.operator.create');
 
-
 Route::get('/master/operator/{id}/edit', function ($id) {
 
     return view('admin.master.operator.edit');
 
 })->name('master.operator.edit');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -450,7 +410,6 @@ Route::get('/master/verifikator/create', function () {
     return view('admin.master.verifikator.create');
 
 })->name('master.verifikator.create');
-
 
 Route::get('/master/verifikator/{id}/edit', function ($id) {
 
