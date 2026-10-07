@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\KeluargaFotoRumah;
+use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
@@ -16,15 +18,10 @@ class MonitoringController extends VerifikasiController
     |
     | Monitoring mengambil sumber data dari VerifikasiController.
     |
-    | Yang ditampilkan di Monitoring:
-    | - approved  = Disetujui
-    | - rejected  = Ditolak
-    |
-    | Draft dan Menunggu Verifikasi tetap ada di Verifikasi,
-    | tetapi belum masuk daftar Monitoring.
+    | Monitoring menampilkan seluruh status data kuisioner.
     |
     */
-    protected function getData()
+    protected function getData(?Builder $query = null)
     {
         /*
         |--------------------------------------------------------------------------
@@ -33,9 +30,8 @@ class MonitoringController extends VerifikasiController
         */
 
         $allData = collect(
-            parent::getData()
+            parent::getData($query)
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -55,7 +51,6 @@ class MonitoringController extends VerifikasiController
                         )
                     )
                 );
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -79,7 +74,6 @@ class MonitoringController extends VerifikasiController
                     $item['status_label'] =
                         'Disetujui';
                 }
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -105,7 +99,6 @@ class MonitoringController extends VerifikasiController
                         'Ditolak';
                 }
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | MENUNGGU VERIFIKASI
@@ -129,8 +122,26 @@ class MonitoringController extends VerifikasiController
 
                     $item['status_label'] =
                         'Menunggu Verifikasi';
-                }
+                } elseif (
+                    in_array(
+                        $status,
+                        [
+                            'not_processed',
+                            'belum',
+                            'belum_didata',
+                            'belum didata',
+                            'belum diproses',
+                        ],
+                        true
+                    )
+                ) {
 
+                    $item['status'] =
+                        'not_processed';
+
+                    $item['status_label'] =
+                        'Belum Didata';
+                }
 
                 /*
                 |--------------------------------------------------------------------------
@@ -146,34 +157,8 @@ class MonitoringController extends VerifikasiController
                         'Draft';
                 }
 
-
                 return $item;
             });
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | MONITORING HANYA APPROVED + REJECTED
-        |--------------------------------------------------------------------------
-        */
-
-        $allData = $allData
-            ->filter(function ($item) {
-
-                return in_array(
-                    data_get(
-                        $item,
-                        'status'
-                    ),
-                    [
-                        'approved',
-                        'rejected',
-                    ],
-                    true
-                );
-            })
-            ->values();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -192,7 +177,6 @@ class MonitoringController extends VerifikasiController
             ->values();
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | LENGKAPI DATA MONITORING
@@ -208,7 +192,7 @@ class MonitoringController extends VerifikasiController
         */
 
         if (
-            $item instanceof \Illuminate\Contracts\Support\Arrayable
+            $item instanceof Arrayable
         ) {
 
             $item =
@@ -217,13 +201,12 @@ class MonitoringController extends VerifikasiController
         }
 
         if (
-            !is_array($item)
+            ! is_array($item)
         ) {
 
             $item =
                 (array) $item;
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -241,7 +224,6 @@ class MonitoringController extends VerifikasiController
             )
         );
 
-
         if (
             in_array(
                 $status,
@@ -256,9 +238,7 @@ class MonitoringController extends VerifikasiController
             $status =
                 'approved';
 
-        }
-
-        elseif (
+        } elseif (
             in_array(
                 $status,
                 [
@@ -273,9 +253,7 @@ class MonitoringController extends VerifikasiController
             $status =
                 'rejected';
 
-        }
-
-        elseif (
+        } elseif (
             in_array(
                 $status,
                 [
@@ -291,18 +269,31 @@ class MonitoringController extends VerifikasiController
             $status =
                 'pending';
 
-        }
+        } elseif (
+            in_array(
+                $status,
+                [
+                    'not_processed',
+                    'belum',
+                    'belum_didata',
+                    'belum didata',
+                    'belum diproses',
+                ],
+                true
+            )
+        ) {
 
-        else {
+            $status =
+                'not_processed';
+
+        } else {
 
             $status =
                 'draft';
         }
 
-
         $item['status'] =
             $status;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -313,19 +304,16 @@ class MonitoringController extends VerifikasiController
         $item['status_label'] =
             match ($status) {
 
-                'approved' =>
-                    'Disetujui',
+                'approved' => 'Disetujui',
 
-                'rejected' =>
-                    'Ditolak',
+                'rejected' => 'Ditolak',
 
-                'pending' =>
-                    'Menunggu Verifikasi',
+                'pending' => 'Menunggu Verifikasi',
 
-                default =>
-                    'Draft',
+                'not_processed' => 'Belum Didata',
+
+                default => 'Draft',
             };
-
 
         /*
         |--------------------------------------------------------------------------
@@ -339,19 +327,16 @@ class MonitoringController extends VerifikasiController
         $item['status_class'] =
             match ($status) {
 
-                'approved' =>
-                    'status-approved',
+                'approved' => 'status-approved',
 
-                'rejected' =>
-                    'status-rejected',
+                'rejected' => 'status-rejected',
 
-                'pending' =>
-                    'status-pending',
+                'pending' => 'status-pending',
 
-                default =>
-                    'status-draft',
+                'not_processed' => 'status-not-processed',
+
+                default => 'status-draft',
             };
-
 
         /*
         |--------------------------------------------------------------------------
@@ -367,263 +352,246 @@ class MonitoringController extends VerifikasiController
                     []
                 )
             )
-            ->map(function ($part) {
+                ->map(function ($part) {
 
-                if (
-                    !is_array($part)
-                ) {
+                    if (
+                        ! is_array($part)
+                    ) {
 
-                    return $part;
-                }
+                        return $part;
+                    }
 
-
-                /*
+                    /*
                 |--------------------------------------------------------------------------
                 | NORMALISASI QUESTIONS
                 |--------------------------------------------------------------------------
                 */
 
-                $questions =
-                    collect(
-                        data_get(
-                            $part,
-                            'questions',
-                            []
+                    $questions =
+                        collect(
+                            data_get(
+                                $part,
+                                'questions',
+                                []
+                            )
                         )
-                    )
-                    ->map(function ($question) {
+                            ->map(function ($question) {
 
-                        if (
-                            !is_array($question)
-                        ) {
+                                if (
+                                    ! is_array($question)
+                                ) {
 
-                            return $question;
-                        }
+                                    return $question;
+                                }
 
-
-                        /*
+                                /*
                         |--------------------------------------------------------------------------
                         | TEKS PERTANYAAN
                         |--------------------------------------------------------------------------
                         */
 
-                        $questionText =
-                            (string) (
-                                data_get(
-                                    $question,
-                                    'question'
-                                )
-                                ??
-                                data_get(
-                                    $question,
-                                    'pertanyaan'
-                                )
-                                ??
-                                data_get(
-                                    $question,
-                                    'text'
-                                )
-                                ??
-                                ''
-                            );
+                                $questionText =
+                                    (string) (
+                                        data_get(
+                                            $question,
+                                            'question'
+                                        )
+                                        ??
+                                        data_get(
+                                            $question,
+                                            'pertanyaan'
+                                        )
+                                        ??
+                                        data_get(
+                                            $question,
+                                            'text'
+                                        )
+                                        ??
+                                        ''
+                                    );
 
+                                $lowerText =
+                                    strtolower(
+                                        trim(
+                                            $questionText
+                                        )
+                                    );
 
-                        $lowerText =
-                            strtolower(
-                                trim(
-                                    $questionText
-                                )
-                            );
-
-
-                        /*
+                                /*
                         |--------------------------------------------------------------------------
                         | GEOTAGGING
                         |--------------------------------------------------------------------------
                         */
 
-                        if (
-                            str_contains(
-                                $lowerText,
-                                'geotagging'
-                            )
-                            ||
-                            str_contains(
-                                $lowerText,
-                                'geotag'
-                            )
-                            ||
-                            str_contains(
-                                $lowerText,
-                                'titik lokasi'
-                            )
-                            ||
-                            str_contains(
-                                $lowerText,
-                                'lokasi tempat tinggal'
-                            )
-                            ||
-                            str_contains(
-                                $lowerText,
-                                'koordinat'
-                            )
-                            ||
-                            str_contains(
-                                $lowerText,
-                                'latitude'
-                            )
-                            ||
-                            str_contains(
-                                $lowerText,
-                                'longitude'
-                            )
-                        ) {
+                                if (
+                                    str_contains(
+                                        $lowerText,
+                                        'geotagging'
+                                    )
+                                    ||
+                                    str_contains(
+                                        $lowerText,
+                                        'geotag'
+                                    )
+                                    ||
+                                    str_contains(
+                                        $lowerText,
+                                        'titik lokasi'
+                                    )
+                                    ||
+                                    str_contains(
+                                        $lowerText,
+                                        'lokasi tempat tinggal'
+                                    )
+                                    ||
+                                    str_contains(
+                                        $lowerText,
+                                        'koordinat'
+                                    )
+                                    ||
+                                    str_contains(
+                                        $lowerText,
+                                        'latitude'
+                                    )
+                                    ||
+                                    str_contains(
+                                        $lowerText,
+                                        'longitude'
+                                    )
+                                ) {
 
-                            $question['type'] =
-                                'map';
+                                    $question['type'] =
+                                        'map';
 
-
-                            /*
+                                    /*
                             |--------------------------------------------------------------------------
                             | SIMPAN KOORDINAT TAMBAHAN
                             |--------------------------------------------------------------------------
                             */
 
-                            $answer =
-                                data_get(
-                                    $question,
-                                    'answer'
-                                );
+                                    $answer =
+                                        data_get(
+                                            $question,
+                                            'answer'
+                                        );
 
+                                    $coordinates =
+                                        $this->extractCoordinates(
+                                            $answer
+                                        );
 
-                            $coordinates =
-                                $this->extractCoordinates(
-                                    $answer
-                                );
+                                    if (
+                                        $coordinates
+                                    ) {
 
+                                        $question['latitude'] =
+                                            $coordinates['latitude'];
 
-                            if (
-                                $coordinates
-                            ) {
+                                        $question['longitude'] =
+                                            $coordinates['longitude'];
 
-                                $question['latitude'] =
-                                    $coordinates['latitude'];
+                                        $question['coordinates'] =
+                                            $coordinates['latitude']
+                                            .', '
+                                            .$coordinates['longitude'];
+                                    }
+                                }
 
-                                $question['longitude'] =
-                                    $coordinates['longitude'];
-
-                                $question['coordinates'] =
-                                    $coordinates['latitude']
-                                    . ', '
-                                    . $coordinates['longitude'];
-                            }
-                        }
-
-
-                        /*
+                                /*
                         |--------------------------------------------------------------------------
                         | DETEKSI FOTO
                         |--------------------------------------------------------------------------
                         */
 
-                        $type =
-                            strtolower(
-                                (string) (
+                                $type =
+                                    strtolower(
+                                        (string) (
+                                            data_get(
+                                                $question,
+                                                'type',
+                                                ''
+                                            )
+                                        )
+                                    );
+
+                                $answer =
                                     data_get(
                                         $question,
-                                        'type',
+                                        'answer',
                                         ''
+                                    );
+
+                                $imageUrl =
+                                    data_get(
+                                        $question,
+                                        'imageUrl'
                                     )
-                                )
-                            );
+                                    ??
+                                    data_get(
+                                        $question,
+                                        'image_url'
+                                    );
 
-
-                        $answer =
-                            data_get(
-                                $question,
-                                'answer',
-                                ''
-                            );
-
-
-                        $imageUrl =
-                            data_get(
-                                $question,
-                                'imageUrl'
-                            )
-                            ??
-                            data_get(
-                                $question,
-                                'image_url'
-                            );
-
-
-                        /*
+                                /*
                         |--------------------------------------------------------------------------
                         | JIKA TYPE IMAGE
                         |--------------------------------------------------------------------------
                         */
 
-                        if (
-                            in_array(
-                                $type,
-                                [
-                                    'image',
-                                    'foto',
-                                    'photo',
-                                    'gambar',
-                                ],
-                                true
-                            )
-                        ) {
+                                if (
+                                    in_array(
+                                        $type,
+                                        [
+                                            'image',
+                                            'foto',
+                                            'photo',
+                                            'gambar',
+                                        ],
+                                        true
+                                    )
+                                ) {
 
-                            $question['type'] =
-                                'image';
+                                    $question['type'] =
+                                        'image';
 
+                                    if (
+                                        ! $imageUrl
+                                        &&
+                                        is_string($answer)
+                                    ) {
 
-                            if (
-                                !$imageUrl
-                                &&
-                                is_string($answer)
-                            ) {
+                                        $imageUrl =
+                                            $this->makeStorageUrl(
+                                                $answer
+                                            );
+                                    }
 
-                                $imageUrl =
-                                    $this->makeStorageUrl(
-                                        $answer
-                                    );
-                            }
+                                    if (
+                                        $imageUrl
+                                    ) {
 
+                                        $question['imageUrl'] =
+                                            $imageUrl;
 
-                            if (
-                                $imageUrl
-                            ) {
+                                        $question['image_url'] =
+                                            $imageUrl;
+                                    }
+                                }
 
-                                $question['imageUrl'] =
-                                    $imageUrl;
+                                return $question;
 
-                                $question['image_url'] =
-                                    $imageUrl;
-                            }
-                        }
+                            })
+                            ->values()
+                            ->all();
 
+                    $part['questions'] =
+                        $questions;
 
-                        return $question;
+                    return $part;
 
-                    })
-                    ->values()
-                    ->all();
-
-
-                $part['questions'] =
-                    $questions;
-
-
-                return $part;
-
-            })
-            ->values()
-            ->all();
-
+                })
+                ->values()
+                ->all();
 
         /*
         |--------------------------------------------------------------------------
@@ -642,7 +610,7 @@ class MonitoringController extends VerifikasiController
 
             foreach (data_get($part, 'questions', []) as $question) {
 
-                if (!is_array($question)) {
+                if (! is_array($question)) {
                     continue;
                 }
 
@@ -663,7 +631,7 @@ class MonitoringController extends VerifikasiController
                     || str_contains($questionText, 'longitude')
                     || strtolower((string) data_get($question, 'type')) === 'map';
 
-                if (!$isGeotagQuestion) {
+                if (! $isGeotagQuestion) {
                     continue;
                 }
 
@@ -676,7 +644,7 @@ class MonitoringController extends VerifikasiController
 
                 $coordinates = $this->extractCoordinates($answer);
 
-                if (!$coordinates) {
+                if (! $coordinates) {
                     $coordinates = $this->extractCoordinates([
                         'latitude' => data_get($question, 'latitude') ?? data_get($question, 'lat'),
                         'longitude' => data_get($question, 'longitude') ?? data_get($question, 'lng') ?? data_get($question, 'lon'),
@@ -684,7 +652,7 @@ class MonitoringController extends VerifikasiController
                 }
 
                 if ($coordinates) {
-                    $geotagFromQuestionnaire = $coordinates['latitude'] . ', ' . $coordinates['longitude'];
+                    $geotagFromQuestionnaire = $coordinates['latitude'].', '.$coordinates['longitude'];
                     break 2;
                 }
             }
@@ -702,7 +670,6 @@ class MonitoringController extends VerifikasiController
                 'keluarga_periode_kode'
             );
 
-
         /*
         |--------------------------------------------------------------------------
         | FOTO RUMAH
@@ -718,9 +685,8 @@ class MonitoringController extends VerifikasiController
                     'keluarga_periode_kode',
                     $kodePeriode
                 )
-                ->orderBy('id')
-                ->get();
-
+                    ->orderBy('id')
+                    ->get();
 
             /*
             |--------------------------------------------------------------------------
@@ -747,7 +713,6 @@ class MonitoringController extends VerifikasiController
 
                 });
 
-
             /*
             |--------------------------------------------------------------------------
             | JIKA PART 5 BELUM ADA
@@ -760,23 +725,18 @@ class MonitoringController extends VerifikasiController
 
                 $kuisioner[] = [
 
-                    'part' =>
-                        5,
+                    'part' => 5,
 
-                    'title' =>
-                        'Data Anggota Keluarga',
+                    'title' => 'Data Anggota Keluarga',
 
-                    'questions' =>
-                        [],
+                    'questions' => [],
                 ];
-
 
                 $part5Index =
                     count(
                         $kuisioner
                     ) - 1;
             }
-
 
             /*
             |--------------------------------------------------------------------------
@@ -785,7 +745,7 @@ class MonitoringController extends VerifikasiController
             */
 
             if (
-                !isset(
+                ! isset(
                     $kuisioner[
                         $part5Index
                     ]['questions']
@@ -797,7 +757,6 @@ class MonitoringController extends VerifikasiController
                 ]['questions'] = [];
             }
 
-
             /*
             |--------------------------------------------------------------------------
             | MASUKKAN FOTO RUMAH
@@ -805,8 +764,7 @@ class MonitoringController extends VerifikasiController
             */
 
             foreach (
-                $fotoRumah
-                as $foto
+                $fotoRumah as $foto
             ) {
 
                 $path =
@@ -821,14 +779,12 @@ class MonitoringController extends VerifikasiController
                         )
                     );
 
-
                 if (
                     $path === ''
                 ) {
 
                     continue;
                 }
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -841,14 +797,12 @@ class MonitoringController extends VerifikasiController
                         $path
                     );
 
-
                 if (
-                    !$imageUrl
+                    ! $imageUrl
                 ) {
 
                     continue;
                 }
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -866,7 +820,6 @@ class MonitoringController extends VerifikasiController
                         )
                     );
 
-
                 /*
                 |--------------------------------------------------------------------------
                 | LABEL FOTO
@@ -876,29 +829,21 @@ class MonitoringController extends VerifikasiController
                 $labelFoto =
                     match ($jenisFoto) {
 
-                        'tampak_depan' =>
-                            'Foto Tampak Depan Rumah',
+                        'tampak_depan' => 'Foto Tampak Depan Rumah',
 
-                        'tampak_belakang' =>
-                            'Foto Tampak Belakang Rumah',
+                        'tampak_belakang' => 'Foto Tampak Belakang Rumah',
 
-                        'ruang_tamu' =>
-                            'Foto Ruang Tamu',
+                        'ruang_tamu' => 'Foto Ruang Tamu',
 
-                        'kamar_mandi' =>
-                            'Foto Kamar Mandi',
+                        'kamar_mandi' => 'Foto Kamar Mandi',
 
-                        'dapur' =>
-                            'Foto Dapur',
+                        'dapur' => 'Foto Dapur',
 
-                        'kamar_tidur' =>
-                            'Foto Kamar Tidur',
+                        'kamar_tidur' => 'Foto Kamar Tidur',
 
-                        'ruang_keluarga' =>
-                            'Foto Ruang Keluarga',
+                        'ruang_keluarga' => 'Foto Ruang Keluarga',
 
-                        default =>
-                            'Foto Rumah ' .
+                        default => 'Foto Rumah '.
                             ucwords(
                                 str_replace(
                                     '_',
@@ -907,7 +852,6 @@ class MonitoringController extends VerifikasiController
                                 )
                             ),
                     };
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -921,86 +865,81 @@ class MonitoringController extends VerifikasiController
                             $part5Index
                         ]['questions']
                     )
-                    ->contains(
-                        function ($question)
-                        use (
-                            $imageUrl,
-                            $path,
-                            $jenisFoto
-                        ) {
-
-                            if (
-                                !is_array(
-                                    $question
-                                )
+                        ->contains(
+                            function ($question) use (
+                                $imageUrl,
+                                $path,
+                                $jenisFoto
                             ) {
 
-                                return false;
-                            }
-
-
-                            $existingUrl =
-                                (string) (
-                                    data_get(
-                                        $question,
-                                        'imageUrl'
+                                if (
+                                    ! is_array(
+                                        $question
                                     )
-                                    ??
-                                    data_get(
-                                        $question,
-                                        'image_url'
-                                    )
-                                    ??
-                                    data_get(
-                                        $question,
-                                        'answer',
-                                        ''
-                                    )
-                                );
+                                ) {
 
+                                    return false;
+                                }
 
-                            $existingText =
-                                strtolower(
+                                $existingUrl =
                                     (string) (
                                         data_get(
                                             $question,
-                                            'question',
+                                            'imageUrl'
+                                        )
+                                        ??
+                                        data_get(
+                                            $question,
+                                            'image_url'
+                                        )
+                                        ??
+                                        data_get(
+                                            $question,
+                                            'answer',
                                             ''
                                         )
-                                    )
-                                );
+                                    );
 
+                                $existingText =
+                                    strtolower(
+                                        (string) (
+                                            data_get(
+                                                $question,
+                                                'question',
+                                                ''
+                                            )
+                                        )
+                                    );
 
-                            return
-                                (
-                                    $existingUrl !== ''
-                                    &&
+                                return
                                     (
-                                        $existingUrl ===
-                                        $imageUrl
-                                        ||
+                                        $existingUrl !== ''
+                                        &&
+                                        (
+                                            $existingUrl ===
+                                            $imageUrl
+                                            ||
+                                            str_contains(
+                                                $existingUrl,
+                                                $path
+                                            )
+                                        )
+                                    )
+                                    ||
+                                    (
+                                        $jenisFoto !== ''
+                                        &&
                                         str_contains(
-                                            $existingUrl,
-                                            $path
+                                            $existingText,
+                                            str_replace(
+                                                '_',
+                                                ' ',
+                                                $jenisFoto
+                                            )
                                         )
-                                    )
-                                )
-                                ||
-                                (
-                                    $jenisFoto !== ''
-                                    &&
-                                    str_contains(
-                                        $existingText,
-                                        str_replace(
-                                            '_',
-                                            ' ',
-                                            $jenisFoto
-                                        )
-                                    )
-                                );
-                        }
-                    );
-
+                                    );
+                            }
+                        );
 
                 if (
                     $sudahAda
@@ -1008,7 +947,6 @@ class MonitoringController extends VerifikasiController
 
                     continue;
                 }
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -1020,38 +958,28 @@ class MonitoringController extends VerifikasiController
                     $part5Index
                 ]['questions'][] = [
 
-                    'number' =>
-                        0,
+                    'number' => 0,
 
-                    'question' =>
-                        $labelFoto,
+                    'question' => $labelFoto,
 
-                    'text' =>
-                        $labelFoto,
+                    'text' => $labelFoto,
 
-                    'answer' =>
-                        $imageUrl,
+                    'answer' => $imageUrl,
 
-                    'imageUrl' =>
-                        $imageUrl,
+                    'imageUrl' => $imageUrl,
 
-                    'image_url' =>
-                        $imageUrl,
+                    'image_url' => $imageUrl,
 
-                    'imageName' =>
-                        $foto->nama_file
+                    'imageName' => $foto->nama_file
                         ?: $labelFoto,
 
-                    'image_name' =>
-                        $foto->nama_file
+                    'image_name' => $foto->nama_file
                         ?: $labelFoto,
 
-                    'type' =>
-                        'image',
+                    'type' => 'image',
                 ];
             }
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1066,21 +994,18 @@ class MonitoringController extends VerifikasiController
                 'geotangging'
             );
 
-
-        if (!$geotag) {
+        if (! $geotag) {
             $geotag = data_get($item, 'geotagging');
         }
 
-
-        if (!$geotag) {
+        if (! $geotag) {
             $geotag = data_get($item, 'coordinates');
         }
-
 
         if ($geotag) {
             $coordinates = $this->extractCoordinates($geotag);
             if ($coordinates) {
-                $geotag = $coordinates['latitude'] . ', ' . $coordinates['longitude'];
+                $geotag = $coordinates['latitude'].', '.$coordinates['longitude'];
                 $item['geotagging'] = $geotag;
                 $item['geotangging'] = $geotag;
                 $item['coordinates'] = $geotag;
@@ -1088,7 +1013,6 @@ class MonitoringController extends VerifikasiController
                 $item['longitude'] = $coordinates['longitude'];
             }
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1103,10 +1027,8 @@ class MonitoringController extends VerifikasiController
             $adaGeotagging =
                 false;
 
-
             foreach (
-                $kuisioner
-                as $part
+                $kuisioner as $part
             ) {
 
                 foreach (
@@ -1114,8 +1036,7 @@ class MonitoringController extends VerifikasiController
                         $part,
                         'questions',
                         []
-                    )
-                    as $question
+                    ) as $question
                 ) {
 
                     $text =
@@ -1134,7 +1055,6 @@ class MonitoringController extends VerifikasiController
                                 )
                             )
                         );
-
 
                     if (
                         str_contains(
@@ -1161,7 +1081,6 @@ class MonitoringController extends VerifikasiController
                 }
             }
 
-
             /*
             |--------------------------------------------------------------------------
             | TAMBAHKAN JIKA BELUM ADA
@@ -1169,29 +1088,23 @@ class MonitoringController extends VerifikasiController
             */
 
             if (
-                !$adaGeotagging
+                ! $adaGeotagging
             ) {
 
                 $kuisioner[0]['questions'][] = [
 
-                    'number' =>
-                        0,
+                    'number' => 0,
 
-                    'question' =>
-                        'Titik lokasi (geotagging) tempat tinggal saat ini',
+                    'question' => 'Titik lokasi (geotagging) tempat tinggal saat ini',
 
-                    'text' =>
-                        'Titik lokasi (geotagging) tempat tinggal saat ini',
+                    'text' => 'Titik lokasi (geotagging) tempat tinggal saat ini',
 
-                    'answer' =>
-                        $geotag,
+                    'answer' => $geotag,
 
-                    'type' =>
-                        'map',
+                    'type' => 'map',
                 ];
             }
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1208,8 +1121,7 @@ class MonitoringController extends VerifikasiController
         */
 
         foreach (
-            $kuisioner
-            as $partIndex => $part
+            $kuisioner as $partIndex => $part
         ) {
 
             $questions =
@@ -1220,29 +1132,24 @@ class MonitoringController extends VerifikasiController
                         []
                     )
                 )
-                ->values();
-
+                    ->values();
 
             foreach (
-                $questions
-                as $questionIndex => $question
+                $questions as $questionIndex => $question
             ) {
 
                 if (
-                    !is_array(
+                    ! is_array(
                         $question
                     )
                 ) {
 
                     $question = [
-                        'question' =>
-                            (string) $question,
+                        'question' => (string) $question,
 
-                        'answer' =>
-                            '',
+                        'answer' => '',
                     ];
                 }
-
 
                 /*
                 |--------------------------------------------------------------------------
@@ -1253,25 +1160,20 @@ class MonitoringController extends VerifikasiController
                 $question['number'] =
                     $questionIndex + 1;
 
-
                 $question['nomor'] =
                     $questionIndex + 1;
-
 
                 $question['no'] =
                     $questionIndex + 1;
 
-
                 $question['urutan'] =
                     $questionIndex + 1;
-
 
                 $questions[
                     $questionIndex
                 ] =
                     $question;
             }
-
 
             $kuisioner[
                 $partIndex
@@ -1281,7 +1183,6 @@ class MonitoringController extends VerifikasiController
                     ->all();
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | SIMPAN KUISIONER
@@ -1290,7 +1191,6 @@ class MonitoringController extends VerifikasiController
 
         $item['kuisioner'] =
             $kuisioner;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1305,7 +1205,6 @@ class MonitoringController extends VerifikasiController
         $item['foto_rumah'] =
             [];
 
-
         if (
             $kodePeriode
         ) {
@@ -1315,13 +1214,11 @@ class MonitoringController extends VerifikasiController
                     'keluarga_periode_kode',
                     $kodePeriode
                 )
-                ->orderBy('id')
-                ->get();
-
+                    ->orderBy('id')
+                    ->get();
 
             foreach (
-                $fotoRumah
-                as $foto
+                $fotoRumah as $foto
             ) {
 
                 $path =
@@ -1336,34 +1233,27 @@ class MonitoringController extends VerifikasiController
                         )
                     );
 
-
                 if (
-                    !$path
+                    ! $path
                 ) {
 
                     continue;
                 }
 
-
                 $item['foto_rumah'][] = [
 
-                    'jenis_foto' =>
-                        $foto->jenis_foto,
+                    'jenis_foto' => $foto->jenis_foto,
 
-                    'nama_file' =>
-                        $foto->nama_file,
+                    'nama_file' => $foto->nama_file,
 
-                    'path_file' =>
-                        $path,
+                    'path_file' => $path,
 
-                    'url' =>
-                        $this->makeStorageUrl(
-                            $path
-                        ),
+                    'url' => $this->makeStorageUrl(
+                        $path
+                    ),
                 ];
             }
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1374,10 +1264,8 @@ class MonitoringController extends VerifikasiController
         $item['status_saat_ini'] =
             $item['status_label'];
 
-
         return $item;
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1387,7 +1275,7 @@ class MonitoringController extends VerifikasiController
 
     protected function makeStorageUrl($path)
     {
-        if (!$path) {
+        if (! $path) {
             return '';
         }
 
@@ -1422,17 +1310,16 @@ class MonitoringController extends VerifikasiController
         try {
             $publicDisk = Storage::disk('public');
 
-            if (!$publicDisk->exists($path) && Storage::disk('local')->exists($path)) {
+            if (! $publicDisk->exists($path) && Storage::disk('local')->exists($path)) {
                 $contents = Storage::disk('local')->get($path);
                 $publicDisk->put($path, $contents);
             }
 
             return $publicDisk->url($path);
         } catch (\Throwable $e) {
-            return asset('storage/' . $path);
+            return asset('storage/'.$path);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1455,20 +1342,30 @@ class MonitoringController extends VerifikasiController
             }
 
             foreach ([data_get($value, 'coordinates'), data_get($value, 'location'), data_get($value, 'value'), data_get($value, 'answer')] as $nested) {
-                if ($nested === null) continue;
+                if ($nested === null) {
+                    continue;
+                }
                 $result = $this->extractCoordinates($nested);
-                if ($result) return $result;
+                if ($result) {
+                    return $result;
+                }
             }
+
+            return null;
         }
 
         $text = trim((string) $value);
-        if ($text === '') return null;
+        if ($text === '') {
+            return null;
+        }
 
         if ((str_starts_with($text, '{') && str_ends_with($text, '}')) || (str_starts_with($text, '[') && str_ends_with($text, ']'))) {
             $decoded = json_decode($text, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $result = $this->extractCoordinates($decoded);
-                if ($result) return $result;
+                if ($result) {
+                    return $result;
+                }
             }
         }
 
@@ -1495,7 +1392,6 @@ class MonitoringController extends VerifikasiController
         return null;
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | INDEX MONITORING
@@ -1505,6 +1401,10 @@ class MonitoringController extends VerifikasiController
     public function index(
         Request $request
     ) {
+        $filters = $this->validateTableFilters(
+            $request,
+            ['not_processed', 'draft', 'pending', 'approved', 'rejected']
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -1519,117 +1419,130 @@ class MonitoringController extends VerifikasiController
             collect(
                 parent::getData()
             )
-            ->map(function ($item) {
+                ->map(function ($item) {
 
-                $status =
-                    strtolower(
-                        trim(
-                            (string) data_get(
-                                $item,
-                                'status',
-                                ''
+                    $status =
+                        strtolower(
+                            trim(
+                                (string) data_get(
+                                    $item,
+                                    'status',
+                                    ''
+                                )
                             )
-                        )
-                    );
+                        );
 
-
-                /*
+                    /*
                 |--------------------------------------------------------------------------
                 | APPROVED
                 |--------------------------------------------------------------------------
                 */
 
-                if (
-                    in_array(
-                        $status,
-                        [
-                            'approved',
-                            'disetujui',
-                        ],
-                        true
-                    )
-                ) {
+                    if (
+                        in_array(
+                            $status,
+                            [
+                                'approved',
+                                'disetujui',
+                            ],
+                            true
+                        )
+                    ) {
 
-                    $item['status'] =
-                        'approved';
+                        $item['status'] =
+                            'approved';
 
-                    $item['status_label'] =
-                        'Disetujui';
-                }
+                        $item['status_label'] =
+                            'Disetujui';
+                    }
 
-
-                /*
+                    /*
                 |--------------------------------------------------------------------------
                 | REJECTED
                 |--------------------------------------------------------------------------
                 */
 
-                elseif (
-                    in_array(
-                        $status,
-                        [
-                            'rejected',
-                            'reject',
-                            'ditolak',
-                        ],
-                        true
-                    )
-                ) {
+                    elseif (
+                        in_array(
+                            $status,
+                            [
+                                'rejected',
+                                'reject',
+                                'ditolak',
+                            ],
+                            true
+                        )
+                    ) {
 
-                    $item['status'] =
-                        'rejected';
+                        $item['status'] =
+                            'rejected';
 
-                    $item['status_label'] =
-                        'Ditolak';
-                }
+                        $item['status_label'] =
+                            'Ditolak';
+                    }
 
-
-                /*
+                    /*
                 |--------------------------------------------------------------------------
                 | PENDING
                 |--------------------------------------------------------------------------
                 */
 
-                elseif (
-                    in_array(
-                        $status,
-                        [
-                            'pending',
-                            'menunggu',
-                            'menunggu_verifikasi',
-                            'menunggu verifikasi',
-                        ],
-                        true
-                    )
-                ) {
+                    elseif (
+                        in_array(
+                            $status,
+                            [
+                                'pending',
+                                'menunggu',
+                                'menunggu_verifikasi',
+                                'menunggu verifikasi',
+                            ],
+                            true
+                        )
+                    ) {
 
-                    $item['status'] =
-                        'pending';
+                        $item['status'] =
+                            'pending';
 
-                    $item['status_label'] =
-                        'Menunggu Verifikasi';
-                }
+                        $item['status_label'] =
+                            'Menunggu Verifikasi';
+                    } elseif (
+                        in_array(
+                            $status,
+                            [
+                                'not_processed',
+                                'belum',
+                                'belum_didata',
+                                'belum didata',
+                                'belum diproses',
+                            ],
+                            true
+                        )
+                    ) {
 
+                        $item['status'] =
+                            'not_processed';
 
-                /*
+                        $item['status_label'] =
+                            'Belum Didata';
+                    }
+
+                    /*
                 |--------------------------------------------------------------------------
                 | DRAFT
                 |--------------------------------------------------------------------------
                 */
 
-                else {
+                    else {
 
-                    $item['status'] =
-                        'draft';
+                        $item['status'] =
+                            'draft';
 
-                    $item['status_label'] =
-                        'Draft';
-                }
+                        $item['status_label'] =
+                            'Draft';
+                    }
 
-
-                return $item;
-            });
-
+                    return $item;
+                });
 
         /*
         |--------------------------------------------------------------------------
@@ -1657,7 +1570,6 @@ class MonitoringController extends VerifikasiController
                     );
             };
 
-
         /*
         |--------------------------------------------------------------------------
         | HILANGKAN DUPLIKAT
@@ -1670,7 +1582,6 @@ class MonitoringController extends VerifikasiController
                     $uniqueKey
                 )
                 ->values();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1696,7 +1607,6 @@ class MonitoringController extends VerifikasiController
                 })
                 ->values();
 
-
         /*
         |--------------------------------------------------------------------------
         | STATISTIK
@@ -1704,8 +1614,15 @@ class MonitoringController extends VerifikasiController
         */
 
         $totalResponden =
-            $approvedRejected->count();
+            $allUnique->count();
 
+        $draftCount =
+            $allUnique
+                ->where(
+                    'status',
+                    'draft'
+                )
+                ->count();
 
         $disetujui =
             $approvedRejected
@@ -1715,7 +1632,6 @@ class MonitoringController extends VerifikasiController
                 )
                 ->count();
 
-
         $ditolak =
             $approvedRejected
                 ->where(
@@ -1724,10 +1640,8 @@ class MonitoringController extends VerifikasiController
                 )
                 ->count();
 
-
         $dataSudahDidata =
             $approvedRejected->count();
-
 
         $menungguVerifikasi =
             $allUnique
@@ -1737,25 +1651,13 @@ class MonitoringController extends VerifikasiController
                 )
                 ->count();
 
-
         $belumDidata =
             $allUnique
-                ->filter(function ($item) {
-
-                    return !in_array(
-                        data_get(
-                            $item,
-                            'status'
-                        ),
-                        [
-                            'approved',
-                            'rejected',
-                        ],
-                        true
-                    );
-                })
+                ->where(
+                    'status',
+                    'not_processed'
+                )
                 ->count();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1773,12 +1675,14 @@ class MonitoringController extends VerifikasiController
                 )
             );
 
-
         if (
-            !in_array(
+            ! in_array(
                 $statusFilter,
                 [
                     'all',
+                    'not_processed',
+                    'draft',
+                    'pending',
                     'approved',
                     'rejected',
                 ],
@@ -1789,7 +1693,6 @@ class MonitoringController extends VerifikasiController
             $statusFilter =
                 'all';
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1806,54 +1709,29 @@ class MonitoringController extends VerifikasiController
         */
 
         $filteredData =
-            $this->getData()
+            $this->getData(
+                $this->buildFilteredPart1Query(
+                    $filters,
+                    ['not_processed', 'draft', 'pending', 'approved', 'rejected']
+                )
+            )
                 ->unique(
                     $uniqueKey
                 )
                 ->values();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILTER APPROVED
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $statusFilter ===
-            'approved'
-        ) {
-
+        if ($statusFilter !== 'all') {
             $filteredData =
                 $filteredData
                     ->where(
                         'status',
-                        'approved'
+                        $statusFilter
                     )
                     ->values();
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | FILTER REJECTED
-        |--------------------------------------------------------------------------
-        */
-
-        elseif (
-            $statusFilter ===
-            'rejected'
-        ) {
-
-            $filteredData =
-                $filteredData
-                    ->where(
-                        'status',
-                        'rejected'
-                    )
-                    ->values();
-        }
-
+        $kecamatanList = $this->getKecamatanOptions();
+        $kelurahanList = $this->getKelurahanOptions($filters['kecamatan']);
 
         /*
         |--------------------------------------------------------------------------
@@ -1864,14 +1742,11 @@ class MonitoringController extends VerifikasiController
         $perPage =
             5;
 
-
         $currentPage =
             LengthAwarePaginator::resolveCurrentPage();
 
-
         $filteredData =
             $filteredData->values();
-
 
         $currentItems =
             $filteredData
@@ -1883,7 +1758,6 @@ class MonitoringController extends VerifikasiController
                 )
                 ->values();
 
-
         $data =
             new LengthAwarePaginator(
                 $currentItems,
@@ -1891,14 +1765,11 @@ class MonitoringController extends VerifikasiController
                 $perPage,
                 $currentPage,
                 [
-                    'path' =>
-                        $request->url(),
+                    'path' => $request->url(),
 
-                    'query' =>
-                        $request->query(),
+                    'query' => $request->query(),
                 ]
             );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -1913,14 +1784,17 @@ class MonitoringController extends VerifikasiController
                 'totalResponden',
                 'dataSudahDidata',
                 'belumDidata',
+                'draftCount',
                 'menungguVerifikasi',
                 'disetujui',
                 'ditolak',
-                'statusFilter'
+                'statusFilter',
+                'filters',
+                'kecamatanList',
+                'kelurahanList'
             )
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -1939,21 +1813,18 @@ class MonitoringController extends VerifikasiController
         $data =
             $this->getData();
 
-
         $item =
             $data->firstWhere(
                 'id',
                 (int) $id
             );
 
-
         if (
-            !$item
+            ! $item
         ) {
 
             abort(404);
         }
-
 
         return view(
             'admin.monitoring.show',

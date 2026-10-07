@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -19,49 +20,51 @@ class LaporanController extends MonitoringController
 {
     public function index(Request $request)
     {
-        $search = trim((string) $request->query('search', ''));
-        $periode = trim((string) $request->query('periode', ''));
-        $wilayah = trim((string) $request->query('wilayah', ''));
+        $filters = $this->validateTableFilters(
+            $request,
+            ['not_processed', 'draft', 'pending', 'approved', 'rejected']
+        );
 
         $periodRecords = Periode::query()
             ->orderBy('tgl_awal')
             ->get(['kode', 'nama', 'tgl_awal', 'tgl_akhir']);
 
-        $allRows = $this->eligibleRows($periodRecords);
-        $laporan = $this->filterRows($allRows, $search, $periode, $wilayah);
+        $laporanRows = $this->eligibleRows($periodRecords, $filters);
 
-        $totalResponden = $laporan->count();
-        $kuisionerSelesai = $laporan
+        $totalResponden = $laporanRows->count();
+        $kuisionerSelesai = $laporanRows
             ->where('is_complete', true)
             ->count();
         $petugasAktif = 'Tidak tersedia';
-        $wilayahTerdata = $laporan
+        $wilayahTerdata = $laporanRows
             ->pluck('wilayah')
             ->filter(fn (string $value): bool => $value !== '-')
             ->unique()
             ->count();
 
-        $periodeList = $periodRecords
-            ->map(fn (Periode $record): array => [
-                'kode' => (string) $record->kode,
-                'nama' => (string) ($record->nama ?: $record->kode),
-            ])
-            ->values();
+        $perPage = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $laporan = new LengthAwarePaginator(
+            $laporanRows
+                ->slice(($currentPage - 1) * $perPage, $perPage)
+                ->values(),
+            $laporanRows->count(),
+            $perPage,
+            $currentPage,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
 
-        $wilayahList = $allRows
-            ->pluck('wilayah')
-            ->filter(fn (string $value): bool => $value !== '-')
-            ->unique()
-            ->sort()
-            ->values();
+        $kecamatanList = $this->getKecamatanOptions();
+        $kelurahanList = $this->getKelurahanOptions($filters['kecamatan']);
 
         return view('admin.laporan.index', compact(
             'laporan',
-            'search',
-            'periode',
-            'wilayah',
-            'periodeList',
-            'wilayahList',
+            'filters',
+            'kecamatanList',
+            'kelurahanList',
             'totalResponden',
             'kuisionerSelesai',
             'petugasAktif',
@@ -176,18 +179,15 @@ class LaporanController extends MonitoringController
 
     public function export(Request $request): StreamedResponse
     {
-        $search = trim((string) $request->query('search', ''));
-        $periode = trim((string) $request->query('periode', ''));
-        $wilayah = trim((string) $request->query('wilayah', ''));
+        $filters = $this->validateTableFilters(
+            $request,
+            ['not_processed', 'draft', 'pending', 'approved', 'rejected']
+        );
+
         $periodRecords = Periode::query()
             ->orderBy('tgl_awal')
             ->get(['kode', 'nama', 'tgl_awal', 'tgl_akhir']);
-        $rows = $this->filterRows(
-            $this->eligibleRows($periodRecords),
-            $search,
-            $periode,
-            $wilayah,
-        );
+        $rows = $this->eligibleRows($periodRecords, $filters);
 
         return response()->streamDownload(
             function () use ($rows): void {
@@ -239,13 +239,27 @@ class LaporanController extends MonitoringController
     /**
      * Read the same approved/rejected records exposed by Monitoring.
      */
-    private function eligibleRows(?Collection $periodRecords = null): Collection
-    {
+    private function eligibleRows(
+        ?Collection $periodRecords = null,
+        ?array $filters = null
+    ): Collection {
+        $filters ??= [
+            'search' => '',
+            'kecamatan' => '',
+            'kelurahan' => '',
+            'status' => 'all',
+        ];
+
         $periodRecords ??= Periode::query()
             ->orderBy('tgl_awal')
             ->get(['kode', 'nama', 'tgl_awal', 'tgl_akhir']);
 
-        return collect($this->getData())
+        $query = $this->buildFilteredPart1Query(
+            $filters,
+            ['not_processed', 'draft', 'pending', 'approved', 'rejected']
+        );
+
+        return $this->filterRows(collect($this->getData($query))
             ->map(function (array $item) use ($periodRecords): array {
                 $createdAt = $this->parseMonitoringDate(
                     data_get($item, 'created_at')
@@ -275,30 +289,12 @@ class LaporanController extends MonitoringController
                 return $item;
             })
             ->sortByDesc('id')
-            ->values();
+            ->values());
     }
 
-    private function filterRows(
-        Collection $rows,
-        string $search,
-        string $periode,
-        string $wilayah,
-    ): Collection {
-        $search = mb_strtolower($search);
-
-        $filtered = $rows->filter(function (array $item) use ($periode, $wilayah): bool {
-            if ($periode !== '' && (string) $item['periode_kode'] !== $periode) {
-                return false;
-            }
-
-            if ($wilayah !== '' && $item['wilayah'] !== $wilayah) {
-                return false;
-            }
-
-            return true;
-        });
-
-        $latestPerHousehold = $filtered
+    private function filterRows(Collection $rows): Collection
+    {
+        return $rows
             ->groupBy(function (array $item): string {
                 $noKk = trim((string) data_get($item, 'no_kk', ''));
 
@@ -307,23 +303,6 @@ class LaporanController extends MonitoringController
                     : 'record:'.data_get($item, 'id');
             })
             ->map(fn (Collection $items): array => $items->first())
-            ->values();
-
-        if ($search === '') {
-            return $latestPerHousehold;
-        }
-
-        return $latestPerHousehold
-            ->filter(function (array $item) use ($search): bool {
-                $searchable = mb_strtolower(implode(' ', [
-                    (string) data_get($item, 'no_kk', ''),
-                    (string) data_get($item, 'nik', ''),
-                    (string) data_get($item, 'nama', ''),
-                    (string) data_get($item, 'wilayah', ''),
-                ]));
-
-                return str_contains($searchable, $search);
-            })
             ->values();
     }
 

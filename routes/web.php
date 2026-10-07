@@ -481,6 +481,9 @@ Route::get('/verifikasi', [VerifikasiController::class, 'index'])
 Route::get('/verifikasi/{id}', [VerifikasiController::class, 'show'])
     ->name('verifikasi.show');
 
+Route::get('/verifikasi/{id}/anggota/{memberCode}', [VerifikasiController::class, 'memberDetail'])
+    ->name('verifikasi.anggota.detail');
+
 Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])
     ->name('verifikasi.update');
 

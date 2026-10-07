@@ -72,6 +72,17 @@
     .alert-success svg { 
         flex-shrink: 0; 
     } 
+
+    .alert-error {
+        display: flex;
+        margin: 0 28px 20px;
+        padding: 13px 16px;
+        border: 1px solid #f1bcbc;
+        border-radius: 9px;
+        background: #fff0f0;
+        color: #a83232;
+        font-size: 13px;
+    }
  
     @keyframes alertFade { 
         from { 
@@ -95,7 +106,7 @@
 
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 14px;
     }
 
@@ -176,64 +187,305 @@
         color: currentColor;
     }
 
-    /* ===================================================== 
-       SEARCH SECTION 
-    ====================================================== */ 
- 
-    .search-section { 
-        padding: 0 28px 24px; 
-    } 
- 
-    .search-title { 
-        font-size: 14px; 
-        font-weight: 700; 
-        color: #333; 
-        margin-bottom: 9px; 
-    } 
- 
-    .search-form { 
-        display: flex; 
-        align-items: center; 
-        width: 100%; 
-    } 
- 
-    .search-box { 
-        position: relative; 
-        width: 100%; 
-    } 
- 
-    .search-box > svg { 
-        position: absolute; 
-        left: 13px; 
-        top: 50%; 
-        transform: translateY(-50%); 
-        color: #999; 
-        pointer-events: none; 
-        z-index: 2; 
-    } 
- 
-    .search-box input { 
-        width: 100%; 
-        height: 43px; 
-        padding: 0 13px 0 40px; 
-        border: 1px solid #dfe1e8; 
-        border-radius: 8px; 
-        outline: none; 
-        font-size: 13px; 
-        color: #333; 
-        background: #ffffff; 
-        transition: all .2s ease; 
-        box-sizing: border-box; 
-    } 
- 
-    .search-box input:focus { 
-        border-color: #252A86; 
-        box-shadow: 0 0 0 3px rgba(37, 42, 134, 0.08); 
-    } 
- 
-    .search-box input::placeholder { 
-        color: #a0a0a0; 
-    } 
+   /* =====================================================
+   SEARCH SECTION
+====================================================== */
+
+.search-section {
+    width: 100%;
+    max-width: 100%;
+
+    padding-left: 28px;
+    padding-right: 28px;
+    padding-bottom: 24px;
+
+    margin: 0 auto;
+
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.search-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 9px;
+}
+
+
+/* =====================================================
+   FILTER FORM
+   SEARCH | KECAMATAN | KELURAHAN | STATUS | RESET
+====================================================== */
+
+.search-form {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.8fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    align-items: end;
+
+    gap: 12px;
+
+    box-sizing: border-box;
+}
+
+.search-filter-group {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+
+.search-box,
+.search-box input,
+.search-filter-select {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+
+
+/* =====================================================
+   FILTER GROUP
+====================================================== */
+
+.search-filter-group {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: visible;
+}
+
+.search-filter-group > label {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+
+    margin: 0 0 7px;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   SEARCH INPUT
+====================================================== */
+
+.search-box {
+    position: relative;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    box-sizing: border-box;
+}
+
+.search-box > svg {
+    position: absolute;
+
+    left: 13px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #999;
+
+    pointer-events: none;
+
+    z-index: 2;
+}
+
+.search-box input {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    height: 43px;
+
+    padding: 0 13px 0 40px;
+
+    border: 1px solid #dfe1e8;
+    border-radius: 8px;
+
+    outline: none;
+
+    font-size: 13px;
+    color: #333;
+
+    background: #ffffff;
+
+    transition: all .2s ease;
+
+    box-sizing: border-box;
+}
+
+.search-box input:focus {
+    border-color: #252A86;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 42, 134, 0.08);
+}
+
+.search-box input::placeholder {
+    color: #a0a0a0;
+}
+
+
+/* =====================================================
+   SELECT
+====================================================== */
+
+.search-filter-select {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    height: 43px;
+
+    padding: 0 10px;
+
+    border: 1px solid #dfe1e8;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #333;
+
+    font-size: 12px;
+
+    outline: none;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+.search-filter-select:focus {
+    border-color: #252A86;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 42, 134, 0.08);
+}
+
+.search-filter-select:disabled {
+    background: #f1f3f7;
+    color: #94a3b8;
+}
+
+
+.search-filter-submit,
+.search-filter-reset {
+    display: none !important;
+}
+
+
+/* =====================================================
+   BUTTON TERAPKAN + RESET
+====================================================== */
+
+.search-filter-submit,
+.search-filter-reset {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    height: 43px;
+
+    padding: 0 8px;
+
+    box-sizing: border-box;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    line-height: 1;
+
+    white-space: nowrap;
+
+    text-align: center;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+
+
+/* =====================================================
+   BUTTON RESET
+====================================================== */
+
+.search-filter-reset {
+    border: 1px solid #dfe1e8;
+
+    background: #ffffff;
+
+    color: #475569;
+}
+
+.search-filter-reset:hover {
+    background: #f6f7fb;
+
+    border-color: #cfd3df;
+
+    color: #252A86;
+}
+
+
+/* =====================================================
+   ACTIVE PERIOD
+====================================================== */
+
+.active-period-label {
+    margin: 0 28px 20px;
+
+    padding: 12px 15px;
+
+    border: 1px solid #dfe3f5;
+
+    border-radius: 9px;
+
+    background: #f6f7ff;
+
+    color: #333b78;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    box-sizing: border-box;
+}
  
     /* ===================================================== 
        SEARCH SUGGESTIONS 
@@ -407,7 +659,7 @@
  
     .data-table { 
         width: 100%; 
-        min-width: 1450px; 
+        min-width: 1850px;
         border-collapse: separate; 
         border-spacing: 0; 
         table-layout: fixed; 
@@ -464,31 +716,59 @@
  
     .data-table th:nth-child(6), 
     .data-table td:nth-child(6) { 
-        width: 160px; 
+        width: 150px;
     } 
  
     .data-table th:nth-child(7), 
     .data-table td:nth-child(7) { 
-        width: 220px; 
+        width: 180px;
     } 
  
     .data-table th:nth-child(8), 
     .data-table td:nth-child(8) { 
-        width: 120px; 
+        width: 220px;
     } 
  
     .data-table th:nth-child(9), 
     .data-table td:nth-child(9) { 
-        width: 180px; 
+        width: 150px;
     } 
  
     .data-table th:nth-child(10), 
     .data-table td:nth-child(10) { 
-        width: 250px; 
+        width: 180px;
+    }
+
+    .data-table th:nth-child(11),
+    .data-table td:nth-child(11) {
+        width: 150px;
     } 
+
+    .data-table th:nth-child(11) {
+        position: sticky;
+        right: 0;
+        z-index: 2;
+        background: #f8f8fb;
+    }
+
+    .data-table td:nth-child(11) {
+        position: sticky;
+        right: 0;
+        z-index: 1;
+        background: #fff;
+        box-shadow: -6px 0 10px rgba(0, 0, 0, .04);
+    }
+
+    .data-table tbody tr:hover td:nth-child(11) {
+        background: #fafaff;
+    }
+
+    .data-table td:nth-child(11) .action-wrapper {
+        justify-content: center;
+    }
  
     .data-table td:nth-child(4), 
-    .data-table td:nth-child(7), 
+    .data-table td:nth-child(8),
     .data-table td:nth-child(9) { 
         white-space: normal; 
         line-height: 1.5; 
@@ -594,7 +874,7 @@
         align-items: center; 
         flex-wrap: wrap; 
         gap: 7px; 
-        min-width: 220px; 
+        min-width: 0;
     } 
  
     .action-form { 
@@ -1726,6 +2006,15 @@
         .search-section { 
             padding: 0 20px 22px; 
         } 
+
+        .search-form {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+
+        .search-filter-group:first-child {
+            grid-column: 1 / -1;
+        }
  
         .monitoring-header { 
             padding: 20px; 
@@ -1793,6 +2082,14 @@
         .search-section { 
             padding: 0 16px 20px; 
         } 
+
+        .search-form {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .active-period-label {
+            margin: 0 16px 18px;
+        }
  
         .search-box input { 
             height: 40px; 
@@ -2757,8 +3054,73 @@
     .verification-actions .verification-btn { flex: 1 1 140px; min-height: 42px; }
 }
 
+.verification-member-info #openMembersFromDetail,
+.verification-member-info #familyMembersInline {
+    display: none !important;
+}
 
-</style> 
+.family-members-section .family-members-inline {
+    display: block;
+}
+
+.member-questionnaire-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 11px;
+    border-radius: 7px;
+    background: #252a86;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.member-questionnaire-action:hover {
+    background: #1e236f;
+    color: #fff;
+}
+
+.questionnaire-member-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e5e7ef;
+    border-radius: 9px;
+    background: #fff;
+}
+
+.questionnaire-member-table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+}
+
+.questionnaire-member-table th {
+    padding: 11px 12px;
+    background: #252a86;
+    color: #fff;
+    font-size: 11px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.questionnaire-member-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #eceef3;
+    color: #444;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+
+
+
+
+
+
+</style>
 @endpush 
  
  
@@ -2785,6 +3147,10 @@
                 Kelola, periksa, dan perbarui data hasil pendataan responden. 
             </p> 
         </div> 
+
+        <div class="active-period-label">
+            Periode Aktif: {{ $periodeAktif->nama ?? 'Tidak ada periode aktif' }}
+        </div>
  
  
         {{-- ================================================= 
@@ -2812,6 +3178,12 @@
                 </span> 
             </div> 
         @endif 
+
+        @if (session('error') || $errors->any())
+            <div class="alert-error" role="alert">
+                <span>{{ session('error') ?? $errors->first() }}</span>
+            </div>
+        @endif
  
  
  
@@ -2849,17 +3221,6 @@
             </div>
         </div>
 
-        {{-- DRAFT --}}
-        <div class="stat-card draft-card">
-            <div>
-                <div class="stat-label">
-                    Draft
-                </div>
-                <div class="stat-value">
-                    {{ $draftCount ?? 0 }}
-                </div>
-            </div>
-        </div>
 
         {{-- DISETUJUI --}}
         <div class="stat-card approved-card">
@@ -2872,6 +3233,7 @@
                 </div>
             </div>
         </div>
+
 
         {{-- DITOLAK --}}
         <div class="stat-card rejected-card">
@@ -2900,9 +3262,11 @@
         <div class="search-section"> 
  
  
-            <div class="search-form"> 
- 
-                <div class="search-box"> 
+            <form class="search-form" method="GET" action="{{ route('verifikasi.index') }}">
+
+                <div class="search-filter-group">
+                    <label for="liveSearch">Cari No. KK, NIK, atau Nama Kepala Keluarga</label>
+                    <div class="search-box">
  
                     <svg 
                         width="17" 
@@ -2926,10 +3290,12 @@
                         ></line> 
                     </svg> 
  
-                    <input 
-                        type="text" 
+                    <input
+                        type="search"
+                        name="search"
                         id="liveSearch" 
-                        placeholder="Cari No.KK, NIK, atau Nama Kepala Keluarga...." 
+                        value="{{ $filters['search'] ?? '' }}"
+                        placeholder="Cari No. KK, NIK, atau Nama Kepala Keluarga..."
                         autocomplete="off" 
                     > 
  
@@ -2937,10 +3303,56 @@
                         class="search-suggestions" 
                         id="searchSuggestions" 
                     ></div> 
- 
-                </div> 
- 
-            </div> 
+                    </div>
+                </div>
+
+                <div class="search-filter-group">
+                    <label for="verificationKecamatan">Kecamatan</label>
+                    <select
+                        class="search-filter-select"
+                        id="verificationKecamatan"
+                        name="kecamatan"
+                        onchange="this.form.elements.kelurahan.value=''; this.form.submit()"
+                    >
+                        <option value="">Semua Kecamatan</option>
+                        @foreach ($kecamatanList as $kecamatan)
+                            <option value="{{ $kecamatan['id'] }}" @selected(($filters['kecamatan'] ?? '') === $kecamatan['id'])>
+                                {{ $kecamatan['name'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="search-filter-group">
+                    <label for="verificationKelurahan">Kelurahan</label>
+                    <select
+                        class="search-filter-select"
+                        id="verificationKelurahan"
+                        name="kelurahan"
+                        @disabled(empty($filters['kecamatan']))
+                        onchange="this.form.submit()"
+                    >
+                        <option value="">Semua Kelurahan</option>
+                        @foreach ($kelurahanList as $kelurahan)
+                            <option value="{{ $kelurahan['id'] }}" @selected(($filters['kelurahan'] ?? '') === $kelurahan['id'])>
+                                {{ $kelurahan['name'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="search-filter-group">
+                    <label for="verificationStatus">Status</label>
+                    <select class="search-filter-select" id="verificationStatus" name="status" onchange="this.form.submit()">
+                        <option value="all" @selected(($filters['status'] ?? 'all') === 'all')>Semua Status</option>
+                        <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>Menunggu Verifikasi</option>
+                        <option value="approved" @selected(($filters['status'] ?? '') === 'approved')>Disetujui</option>
+                        <option value="rejected" @selected(($filters['status'] ?? '') === 'rejected')>Ditolak</option>
+                    </select>
+                </div>
+
+                
+            </form>
  
             <div 
                 class="search-result" 
@@ -2971,69 +3383,6 @@
                 </div> 
  
  
-                {{-- FILTER STATUS --}} 
- 
-                <div class="filter-wrapper"> 
- 
-                    <form 
-                        action="{{ route('verifikasi.index') }}" 
-                        method="GET" 
-                    > 
- 
-                        <select 
-                            name="status" 
-                            class="filter-select" 
-                            onchange="this.form.submit()" 
-                        > 
- 
-                            <option 
-                                value="all" 
-                                {{ request('status', 'all') == 'all' ? 'selected' : '' }} 
-                            > 
-                                Semua Status 
-                            </option> 
- 
-                            <option 
-                                value="pending" 
-                                {{ request('status') == 'pending' ? 'selected' : '' }} 
-                            > 
-                                Menunggu Verifikasi 
-                            </option> 
- 
-                            <option 
-                                value="draft" 
-                                {{ request('status') == 'draft' ? 'selected' : '' }} 
-                            > 
-                                Draft 
-                            </option> 
- 
-                            <option 
-                                value="not_processed" 
-                                {{ request('status') == 'not_processed' ? 'selected' : '' }} 
-                            > 
-                                Belum Didata 
-                            </option> 
- 
-                            <option 
-                                value="approved" 
-                                {{ request('status') == 'approved' ? 'selected' : '' }} 
-                            > 
-                                Disetujui 
-                            </option> 
- 
-                            <option 
-                                value="rejected" 
-                                {{ request('status') == 'rejected' ? 'selected' : '' }} 
-                            > 
-                                Ditolak 
-                            </option> 
- 
-                        </select> 
- 
-                    </form> 
- 
-                </div> 
- 
             </div> 
  
  
@@ -3051,7 +3400,8 @@
                             <th>No. KK</th> 
                             <th>NIK</th> 
                             <th>Nama Kepala Keluarga</th> 
-                            <th>Jumlah Anggota</th> 
+                            <th>Jumlah Anggota (termasuk KK)</th>
+                            <th>Periode</th>
                             <th>Status</th> 
                             <th>Wilayah Pendataan</th> 
                             <th>Petugas</th> 
@@ -3114,10 +3464,13 @@
                                 data-status="{{ $item['status'] ?? '' }}" 
                                 data-status-label="{{ $statusLabel }}" 
                                 data-anggota="{{ $item['jumlah_anggota'] ?? 0 }}"
+                                data-periode="{{ $item['periode'] ?? '-' }}"
+                                data-periode-kode="{{ $item['periode_kode'] ?? '-' }}"
+                                data-periode-tanggal="{{ $item['periode_tanggal'] ?? '-' }}"
                                 data-tanggal="{{ $item['tanggal'] ?? '' }}" 
                                 data-geotangging="{{ $item['geotangging'] ?? $item['geotagging'] ?? '' }}"
                                 data-kuisioner='@json($item["kuisioner"] ?? [])'
-                               data-anggota-detail='@json($item["anggota_detail"] ?? [])'
+                                data-anggota-detail='@json($item["anggota_detail"] ?? [])'
                             > 
  
                                 <td class="row-number"> 
@@ -3140,6 +3493,10 @@
                                 <strong>
                                  {{ $item['jumlah_anggota'] ?? 0 }} Orang
                                 </strong>
+                                </td>
+
+                                <td>
+                                    {{ $item['periode'] ?? '-' }}
                                 </td>
 
                                 <td> 
@@ -3224,7 +3581,7 @@
                         @empty 
  
                             <tr id="serverEmptyRow"> 
-                                <td colspan="10"> 
+                                <td colspan="11">
  
                                     <div class="empty-state"> 
  
@@ -3277,7 +3634,7 @@
                             style="display: none;" 
                         > 
  
-                            <td colspan="10"> 
+                            <td colspan="11">
  
                                 <div class="empty-state"> 
  
@@ -3327,9 +3684,15 @@
                     </tbody> 
  
                 </table> 
- 
+
             </div> 
- 
+
+            @if ($data->hasPages())
+                <div class="monitoring-pagination">
+                    {{ $data->onEachSide(1)->links() }}
+                </div>
+            @endif
+
         </div> 
  
     </div> 
@@ -3599,6 +3962,21 @@
                             <strong id="modalStatusLabel" class="status-current status-draft">-</strong> 
                         </div>
 
+                        <div class="verification-info-item">
+                            <span>Periode Pendataan</span>
+                            <strong id="modalPeriode">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Kode Periode</span>
+                            <strong id="modalPeriodeKode">-</strong>
+                        </div>
+
+                        <div class="verification-info-item">
+                            <span>Tanggal Periode</span>
+                            <strong id="modalPeriodeTanggal">-</strong>
+                        </div>
+
                         
  
                     </div> 
@@ -3606,6 +3984,54 @@
                 </section> 
  
  
+                {{-- DETAIL ANGGOTA KELUARGA --}}
+                <section class="verification-detail-section family-members-section">
+                    <div class="verification-section-heading">
+                        <div>
+                            <h3>Detail Anggota Keluarga</h3>
+                            <p>Jumlah anggota mencakup kepala keluarga dan seluruh anggota yang terdaftar.</p>
+                        </div>
+                    </div>
+
+                    <div class="family-members-inline">
+                        <div class="family-members-inline-header">
+                            <div class="family-members-inline-title">
+                                <h4>Anggota dalam Kartu Keluarga</h4>
+                                <p id="familyMembersCardCount">0 orang (termasuk kepala keluarga)</p>
+                            </div>
+                            <div class="family-members-inline-summary">
+                                <span>Kepala Keluarga</span>
+                                <strong id="familyMembersCardHead">-</strong>
+                            </div>
+                        </div>
+
+                        <div class="family-members-inline-table-wrapper">
+                            <table class="family-members-inline-table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>NIK</th>
+                                        <th>Nama Lengkap</th>
+                                        <th>Status Keluarga</th>
+                                        <th>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="familyMembersCardTableBody">
+                                    <tr>
+                                        <td colspan="5">
+                                            <div class="family-members-empty">
+                                                <strong>Belum ada detail anggota</strong>
+                                                <span>Data anggota keluarga untuk KK ini belum ditemukan.</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+
                 {{-- HASIL KUISIONER --}} 
                 <section class="verification-detail-section questionnaire-section"> 
  
@@ -4182,9 +4608,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             item.noKK || 
                             item.nik; 
  
-                        filterTable( 
-                            searchInput.value 
-                        ); 
+                        searchInput.form?.requestSubmit();
  
                         searchSuggestions.classList.remove( 
                             'show' 
@@ -4221,7 +4645,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const keyword = 
                     this.value.trim(); 
  
-                filterTable(keyword); 
                 showSuggestions(keyword); 
  
             } 
@@ -4346,6 +4769,15 @@ document.addEventListener('DOMContentLoaded', function () {
  
     const modalSummaryStatus = 
         document.getElementById('modalSummaryStatus'); 
+
+    const modalPeriode =
+        document.getElementById('modalPeriode');
+
+    const modalPeriodeKode =
+        document.getElementById('modalPeriodeKode');
+
+    const modalPeriodeTanggal =
+        document.getElementById('modalPeriodeTanggal');
  
     const questionnaireContent = 
         document.getElementById('verificationQuestionnaireContent'); 
@@ -4370,7 +4802,16 @@ document.addEventListener('DOMContentLoaded', function () {
  
     const familyMembersInlineTableBody = 
         document.getElementById('familyMembersInlineTableBody'); 
- 
+
+    const familyMembersCardTableBody =
+        document.getElementById('familyMembersCardTableBody');
+
+    const familyMembersCardCount =
+        document.getElementById('familyMembersCardCount');
+
+    const familyMembersCardHead =
+        document.getElementById('familyMembersCardHead');
+
     const familyInlineCount = 
         document.getElementById('familyInlineCount'); 
  
@@ -4392,8 +4833,11 @@ document.addEventListener('DOMContentLoaded', function () {
        ROUTE UPDATE 
     ====================================================== */ 
  
-    const updateRouteTemplate = 
-        "{{ route('verifikasi.update', '__ID__') }}"; 
+    const updateRouteTemplate =
+        @json(route('verifikasi.update', '__ID__'));
+
+    const memberDetailRouteTemplate =
+        @json(route('verifikasi.anggota.detail', ['id' => '__ID__', 'memberCode' => '__MEMBER__']));
  
  
     /* ===================================================== 
@@ -4682,6 +5126,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return { 
                     number: partNumber, 
                     title: partTitle, 
+                    members: Array.isArray(part.members) ? part.members : null,
                     questions: questions.map(normalizeQuestion) 
                 }; 
  
@@ -4890,6 +5335,80 @@ document.addEventListener('DOMContentLoaded', function () {
 
             contentTitle.textContent =
                 `Part ${partNumber} — ${partTitle}`;
+
+            if (Array.isArray(part.members)) {
+                const members = part.members;
+                contentCount.textContent = `${members.length} anggota keluarga`;
+                contentBody.innerHTML = '';
+
+                if (members.length === 0) {
+                    contentBody.innerHTML = `
+                        <div class="questionnaire-empty">
+                            <strong>Belum Ada Anggota Keluarga</strong>
+                            <span>Data jawaban anggota keluarga belum tersedia.</span>
+                        </div>
+                    `;
+                } else {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'questionnaire-member-table-wrapper';
+
+                    const table = document.createElement('table');
+                    table.className = 'questionnaire-member-table';
+
+                    const thead = document.createElement('thead');
+                    const heading = document.createElement('tr');
+                    ['No.', 'NIK', 'Nama Anggota', 'Hubungan', 'Status Jawaban', 'Aksi'].forEach(function (label) {
+                        const cell = document.createElement('th');
+                        cell.textContent = label;
+                        heading.appendChild(cell);
+                    });
+                    thead.appendChild(heading);
+                    table.appendChild(thead);
+
+                    const tbody = document.createElement('tbody');
+                    members.forEach(function (member, index) {
+                        const row = document.createElement('tr');
+                        const isAnswered = !(member.questions || []).some(function (question) {
+                            return question.text === 'Data Part 5';
+                        });
+
+                        [
+                            String(index + 1),
+                            String(member.nik || '-'),
+                            String(member.nama || '-'),
+                            String(member.status_keluarga || '-'),
+                            isAnswered ? 'Tersedia' : 'Belum diisi'
+                        ].forEach(function (value) {
+                            const cell = document.createElement('td');
+                            cell.textContent = value;
+                            row.appendChild(cell);
+                        });
+
+                        const actionCell = document.createElement('td');
+                        if (member.kode) {
+                            const detailLink = document.createElement('a');
+                            detailLink.className = 'member-questionnaire-action';
+                            detailLink.href = memberDetailRouteTemplate
+                                .replace('__ID__', encodeURIComponent(currentVerificationRow.dataset.id || ''))
+                                .replace('__MEMBER__', encodeURIComponent(member.kode));
+                            detailLink.textContent = 'Detail Jawaban';
+                            actionCell.appendChild(detailLink);
+                        } else {
+                            actionCell.textContent = 'Tidak tersedia';
+                        }
+
+                        row.appendChild(actionCell);
+                        tbody.appendChild(row);
+                    });
+
+                    table.appendChild(tbody);
+                    wrapper.appendChild(table);
+                    contentBody.appendChild(wrapper);
+                }
+
+                activePartElement = partElement;
+                return;
+            }
 
             const questionCount =
                 Array.isArray(part.questions)
@@ -5184,8 +5703,9 @@ document.addEventListener('DOMContentLoaded', function () {
             const titleCount =
                 document.createElement('span');
 
-            titleCount.textContent =
-                `${questionCount} pertanyaan`;
+            titleCount.textContent = Array.isArray(part.members)
+                ? `${part.members.length} anggota`
+                : `${questionCount} pertanyaan`;
 
             titleWrapper.appendChild(titleStrong);
             titleWrapper.appendChild(titleCount);
@@ -5231,7 +5751,7 @@ document.addEventListener('DOMContentLoaded', function () {
  
     function renderFamilyMembersInline(row) { 
  
-        if (!row || !familyMembersInlineTableBody) { 
+        if (!row || !familyMembersCardTableBody) {
             return; 
         } 
  
@@ -5241,22 +5761,22 @@ document.addEventListener('DOMContentLoaded', function () {
             row.dataset.anggotaDetail || '[]' 
         ); 
  
-        if (familyInlineHead) { 
-            familyInlineHead.textContent = namaKepala; 
-        } 
- 
-        if (familyInlineCount) { 
-            familyInlineCount.textContent = `${jumlah} Orang`; 
-        } 
+        if (familyMembersCardHead) {
+            familyMembersCardHead.textContent = namaKepala;
+        }
+
+        if (familyMembersCardCount) {
+            familyMembersCardCount.textContent = `${jumlah} orang (termasuk kepala keluarga)`;
+        }
  
         if (familyInlineStatus) { 
             familyInlineStatus.textContent = row.dataset.statusLabel || '-'; 
         } 
  
         if (!anggota.length) { 
-            familyMembersInlineTableBody.innerHTML = ` 
+            familyMembersCardTableBody.innerHTML = `
                 <tr> 
-                    <td colspan="4"> 
+                    <td colspan="5">
                         <div class="family-members-empty"> 
                             <strong>Detail anggota belum tersedia</strong> 
                             <span>Data anggota keluarga untuk KK ini belum ditemukan.</span> 
@@ -5267,10 +5787,16 @@ document.addEventListener('DOMContentLoaded', function () {
             return; 
         } 
  
-        familyMembersInlineTableBody.innerHTML = anggota.map(function (member, index) { 
+        familyMembersCardTableBody.innerHTML = anggota.map(function (member, index) {
             const nik = member.nik ?? '-'; 
             const namaMember = member.nama_lengkap ?? member.nama ?? '-'; 
             const statusMember = member.status_keluarga ?? member.status ?? '-'; 
+            const isHeadOfHousehold = statusMember.trim().toLowerCase() === 'kepala keluarga';
+            const action = member.kode && !isHeadOfHousehold
+                ? `<a class="member-questionnaire-action" href="${escapeHtmlValue(memberDetailRouteTemplate
+                    .replace('__ID__', encodeURIComponent(row.dataset.id || ''))
+                    .replace('__MEMBER__', encodeURIComponent(member.kode)))}">Detail Jawaban</a>`
+                : '<span aria-label="Tidak ada kuisioner individu">-</span>';
  
             return ` 
                 <tr> 
@@ -5282,6 +5808,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             ${escapeHtmlValue(statusMember)} 
                         </span> 
                     </td> 
+                    <td>
+                        ${action}
+                    </td>
                 </tr> 
             `; 
         }).join(''); 
@@ -5360,6 +5889,18 @@ document.addEventListener('DOMContentLoaded', function () {
  
         const tanggal = 
             row.dataset.tanggal || '-'; 
+
+        if (modalPeriode) {
+            modalPeriode.textContent = row.dataset.periode || '-';
+        }
+
+        if (modalPeriodeKode) {
+            modalPeriodeKode.textContent = row.dataset.periodeKode || '-';
+        }
+
+        if (modalPeriodeTanggal) {
+            modalPeriodeTanggal.textContent = row.dataset.periodeTanggal || '-';
+        }
  
         const status = 
             row.dataset.status || ''; 
@@ -5512,6 +6053,8 @@ document.addEventListener('DOMContentLoaded', function () {
         renderQuestionnaire( 
             rawQuestionnaire 
         ); 
+
+        renderFamilyMembersInline(row);
  
  
         verificationModal.classList.add('show'); 

@@ -427,21 +427,50 @@
     display: grid;
 
     grid-template-columns:
-        minmax(280px, 1.8fr)
-        minmax(160px, .9fr)
-        minmax(180px, 1fr)
-        auto;
+        minmax(0, 1.8fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
 
     gap: 12px;
 
     align-items: end;
 
-    margin-top: 0;
+    box-sizing: border-box;
+}
+.laporan-filter-reset-group {
+    display: none !important;
+}
+
+.laporan-filter-reset-group {
+    grid-column: span 2;
+    display: flex;
+    gap: 8px;
+}
+
+.laporan-filter-reset-group .laporan-reset-btn {
+    flex: 1;
+}
+
+.laporan-apply-btn {
+    border-color: #252A86;
+    background: #252A86;
+    color: #fff;
+    font-family: inherit;
+    cursor: pointer;
 }
 
 
 .laporan-filter-group {
+    width: 100%;
     min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 
@@ -887,6 +916,10 @@
         grid-template-columns:
             1fr 1fr;
     }
+
+    .laporan-filter-reset-group {
+        grid-column: 1 / -1;
+    }
 }
 
 
@@ -958,6 +991,10 @@
         grid-template-columns: 1fr;
 
         gap: 12px;
+    }
+
+    .laporan-filter-reset-group {
+        grid-column: auto;
     }
 
     .laporan-table-wrapper {
@@ -1593,11 +1630,12 @@
             </div> 
  
             <a 
-                href="{{ route('admin.laporan.export', array_filter([ 
-                    'search' => $search, 
-                    'periode' => $periode, 
-                    'wilayah' => $wilayah, 
-                ], fn ($value) => $value !== '')) }}" 
+                href="{{ route('admin.laporan.export', array_filter([
+                    'search' => $filters['search'] ?? '',
+                    'kecamatan' => $filters['kecamatan'] ?? '',
+                    'kelurahan' => $filters['kelurahan'] ?? '',
+                    'status' => $filters['status'] ?? 'all',
+                ], fn ($value) => $value !== '' && $value !== 'all')) }}"
                 class="laporan-export-btn" 
                 id="laporanExportLink" 
             > 
@@ -1709,7 +1747,7 @@
                             type="text" 
                             name="search" 
                             id="laporanSearch" 
-                            value="{{ $search ?? request('search') }}" 
+                            value="{{ $filters['search'] ?? '' }}"
                             placeholder="Cari No. KK, NIK, atau Nama Kepala Keluarga..." 
                             autocomplete="off" 
                         > 
@@ -1740,71 +1778,45 @@
  
                 </div> 
  
-                <div class="laporan-filter-group"> 
- 
-                    <label 
-                        for="filterPeriode" 
-                        class="laporan-filter-label" 
-                    > 
-                        Periode 
-                    </label> 
- 
-                    <select 
-                        name="periode" 
-                        id="filterPeriode" 
-                    > 
- 
-                        <option value=""> 
-                            Semua Periode 
-                        </option> 
- 
-                        @foreach(($periodeList ?? []) as $itemPeriode) 
- 
-                            <option 
-                                value="{{ $itemPeriode['kode'] }}" 
-                                {{ ($periode ?? request('periode')) == $itemPeriode['kode'] ? 'selected' : '' }} 
-                            > 
-                                {{ $itemPeriode['nama'] }} 
-                            </option> 
- 
-                        @endforeach 
- 
-                    </select> 
- 
-                </div> 
- 
-                <div class="laporan-filter-group"> 
- 
-                    <label 
-                        for="filterWilayah" 
-                        class="laporan-filter-label" 
-                    > 
-                        Wilayah 
-                    </label> 
- 
-                    <select 
-                        name="wilayah" 
-                        id="filterWilayah" 
-                    > 
- 
-                        <option value=""> 
-                            Semua Wilayah 
-                        </option> 
- 
-                        @foreach(($wilayahList ?? []) as $itemWilayah) 
- 
-                            <option 
-                                value="{{ $itemWilayah }}" 
-                                {{ ($wilayah ?? request('wilayah')) == $itemWilayah ? 'selected' : '' }} 
-                            > 
-                                {{ $itemWilayah }} 
-                            </option> 
- 
-                        @endforeach 
- 
-                    </select> 
- 
-                </div> 
+                <div class="laporan-filter-group">
+                    <label for="filterKecamatan" class="laporan-filter-label">Kecamatan</label>
+                    <select name="kecamatan" id="filterKecamatan">
+                        <option value="">Semua Kecamatan</option>
+                        @foreach ($kecamatanList as $kecamatan)
+                            <option value="{{ $kecamatan['id'] }}" @selected(($filters['kecamatan'] ?? '') === $kecamatan['id'])>
+                                {{ $kecamatan['name'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="laporan-filter-group">
+                    <label for="filterKelurahan" class="laporan-filter-label">Kelurahan</label>
+                    <select
+                        name="kelurahan"
+                        id="filterKelurahan"
+                        @disabled(empty($filters['kecamatan']))
+                    >
+                        <option value="">Semua Kelurahan</option>
+                        @foreach ($kelurahanList as $kelurahan)
+                            <option value="{{ $kelurahan['id'] }}" @selected(($filters['kelurahan'] ?? '') === $kelurahan['id'])>
+                                {{ $kelurahan['name'] }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="laporan-filter-group">
+                    <label for="filterStatus" class="laporan-filter-label">Status</label>
+                    <select name="status" id="filterStatus">
+                        <option value="all" @selected(($filters['status'] ?? 'all') === 'all')>Semua Status</option>
+                        <option value="not_processed" @selected(($filters['status'] ?? '') === 'not_processed')>Belum Didata</option>
+                        <option value="draft" @selected(($filters['status'] ?? '') === 'draft')>Draft</option>
+                        <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>Menunggu Verifikasi</option>
+                        <option value="approved" @selected(($filters['status'] ?? '') === 'approved')>Disetujui</option>
+                        <option value="rejected" @selected(($filters['status'] ?? '') === 'rejected')>Ditolak</option>
+                    </select>
+                </div>
  
                 <div class="laporan-filter-group laporan-filter-reset-group"> 
  
@@ -1815,7 +1827,8 @@
                         Filter 
                     </span> 
  
-                    <a 
+                    <button type="submit" class="laporan-reset-btn laporan-apply-btn">Terapkan</button>
+                    <a
                         href="{{ route('laporan.index') }}" 
                         class="laporan-reset-btn" 
                         id="resetLaporanFilter" 
@@ -2098,10 +2111,16 @@
                 </tbody> 
  
             </table> 
- 
+
         </div> 
- 
-    </div> 
+
+        @if ($laporan->hasPages())
+            <div class="monitoring-pagination">
+                {{ $laporan->onEachSide(1)->links() }}
+            </div>
+        @endif
+
+    </div>
  
 </div> 
  
@@ -2343,8 +2362,9 @@ document.addEventListener('DOMContentLoaded', function () {
  
     const laporanFilterForm = document.getElementById('laporanFilterForm'); 
     const searchInput = document.getElementById('laporanSearch'); 
-    const periodeFilter = document.getElementById('filterPeriode'); 
-    const wilayahFilter = document.getElementById('filterWilayah'); 
+    const kecamatanFilter = document.getElementById('filterKecamatan');
+    const kelurahanFilter = document.getElementById('filterKelurahan');
+    const statusFilter = document.getElementById('filterStatus');
     const tableBody = document.getElementById('laporanTableBody'); 
  
     /* ===================================================== 
@@ -2488,12 +2508,16 @@ document.addEventListener('DOMContentLoaded', function () {
             params.set('search', searchInput.value.trim()); 
         } 
  
-        if (periodeFilter && periodeFilter.value.trim() !== '') { 
-            params.set('periode', periodeFilter.value.trim()); 
+        if (kecamatanFilter && kecamatanFilter.value.trim() !== '') {
+            params.set('kecamatan', kecamatanFilter.value.trim());
         } 
- 
-        if (wilayahFilter && wilayahFilter.value.trim() !== '') { 
-            params.set('wilayah', wilayahFilter.value.trim()); 
+
+        if (kelurahanFilter && kelurahanFilter.value.trim() !== '') {
+            params.set('kelurahan', kelurahanFilter.value.trim());
+        }
+
+        if (statusFilter && statusFilter.value !== '' && statusFilter.value !== 'all') {
+            params.set('status', statusFilter.value);
         } 
  
         const query = params.toString(); 
@@ -2522,7 +2546,6 @@ document.addEventListener('DOMContentLoaded', function () {
             'input', 
             function () { 
  
-                filterLaporanTable(); 
                 syncExportLink(); 
  
                 window.clearTimeout(searchSubmitTimer); 
@@ -2536,41 +2559,24 @@ document.addEventListener('DOMContentLoaded', function () {
         ); 
     } 
  
-    /* ===================================================== 
-       FILTER PERIODE REALTIME 
-    ===================================================== */ 
- 
-    if (periodeFilter) { 
- 
-        periodeFilter.addEventListener( 
-            'change', 
-            function () { 
- 
-                filterLaporanTable(); 
-                syncExportLink(); 
-                submitReportFilters(); 
- 
-            } 
-        ); 
-    } 
- 
-    /* ===================================================== 
-       FILTER WILAYAH REALTIME 
-    ===================================================== */ 
- 
-    if (wilayahFilter) { 
- 
-        wilayahFilter.addEventListener( 
-            'change', 
-            function () { 
- 
-                filterLaporanTable(); 
-                syncExportLink(); 
-                submitReportFilters(); 
- 
-            } 
-        ); 
-    } 
+    if (kecamatanFilter) {
+        kecamatanFilter.addEventListener('change', function () {
+            if (kelurahanFilter) {
+                kelurahanFilter.value = '';
+            }
+            syncExportLink();
+            submitReportFilters();
+        });
+    }
+
+    [kelurahanFilter, statusFilter].forEach(function (filter) {
+        if (filter) {
+            filter.addEventListener('change', function () {
+                syncExportLink();
+                submitReportFilters();
+            });
+        }
+    });
  
     /* ===================================================== 
        RESET FILTER 
@@ -2592,15 +2598,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     searchInput.value = ''; 
                 } 
  
-                if (periodeFilter) { 
-                    periodeFilter.value = ''; 
+                if (kecamatanFilter) {
+                    kecamatanFilter.value = '';
                 } 
- 
-                if (wilayahFilter) { 
-                    wilayahFilter.value = ''; 
+
+                if (kelurahanFilter) {
+                    kelurahanFilter.value = '';
                 } 
- 
-                filterLaporanTable(); 
+
+                if (statusFilter) {
+                    statusFilter.value = 'all';
+                }
+
                 syncExportLink(); 
                 submitReportFilters(); 
  
@@ -3477,8 +3486,6 @@ document.addEventListener('DOMContentLoaded', function () {
  
         } 
     ); 
- 
-    filterLaporanTable(); 
  
 }); 
 </script> 

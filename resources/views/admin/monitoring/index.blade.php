@@ -68,7 +68,7 @@
 
     .monitoring-stats {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 14px;
     }
 
@@ -146,6 +146,18 @@
 
     .monitoring-stat-card.total-card {
         color: #3155c6;
+    }
+
+    .monitoring-stat-card.not-processed-card {
+        color: #7652c8;
+    }
+
+    .monitoring-stat-card.draft-card {
+        color: #6b7280;
+    }
+
+    .monitoring-stat-card.pending-card {
+        color: #bd8700;
     }
 
     .monitoring-stat-card.approved-card {
@@ -253,6 +265,112 @@
     display: block;
 }
 
+.monitoring-filter-form {
+    display: grid;
+
+    /* Search lebih panjang, 3 filter ikut bergeser */
+    grid-template-columns:
+        minmax(0, 1.8fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+
+    align-items: end;
+    gap: 12px;
+
+    box-sizing: border-box;
+}
+
+.monitoring-filter-group {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.monitoring-filter-search {
+    min-width: 0;
+    width: 100%;
+}
+
+.monitoring-search-box {
+    width: 100%;
+    max-width: 100%;
+}
+
+.monitoring-search-box input {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.monitoring-filter-submit,
+.monitoring-filter-reset {
+    display: none !important;
+}
+
+.monitoring-filter-group {
+    min-width: 0;
+}
+
+.monitoring-filter-label {
+    display: block;
+    margin-bottom: 7px;
+    color: #555;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.monitoring-filter-select,
+.monitoring-filter-submit,
+.monitoring-filter-reset {
+    width: 100%;
+    height: 46px;
+    box-sizing: border-box;
+    border: 1px solid #d5d9e7;
+    border-radius: 10px;
+    background: #fff;
+    color: #1e293b;
+    font-size: 13px;
+}
+
+.monitoring-filter-select {
+    padding: 0 12px;
+}
+
+.monitoring-filter-submit,
+.monitoring-filter-reset {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 13px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.monitoring-filter-submit {
+    border-color: #252a86;
+    background: #252a86;
+    color: #fff;
+}
+
+.monitoring-filter-reset {
+    border-color: #d5d9e7;
+    color: #475569;
+}
+
+.monitoring-filter-select:disabled {
+    background: #f1f3f7;
+    color: #94a3b8;
+}
+
     .monitoring-suggestion-item {
         padding: 12px 15px;
 
@@ -331,7 +449,7 @@
         max-width: 1200px;
         margin: 0 auto;
         border-collapse: collapse;
-        min-width: 850px;
+        min-width: 1000px;
         background: #ffffff;
     }
 
@@ -434,6 +552,11 @@
 .monitoring-status.pending {
     background: #FFF7D6;
     color: #B88600;
+}
+
+.monitoring-status.not_processed {
+background: #F0EAFE;
+color: #7652C8;
 }
 
     /* =====================================================
@@ -684,6 +807,20 @@
         border-color: #f1dfaa;
         background: #fff7d6;
         color: #9a6a00;
+    }
+
+    .monitoring-summary-status.status-not-processed,
+    .monitoring-detail-value.status-value.status-not-processed {
+        border-color: #d8c8fb;
+        background: #f0eafe;
+        color: #7652c8;
+    }
+
+    .monitoring-detail-period-meta {
+        display: block;
+        margin-top: 4px;
+        color: #64748b;
+        font-size: 11px;
     }
 
     /* =====================================================
@@ -1428,6 +1565,10 @@
         .monitoring-stats {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
+
+        .monitoring-filter-form {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
     }
 
 
@@ -1455,10 +1596,12 @@
             gap: 10px;
         }
 
-        .monitoring-stat-card:nth-child(3) {
+        .monitoring-filter-form {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .monitoring-filter-search {
             grid-column: 1 / -1;
-            width: calc(50% - 5px);
-            justify-self: center;
         }
 
         .monitoring-table-header {
@@ -1648,12 +1791,8 @@
         <div class="monitoring-stats-wrapper">
 
            <div class="monitoring-stats">
-
-    {{-- =====================================================
-         TOTAL
-    ====================================================== --}}
     <a
-        href="{{ route('monitoring.index') }}"
+        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'all'])) }}"
         class="monitoring-stat-card monitoring-stat-card-link total-card {{ ($statusFilter ?? 'all') === 'all' ? 'active' : '' }}"
     >
         <div class="monitoring-stat-label">
@@ -1665,16 +1804,39 @@
         </div>
 
         <div class="monitoring-stat-filter-hint">
-            Semua data terverifikasi
+            Semua status pendataan
         </div>
     </a>
 
-
-    {{-- =====================================================
-         DISETUJUI
-    ====================================================== --}}
     <a
-        href="{{ route('monitoring.index', ['status' => 'approved']) }}"
+        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'not_processed'])) }}"
+        class="monitoring-stat-card monitoring-stat-card-link not-processed-card {{ ($statusFilter ?? 'all') === 'not_processed' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">Belum Didata</div>
+        <div class="monitoring-stat-value">{{ $belumDidata ?? 0 }}</div>
+        <div class="monitoring-stat-filter-hint">Belum masuk proses pendataan</div>
+    </a>
+
+    <a
+        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'draft'])) }}"
+        class="monitoring-stat-card monitoring-stat-card-link draft-card {{ ($statusFilter ?? 'all') === 'draft' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">Draft</div>
+        <div class="monitoring-stat-value">{{ $draftCount ?? 0 }}</div>
+        <div class="monitoring-stat-filter-hint">Kuisioner belum selesai</div>
+    </a>
+
+    <a
+        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'pending'])) }}"
+        class="monitoring-stat-card monitoring-stat-card-link pending-card {{ ($statusFilter ?? 'all') === 'pending' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">Menunggu Verifikasi</div>
+        <div class="monitoring-stat-value">{{ $menungguVerifikasi ?? 0 }}</div>
+        <div class="monitoring-stat-filter-hint">Menunggu pemeriksaan</div>
+    </a>
+
+    <a
+        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'approved'])) }}"
         class="monitoring-stat-card monitoring-stat-card-link approved-card {{ ($statusFilter ?? 'all') === 'approved' ? 'active' : '' }}"
     >
         <div class="monitoring-stat-label">
@@ -1690,10 +1852,8 @@
         </div>
     </a>
 
-
-   
     <a
-        href="{{ route('monitoring.index', ['status' => 'rejected']) }}"
+        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'rejected'])) }}"
         class="monitoring-stat-card monitoring-stat-card-link rejected-card {{ ($statusFilter ?? 'all') === 'rejected' ? 'active' : '' }}"
     >
         <div class="monitoring-stat-label">
@@ -1708,12 +1868,8 @@
             Data yang ditolak
         </div>
     </a>
-
-</div>
-
-
-
-
+           </div>
+        </div>
 
         {{-- =====================================================
              DATA RESPONDEN
@@ -1724,48 +1880,88 @@
     <div class="monitoring-table-header">
 
         {{-- SEARCH --}}
-        <div class="monitoring-search-wrapper">
-
-            <div class="monitoring-search-box">
-
-                <input
-                    type="text"
-                    id="monitoringSearch"
-                    placeholder="Cari No. KK, NIK, atau Nama Kepala Keluarga"
-                    autocomplete="off"
-                >
-
-                <div class="monitoring-search-icon">
-
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
+        <form method="GET" action="{{ route('monitoring.index') }}" class="monitoring-filter-form">
+            <div class="monitoring-filter-group monitoring-filter-search">
+                <label class="monitoring-filter-label" for="monitoringSearch">Cari No. KK, NIK, atau Nama Kepala Keluarga</label>
+                <div class="monitoring-search-box">
+                    <input
+                        type="search"
+                        id="monitoringSearch"
+                        name="search"
+                        value="{{ $filters['search'] ?? '' }}"
+                        placeholder="Masukkan No. KK, NIK, atau nama kepala keluarga"
+                        autocomplete="off"
                     >
-                        <circle cx="11" cy="11" r="7"></circle>
-                        <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
-                    </svg>
-
+                    <div class="monitoring-search-icon" aria-hidden="true">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="7"></circle>
+                            <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+                        </svg>
+                    </div>
                 </div>
-
+                <div class="monitoring-search-suggestions" id="monitoringSearchSuggestions"></div>
             </div>
 
+            <div class="monitoring-filter-group">
+                <label class="monitoring-filter-label" for="monitoringKecamatan">Kecamatan</label>
+                <select
+                    class="monitoring-filter-select"
+                    id="monitoringKecamatan"
+                    name="kecamatan"
+                    onchange="this.form.elements.kelurahan.value=''; this.form.submit()"
+                >
+                    <option value="">Semua Kecamatan</option>
+                    @foreach ($kecamatanList as $kecamatan)
+                        <option value="{{ $kecamatan['id'] }}" @selected(($filters['kecamatan'] ?? '') === $kecamatan['id'])>
+                            {{ $kecamatan['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        </div>
+            <div class="monitoring-filter-group">
+                <label class="monitoring-filter-label" for="monitoringKelurahan">Kelurahan</label>
+                <select
+                    class="monitoring-filter-select"
+                    id="monitoringKelurahan"
+                    name="kelurahan"
+                    @disabled(empty($filters['kecamatan']))
+                    onchange="this.form.submit()"
+                >
+                    <option value="">Semua Kelurahan</option>
+                    @foreach ($kelurahanList as $kelurahan)
+                        <option value="{{ $kelurahan['id'] }}" @selected(($filters['kelurahan'] ?? '') === $kelurahan['id'])>
+                            {{ $kelurahan['name'] }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="monitoring-filter-group">
+                <label class="monitoring-filter-label" for="monitoringStatus">Status</label>
+                <select class="monitoring-filter-select" id="monitoringStatus" name="status" onchange="this.form.submit()">
+                    <option value="all" @selected(($filters['status'] ?? 'all') === 'all')>Semua Status</option>
+                    <option value="not_processed" @selected(($filters['status'] ?? '') === 'not_processed')>Belum Didata</option>
+                    <option value="draft" @selected(($filters['status'] ?? '') === 'draft')>Draft</option>
+                    <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>Menunggu Verifikasi</option>
+                    <option value="approved" @selected(($filters['status'] ?? '') === 'approved')>Disetujui</option>
+                    <option value="rejected" @selected(($filters['status'] ?? '') === 'rejected')>Ditolak</option>
+                </select>
+            </div>
+
+            <button type="submit" class="monitoring-filter-submit">Terapkan</button>
+            <a href="{{ route('monitoring.index') }}" class="monitoring-filter-reset">Reset Filter</a>
+        </form>
 
 
         {{-- JUDUL --}}
         <div class="monitoring-table-title">
-            Data Yang Sudah Terverifikasi
+            Data Monitoring Responden
         </div>
 
         {{-- DESKRIPSI --}}
         <p class="monitoring-table-description">
-            Daftar data responden dari Kuisioner yang telah
-            diproses pada tahap verifikasi.
+            Daftar responden dari seluruh status pendataan dan verifikasi.
         </p>
 
     </div>
@@ -1783,6 +1979,7 @@
                         <tr>
                             <th>No.</th>
                             <th>No. KK</th>
+                            <th>Periode</th>
                             <th>Nama Kepala Keluarga</th>
                             <th>Wilayah</th>
                             <th>Status</th>
@@ -1802,6 +1999,9 @@
                                 $noKk = data_get($item, 'no_kk', '-');
                                 $nik = data_get($item, 'nik', '-');
                                 $nama = data_get($item, 'nama', '-');
+                                $periode = data_get($item, 'periode', '-');
+                                $periodeKode = data_get($item, 'periode_kode', '-');
+                                $periodeTanggal = data_get($item, 'periode_tanggal', '-');
                                 $wilayah = data_get($item, 'wilayah', '-');
                                 $petugas = data_get($item, 'petugas', '-');
                                 $jumlahAnggota = data_get($item, 'anggota', 0);
@@ -1814,17 +2014,14 @@
                                 /*
                                  * NORMALISASI STATUS
                                  */
-                              $statusClass = match ($status) {
-                                        'approved' => 'approved',
-                                        'rejected' => 'rejected',
-                                        default => 'rejected',
-                                    };
-
-                                    $statusLabel = match ($status) {
-                                        'approved' => 'Disetujui',
-                                        'rejected' => 'Ditolak',
-                                        default => '-',
-                                    };
+                                $statusClass = $status;
+                                $statusLabel = data_get($item, 'status_label', match ($status) {
+                                    'approved' => 'Disetujui',
+                                    'rejected' => 'Ditolak',
+                                    'pending' => 'Menunggu Verifikasi',
+                                    'not_processed' => 'Belum Didata',
+                                    default => 'Draft',
+                                });
 
                                 /*
                                  * KUISIONER PART 1
@@ -1846,6 +2043,7 @@
                             <tr
                                 data-search="{{ strtolower(
                                     $noKk . ' ' .
+                                    $periode . ' ' .
                                     $nik . ' ' .
                                     $nama
                                 ) }}"
@@ -1868,6 +2066,7 @@
                                     </strong>
                                 </td>
 
+                                <td>{{ $periode }}</td>
 
                                 <td>
                                     {{ $nama }}
@@ -1905,6 +2104,12 @@
 
                                         data-no-kk="{{ $noKk }}"
 
+                                        data-periode="{{ $periode }}"
+
+                                        data-periode-kode="{{ $periodeKode }}"
+
+                                        data-periode-tanggal="{{ $periodeTanggal }}"
+
                                         data-nik="{{ $nik }}"
 
                                         data-nama="{{ $nama }}"
@@ -1933,7 +2138,7 @@
                         @empty
 
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
 
                                     <div class="monitoring-empty">
 
@@ -1975,7 +2180,7 @@
                             id="monitoringSearchEmpty"
                             style="display:none;"
                         >
-                            <td colspan="7">
+                            <td colspan="8">
 
                                 <div class="monitoring-empty">
 
@@ -2013,6 +2218,12 @@
                 </table>
 
             </div>
+
+            @if ($data->hasPages())
+                <div class="monitoring-pagination">
+                    {{ $data->onEachSide(1)->links() }}
+                </div>
+            @endif
 
         </div>
 
@@ -2142,6 +2353,24 @@
                         >
                             -
                         </div>
+                    </div>
+
+                    <div class="monitoring-detail-item">
+                        <div class="monitoring-detail-label">
+                            Periode
+                        </div>
+
+                        <div
+                            class="monitoring-detail-value"
+                            id="detailPeriode"
+                        >
+                            -
+                        </div>
+
+                        <small
+                            class="monitoring-detail-period-meta"
+                            id="detailPeriodeDetail"
+                        ></small>
                     </div>
 
 
@@ -2564,9 +2793,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 searchInput.value = nama;
 
-                filterTable(nama);
-
                 suggestionsBox.classList.remove('show');
+                searchInput.form?.requestSubmit();
 
             });
 
@@ -2583,8 +2811,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (searchInput) {
 
         searchInput.addEventListener('input', function () {
-
-            filterTable(this.value);
 
             showSuggestions(this.value);
 
@@ -3739,7 +3965,8 @@ document.addEventListener('DOMContentLoaded', function () {
             'status-approved',
             'status-rejected',
             'status-pending',
-            'status-draft'
+            'status-draft',
+            'status-not-processed'
         ];
 
         const statusClass =
@@ -3753,6 +3980,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     : normalized === 'pending' ||
                         normalized.includes('menunggu')
                         ? 'status-pending'
+                        : normalized.includes('belum didata') ||
+                            normalized.includes('belum diproses')
+                            ? 'status-not-processed'
                         : normalized === 'draft'
                             ? 'status-draft'
                             : '';
@@ -3792,6 +4022,24 @@ document.addEventListener('DOMContentLoaded', function () {
             'detailNoKk'
         ).textContent =
             button.dataset.noKk || '-';
+
+        document.getElementById(
+            'detailPeriode'
+        ).textContent =
+            button.dataset.periode || '-';
+
+        const periodDetails = [
+            button.dataset.periodeKode && button.dataset.periodeKode !== '-'
+                ? 'Kode: ' + button.dataset.periodeKode
+                : '',
+            button.dataset.periodeTanggal && button.dataset.periodeTanggal !== '-'
+                ? 'Rentang: ' + button.dataset.periodeTanggal
+                : '',
+        ].filter(Boolean);
+
+        document.getElementById(
+            'detailPeriodeDetail'
+        ).textContent = periodDetails.join(' | ');
 
 
         document.getElementById(
