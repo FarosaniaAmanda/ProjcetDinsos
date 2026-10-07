@@ -1270,7 +1270,7 @@ textarea.responden-form-control {
                 >
 
                 <button
-                    type="Tinjau"
+                    type="submit"
                     class="responden-search-button"
                     aria-label="Cari responden"
                     title="Cari responden"
@@ -2104,7 +2104,7 @@ textarea.responden-form-control {
                 </button>
 
                 <button
-                    type="Tinjau"
+                    type="submit"
                     class="responden-btn responden-btn-primary"
                 >
                     Simpan Responden
@@ -2637,7 +2637,7 @@ textarea.responden-form-control {
                 </button>
 
                 <button
-                    type="Tinjau"
+                    type="submit"
                     class="responden-btn responden-btn-primary"
                 >
                     Simpan Perubahan
