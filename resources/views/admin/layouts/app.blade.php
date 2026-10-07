@@ -407,44 +407,83 @@
 
 
         /* =====================================================
-           SIDEBAR FOOTER
+        SIDEBAR FOOTER / LOGOUT
         ====================================================== */
 
         .sidebar-footer {
             padding: 15px 14px;
-
             border-top: 1px solid rgba(255,255,255,.12);
-
             flex-shrink: 0;
+        }
+
+        .logout-form {
+            width: 100%;
+            margin: 0;
+            padding: 0;
         }
 
         .logout-link {
             display: flex;
             align-items: center;
-
             gap: 12px;
-
             width: 100%;
+            min-width: 0;
             height: 48px;
-
             padding: 0 14px;
-
+            margin: 0;
+            border: none;
+            outline: none;
             border-radius: 9px;
 
-            color: rgba(255,255,255,.85);
+            background: transparent;
+            color: rgba(255,255,255,.82);
 
             text-decoration: none;
-
+            font-family: inherit;
             font-size: 14px;
+            font-weight: 500;
+
+            text-align: left;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
 
             transition:
                 background .2s ease,
-                color .2s ease;
+                color .2s ease,
+                box-shadow .2s ease,
+                transform .15s ease;
         }
 
         .logout-link:hover {
             background: rgba(255,255,255,.10);
             color: #ffffff;
+        }
+
+        .logout-link:active {
+            transform: scale(.985);
+        }
+
+        .logout-link:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .logout-link .menu-icon {
+            width: 20px;
+            min-width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logout-link > span:last-child {
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
 
@@ -1584,46 +1623,55 @@
 
         <div class="sidebar-footer">
 
-            <a
-                href="/logout"
-                class="logout-link"
+            <form
+                action="{{ route('logout') }}"
+                method="POST"
+                class="logout-form"
             >
+                @csrf
 
-                <span class="menu-icon">
+                <button
+                    type="submit"
+                    class="logout-link"
+                >
 
-                    <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
+                    <span class="menu-icon">
 
-                        <path
-                            d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-                        ></path>
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                        >
 
-                        <polyline
-                            points="16 17 21 12 16 7"
-                        ></polyline>
+                            <path
+                                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+                            ></path>
 
-                        <line
-                            x1="21"
-                            y1="12"
-                            x2="9"
-                            y2="12"
-                        ></line>
+                            <polyline
+                                points="16 17 21 12 16 7"
+                            ></polyline>
 
-                    </svg>
+                            <line
+                                x1="21"
+                                y1="12"
+                                x2="9"
+                                y2="12"
+                            ></line>
 
-                </span>
+                        </svg>
 
-                <span>
-                    Keluar
-                </span>
+                    </span>
 
-            </a>
+                    <span>
+                        Keluar
+                    </span>
+
+                </button>
+
+            </form>
 
         </div>
 
@@ -2153,32 +2201,22 @@
 
 
                 /* =================================================
-                   LOGOUT
-                ================================================== */
+                    LOGOUT
+                    ================================================== */
 
-                const logoutLink =
-                    document.querySelector(
-                        '.logout-link'
-                    );
+                    const logoutForm = document.querySelector('.logout-form');
 
-                if (logoutLink) {
+                    if (logoutForm) {
 
-                    logoutLink.addEventListener(
-                        'click',
-                        function () {
+                        logoutForm.addEventListener('submit', function () {
 
-                            if (
-                                window.innerWidth <= 900
-                            ) {
-
+                            if (window.innerWidth <= 900) {
                                 closeSidebar();
-
                             }
 
-                        }
-                    );
+                        });
 
-                }
+                    }
 
 
                 /* =================================================

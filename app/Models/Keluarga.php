@@ -19,6 +19,8 @@ class Keluarga extends Model
         'kelurahan_id',
         'kode_pos',
         'alamat_lengkap',
+        'rt',
+        'rw',
         'created_by',
         'updated_by',
     ];

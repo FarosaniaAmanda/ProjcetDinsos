@@ -2,136 +2,127 @@
 
 @section('title', 'Detail Kuisioner Selesai')
 
-@push('styles')
+@section('content')
+
 <style>
-    /* =========================================================
-       PAGE
-    ========================================================= */
-    .detail-page {
-        padding: 10px 0 30px;
+    * {
+        box-sizing: border-box;
     }
 
+    .detail-page {
+        width: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 20px 22px 40px;
+        font-family: 'Inter', Arial, sans-serif;
+        color: #252525;
+    }
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
     .detail-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 15px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
+        margin-bottom: 18px;
     }
 
-    .detail-header-left h1 {
-        margin: 0 0 5px;
-        color: #252A86;
-        font-size: 26px;
-        font-weight: 800;
+    .detail-header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
-    .detail-header-left p {
+    .detail-header h1 {
         margin: 0;
-        color: #667085;
-        font-size: 14px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #222675;
+    }
+
+    .detail-header p {
+        margin: 3px 0 0;
+        color: #7b7f91;
+        font-size: 12px;
     }
 
     .btn-back {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 11px 17px;
-        border-radius: 9px;
-        background: #ffffff;
-        color: #344054;
-        border: 1px solid #d0d5dd;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: 8px;
+        background: #f0f1f8;
+        color: #252A86;
         text-decoration: none;
-        font-size: 14px;
-        font-weight: 700;
-        transition: .2s ease;
+        font-size: 12px;
+        font-weight: 600;
+        transition: .2s;
     }
 
     .btn-back:hover {
-        background: #f8f9fc;
+        background: #e5e7f4;
         color: #252A86;
-        border-color: #252A86;
     }
 
     /* =========================================================
        CARD
     ========================================================= */
     .detail-card {
-        background: #ffffff;
-        border: 1px solid #e4e7ec;
-        border-radius: 14px;
-        margin-bottom: 20px;
+        background: #fff;
+        border: 1px solid #e5e6ef;
+        border-radius: 12px;
+        margin-bottom: 14px;
         overflow: hidden;
-        box-shadow: 0 2px 8px rgba(16, 24, 40, .04);
+        box-shadow: 0 2px 8px rgba(30, 35, 80, .04);
     }
 
     .detail-card-header {
+        padding: 12px 15px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
-        padding: 17px 20px;
-        background: #fafbff;
-        border-bottom: 1px solid #eaecf0;
         cursor: pointer;
+        background: #fff;
     }
 
     .detail-card-title {
         display: flex;
         align-items: center;
-        gap: 11px;
+        gap: 9px;
     }
 
-    .part-number {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
-        border-radius: 9px;
-        background: #252A86;
-        color: #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .detail-card-title h2 {
+    .detail-card-title h3 {
         margin: 0;
+        font-size: 13px;
+        font-weight: 700;
         color: #252A86;
-        font-size: 17px;
-        font-weight: 800;
     }
 
     .detail-card-title span {
         display: block;
         margin-top: 2px;
-        color: #667085;
+        color: #9295a5;
+        font-size: 10px;
+        font-weight: 400;
+    }
+
+    .detail-card-arrow {
         font-size: 12px;
-        font-weight: 500;
+        color: #888da0;
+        transition: transform .2s;
     }
 
-    .toggle-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background: #eef0ff;
-        color: #252A86;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        transition: transform .2s ease;
-    }
-
-    .detail-card.active .toggle-icon {
+    .detail-card.active .detail-card-arrow {
         transform: rotate(180deg);
     }
 
     .detail-card-body {
         display: none;
-        padding: 20px;
+        border-top: 1px solid #eeeeF3;
+        padding: 15px;
     }
 
     .detail-card.active .detail-card-body {
@@ -139,269 +130,438 @@
     }
 
     /* =========================================================
-       INFORMATION GRID
+       INFORMASI
     ========================================================= */
     .info-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-    }
-
-    .info-item {
-        border: 1px solid #eaecf0;
-        border-radius: 10px;
-        padding: 14px 15px;
-        background: #ffffff;
-    }
-
-    .info-label {
-        color: #667085;
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 6px;
-    }
-
-    .info-value {
-        color: #344054;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.55;
-        word-break: break-word;
-    }
-
-    .info-value.empty {
-        color: #98a2b3;
-        font-weight: 500;
-    }
-
-    /* =========================================================
-       STATUS
-    ========================================================= */
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 12px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 800;
-    }
-
-    .status-selesai {
-        color: #167647;
-        background: #ecfdf3;
-        border: 1px solid #abefc6;
-    }
-
-    /* =========================================================
-       QUESTION / ANSWER
-    ========================================================= */
-    .question-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .question-item {
-        border: 1px solid #eaecf0;
-        border-radius: 10px;
-        overflow: hidden;
-        background: #ffffff;
-    }
-
-    .question-label {
-        padding: 12px 15px;
-        background: #f8f9fc;
-        color: #344054;
-        font-size: 13px;
-        font-weight: 700;
-        border-bottom: 1px solid #eaecf0;
-    }
-
-    .question-answer {
-        padding: 13px 15px;
-        color: #475467;
-        font-size: 14px;
-        line-height: 1.65;
-        white-space: pre-line;
-        word-break: break-word;
-    }
-
-    .answer-empty {
-        color: #98a2b3;
-        font-style: italic;
-    }
-
-    /* =========================================================
-       ANGGOTA KELUARGA
-    ========================================================= */
-    .member-list {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-    }
-
-    .member-card {
-        border: 1px solid #dfe3ea;
-        border-radius: 12px;
-        overflow: hidden;
-        background: #ffffff;
-    }
-
-    .member-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 15px 16px;
-        background: #f8f9fc;
-        border-bottom: 1px solid #eaecf0;
-    }
-
-    .member-title {
-        display: flex;
-        align-items: center;
+        grid-template-columns: repeat(4, 1fr);
         gap: 10px;
     }
 
-    .member-number {
-        width: 32px;
-        height: 32px;
-        min-width: 32px;
-        border-radius: 50%;
-        background: #252A86;
-        color: #ffffff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 800;
+    .info-item {
+        background: #f7f8fc;
+        border: 1px solid #eceef5;
+        border-radius: 8px;
+        padding: 10px 11px;
     }
 
-    .member-name {
-        color: #344054;
-        font-size: 15px;
-        font-weight: 800;
+    .info-label {
+        font-size: 9px;
+        color: #8b8e9e;
+        margin-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: .3px;
     }
 
-    .member-body {
-        padding: 16px;
+    .info-value {
+        font-size: 12px;
+        font-weight: 600;
+        color: #30324b;
+        word-break: break-word;
     }
 
     /* =========================================================
-       FOTO
+       LAYOUT PART
+    ========================================================= */
+    .questionnaire-layout {
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+    }
+
+    /* =========================================================
+       NAV PART KIRI
+    ========================================================= */
+    .part-nav {
+        background: #f7f8fc;
+        border: 1px solid #e5e7f0;
+        border-radius: 10px;
+        padding: 8px;
+        position: sticky;
+        top: 90px;
+    }
+
+    .part-nav-title {
+        font-size: 9px;
+        font-weight: 700;
+        color: #9699a8;
+        text-transform: uppercase;
+        letter-spacing: .5px;
+        padding: 5px 7px 8px;
+    }
+
+    .part-nav-item {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        border-radius: 7px;
+        padding: 9px 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-align: left;
+        cursor: pointer;
+        color: #5d6070;
+        margin-bottom: 3px;
+        transition: .18s;
+    }
+
+    .part-nav-item:hover {
+        background: #eceef8;
+    }
+
+    .part-nav-item.active {
+        background: #252A86;
+        color: #fff;
+    }
+
+    .part-nav-number {
+        width: 23px;
+        height: 23px;
+        border-radius: 6px;
+        background: #e6e8f5;
+        color: #252A86;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .part-nav-item.active .part-nav-number {
+        background: rgba(255,255,255,.18);
+        color: #fff;
+    }
+
+    .part-nav-text {
+        font-size: 10.5px;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    /* =========================================================
+       PANEL JAWABAN
+    ========================================================= */
+    .part-panel {
+        min-width: 0;
+    }
+
+    .part-content {
+        display: none;
+        background: #fff;
+        border: 1px solid #e4e6ef;
+        border-radius: 10px;
+        padding: 15px;
+    }
+
+    .part-content.active {
+        display: block;
+    }
+
+    .part-content-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 13px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eeeeF3;
+    }
+
+    .part-content-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #252A86;
+        margin: 0;
+    }
+
+    .part-content-subtitle {
+        margin: 3px 0 0;
+        color: #999cab;
+        font-size: 10px;
+    }
+
+    /* =========================================================
+       JAWABAN
+    ========================================================= */
+    .answers-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .answer-item {
+        background: #fafbfe;
+        border: 1px solid #e8e9f0;
+        border-radius: 7px;
+        padding: 9px 10px;
+        min-height: 55px;
+    }
+
+    .answer-label {
+        font-size: 9.5px;
+        color: #777b8d;
+        margin-bottom: 4px;
+        line-height: 1.3;
+    }
+
+    .answer-value {
+        font-size: 11px;
+        line-height: 1.45;
+        color: #292b3d;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    .empty-answer {
+        padding: 20px;
+        text-align: center;
+        color: #999cab;
+        font-size: 11px;
+        background: #fafbfe;
+        border: 1px dashed #dfe1ea;
+        border-radius: 8px;
+    }
+
+    /* =========================================================
+       RECORD
+    ========================================================= */
+    .record-card {
+        border: 1px solid #e6e7ef;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+
+    .record-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .record-card-title {
+        padding: 8px 10px;
+        background: #f7f8fc;
+        border-bottom: 1px solid #e8e9ef;
+        color: #252A86;
+        font-size: 10px;
+        font-weight: 700;
+    }
+
+    .record-card-body {
+        padding: 9px;
+    }
+
+    /* =========================================================
+       ANGGOTA
+    ========================================================= */
+    .member-card {
+        border: 1px solid #e5e7ef;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+
+    .member-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .member-header {
+        padding: 9px 10px;
+        background: #f7f8fc;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid #e8e9ef;
+    }
+
+    .member-number {
+        width: 23px;
+        height: 23px;
+        border-radius: 6px;
+        background: #252A86;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
+        font-weight: 700;
+    }
+
+    .member-name {
+        font-size: 11px;
+        font-weight: 700;
+        color: #30324b;
+    }
+
+    .member-body {
+        padding: 9px;
+    }
+
+    /* =========================================================
+       FOTO RUMAH
     ========================================================= */
     .photo-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
+        gap: 10px;
     }
 
     .photo-card {
-        border: 1px solid #eaecf0;
-        border-radius: 12px;
+        border: 1px solid #e3e5ee;
+        border-radius: 9px;
         overflow: hidden;
-        background: #ffffff;
+        background: #fff;
     }
 
-    .photo-title {
-        padding: 11px 13px;
-        color: #344054;
-        font-size: 13px;
-        font-weight: 800;
-        border-bottom: 1px solid #eaecf0;
-    }
-
-    .photo-wrapper {
-        height: 210px;
-        background: #f8f9fc;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .photo-image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 155px;
+        background: #f4f5f9;
         overflow: hidden;
     }
 
-    .photo-wrapper img {
+    .photo-preview {
         width: 100%;
         height: 100%;
         object-fit: cover;
         display: block;
         cursor: pointer;
-        transition: transform .2s ease;
+        transition: .2s;
     }
 
-    .photo-wrapper img:hover {
-        transform: scale(1.03);
+    .photo-preview:hover {
+        transform: scale(1.02);
     }
 
-    .photo-empty {
-        color: #98a2b3;
-        font-size: 13px;
-        text-align: center;
-        padding: 20px;
+    .photo-error {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: #f4f5f9;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .photo-error-icon,
+    .photo-empty-icon,
+    .empty-photo-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 11px;
+        background: #e8eaf5;
+        color: #252A86;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 17px;
+    }
+
+    .photo-error-text,
+    .photo-empty-text {
+        font-size: 9px;
+        color: #85899b;
+    }
+
+    .photo-image-wrapper.no-photo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .photo-title {
+        padding: 8px 9px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #44475a;
+        background: #fff;
+    }
+
+    .empty-photo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 25px;
+        border: 1px dashed #dfe1ea;
+        border-radius: 9px;
+        background: #fafbfe;
+    }
+
+    .empty-photo strong {
+        display: block;
+        color: #55586b;
+        font-size: 11px;
+    }
+
+    .empty-photo span {
+        display: block;
+        margin-top: 2px;
+        color: #999cab;
+        font-size: 9px;
+    }
+
+    .photo-view-icon {
+        position: absolute;
+        right: 8px;
+        bottom: 8px;
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: rgba(37,42,134,.9);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        pointer-events: none;
     }
 
     /* =========================================================
-       EMPTY
-    ========================================================= */
-    .empty-data {
-        padding: 28px 20px;
-        text-align: center;
-        border: 1px dashed #d0d5dd;
-        border-radius: 10px;
-        color: #667085;
-        font-size: 14px;
-        background: #fafafa;
-    }
-
-    /* =========================================================
-       PHOTO MODAL
+       MODAL FOTO
     ========================================================= */
     .image-modal {
         display: none;
         position: fixed;
-        inset: 0;
         z-index: 9999;
-        background: rgba(15, 23, 42, .82);
+        inset: 0;
+        background: rgba(15, 18, 45, .88);
         align-items: center;
         justify-content: center;
-        padding: 25px;
+        padding: 30px;
     }
 
     .image-modal.show {
         display: flex;
     }
 
-    .image-modal-content {
-        position: relative;
-        max-width: 1000px;
-        max-height: 90vh;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .image-modal-content img {
-        max-width: 100%;
-        max-height: 85vh;
-        border-radius: 10px;
+    .image-modal img {
+        max-width: 88vw;
+        max-height: 82vh;
         object-fit: contain;
-        background: #ffffff;
+        border-radius: 9px;
+        background: #fff;
+        box-shadow: 0 15px 50px rgba(0,0,0,.25);
     }
 
     .image-modal-close {
         position: absolute;
-        top: -42px;
-        right: 0;
-        width: 36px;
-        height: 36px;
-        border: none;
+        top: 18px;
+        right: 22px;
+        width: 34px;
+        height: 34px;
+        border: 0;
         border-radius: 50%;
-        background: #ffffff;
-        color: #344054;
-        font-size: 22px;
+        background: #fff;
+        color: #252A86;
         cursor: pointer;
+        font-size: 18px;
+        font-weight: 700;
     }
 
     /* =========================================================
@@ -409,780 +569,744 @@
     ========================================================= */
     @media (max-width: 900px) {
         .info-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .questionnaire-layout {
+            grid-template-columns: 165px minmax(0, 1fr);
+        }
+
+        .answers-grid {
             grid-template-columns: 1fr;
         }
 
         .photo-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(2, 1fr);
         }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
         .detail-page {
-            padding-top: 5px;
+            padding: 15px 12px 30px;
         }
 
         .detail-header {
-            align-items: stretch;
+            align-items: flex-start;
+            flex-direction: column;
         }
 
-        .detail-header-left h1 {
-            font-size: 21px;
+        .questionnaire-layout {
+            grid-template-columns: 1fr;
         }
 
-        .detail-header-left p {
-            font-size: 13px;
-            line-height: 1.5;
+        .part-nav {
+            position: static;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
         }
 
-        .btn-back {
-            justify-content: center;
-            width: 100%;
+        .part-nav-title {
+            grid-column: 1 / -1;
         }
 
-        .detail-card {
-            border-radius: 11px;
-            margin-bottom: 14px;
+        .part-nav-item {
+            margin: 0;
         }
 
-        .detail-card-header {
-            padding: 14px;
+        .part-nav-text {
+            font-size: 9px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .part-nav {
+            grid-template-columns: 1fr 1fr;
         }
 
-        .detail-card-body {
-            padding: 14px;
-        }
-
-        .detail-card-title h2 {
-            font-size: 15px;
-        }
-
-        .detail-card-title span {
-            font-size: 11px;
-        }
-
-        .part-number {
-            width: 31px;
-            height: 31px;
-            min-width: 31px;
-        }
-
-        .info-grid {
-            gap: 10px;
-        }
-
-        .info-item {
-            padding: 12px;
-        }
-
-        .info-value {
-            font-size: 13px;
-        }
-
-        .question-label {
-            font-size: 12px;
-            padding: 11px 12px;
-        }
-
-        .question-answer {
-            font-size: 13px;
-            padding: 12px;
-        }
-
+        .info-grid,
+        .answers-grid,
         .photo-grid {
             grid-template-columns: 1fr;
         }
 
-        .photo-wrapper {
-            height: 220px;
+        .detail-card-body,
+        .part-content {
+            padding: 11px;
         }
 
-        .member-header {
-            padding: 13px;
-        }
-
-        .member-body {
-            padding: 13px;
+        .part-content-title {
+            font-size: 13px;
         }
     }
 </style>
-@endpush
 
-@section('content')
+
 <div class="detail-page">
 
-    {{-- =====================================================
-         HEADER
-    ====================================================== --}}
+    {{-- =========================================================
+        HEADER
+    ========================================================= --}}
     <div class="detail-header">
 
         <div class="detail-header-left">
-            <h1>Detail Kuisioner Selesai</h1>
-            <p>
-                Informasi lengkap hasil pendataan responden dan jawaban kuisioner Part 1 sampai Part 5.
-            </p>
+
+            <div>
+                <h1>Detail Kuisioner Selesai</h1>
+                <p>Detail jawaban pendataan keluarga</p>
+            </div>
+
         </div>
 
         <a href="{{ route('kuisioner.selesai') }}" class="btn-back">
-            <span>←</span>
-            <span>Kembali ke Kuisioner Selesai</span>
+            <i class="fas fa-arrow-left"></i>
+            Kembali
         </a>
 
     </div>
 
 
-    {{-- =====================================================
-         INFORMASI RESPONDEN
-    ====================================================== --}}
+    {{-- =========================================================
+        INFORMASI RESPONDEN
+    ========================================================= --}}
     <div class="detail-card active">
 
-        <div class="detail-card-header" onclick="toggleCard(this)">
+        <div class="detail-card-header"
+             onclick="toggleCard(this)">
+
             <div class="detail-card-title">
-                <div class="part-number">1</div>
 
                 <div>
-                    <h2>Informasi Responden</h2>
-                    <span>Identitas keluarga yang telah menyelesaikan kuisioner</span>
-                </div>
-            </div>
-
-            <div class="toggle-icon">⌃</div>
-        </div>
-
-        <div class="detail-card-body">
-
-            <div class="info-grid">
-
-                <div class="info-item">
-                    <div class="info-label">Nomor KK</div>
-                    <div class="info-value">
-                        {{ $dataPart1->nomor_kk ?? $dataPart1->no_kk ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">NIK Kepala Keluarga</div>
-                    <div class="info-value">
-                        {{ $dataPart1->nik ?? $dataPart1->nik_kepala_keluarga ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Nama Kepala Keluarga</div>
-                    <div class="info-value">
-                        {{ $dataPart1->nama_kepala_keluarga ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Kecamatan</div>
-                    <div class="info-value">
-                        {{ $dataPart1->kecamatan ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Kelurahan</div>
-                    <div class="info-value">
-                        {{ $dataPart1->kelurahan ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Alamat</div>
-                    <div class="info-value">
-                        {{ $dataPart1->alamat ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">RT</div>
-                    <div class="info-value">
-                        {{ $dataPart1->rt ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">RW</div>
-                    <div class="info-value">
-                        {{ $dataPart1->rw ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Kode Pos</div>
-                    <div class="info-value">
-                        {{ $dataPart1->kode_pos ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Status Kuisioner</div>
-                    <div class="info-value">
-                        <span class="status-badge status-selesai">
-                            ● Selesai
-                        </span>
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Tanggal Selesai</div>
-                    <div class="info-value">
-                        {{ optional($dataPart1->updated_at)->format('d-m-Y H:i') ?? '-' }}
-                    </div>
-                </div>
-
-                <div class="info-item">
-                    <div class="info-label">Kode Keluarga</div>
-                    <div class="info-value">
-                        {{ $dataPart1->keluarga_periode_kode ?? '-' }}
-                    </div>
+                    <h3>Informasi Responden</h3>
+                    <span>Identitas keluarga yang didata</span>
                 </div>
 
             </div>
 
+            <i class="fas fa-chevron-down detail-card-arrow"></i>
+
         </div>
-    </div>
 
-
-    {{-- =====================================================
-         PART 1
-    ====================================================== --}}
-    <div class="detail-card">
-
-        <div class="detail-card-header" onclick="toggleCard(this)">
-            <div class="detail-card-title">
-                <div class="part-number">1</div>
-
-                <div>
-                    <h2>Part 1</h2>
-                    <span>Data dasar keluarga</span>
-                </div>
-            </div>
-
-            <div class="toggle-icon">⌃</div>
-        </div>
 
         <div class="detail-card-body">
 
             @if($dataPart1)
 
                 @php
-                    $part1Hidden = [
-                        'id',
-                        'created_at',
-                        'updated_at',
-                        'deleted_at',
-                        'keluarga_periode_kode',
-                        'status',
-                        'current_part',
-                        'created_by',
-                        'updated_by',
-                    ];
+                    $p1 = $dataPart1;
 
-                    $part1Fields = collect($dataPart1->getAttributes())
-                        ->except($part1Hidden);
+                    /*
+                    * RT / RW
+                    * Prioritas dari data Part 1.
+                    * Jika kosong, coba ambil dari relasi keluarga jika tersedia.
+                    */
+                    $rt = $p1->rt
+                        ?? ($p1->keluarga->rt ?? null);
+
+                    $rw = $p1->rw
+                        ?? ($p1->keluarga->rw ?? null);
+
+                    /*
+                    * Kota / Kabupaten
+                    */
+                    $kota = $p1->kabupaten
+                        ?? $p1->kabupaten_kota
+                        ?? $p1->kota
+                        ?? ($p1->keluarga->kabupaten ?? null)
+                        ?? ($p1->keluarga->kota ?? null)
+                        ?? '-';
                 @endphp
 
-                <div class="question-list">
+                <div class="info-grid">
 
-                    @forelse($part1Fields as $field => $value)
-
-                        <div class="question-item">
-
-                            <div class="question-label">
-                                {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
-                            </div>
-
-                            <div class="question-answer">
-                                @if(is_array($value))
-                                    {{ implode(', ', $value) }}
-                                @elseif(is_object($value))
-                                    {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
-                                @elseif($value === null || $value === '')
-                                    <span class="answer-empty">Belum diisi</span>
-                                @else
-                                    {{ $value }}
-                                @endif
-                            </div>
-
+                    {{-- NO KK --}}
+                    <div class="info-item">
+                        <div class="info-label">No. KK</div>
+                        <div class="info-value">
+                            {{ $p1->no_kk ?? $p1->nomor_kk ?? '-' }}
                         </div>
+                    </div>
 
-                    @empty
-
-                        <div class="empty-data">
-                            Data Part 1 belum tersedia.
+                    {{-- NAMA KEPALA KELUARGA --}}
+                    <div class="info-item">
+                        <div class="info-label">Nama Kepala Keluarga</div>
+                        <div class="info-value">
+                            {{ $p1->nama_kepala_keluarga ?? '-' }}
                         </div>
+                    </div>
 
-                    @endforelse
+                    {{-- NIK --}}
+                    <div class="info-item">
+                        <div class="info-label">NIK</div>
+                        <div class="info-value">
+                            {{ $p1->nik ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- JUMLAH KELUARGA --}}
+                    <div class="info-item">
+                        <div class="info-label">Jumlah Keluarga</div>
+                        <div class="info-value">
+                            {{ $p1->jml_keluarga ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- PROVINSI --}}
+                    <div class="info-item">
+                        <div class="info-label">Provinsi</div>
+                        <div class="info-value">
+                            {{ $p1->provinsi ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- KOTA --}}
+                    <div class="info-item">
+                        <div class="info-label">Kota / Kabupaten</div>
+                        <div class="info-value">
+                            {{ $kota }}
+                        </div>
+                    </div>
+
+                    {{-- KECAMATAN --}}
+                    <div class="info-item">
+                        <div class="info-label">Kecamatan</div>
+                        <div class="info-value">
+                            {{ $p1->kecamatan ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- KELURAHAN --}}
+                    <div class="info-item">
+                        <div class="info-label">Kelurahan / Desa</div>
+                        <div class="info-value">
+                            {{ $p1->kelurahan ?? $p1->desa ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- RT / RW --}}
+                    <div class="info-item">
+                        <div class="info-label">RT / RW</div>
+                        <div class="info-value">
+                            @if($rt || $rw)
+                                {{ $rt ?? '-' }} / {{ $rw ?? '-' }}
+                            @else
+                                -
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- KODE POS --}}
+                    <div class="info-item">
+                        <div class="info-label">Kode Pos</div>
+                        <div class="info-value">
+                            {{ $p1->kode_pos ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- ALAMAT --}}
+                    <div class="info-item">
+                        <div class="info-label">Alamat</div>
+                        <div class="info-value">
+                            {{ $p1->alamat ?? $p1->alamat_lengkap ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- STATUS --}}
+                    <div class="info-item">
+                        <div class="info-label">Status</div>
+                        <div class="info-value">
+                            {{ $p1->status ?? '-' }}
+                        </div>
+                    </div>
 
                 </div>
 
             @else
 
-                <div class="empty-data">
-                    Data Part 1 belum tersedia.
+                <div class="empty-answer">
+                    Data identitas responden belum tersedia.
                 </div>
 
             @endif
 
         </div>
-    </div>
 
 
-    {{-- =====================================================
-         PART 2
-    ====================================================== --}}
-    <div class="detail-card">
+    {{-- =========================================================
+        PART NAVIGATION + JAWABAN
+    ========================================================= --}}
+    <div class="questionnaire-layout">
 
-        <div class="detail-card-header" onclick="toggleCard(this)">
-            <div class="detail-card-title">
-                <div class="part-number">2</div>
+        {{-- =====================================================
+            NAVIGASI KIRI
+        ===================================================== --}}
+        <div class="part-nav">
 
-                <div>
-                    <h2>Part 2</h2>
-                    <span>Jawaban kuisioner bagian kedua</span>
-                </div>
+            <div class="part-nav-title">
+                Bagian Kuisioner
             </div>
 
-            <div class="toggle-icon">⌃</div>
+            <button type="button"
+                    class="part-nav-item active"
+                    onclick="selectPart('part1', this)">
+
+                <div class="part-nav-number">1</div>
+
+                <div class="part-nav-text">
+                    Identitas & Tempat Tinggal
+                </div>
+
+            </button>
+
+
+            <button type="button"
+                    class="part-nav-item"
+                    onclick="selectPart('part2', this)">
+
+                <div class="part-nav-number">2</div>
+
+                <div class="part-nav-text">
+                    Kondisi Tempat Tinggal
+                </div>
+
+            </button>
+
+
+            <button type="button"
+                    class="part-nav-item"
+                    onclick="selectPart('part3', this)">
+
+                <div class="part-nav-number">3</div>
+
+                <div class="part-nav-text">
+                    Keuangan Keluarga
+                </div>
+
+            </button>
+
+
+            <button type="button"
+                    class="part-nav-item"
+                    onclick="selectPart('part4', this)">
+
+                <div class="part-nav-number">4</div>
+
+                <div class="part-nav-text">
+                    Aset Keluarga
+                </div>
+
+            </button>
+
+
+            <button type="button"
+                    class="part-nav-item"
+                    onclick="selectPart('part5', this)">
+
+                <div class="part-nav-number">5</div>
+
+                <div class="part-nav-text">
+                    Anggota Keluarga
+                </div>
+
+            </button>
+
+
+            <button type="button"
+                    class="part-nav-item"
+                    onclick="selectPart('foto', this)">
+
+                <i class="fas fa-camera"
+                   style="font-size: 13px; width: 23px; text-align: center;"></i>
+
+                <div class="part-nav-text">
+                    Foto Rumah
+                </div>
+
+            </button>
+
         </div>
 
-        <div class="detail-card-body">
 
-            @if($dataPart2)
+        {{-- =====================================================
+            PANEL KANAN
+        ===================================================== --}}
+        <div class="part-panel">
 
-                @php
-                    $part2Hidden = [
-                        'id',
-                        'created_at',
-                        'updated_at',
-                        'deleted_at',
-                        'keluarga_periode_kode',
-                    ];
 
-                    $part2Fields = collect($dataPart2->getAttributes())
-                        ->except($part2Hidden);
-                @endphp
+            {{-- =================================================
+                PART 1
+            ================================================= --}}
+            <div class="part-content active" id="part1">
 
-                <div class="question-list">
+                <div class="part-content-header">
 
-                    @forelse($part2Fields as $field => $value)
+                    <div>
+                        <h3 class="part-content-title">
+                            Part 1 — Identitas & Tempat Tinggal
+                        </h3>
 
-                        <div class="question-item">
-
-                            <div class="question-label">
-                                {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
-                            </div>
-
-                            <div class="question-answer">
-
-                                @if(is_array($value))
-                                    {{ implode(', ', $value) }}
-
-                                @elseif(is_object($value))
-                                    {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
-
-                                @elseif($value === null || $value === '')
-                                    <span class="answer-empty">
-                                        Belum diisi
-                                    </span>
-
-                                @else
-                                    {{ $value }}
-                                @endif
-
-                            </div>
-
-                        </div>
-
-                    @empty
-
-                        <div class="empty-data">
-                            Data Part 2 belum tersedia.
-                        </div>
-
-                    @endforelse
+                        <p class="part-content-subtitle">
+                            Data identitas dan lokasi tempat tinggal keluarga.
+                        </p>
+                    </div>
 
                 </div>
 
-            @else
 
-                <div class="empty-data">
-                    Data Part 2 belum tersedia.
-                </div>
-
-            @endif
-
-        </div>
-    </div>
-
-
-    {{-- =====================================================
-         PART 3
-    ====================================================== --}}
-    <div class="detail-card">
-
-        <div class="detail-card-header" onclick="toggleCard(this)">
-            <div class="detail-card-title">
-                <div class="part-number">3</div>
-
-                <div>
-                    <h2>Part 3</h2>
-                    <span>Jawaban kuisioner bagian ketiga</span>
-                </div>
-            </div>
-
-            <div class="toggle-icon">⌃</div>
-        </div>
-
-        <div class="detail-card-body">
-
-            @if($dataPart3)
-
-                @php
-                    $part3Hidden = [
-                        'id',
-                        'created_at',
-                        'updated_at',
-                        'deleted_at',
-                        'keluarga_periode_kode',
-                    ];
-
-                    $part3Fields = collect($dataPart3->getAttributes())
-                        ->except($part3Hidden);
-                @endphp
-
-                <div class="question-list">
-
-                    @forelse($part3Fields as $field => $value)
-
-                        <div class="question-item">
-
-                            <div class="question-label">
-                                {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
-                            </div>
-
-                            <div class="question-answer">
-
-                                @if(is_array($value))
-                                    {{ implode(', ', $value) }}
-
-                                @elseif(is_object($value))
-                                    {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
-
-                                @elseif($value === null || $value === '')
-                                    <span class="answer-empty">
-                                        Belum diisi
-                                    </span>
-
-                                @else
-                                    {{ $value }}
-                                @endif
-
-                            </div>
-
-                        </div>
-
-                    @empty
-
-                        <div class="empty-data">
-                            Data Part 3 belum tersedia.
-                        </div>
-
-                    @endforelse
-
-                </div>
-
-            @else
-
-                <div class="empty-data">
-                    Data Part 3 belum tersedia.
-                </div>
-
-            @endif
-
-        </div>
-    </div>
-
-
-    {{-- =====================================================
-         PART 4
-    ====================================================== --}}
-    <div class="detail-card">
-
-        <div class="detail-card-header" onclick="toggleCard(this)">
-            <div class="detail-card-title">
-                <div class="part-number">4</div>
-
-                <div>
-                    <h2>Part 4</h2>
-                    <span>Jawaban kuisioner bagian keempat</span>
-                </div>
-            </div>
-
-            <div class="toggle-icon">⌃</div>
-        </div>
-
-        <div class="detail-card-body">
-
-            @if(isset($dataPart4) && $dataPart4->count())
-
-                @foreach($dataPart4 as $index => $part4)
+                @if($dataPart1)
 
                     @php
-                        $part4Hidden = [
+                        $attributes = $dataPart1->getAttributes();
+
+                        $hiddenPart1 = [
                             'id',
                             'created_at',
                             'updated_at',
                             'deleted_at',
                             'keluarga_periode_kode',
+                            'status',
+                            'current_part',
+                            'created_by',
+                            'updated_by'
                         ];
-
-                        $part4Fields = collect($part4->getAttributes())
-                            ->except($part4Hidden);
                     @endphp
 
-                    <div class="member-card" style="margin-bottom: 14px;">
+                    <div class="answers-grid">
 
-                        <div class="member-header">
-                            <div class="member-title">
+                        @foreach($attributes as $field => $value)
 
-                                <div class="member-number">
-                                    {{ $index + 1 }}
+                            @if(!in_array($field, $hiddenPart1))
+
+                                <div class="answer-item">
+
+                                    <div class="answer-label">
+                                        {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                    </div>
+
+                                    <div class="answer-value">
+
+                                        @if(is_array($value))
+
+                                            {{ implode(', ', $value) }}
+
+                                        @elseif(is_object($value))
+
+                                            {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
+
+                                        @else
+
+                                            {{ $value !== null && $value !== '' ? $value : '-' }}
+
+                                        @endif
+
+                                    </div>
+
                                 </div>
 
-                                <div class="member-name">
-                                    Data Part 4
-                                    {{ $index + 1 }}
-                                </div>
+                            @endif
 
-                            </div>
-                        </div>
+                        @endforeach
 
-                        <div class="member-body">
+                    </div>
 
-                            <div class="question-list">
+                @else
 
-                                @foreach($part4Fields as $field => $value)
+                    <div class="empty-answer">
+                        Tidak ada jawaban Part 1.
+                    </div>
 
-                                    <div class="question-item">
+                @endif
 
-                                        <div class="question-label">
+            </div>
+
+
+            {{-- =================================================
+                PART 2
+            ================================================= --}}
+            <div class="part-content" id="part2">
+
+                <div class="part-content-header">
+
+                    <div>
+                        <h3 class="part-content-title">
+                            Part 2 — Kondisi Tempat Tinggal
+                        </h3>
+
+                        <p class="part-content-subtitle">
+                            Jawaban mengenai kondisi rumah dan tempat tinggal.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                @if($dataPart2)
+
+                    @php
+                        $part2Records = $dataPart2 instanceof \Illuminate\Support\Collection
+                            ? $dataPart2
+                            : collect([$dataPart2]);
+
+                        $hiddenPart2 = [
+                            'id',
+                            'created_at',
+                            'updated_at',
+                            'deleted_at',
+                            'keluarga_periode_kode',
+                            'created_by',
+                            'updated_by'
+                        ];
+                    @endphp
+
+                    @foreach($part2Records as $record)
+
+                        @php
+                            $attributes = method_exists($record, 'getAttributes')
+                                ? $record->getAttributes()
+                                : (is_array($record)
+                                    ? $record
+                                    : get_object_vars($record));
+                        @endphp
+
+                        <div class="answers-grid">
+
+                            @foreach($attributes as $field => $value)
+
+                                @if(!in_array($field, $hiddenPart2))
+
+                                    <div class="answer-item">
+
+                                        <div class="answer-label">
                                             {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
                                         </div>
 
-                                        <div class="question-answer">
+                                        <div class="answer-value">
 
                                             @if(is_array($value))
+
                                                 {{ implode(', ', $value) }}
 
                                             @elseif(is_object($value))
+
                                                 {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
 
-                                            @elseif($value === null || $value === '')
-                                                <span class="answer-empty">
-                                                    Belum diisi
-                                                </span>
-
                                             @else
-                                                {{ $value }}
+
+                                                {{ $value !== null && $value !== '' ? $value : '-' }}
+
                                             @endif
 
                                         </div>
 
                                     </div>
 
-                                @endforeach
+                                @endif
 
-                            </div>
+                            @endforeach
 
                         </div>
 
+                    @endforeach
+
+                @else
+
+                    <div class="empty-answer">
+                        Tidak ada jawaban Part 2.
                     </div>
 
-                @endforeach
-
-            @else
-
-                <div class="empty-data">
-                    Data Part 4 belum tersedia.
-                </div>
-
-            @endif
-
-        </div>
-    </div>
-
-
-    {{-- =====================================================
-         PART 5 - ANGGOTA KELUARGA
-    ====================================================== --}}
-    <div class="detail-card">
-
-        <div class="detail-card-header" onclick="toggleCard(this)">
-            <div class="detail-card-title">
-
-                <div class="part-number">5</div>
-
-                <div>
-                    <h2>Part 5 - Anggota Keluarga</h2>
-                    <span>Data dan jawaban setiap anggota keluarga</span>
-                </div>
+                @endif
 
             </div>
 
-            <div class="toggle-icon">⌃</div>
-        </div>
 
-        <div class="detail-card-body">
+            {{-- =================================================
+                PART 3
+            ================================================= --}}
+            <div class="part-content" id="part3">
 
-            @if(isset($anggota) && $anggota->count())
+                <div class="part-content-header">
 
-                <div class="member-list">
+                    <div>
+                        <h3 class="part-content-title">
+                            Part 3 — Keuangan Keluarga
+                        </h3>
 
-                    @foreach($anggota as $index => $member)
+                        <p class="part-content-subtitle">
+                            Jawaban mengenai kondisi ekonomi dan keuangan keluarga.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                @if($dataPart3)
+
+                    @php
+                        $part3Records = $dataPart3 instanceof \Illuminate\Support\Collection
+                            ? $dataPart3
+                            : collect([$dataPart3]);
+
+                        $hiddenPart3 = [
+                            'id',
+                            'created_at',
+                            'updated_at',
+                            'deleted_at',
+                            'keluarga_periode_kode',
+                            'created_by',
+                            'updated_by'
+                        ];
+                    @endphp
+
+                    @foreach($part3Records as $record)
 
                         @php
-                            $memberCode =
-                                $member->keluarga_anggota_kode
-                                ?? $member->kode
-                                ?? $member->id;
-
-                            $memberPart5 = null;
-
-                            if (isset($dataPart5)) {
-                                $memberPart5 = $dataPart5->get($memberCode);
-                            }
-
-                            $memberFields = collect($member->getAttributes())
-                                ->except([
-                                    'id',
-                                    'created_at',
-                                    'updated_at',
-                                    'deleted_at',
-                                    'keluarga_kode',
-                                ]);
+                            $attributes = method_exists($record, 'getAttributes')
+                                ? $record->getAttributes()
+                                : (is_array($record)
+                                    ? $record
+                                    : get_object_vars($record));
                         @endphp
 
-                        <div class="member-card">
+                        <div class="answers-grid">
 
-                            <div class="member-header">
+                            @foreach($attributes as $field => $value)
 
-                                <div class="member-title">
+                                @if(!in_array($field, $hiddenPart3))
 
-                                    <div class="member-number">
-                                        {{ $index + 1 }}
-                                    </div>
+                                    <div class="answer-item">
 
-                                    <div>
-                                        <div class="member-name">
-                                            {{ $member->nama_lengkap ?? $member->nama ?? 'Anggota Keluarga' }}
+                                        <div class="answer-label">
+                                            {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
                                         </div>
+
+                                        <div class="answer-value">
+
+                                            @if(is_array($value))
+
+                                                {{ implode(', ', $value) }}
+
+                                            @elseif(is_object($value))
+
+                                                {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
+
+                                            @else
+
+                                                {{ $value !== null && $value !== '' ? $value : '-' }}
+
+                                            @endif
+
+                                        </div>
+
                                     </div>
 
-                                </div>
+                                @endif
 
+                            @endforeach
+
+                        </div>
+
+                    @endforeach
+
+                @else
+
+                    <div class="empty-answer">
+                        Tidak ada jawaban Part 3.
+                    </div>
+
+                @endif
+
+            </div>
+
+
+            {{-- =================================================
+                PART 4
+            ================================================= --}}
+            <div class="part-content" id="part4">
+
+                <div class="part-content-header">
+
+                    <div>
+                        <h3 class="part-content-title">
+                            Part 4 — Aset Keluarga
+                        </h3>
+
+                        <p class="part-content-subtitle">
+                            Data kepemilikan aset keluarga.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                @if($dataPart4 && $dataPart4->count())
+
+                    @php
+                        $hiddenPart4 = [
+                            'id',
+                            'created_at',
+                            'updated_at',
+                            'deleted_at',
+                            'keluarga_periode_kode',
+                            'created_by',
+                            'updated_by'
+                        ];
+                    @endphp
+
+                    @foreach($dataPart4 as $index => $record)
+
+                        @php
+                            $attributes = method_exists($record, 'getAttributes')
+                                ? $record->getAttributes()
+                                : (is_array($record)
+                                    ? $record
+                                    : get_object_vars($record));
+                        @endphp
+
+                        <div class="record-card">
+
+                            <div class="record-card-title">
+                                Data Aset {{ $index + 1 }}
                             </div>
 
-                            <div class="member-body">
+                            <div class="record-card-body">
 
-                                {{-- DATA ANGGOTA --}}
-                                <div class="question-list">
+                                <div class="answers-grid">
 
-                                    @foreach($memberFields as $field => $value)
+                                    @foreach($attributes as $field => $value)
 
-                                        <div class="question-item">
+                                        @if(!in_array($field, $hiddenPart4))
 
-                                            <div class="question-label">
-                                                {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
-                                            </div>
+                                            <div class="answer-item">
 
-                                            <div class="question-answer">
-
-                                                @if(is_array($value))
-                                                    {{ implode(', ', $value) }}
-
-                                                @elseif(is_object($value))
-                                                    {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
-
-                                                @elseif($value === null || $value === '')
-                                                    <span class="answer-empty">
-                                                        Belum diisi
-                                                    </span>
-
-                                                @else
-                                                    {{ $value }}
-                                                @endif
-
-                                            </div>
-
-                                        </div>
-
-                                    @endforeach
-
-                                </div>
-
-
-                                {{-- JAWABAN PART 5 --}}
-                                @if($memberPart5)
-
-                                    <div style="height:16px;"></div>
-
-                                    <div class="question-list">
-
-                                        @php
-                                            $part5Fields = collect($memberPart5->getAttributes())
-                                                ->except([
-                                                    'id',
-                                                    'created_at',
-                                                    'updated_at',
-                                                    'deleted_at',
-                                                    'keluarga_periode_kode',
-                                                    'keluarga_anggota_kode',
-                                                ]);
-                                        @endphp
-
-                                        @foreach($part5Fields as $field => $value)
-
-                                            <div class="question-item">
-
-                                                <div class="question-label">
+                                                <div class="answer-label">
                                                     {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
                                                 </div>
 
-                                                <div class="question-answer">
+                                                <div class="answer-value">
 
                                                     @if(is_array($value))
+
                                                         {{ implode(', ', $value) }}
 
                                                     @elseif(is_object($value))
+
                                                         {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
 
-                                                    @elseif($value === null || $value === '')
-                                                        <span class="answer-empty">
-                                                            Belum diisi
-                                                        </span>
-
                                                     @else
-                                                        {{ $value }}
+
+                                                        {{ $value !== null && $value !== '' ? $value : '-' }}
+
                                                     @endif
 
                                                 </div>
 
                                             </div>
 
-                                        @endforeach
+                                        @endif
 
-                                    </div>
+                                    @endforeach
 
-                                @else
-
-                                    <div style="margin-top:14px;" class="empty-data">
-                                        Jawaban Part 5 untuk anggota ini belum tersedia.
-                                    </div>
-
-                                @endif
+                                </div>
 
                             </div>
 
@@ -1190,77 +1314,233 @@
 
                     @endforeach
 
-                </div>
+                @else
 
-            @else
+                    <div class="empty-answer">
+                        Tidak ada data Part 4.
+                    </div>
 
-                <div class="empty-data">
-                    Data anggota keluarga belum tersedia.
-                </div>
-
-            @endif
-
-        </div>
-    </div>
-
-
-    {{-- =====================================================
-         FOTO RUMAH
-    ====================================================== --}}
-    <div class="detail-card">
-
-        <div class="detail-card-header" onclick="toggleCard(this)">
-            <div class="detail-card-title">
-
-                <div class="part-number">+</div>
-
-                <div>
-                    <h2>Foto Rumah</h2>
-                    <span>Dokumentasi rumah responden</span>
-                </div>
+                @endif
 
             </div>
 
-            <div class="toggle-icon">⌃</div>
-        </div>
 
-        <div class="detail-card-body">
+            {{-- =================================================
+                PART 5
+            ================================================= --}}
+            <div class="part-content" id="part5">
 
-            @if(isset($fotoRumah) && $fotoRumah->count())
+                <div class="part-content-header">
 
-                <div class="photo-grid">
+                    <div>
+                        <h3 class="part-content-title">
+                            Part 5 — Anggota Keluarga
+                        </h3>
 
-                    @foreach($fotoRumah as $jenis => $foto)
+                        <p class="part-content-subtitle">
+                            Data anggota keluarga beserta jawaban kuisionernya.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                @if($anggota && $anggota->count())
+
+                    @php
+
+                        $hiddenMember = [
+                            'id',
+                            'created_at',
+                            'updated_at',
+                            'deleted_at',
+                            'keluarga_kode',
+                            'created_by',
+                            'updated_by'
+                        ];
+
+                        $hiddenPart5 = [
+                            'id',
+                            'created_at',
+                            'updated_at',
+                            'deleted_at',
+                            'keluarga_periode_kode',
+                            'keluarga_anggota_kode',
+                            'created_by',
+                            'updated_by'
+                        ];
+
+                    @endphp
+
+
+                    @foreach($anggota as $index => $member)
 
                         @php
-                            $fotoPath =
-                                $foto->path
-                                ?? $foto->foto
-                                ?? $foto->file_path
-                                ?? $foto->nama_file
-                                ?? null;
+
+                            $memberCode =
+                                $member->keluarga_anggota_kode
+                                ?? $member->kode
+                                ?? $member->id;
+
+                            $memberAnswer = null;
+
+                            if ($dataPart5 instanceof \Illuminate\Support\Collection) {
+
+                                $memberAnswer = $dataPart5->get($memberCode);
+
+                                if (!$memberAnswer) {
+                                    $memberAnswer = $dataPart5->firstWhere(
+                                        'keluarga_anggota_kode',
+                                        $memberCode
+                                    );
+                                }
+
+                                if (!$memberAnswer) {
+                                    $memberAnswer = $dataPart5->firstWhere(
+                                        'kode',
+                                        $memberCode
+                                    );
+                                }
+
+                            }
+
                         @endphp
 
-                        <div class="photo-card">
 
-                            <div class="photo-title">
-                                {{ ucwords(str_replace(['_', '-'], ' ', $jenis)) }}
+                        <div class="member-card">
+
+                            <div class="member-header">
+
+                                <div class="member-number">
+                                    {{ $index + 1 }}
+                                </div>
+
+                                <div class="member-name">
+                                    {{ $member->nama
+                                        ?? $member->nama_lengkap
+                                        ?? $member->nama_anggota
+                                        ?? 'Anggota Keluarga' }}
+                                </div>
+
                             </div>
 
-                            <div class="photo-wrapper">
 
-                                @if($fotoPath)
+                            <div class="member-body">
 
-                                    <img
-                                        src="{{ asset('storage/' . ltrim($fotoPath, '/')) }}"
-                                        alt="Foto {{ $jenis }}"
-                                        onclick="openImage(this.src)"
-                                    >
+                                @php
+                                    $memberAttributes = method_exists($member, 'getAttributes')
+                                        ? $member->getAttributes()
+                                        : (is_array($member)
+                                            ? $member
+                                            : get_object_vars($member));
+                                @endphp
+
+                                <div class="answers-grid">
+
+                                    @foreach($memberAttributes as $field => $value)
+
+                                        @if(!in_array($field, $hiddenMember))
+
+                                            <div class="answer-item">
+
+                                                <div class="answer-label">
+                                                    {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                                </div>
+
+                                                <div class="answer-value">
+
+                                                    @if(is_array($value))
+
+                                                        {{ implode(', ', $value) }}
+
+                                                    @elseif(is_object($value))
+
+                                                        {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
+
+                                                    @else
+
+                                                        {{ $value !== null && $value !== '' ? $value : '-' }}
+
+                                                    @endif
+
+                                                </div>
+
+                                            </div>
+
+                                        @endif
+
+                                    @endforeach
+
+                                </div>
+
+
+                                @if($memberAnswer)
+
+                                    @php
+
+                                        $part5Attributes = method_exists($memberAnswer, 'getAttributes')
+                                            ? $memberAnswer->getAttributes()
+                                            : (is_array($memberAnswer)
+                                                ? $memberAnswer
+                                                : get_object_vars($memberAnswer));
+
+                                    @endphp
+
+
+                                    <div style="margin-top:10px;">
+
+                                        <div class="record-card-title">
+                                            Jawaban Kuisioner Anggota
+                                        </div>
+
+                                        <div style="margin-top:7px;">
+
+                                            <div class="answers-grid">
+
+                                                @foreach($part5Attributes as $field => $value)
+
+                                                    @if(!in_array($field, $hiddenPart5))
+
+                                                        <div class="answer-item">
+
+                                                            <div class="answer-label">
+                                                                {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                                            </div>
+
+                                                            <div class="answer-value">
+
+                                                                @if(is_array($value))
+
+                                                                    {{ implode(', ', $value) }}
+
+                                                                @elseif(is_object($value))
+
+                                                                    {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
+
+                                                                @else
+
+                                                                    {{ $value !== null && $value !== '' ? $value : '-' }}
+
+                                                                @endif
+
+                                                            </div>
+
+                                                        </div>
+
+                                                    @endif
+
+                                                @endforeach
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
 
                                 @else
 
-                                    <div class="photo-empty">
-                                        Foto tidak tersedia.
+                                    <div class="empty-answer" style="margin-top:9px;">
+                                        Belum ada jawaban kuisioner untuk anggota ini.
                                     </div>
 
                                 @endif
@@ -1271,117 +1551,319 @@
 
                     @endforeach
 
+                @else
+
+                    <div class="empty-answer">
+                        Tidak ada data anggota keluarga.
+                    </div>
+
+                @endif
+
+            </div>
+
+
+            {{-- =================================================
+                FOTO RUMAH
+            ================================================= --}}
+            <div class="part-content" id="foto">
+
+                <div class="part-content-header">
+
+                    <div>
+                        <h3 class="part-content-title">
+                            Foto Rumah
+                        </h3>
+
+                        <p class="part-content-subtitle">
+                            Dokumentasi foto rumah keluarga.
+                        </p>
+                    </div>
+
                 </div>
 
-            @else
 
-                <div class="empty-data">
-                    Belum ada foto rumah yang tersimpan.
-                </div>
+                @if($fotoRumah && $fotoRumah->count())
 
-            @endif
+                    <div class="photo-grid">
+
+                        @foreach($fotoRumah as $type => $foto)
+
+                            @php
+
+                                $fotoPath = null;
+
+                                if (is_object($foto)) {
+
+                                    $fotoPath = $foto->path_file ?? null;
+
+                                    if (!$fotoPath && !empty($foto->nama_file)) {
+
+                                        $fotoPath =
+                                            'kuisioner/rumah/' .
+                                            ltrim($foto->nama_file, '/');
+                                    }
+
+                                } elseif (is_array($foto)) {
+
+                                    $fotoPath =
+                                        $foto['path_file'] ?? null;
+
+                                    if (!$fotoPath && !empty($foto['nama_file'])) {
+
+                                        $fotoPath =
+                                            'kuisioner/rumah/' .
+                                            ltrim($foto['nama_file'], '/');
+                                    }
+
+                                }
+
+                                $fotoPath = $fotoPath
+                                    ? trim((string) $fotoPath, '/')
+                                    : null;
+
+                                $fotoUrl = null;
+
+                                if ($fotoPath) {
+
+                                    if (
+                                        str_starts_with($fotoPath, 'http://') ||
+                                        str_starts_with($fotoPath, 'https://')
+                                    ) {
+
+                                        $fotoUrl = $fotoPath;
+
+                                    } elseif (
+                                        str_starts_with($fotoPath, 'storage/')
+                                    ) {
+
+                                        $fotoUrl = asset($fotoPath);
+
+                                    } elseif (
+                                        str_starts_with($fotoPath, 'public/')
+                                    ) {
+
+                                        $fotoUrl = asset(
+                                            str_replace(
+                                                'public/',
+                                                'storage/',
+                                                $fotoPath
+                                            )
+                                        );
+
+                                    } elseif (
+                                        str_starts_with($fotoPath, '/storage/')
+                                    ) {
+
+                                        $fotoUrl = asset(
+                                            ltrim($fotoPath, '/')
+                                        );
+
+                                    } else {
+
+                                        $fotoUrl = asset(
+                                            'storage/' . $fotoPath
+                                        );
+                                    }
+                                }
+
+                                $fotoTitle = ucwords(
+                                    str_replace(
+                                        ['_', '-'],
+                                        ' ',
+                                        $type
+                                    )
+                                );
+
+                            @endphp
+
+
+                            <div class="photo-card">
+
+                                @if($fotoUrl)
+
+                                    <div class="photo-image-wrapper">
+
+                                        <img
+                                            src="{{ $fotoUrl }}"
+                                            alt="{{ $fotoTitle }}"
+                                            class="photo-preview"
+                                            loading="lazy"
+                                            onclick="openImage(this.src)"
+                                            onerror="handlePhotoError(this)"
+                                        >
+
+                                        <div
+                                            class="photo-error"
+                                            style="display:none;"
+                                        >
+
+                                            <div class="photo-error-icon">
+                                                <i class="fas fa-camera"></i>
+                                            </div>
+
+                                            <div class="photo-error-text">
+                                                Foto tidak tersedia
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                @else
+
+                                    <div class="photo-image-wrapper no-photo">
+
+                                        <div class="photo-empty-icon">
+                                            <i class="fas fa-camera"></i>
+                                        </div>
+
+                                        <div class="photo-empty-text">
+                                            Foto belum tersedia
+                                        </div>
+
+                                    </div>
+
+                                @endif
+
+
+                                <div class="photo-title">
+                                    {{ $fotoTitle }}
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+
+                @else
+
+                    <div class="empty-photo">
+
+                        <div class="empty-photo-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+
+                        <div>
+                            <strong>Belum ada foto rumah</strong>
+
+                            <span>
+                                Dokumentasi foto belum tersedia.
+                            </span>
+                        </div>
+
+                    </div>
+
+                @endif
+
+            </div>
 
         </div>
+
     </div>
 
-</div>
 
+    {{-- =============================================================
+        MODAL FOTO
+    ============================================================= --}}
+    <div class="image-modal"
+         id="imageModal"
+         onclick="closeImage(event)">
 
-{{-- =========================================================
-     IMAGE MODAL
-========================================================= --}}
-<div class="image-modal" id="imageModal" onclick="closeImage(event)">
-
-    <div class="image-modal-content">
-
-        <button
-            type="button"
-            class="image-modal-close"
-            onclick="closeImage(event)"
-        >
-            ×
+        <button type="button"
+                class="image-modal-close"
+                onclick="closeImage(event)">
+            &times;
         </button>
 
-        <img
-            id="previewImage"
-            src=""
-            alt="Preview Foto"
-        >
+        <img id="modalImage"
+             src=""
+             alt="Preview Foto"
+             onclick="event.stopPropagation()">
 
     </div>
 
 </div>
-@endsection
 
 
-@push('scripts')
 <script>
+
     /* =========================================================
-       ACCORDION
+       ACCORDION INFORMASI
     ========================================================= */
     function toggleCard(header) {
 
-        const currentCard = header.closest('.detail-card');
+        const card = header.closest('.detail-card');
 
-        if (!currentCard) {
-            return;
-        }
+        if (!card) return;
 
-        const allCards = document.querySelectorAll('.detail-card');
-
-        allCards.forEach(function(card) {
-
-            if (card !== currentCard) {
-                card.classList.remove('active');
-            }
-
-        });
-
-        currentCard.classList.toggle('active');
+        card.classList.toggle('active');
     }
 
 
     /* =========================================================
-       IMAGE PREVIEW
+       PILIH PART
     ========================================================= */
-    function openImage(src) {
+    function selectPart(partId, button) {
 
-        const modal = document.getElementById('imageModal');
-        const image = document.getElementById('previewImage');
+        document.querySelectorAll('.part-nav-item')
+            .forEach(function(item) {
+                item.classList.remove('active');
+            });
 
-        if (!modal || !image) {
-            return;
+        document.querySelectorAll('.part-content')
+            .forEach(function(content) {
+                content.classList.remove('active');
+            });
+
+        if (button) {
+            button.classList.add('active');
         }
 
-        image.src = src;
+        const target = document.getElementById(partId);
+
+        if (target) {
+            target.classList.add('active');
+        }
+    }
+
+
+    /* =========================================================
+       BUKA FOTO
+    ========================================================= */
+    function openImage(url) {
+
+        if (!url) return;
+
+        const modal = document.getElementById('imageModal');
+        const image = document.getElementById('modalImage');
+
+        if (!modal || !image) return;
+
+        image.src = url;
+
         modal.classList.add('show');
 
         document.body.style.overflow = 'hidden';
     }
 
 
+    /* =========================================================
+       TUTUP FOTO
+    ========================================================= */
     function closeImage(event) {
 
         if (event) {
-
-            const clickedElement = event.target;
-
-            if (
-                clickedElement.id !== 'imageModal' &&
-                !clickedElement.classList.contains('image-modal-close')
-            ) {
-                return;
-            }
+            event.stopPropagation();
         }
 
         const modal = document.getElementById('imageModal');
-        const image = document.getElementById('previewImage');
+        const image = document.getElementById('modalImage');
 
-        if (!modal || !image) {
-            return;
-        }
+        if (!modal || !image) return;
 
         modal.classList.remove('show');
+
         image.src = '';
 
         document.body.style.overflow = '';
@@ -1389,22 +1871,41 @@
 
 
     /* =========================================================
-       ESCAPE CLOSE IMAGE
+       JIKA FOTO GAGAL DIMUAT
+    ========================================================= */
+    function handlePhotoError(img) {
+
+        img.style.display = 'none';
+
+        const wrapper = img.closest('.photo-image-wrapper');
+
+        if (!wrapper) return;
+
+        const errorBox = wrapper.querySelector('.photo-error');
+
+        if (errorBox) {
+            errorBox.style.display = 'flex';
+        }
+
+        const viewIcon = wrapper.querySelector('.photo-view-icon');
+
+        if (viewIcon) {
+            viewIcon.style.display = 'none';
+        }
+    }
+
+
+    /* =========================================================
+       ESC UNTUK MODAL
     ========================================================= */
     document.addEventListener('keydown', function(event) {
 
         if (event.key === 'Escape') {
-
-            const modal = document.getElementById('imageModal');
-
-            if (modal && modal.classList.contains('show')) {
-                closeImage({
-                    target: modal
-                });
-            }
-
+            closeImage();
         }
 
     });
+
 </script>
-@endpush
+
+@endsection

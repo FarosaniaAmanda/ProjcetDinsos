@@ -201,6 +201,18 @@ class RespondenController extends Controller
                 'max:13',
             ],
 
+            'rt' => [
+                'nullable',
+                'string',
+                'max:5',
+            ],
+
+            'rw' => [
+                'nullable',
+                'string',
+                'max:5',
+            ],
+
             'kode_pos' => [
                 'nullable',
                 'string',
@@ -221,7 +233,6 @@ class RespondenController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-
             $createdBy =
                 auth()->user()?->name ?? 'admin';
 
@@ -264,9 +275,11 @@ class RespondenController extends Controller
             $keluarga = Keluarga::create([
                 'kode' => $kodeKeluarga,
 
-                'no_kk' => $request->nomor_kk,
+                'no_kk' =>
+                    $request->nomor_kk,
 
-                'nik' => $nikKepalaKeluarga,
+                'nik' =>
+                    $nikKepalaKeluarga,
 
                 'nama_lengkap' =>
                     $request->nama_kepala_keluarga,
@@ -279,6 +292,12 @@ class RespondenController extends Controller
 
                 'kelurahan_id' =>
                     $request->kelurahan_id,
+
+                'rt' =>
+                    $request->rt,
+
+                'rw' =>
+                    $request->rw,
 
                 'kode_pos' =>
                     $request->kode_pos,
@@ -297,10 +316,8 @@ class RespondenController extends Controller
             */
 
             foreach (
-                $request->input('anggota', [])
-                as $anggota
+                $request->input('anggota', []) as $anggota
             ) {
-
                 $statusKeluarga =
                     $anggota['status_keluarga'] ?? '';
 
@@ -311,13 +328,11 @@ class RespondenController extends Controller
                 */
 
                 if ($statusKeluarga === 'Lainnya') {
-
                     $customStatus =
                         trim(
                             (string) (
-                                $anggota[
-                                    'status_keluarga_lainnya'
-                                ] ?? ''
+                                $anggota['status_keluarga_lainnya']
+                                ?? ''
                             )
                         );
 
@@ -400,7 +415,6 @@ class RespondenController extends Controller
         $kecamatan = null;
 
         if ($keluarga->kecamatan_id) {
-
             $kecamatan =
                 DB::table('kecamatans')
                     ->where(
@@ -419,7 +433,6 @@ class RespondenController extends Controller
         $kelurahan = null;
 
         if ($keluarga->kelurahan_id) {
-
             $kelurahan =
                 DB::table('kelurahans')
                     ->where(
@@ -466,7 +479,6 @@ class RespondenController extends Controller
                 )
                 ->sortBy(
                     function ($anggota) {
-
                         $statusPriority = [
                             'Kepala Keluarga' => 1,
                             'Istri' => 2,
@@ -495,7 +507,6 @@ class RespondenController extends Controller
                 )
                 ->map(
                     function ($anggota) {
-
                         $statusNormal = [
                             'Kepala Keluarga',
                             'Istri',
@@ -585,6 +596,12 @@ class RespondenController extends Controller
             'kelurahan' =>
                 $kelurahan?->deskripsi,
 
+            'rt' =>
+                $keluarga->rt,
+
+            'rw' =>
+                $keluarga->rw,
+
             'kode_pos' =>
                 $keluarga->kode_pos,
 
@@ -629,7 +646,6 @@ class RespondenController extends Controller
                 ->first();
 
         if (! $kecamatan) {
-
             return response()->json([
                 'success' => false,
 
@@ -671,7 +687,6 @@ class RespondenController extends Controller
         Request $request,
         $id
     ) {
-
         /*
         |--------------------------------------------------------------------------
         | Samakan nomor KK
@@ -774,6 +789,18 @@ class RespondenController extends Controller
                 'max:13',
             ],
 
+            'rt' => [
+                'nullable',
+                'string',
+                'max:5',
+            ],
+
+            'rw' => [
+                'nullable',
+                'string',
+                'max:5',
+            ],
+
             'kode_pos' => [
                 'nullable',
                 'string',
@@ -797,7 +824,6 @@ class RespondenController extends Controller
             $request,
             $id
         ) {
-
             $updatedBy =
                 auth()->user()?->name ?? 'admin';
 
@@ -856,6 +882,12 @@ class RespondenController extends Controller
                 'kelurahan_id' =>
                     $request->kelurahan_id,
 
+                'rt' =>
+                    $request->rt,
+
+                'rw' =>
+                    $request->rw,
+
                 'kode_pos' =>
                     $request->kode_pos,
 
@@ -883,10 +915,8 @@ class RespondenController extends Controller
             */
 
             foreach (
-                $request->input('anggota', [])
-                as $anggota
+                $request->input('anggota', []) as $anggota
             ) {
-
                 $statusKeluarga =
                     $anggota['status_keluarga']
                     ?? '';
@@ -898,7 +928,6 @@ class RespondenController extends Controller
                 */
 
                 if ($statusKeluarga === 'Lainnya') {
-
                     $customStatus =
                         trim(
                             (string) (
@@ -953,7 +982,6 @@ class RespondenController extends Controller
     public function destroy($id)
     {
         DB::transaction(function () use ($id) {
-
             $keluarga =
                 Keluarga::findOrFail($id);
 
@@ -984,7 +1012,6 @@ class RespondenController extends Controller
         $kecamatan = null;
 
         if ($keluarga->kecamatan_id) {
-
             $kecamatan =
                 DB::table('kecamatans')
                     ->where(
@@ -997,7 +1024,6 @@ class RespondenController extends Controller
         $kelurahan = null;
 
         if ($keluarga->kelurahan_id) {
-
             $kelurahan =
                 DB::table('kelurahans')
                     ->where(
@@ -1060,6 +1086,12 @@ class RespondenController extends Controller
             'kelurahan' =>
                 $kelurahan?->deskripsi,
 
+            'rt' =>
+                $keluarga->rt,
+
+            'rw' =>
+                $keluarga->rw,
+
             'kode_pos' =>
                 $keluarga->kode_pos,
 
@@ -1089,7 +1121,6 @@ class RespondenController extends Controller
         ?string $alamat,
         ?string $geotangging
     ): string {
-
         /*
         |--------------------------------------------------------------------------
         | Bersihkan alamat dari koordinat lama
@@ -1132,14 +1163,11 @@ class RespondenController extends Controller
             $geotangging;
 
         if ($alamat !== '') {
-
             $hasil =
                 $alamat .
                 "\n" .
                 $tambahan;
-
         } else {
-
             $hasil =
                 $tambahan;
         }
@@ -1163,7 +1191,6 @@ class RespondenController extends Controller
     private function hapusGeotagDariAlamat(
         ?string $alamat
     ): string {
-
         if (
             $alamat === null
             || trim($alamat) === ''
@@ -1181,7 +1208,7 @@ class RespondenController extends Controller
 
         $alamat =
             preg_replace(
-                '/\s*Koordinat:\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/i',
+                '/Koordinat:\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/i',
                 '',
                 $alamat
             );
@@ -1201,7 +1228,6 @@ class RespondenController extends Controller
     private function ambilGeotagDariAlamat(
         ?string $alamat
     ): ?string {
-
         if (
             $alamat === null
             || trim($alamat) === ''
@@ -1216,7 +1242,6 @@ class RespondenController extends Controller
                 $matches
             )
         ) {
-
             return
                 $matches[1] .
                 ', ' .

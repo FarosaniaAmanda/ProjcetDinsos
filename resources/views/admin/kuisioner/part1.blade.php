@@ -243,6 +243,40 @@
     }
 
     /* =========================================================
+    STATUS KUESIONER
+    ========================================================= */
+
+    .family-status {
+        margin-top: 6px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 9px;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: .3px;
+    }
+
+    /* DRAFT - ABU-ABU */
+
+    .status-draft {
+        background: #EEF0F3;
+        color: #687080;
+        border: 1px solid #D9DDE3;
+    }
+
+    /* DIAJUKAN - KUNING */
+
+    .status-diajukan {
+        background: #FFF3CD;
+        color: #946C00;
+        border: 1px solid #F0D477;
+    }
+
+    /* =========================================================
        BUTTON MULAI
        ========================================================= */
 
@@ -363,6 +397,65 @@
 
     .required {
         color: var(--danger);
+    }
+
+    /* =========================================================
+       PAGINATION
+       ========================================================= */
+
+    .family-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-top: 18px;
+        padding: 14px 4px;
+        flex-wrap: wrap;
+    }
+
+    .pagination-info {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .pagination-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .page-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #d9dce8;
+        border-radius: 8px;
+        background: #fff;
+        color: #292D8F;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+    .page-btn:hover {
+        background: #f0f1ff;
+        border-color: #292D8F;
+    }
+
+    .page-btn.active {
+        background: #292D8F;
+        color: #fff;
+        border-color: #292D8F;
+    }
+
+    .page-btn.disabled {
+        color: #b8bbc7;
+        background: #f5f6fa;
+        cursor: not-allowed;
     }
 
     /* =========================================================
@@ -684,6 +777,16 @@
             font-size: 14px;
         }
 
+        .family-pagination {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .pagination-links {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
         #map {
             height: 280px;
         }
@@ -814,8 +917,13 @@
                     @forelse($keluargas ?? [] as $keluarga)
 
                         @php
-                            $anggotaPertama = $keluarga->anggota->first();
+                            $statusKuesioner = $keluarga->status_kuesioner;
+
+                            $isDiajukan = $statusKuesioner === 'selesai';
+
+                            $isDraft = $statusKuesioner === 'draft';
                         @endphp
+
 
                         <tr class="family-row">
 
@@ -831,8 +939,30 @@
 
                                 </div>
 
+
                                 <div class="family-code">
                                     {{ $keluarga->kode }}
+                                </div>
+
+
+                                {{-- STATUS --}}
+
+                                <div class="family-status">
+
+                                    @if($isDiajukan)
+
+                                        <span class="status-badge status-diajukan">
+                                            DIAJUKAN
+                                        </span>
+
+                                    @elseif($isDraft)
+
+                                        <span class="status-badge status-draft">
+                                            DRAFT
+                                        </span>
+
+                                    @endif
+
                                 </div>
 
                             </td>
@@ -861,6 +991,8 @@
                                         'no_kk' => $keluarga->no_kk,
                                         'jumlah' => $keluarga->anggota->count() + 1,
                                         'kode_pos' => $keluarga->kode_pos,
+                                        'rt' => $keluarga->rt,
+                                        'rw' => $keluarga->rw,
                                         'alamat_lengkap' => $keluarga->alamat_lengkap,
                                         'kecamatan_id' => $keluarga->kecamatan_id,
                                         'kelurahan_id' => $keluarga->kelurahan_id,
@@ -875,6 +1007,7 @@
                             </td>
 
                         </tr>
+
 
                     @empty
 
@@ -906,6 +1039,46 @@
                 </tbody>
 
             </table>
+
+            @if ($keluargas->lastPage() > 1)
+                <div class="family-pagination" id="family-pagination">
+
+                    <div class="pagination-info">
+                        Menampilkan
+                        {{ $keluargas->firstItem() }}
+                        -
+                        {{ $keluargas->lastItem() }}
+                        dari
+                        {{ $keluargas->total() }}
+                        keluarga
+                    </div>
+
+                    <div class="pagination-links">
+
+                        @if ($keluargas->onFirstPage())
+                            <span class="page-btn disabled">‹</span>
+                        @else
+                            <a href="{{ $keluargas->previousPageUrl() }}" class="page-btn">‹</a>
+                        @endif
+
+                        @for ($page = 1; $page <= $keluargas->lastPage(); $page++)
+                            @if ($page == $keluargas->currentPage())
+                                <span class="page-btn active">{{ $page }}</span>
+                            @else
+                                <a href="{{ $keluargas->url($page) }}" class="page-btn">{{ $page }}</a>
+                            @endif
+                        @endfor
+
+                        @if ($keluargas->hasMorePages())
+                            <a href="{{ $keluargas->nextPageUrl() }}" class="page-btn">›</a>
+                        @else
+                            <span class="page-btn disabled">›</span>
+                        @endif
+
+                    </div>
+
+                </div>
+            @endif
 
         </div>
 
@@ -1425,8 +1598,9 @@
                         name="rt_rw"
                         id="rt_rw"
                         class="form-input"
-                        value="{{ old('rt_rw', $data->rt_rw ?? '') }}"
+                        value="{{ old('rt_rw', $data->rt_rw ?? (($selectedKeluarga?->rt && $selectedKeluarga?->rw) ? $selectedKeluarga->rt . '/' . $selectedKeluarga->rw : ($selectedKeluarga?->rt ?? $selectedKeluarga?->rw ?? ''))) }}"
                         placeholder="Contoh: 001/002"
+                        readonly
                     >
 
                 </div>
@@ -1708,68 +1882,103 @@
 
 
     /* =========================================================
-       SEARCH KEPALA KELUARGA
+       LIVE SEARCH KEPALA KELUARGA
     ========================================================= */
 
     const familySearch =
         document.getElementById('family-search');
 
-    const familySearchEmpty =
-        document.getElementById('family-search-empty');
-
+    let familySearchTimer = null;
+    let familySearchRequest = null;
 
     if (familySearch) {
 
-        familySearch.addEventListener(
-            'input',
-            function () {
+        familySearch.addEventListener('input', function () {
 
-                const keyword =
-                    this.value.trim().toLowerCase();
+            const keyword = this.value.trim();
 
-                const rows =
-                    document.querySelectorAll('.family-row');
+            clearTimeout(familySearchTimer);
 
-                let visibleRows = 0;
+            familySearchTimer = setTimeout(function () {
 
+                const url = new URL(window.location.href);
 
-                rows.forEach(function (row) {
+                url.searchParams.delete('page');
 
-                    const nameElement =
-                        row.querySelector('.family-name');
-
-                    const name =
-                        nameElement
-                            ? nameElement.textContent.trim().toLowerCase()
-                            : '';
-
-                    const matched =
-                        keyword === '' ||
-                        name.includes(keyword);
-
-
-                    row.style.display =
-                        matched ? '' : 'none';
-
-
-                    if (matched) {
-                        visibleRows++;
-                    }
-
-                });
-
-
-                if (familySearchEmpty) {
-
-                    familySearchEmpty.style.display =
-                        keyword !== '' && visibleRows === 0
-                            ? 'table-row'
-                            : 'none';
-
+                if (keyword !== '') {
+                    url.searchParams.set('search', keyword);
+                } else {
+                    url.searchParams.delete('search');
                 }
 
-            }
-        );
+                if (familySearchRequest) {
+                    familySearchRequest.abort();
+                }
+
+                familySearchRequest = new AbortController();
+
+                fetch(url.toString(), {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    },
+                    signal: familySearchRequest.signal
+                })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error('Gagal melakukan pencarian.');
+                    }
+                    return response.text();
+                })
+                .then(function (html) {
+
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const newTbody =
+                        doc.querySelector('.family-table tbody');
+
+                    const currentTbody =
+                        document.querySelector('.family-table tbody');
+
+                    if (newTbody && currentTbody) {
+                        currentTbody.innerHTML = newTbody.innerHTML;
+                    }
+
+                    const oldPagination =
+                        document.querySelector('#family-pagination');
+
+                    const newPagination =
+                        doc.querySelector('#family-pagination');
+
+                    if (oldPagination) {
+                        if (newPagination) {
+                            oldPagination.outerHTML = newPagination.outerHTML;
+                        } else {
+                            oldPagination.remove();
+                        }
+                    } else if (newPagination) {
+                        const tableWrap =
+                            document.querySelector('.family-table-wrap');
+
+                        if (tableWrap) {
+                            tableWrap.appendChild(newPagination);
+                        }
+                    }
+
+                    window.history.replaceState({}, '', url.toString());
+
+                })
+                .catch(function (error) {
+                    if (error.name !== 'AbortError') {
+                        console.error('Live search error:', error);
+                    }
+                });
+
+            }, 300);
+
+        });
 
     }
 
@@ -1858,6 +2067,17 @@
             keluarga.kode_pos
         );
 
+        setValue(
+            'rt_rw',
+            (keluarga.rt ?? '') +
+            (
+                keluarga.rt || keluarga.rw
+                    ? '/'
+                    : ''
+            ) +
+            (keluarga.rw ?? '')
+        );
+        
         setValue(
             'alamat_lengkap',
             keluarga.alamat_lengkap
