@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Kelurahan;
-use App\Models\RtRw;
-use App\Models\PetugasWilayah;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -27,13 +25,11 @@ class UserController extends Controller
             ->get();
 
         $petugas = User::where('role', 'petugas')
-            ->with([
-                'petugasWilayah.rtRw'
-            ])
             ->orderBy('name')
             ->get();
 
-        $kelurahans = Kelurahan::orderBy('deskripsi')->get();
+        $kelurahans = Kelurahan::orderBy('deskripsi')
+            ->get();
 
         return view(
             'admin.master.pengguna.index',
@@ -46,9 +42,11 @@ class UserController extends Controller
         );
     }
 
-
     /**
-     * Simpan Operator / Verifikator / Petugas.
+     * Menyimpan Operator / Verifikator / Petugas.
+     *
+     * Password otomatis:
+     * perlinsos123
      */
     public function store(Request $request)
     {
@@ -82,134 +80,40 @@ class UserController extends Controller
                 'unique:users,email',
             ],
 
-            'password' => [
-                'required',
-                'string',
-                'min:6',
-            ],
-
             'kelurahan_id' => [
                 'required_if:role,petugas',
                 'nullable',
                 'string',
                 'exists:kelurahans,kelurahan_id',
             ],
-
-            'rt_rw_ids' => [
-                'required_if:role,petugas',
-                'nullable',
-                'array',
-                'min:1',
-            ],
-
-            'rt_rw_ids.*' => [
-                'integer',
-                'distinct',
-                'exists:rt_rws,id',
-            ],
         ]);
-
 
         DB::transaction(function () use ($validated) {
 
             $kelurahan = null;
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Validasi wilayah jika Petugas
-            |--------------------------------------------------------------------------
-            */
-
             if ($validated['role'] === 'petugas') {
-
                 $kelurahan = Kelurahan::where(
                     'kelurahan_id',
                     $validated['kelurahan_id']
                 )->firstOrFail();
-
-
-                $validRtRwIds = RtRw::where(
-                    'kelurahan_id',
-                    $validated['kelurahan_id']
-                )
-                    ->whereIn(
-                        'id',
-                        $validated['rt_rw_ids']
-                    )
-                    ->pluck('id')
-                    ->map(fn ($id) => (int) $id)
-                    ->sort()
-                    ->values()
-                    ->all();
-
-
-                $requestedRtRwIds = collect(
-                    $validated['rt_rw_ids']
-                )
-                    ->map(fn ($id) => (int) $id)
-                    ->sort()
-                    ->values()
-                    ->all();
-
-
-                if ($validRtRwIds !== $requestedRtRwIds) {
-
-                    abort(
-                        422,
-                        'RT/RW yang dipilih tidak sesuai dengan kelurahan.'
-                    );
-                }
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Simpan User
-            |--------------------------------------------------------------------------
-            */
-
-            $user = User::create([
+            User::create([
                 'nomor_identitas' => $validated['nomor_identitas'],
                 'name' => $validated['name'],
                 'email' => $validated['email'],
 
-                /*
-                |--------------------------------------------------------------------------
-                | Password disimpan sebagai teks biasa
-                |--------------------------------------------------------------------------
-                */
-
-                'password' => $validated['password'],
+                // Password default
+                'password' => 'perlinsos123',
 
                 'role' => $validated['role'],
 
                 'kelurahan' => $kelurahan
                     ? $kelurahan->deskripsi
                     : null,
-
-                'is_active' => 1,
             ]);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Simpan wilayah Petugas
-            |--------------------------------------------------------------------------
-            */
-
-            if ($validated['role'] === 'petugas') {
-
-                foreach ($validated['rt_rw_ids'] as $rtRwId) {
-
-                    PetugasWilayah::create([
-                        'user_id' => $user->id,
-                        'rt_rw_id' => $rtRwId,
-                    ]);
-                }
-            }
         });
-
 
         return response()->json([
             'success' => true,
@@ -218,9 +122,11 @@ class UserController extends Controller
         ]);
     }
 
-
     /**
      * Update Operator / Verifikator / Petugas.
+     *
+     * Password tidak diubah dari halaman edit.
+     * User dapat mengganti passwordnya sendiri.
      */
     public function update(Request $request, User $user)
     {
@@ -238,8 +144,10 @@ class UserController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('users', 'nomor_identitas')
-                    ->ignore($user->id),
+                Rule::unique(
+                    'users',
+                    'nomor_identitas'
+                )->ignore($user->id),
             ],
 
             'name' => [
@@ -252,14 +160,10 @@ class UserController extends Controller
                 'required',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')
-                    ->ignore($user->id),
-            ],
-
-            'password' => [
-                'nullable',
-                'string',
-                'min:6',
+                Rule::unique(
+                    'users',
+                    'email'
+                )->ignore($user->id),
             ],
 
             'kelurahan_id' => [
@@ -268,82 +172,20 @@ class UserController extends Controller
                 'string',
                 'exists:kelurahans,kelurahan_id',
             ],
-
-            'rt_rw_ids' => [
-                'required_if:role,petugas',
-                'nullable',
-                'array',
-                'min:1',
-            ],
-
-            'rt_rw_ids.*' => [
-                'integer',
-                'distinct',
-                'exists:rt_rws,id',
-            ],
         ]);
-
 
         DB::transaction(function () use ($validated, $user) {
 
             $kelurahan = null;
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Validasi wilayah jika Petugas
-            |--------------------------------------------------------------------------
-            */
-
             if ($validated['role'] === 'petugas') {
-
                 $kelurahan = Kelurahan::where(
                     'kelurahan_id',
                     $validated['kelurahan_id']
                 )->firstOrFail();
-
-
-                $validRtRwIds = RtRw::where(
-                    'kelurahan_id',
-                    $validated['kelurahan_id']
-                )
-                    ->whereIn(
-                        'id',
-                        $validated['rt_rw_ids']
-                    )
-                    ->pluck('id')
-                    ->map(fn ($id) => (int) $id)
-                    ->sort()
-                    ->values()
-                    ->all();
-
-
-                $requestedRtRwIds = collect(
-                    $validated['rt_rw_ids']
-                )
-                    ->map(fn ($id) => (int) $id)
-                    ->sort()
-                    ->values()
-                    ->all();
-
-
-                if ($validRtRwIds !== $requestedRtRwIds) {
-
-                    abort(
-                        422,
-                        'RT/RW yang dipilih tidak sesuai dengan kelurahan.'
-                    );
-                }
             }
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | Data utama User
-            |--------------------------------------------------------------------------
-            */
-
-            $data = [
+            $user->update([
                 'nomor_identitas' => $validated['nomor_identitas'],
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -352,57 +194,8 @@ class UserController extends Controller
                 'kelurahan' => $kelurahan
                     ? $kelurahan->deskripsi
                     : null,
-            ];
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Password
-            |--------------------------------------------------------------------------
-            | Jika password diisi saat edit,
-            | password disimpan sebagai teks biasa.
-            |--------------------------------------------------------------------------
-            */
-
-            if (!empty($validated['password'])) {
-
-                $data['password'] = $validated['password'];
-            }
-
-
-            $user->update($data);
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Hapus wilayah lama
-            |--------------------------------------------------------------------------
-            */
-
-            PetugasWilayah::where(
-                'user_id',
-                $user->id
-            )->delete();
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Simpan wilayah baru jika Petugas
-            |--------------------------------------------------------------------------
-            */
-
-            if ($validated['role'] === 'petugas') {
-
-                foreach ($validated['rt_rw_ids'] as $rtRwId) {
-
-                    PetugasWilayah::create([
-                        'user_id' => $user->id,
-                        'rt_rw_id' => $rtRwId,
-                    ]);
-                }
-            }
+            ]);
         });
-
 
         return response()->json([
             'success' => true,
@@ -410,49 +203,31 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Reset password ke password default.
+     */
+    public function resetPassword(User $user)
+    {
+        $user->update([
+            'password' => 'perlinsos123',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password berhasil direset ke password default.',
+        ]);
+    }
 
     /**
-     * Hapus User.
+     * Menghapus User.
      */
     public function destroy(User $user)
     {
-        DB::transaction(function () use ($user) {
-
-            PetugasWilayah::where(
-                'user_id',
-                $user->id
-            )->delete();
-
-            $user->delete();
-        });
-
+        $user->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Data pengguna berhasil dihapus.',
         ]);
-    }
-
-
-    /**
-     * Mengambil RT/RW berdasarkan Kelurahan.
-     */
-    public function getRtRw($kelurahanId)
-    {
-        $rtRw = RtRw::where(
-            'kelurahan_id',
-            $kelurahanId
-        )
-            ->orderBy('rw')
-            ->orderBy('rt')
-            ->get([
-                'id',
-                'kelurahan_id',
-                'rt',
-                'rw',
-            ]);
-
-
-        return response()->json($rtRw);
     }
 }

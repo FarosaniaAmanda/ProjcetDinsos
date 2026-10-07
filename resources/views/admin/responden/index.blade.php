@@ -2,6 +2,10 @@
 
 @section('title', 'Manajemen Responden')
 
+@if (session('success'))
+<div class="responden-notification success" id="respondenNotification"><span class="responden-notification-icon">✓</span><span>{{ session('success') }}</span></div>
+@endif
+
 @push('styles')
 
 <link
@@ -591,9 +595,16 @@
 
 .responden-action {
     display: flex;
-    gap: 6px;
     align-items: center;
-    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.responden-table td:last-child {
+    white-space: nowrap;
+    min-width: 185px;
 }
 
 .responden-edit-btn {
@@ -633,6 +644,11 @@
     border-color: #b34a4a;
     color: #fff;
 }
+
+.responden-detail-btn{height:31px;padding:0 10px;border:1px solid #dfe1e8;background:#f8f9ff;color:#555;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s ease}.responden-detail-btn:hover{background:#eef0ff;border-color:#252A86;color:#252A86}
+.responden-notification{position:fixed;top:24px;left:24px;right:auto;z-index:99999;min-width:330px;max-width:440px;padding:14px 18px;border-radius:10px;color:#fff;font-size:12px;font-weight:600;display:flex;gap:11px;align-items:center;box-shadow:0 10px 28px rgba(0,0,0,.20);animation:respondenNotifIn .25s ease-out}.responden-notification.success{background:#198754;border:1px solid #157347}.responden-notification.warning{background:#dc3545;border:1px solid #bb2d3b}.responden-notification-icon{width:23px;height:23px;flex:0 0 23px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);color:#fff;font-weight:800;font-size:13px}.responden-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.responden-detail-item{padding:13px 14px;background:#fff;border:1px solid #e5e6ed;border-radius:9px;box-shadow:0 2px 7px rgba(0,0,0,.035)}.responden-detail-item.full{grid-column:1/-1}.responden-detail-label{font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.35px;margin-bottom:6px}.responden-detail-value{font-size:12px;color:#333;line-height:1.6;word-break:break-word}.responden-detail-member{padding:12px 14px;border:1px solid #e5e6ed;border-radius:9px;background:#fff;margin-bottom:9px;box-shadow:0 2px 7px rgba(0,0,0,.035)}.responden-detail-member-name{font-size:11px;font-weight:700;color:#252A86}.responden-detail-member-meta{font-size:10px;color:#777;margin-top:5px;line-height:1.5}.responden-detail-section-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:11px;font-weight:700;color:#252A86}.responden-detail-section-title::before{content:'';width:4px;height:17px;border-radius:3px;background:#252A86}.responden-detail-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.responden-detail-summary-item{padding:12px 14px;background:#f7f8fc;border:1px solid #e5e6ed;border-radius:9px}.responden-detail-summary-label{font-size:9px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.3px}.responden-detail-summary-value{margin-top:4px;font-size:13px;color:#252A86;font-weight:700;line-height:1.4}
+@keyframes respondenNotifIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:700px){.responden-detail-grid{grid-template-columns:1fr}.responden-detail-item.full{grid-column:auto}.responden-notification{left:15px;right:15px;min-width:0;max-width:none}.responden-detail-summary{grid-template-columns:1fr}}
 
 
 /* =========================================================
@@ -975,6 +991,28 @@ textarea.responden-form-control {
 
 
 /* =========================================================
+   LAYOUT RT/RW DAN KODE POS/ALAMAT
+========================================================= */
+
+.responden-wilayah-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+.responden-wilayah-pair .responden-form-group {
+    min-width: 0;
+}
+
+@media (max-width: 700px) {
+    .responden-wilayah-pair {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
    MAP GEOTAGGING
 ========================================================= */
 
@@ -1232,7 +1270,7 @@ textarea.responden-form-control {
                 >
 
                 <button
-                    type="submit"
+                    type="Tinjau"
                     class="responden-search-button"
                     aria-label="Cari responden"
                     title="Cari responden"
@@ -1362,12 +1400,26 @@ textarea.responden-form-control {
                                     {{ $keluarga->kecamatan ?? '-' }}
                                 </div>
                                 <div style="font-size:11px;color:#777;margin-top:3px;">
-                                    {{ $keluarga->alamat_lengkap ?? '-' }}
+                                    <div>
+                                        {{ $keluarga->alamat_tampil ?? $keluarga->alamat_lengkap ?? '-' }}
+                                    </div>
+                                    @if($keluarga->rt || $keluarga->rw)
+                                        <div style="font-size:11px;color:#777;margin-top:3px;">
+                                            RT {{ $keluarga->rt ?? '-' }}/RW {{ $keluarga->rw ?? '-' }}
+                                        </div>
+                                    @endif
+                                    @if($keluarga->geotangging)
+                                        <div style="font-size:11px;color:#777;margin-top:3px;">
+                                            Koordinat: {{ $keluarga->geotangging }}
+                                        </div>
+                                    @endif
                                 </div>
                             </td>
 
                             <td>
                                 <div class="responden-action">
+                                    <button type="button" class="responden-detail-btn" onclick="detailResponden({{ $keluarga->id }})">Detail</button>
+
                                     <button
                                         type="button"
                                         class="responden-edit-btn"
@@ -1427,7 +1479,19 @@ textarea.responden-form-control {
                                         {{ $keluarga->kecamatan ?? '-' }}
                                     </div>
                                     <div style="font-size:11px;color:#777;margin-top:3px;">
-                                        {{ $keluarga->alamat_lengkap ?? '-' }}
+                                        <div>
+                                            {{ $keluarga->alamat_tampil ?? $keluarga->alamat_lengkap ?? '-' }}
+                                        </div>
+                                        @if($keluarga->rt || $keluarga->rw)
+                                            <div style="font-size:11px;color:#777;margin-top:3px;">
+                                                RT {{ $keluarga->rt ?? '-' }}/RW {{ $keluarga->rw ?? '-' }}
+                                            </div>
+                                        @endif
+                                        @if($keluarga->geotangging)
+                                            <div style="font-size:11px;color:#777;margin-top:3px;">
+                                                Koordinat: {{ $keluarga->geotangging }}
+                                            </div>
+                                        @endif
                                     </div>
                                 </td>
                                 <td>
@@ -1574,171 +1638,6 @@ textarea.responden-form-control {
 
 
                 {{-- =================================================
-                     WILAYAH
-                ================================================== --}}
-
-                <div class="responden-section">
-
-                    <div class="responden-section-heading">
-                        Wilayah / Alamat Keluarga
-                    </div>
-
-                    <div class="responden-section-description">
-                        Masukkan wilayah dan alamat tempat tinggal keluarga yang akan didata.
-                    </div>
-
-
-                    <div class="responden-form-grid">
-
-
-                        {{-- PROVINSI --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Provinsi
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                name="provinsi"
-                                class="responden-form-control"
-                                value="Jawa Timur"
-                                readonly
-                                required
-                            >
-
-                        </div>
-
-
-                        {{-- KOTA --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Daerah/Kota
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                name="daerah"
-                                class="responden-form-control"
-                                value="Kota Pasuruan"
-                                readonly
-                                required
-                            >
-
-                        </div>
-
-
-                        {{-- KECAMATAN --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Kecamatan
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="kecamatan_id"
-                                id="kecamatan"
-                                class="responden-form-control"
-                                required
-                            >
-
-                                <option value="">
-                                    Pilih Kecamatan
-                                </option>
-
-                                @foreach ($kecamatans as $kecamatan)
-
-                                    <option
-                                        value="{{ $kecamatan->kecamatan_id }}"
-                                    >
-                                        {{ $kecamatan->deskripsi }}
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-
-                        {{-- KELURAHAN --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Kelurahan/Desa
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="kelurahan_id"
-                                id="kelurahan"
-                                class="responden-form-control"
-                                required
-                            >
-
-                                <option value="">
-                                    Pilih Kecamatan terlebih dahulu
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        {{-- KODE POS --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Kode Pos
-                            </label>
-
-                            <input
-                                type="text"
-                                name="kode_pos"
-                                class="responden-form-control"
-                                placeholder="Masukkan kode pos"
-                                maxlength="10"
-                                inputmode="numeric"
-                            >
-
-                        </div>
-
-
-                        {{-- ALAMAT --}}
-
-                        <div class="responden-form-group full">
-
-                            <label class="responden-form-label">
-                                Alamat Lengkap 
-                                <span class="required">*</span>
-                            </label>
-
-                            <textarea
-                                name="alamat_lengkap"
-                                class="responden-form-control"
-                                placeholder="Masukkan alamat lengkap"
-                                rows="3"
-                                required
-                            ></textarea>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                {{-- =================================================
                      DATA KK
                 ================================================== --}}
 
@@ -1861,6 +1760,222 @@ textarea.responden-form-control {
 
 
 
+                
+
+
+                {{-- =================================================
+                     WILAYAH
+                ================================================== --}}
+
+                <div class="responden-section">
+
+                    <div class="responden-section-heading">
+                        Wilayah / Alamat Keluarga
+                    </div>
+
+                    <div class="responden-section-description">
+                        Masukkan wilayah dan alamat tempat tinggal keluarga yang akan didata.
+                    </div>
+
+
+                    <div class="responden-form-grid">
+
+
+                        {{-- PROVINSI --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Provinsi
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="provinsi"
+                                class="responden-form-control"
+                                value="Jawa Timur"
+                                readonly
+                                required
+                            >
+
+                        </div>
+
+
+                        {{-- KOTA --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Daerah/Kota
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="daerah"
+                                class="responden-form-control"
+                                value="Kota Pasuruan"
+                                readonly
+                                required
+                            >
+
+                        </div>
+
+
+                        {{-- KECAMATAN --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Kecamatan
+                                <span class="required">*</span>
+                            </label>
+
+                            <select
+                                name="kecamatan_id"
+                                id="kecamatan"
+                                class="responden-form-control"
+                                required
+                            >
+
+                                <option value="">
+                                    Pilih Kecamatan
+                                </option>
+
+                                @foreach ($kecamatans as $kecamatan)
+
+                                    <option
+                                        value="{{ $kecamatan->kecamatan_id }}"
+                                    >
+                                        {{ $kecamatan->deskripsi }}
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+
+                        {{-- KELURAHAN --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Kelurahan/Desa
+                                <span class="required">*</span>
+                            </label>
+
+                            <select
+                                name="kelurahan_id"
+                                id="kelurahan"
+                                class="responden-form-control"
+                                required
+                            >
+
+                                <option value="">
+                                    Pilih Kecamatan terlebih dahulu
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="responden-wilayah-pair">
+
+{{-- RT --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RT
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rt"
+                                class="responden-form-control"
+                                placeholder="Contoh: 001"
+                                maxlength="5"
+                                inputmode="numeric"
+                            >
+
+                        </div>
+
+{{-- RW --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RW
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rw"
+                                class="responden-form-control"
+                                placeholder="Contoh: 002"
+                                maxlength="5"
+                                inputmode="numeric"
+                            >
+
+                        </div>
+
+</div>
+
+<div class="responden-wilayah-pair">
+
+{{-- KODE POS --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Kode Pos
+                            </label>
+
+                            <input
+                                type="text"
+                                name="kode_pos"
+                                class="responden-form-control"
+                                placeholder="Masukkan kode pos"
+                                maxlength="10"
+                                inputmode="numeric"
+                            >
+
+                        </div>
+
+{{-- ALAMAT --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Alamat Lengkap 
+                                <span class="required">*</span>
+                            </label>
+
+                            <textarea
+                                name="alamat_lengkap"
+                                class="responden-form-control"
+                                placeholder="Masukkan alamat lengkap"
+                                rows="3"
+                                required
+                            ></textarea>
+
+                        </div>
+
+</div>
+
+                    </div>
+
+                </div>
+
+
+
+                
+
+
                 {{-- =================================================
                      ANGGOTA KELUARGA
                 ================================================== --}}
@@ -1905,6 +2020,9 @@ textarea.responden-form-control {
                 </div>
 
 
+                
+
+
                 {{-- =================================================
                      GEOTAGGING
                 ================================================== --}}
@@ -1940,7 +2058,7 @@ textarea.responden-form-control {
                     </div>
 
                     <div class="geotagging-help">
-                        Peta hanya menampilkan lokasi yang diperoleh dari perangkat dan tidak dapat dipilih secara manual.
+                        Pilih lokasi secara otomatis dengan tombol “Ambil Lokasi Saya”, atau klik langsung pada peta untuk mengganti titik lokasi.
                     </div>
 
                     <div
@@ -1986,7 +2104,7 @@ textarea.responden-form-control {
                 </button>
 
                 <button
-                    type="submit"
+                    type="Tinjau"
                     class="responden-btn responden-btn-primary"
                 >
                     Simpan Responden
@@ -2049,178 +2167,6 @@ textarea.responden-form-control {
 
 
             <div class="responden-modal-body">
-
-
-                {{-- =================================================
-                     WILAYAH EDIT
-                ================================================== --}}
-
-                <div class="responden-section">
-
-                    <div class="responden-section-heading">
-                        Wilayah / Alamat Keluarga
-                    </div>
-
-                    <div class="responden-section-description">
-                        
-                    </div>
-
-
-                    <div class="responden-form-grid">
-
-
-                        {{-- PROVINSI --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Provinsi
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                name="provinsi"
-                                id="edit_provinsi"
-                                class="responden-form-control"
-                                value="Jawa Timur"
-                                readonly
-                                required
-                            >
-
-                        </div>
-
-
-                        {{-- KOTA --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Daerah/Kota
-                                <span class="required">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                name="daerah"
-                                id="edit_daerah"
-                                class="responden-form-control"
-                                value="Kota Pasuruan"
-                                readonly
-                                required
-                            >
-
-                        </div>
-
-
-                        {{-- KECAMATAN --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Kecamatan
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="kecamatan_id"
-                                id="edit_kecamatan"
-                                class="responden-form-control"
-                                required
-                            >
-
-                                <option value="">
-                                    Pilih Kecamatan
-                                </option>
-
-                                @foreach ($kecamatans as $kecamatan)
-
-                                    <option
-                                        value="{{ $kecamatan->kecamatan_id }}"
-                                    >
-                                        {{ $kecamatan->deskripsi }}
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-
-                        {{-- KELURAHAN --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Kelurahan/Desa
-                                <span class="required">*</span>
-                            </label>
-
-                            <select
-                                name="kelurahan_id"
-                                id="edit_kelurahan"
-                                class="responden-form-control"
-                                required
-                            >
-
-                                <option value="">
-                                    Pilih Kecamatan terlebih dahulu
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        {{-- KODE POS --}}
-
-                        <div class="responden-form-group">
-
-                            <label class="responden-form-label">
-                                Kode Pos
-                            </label>
-
-                            <input
-                                type="text"
-                                name="kode_pos"
-                                id="edit_kode_pos"
-                                class="responden-form-control"
-                                maxlength="10"
-                                inputmode="numeric"
-                                placeholder="Masukkan kode pos"
-                            >
-
-                        </div>
-
-
-                        
-
-
-                        {{-- ALAMAT --}}
-
-                        <div class="responden-form-group full">
-
-                            <label class="responden-form-label">
-                                Alamat Lengkap
-                                <span class="required">*</span>
-                            </label>
-
-                            <textarea
-                                name="alamat_lengkap"
-                                id="edit_alamat_lengkap"
-                                class="responden-form-control"
-                                rows="3"
-                                placeholder="Masukkan alamat lengkap"
-                                required
-                            ></textarea>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
 
 
                 {{-- =================================================
@@ -2350,6 +2296,224 @@ textarea.responden-form-control {
 
 
 
+
+
+                {{-- =================================================
+                     WILAYAH EDIT
+                ================================================== --}}
+
+                <div class="responden-section">
+
+                    <div class="responden-section-heading">
+                        Wilayah / Alamat Keluarga
+                    </div>
+
+                    <div class="responden-section-description">
+                        
+                    </div>
+
+
+                    <div class="responden-form-grid">
+
+
+                        {{-- PROVINSI --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Provinsi
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="provinsi"
+                                id="edit_provinsi"
+                                class="responden-form-control"
+                                value="Jawa Timur"
+                                readonly
+                                required
+                            >
+
+                        </div>
+
+
+                        {{-- KOTA --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Daerah/Kota
+                                <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                name="daerah"
+                                id="edit_daerah"
+                                class="responden-form-control"
+                                value="Kota Pasuruan"
+                                readonly
+                                required
+                            >
+
+                        </div>
+
+
+                        {{-- KECAMATAN --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Kecamatan
+                                <span class="required">*</span>
+                            </label>
+
+                            <select
+                                name="kecamatan_id"
+                                id="edit_kecamatan"
+                                class="responden-form-control"
+                                required
+                            >
+
+                                <option value="">
+                                    Pilih Kecamatan
+                                </option>
+
+                                @foreach ($kecamatans as $kecamatan)
+
+                                    <option
+                                        value="{{ $kecamatan->kecamatan_id }}"
+                                    >
+                                        {{ $kecamatan->deskripsi }}
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+
+                        {{-- KELURAHAN --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Kelurahan/Desa
+                                <span class="required">*</span>
+                            </label>
+
+                            <select
+                                name="kelurahan_id"
+                                id="edit_kelurahan"
+                                class="responden-form-control"
+                                required
+                            >
+
+                                <option value="">
+                                    Pilih Kecamatan terlebih dahulu
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="responden-wilayah-pair">
+
+{{-- RT --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RT
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rt"
+                                id="edit_rt"
+                                class="responden-form-control"
+                                maxlength="5"
+                                inputmode="numeric"
+                                placeholder="Contoh: 001"
+                            >
+
+                        </div>
+
+{{-- RW --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RW
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rw"
+                                id="edit_rw"
+                                class="responden-form-control"
+                                maxlength="5"
+                                inputmode="numeric"
+                                placeholder="Contoh: 002"
+                            >
+
+                        </div>
+
+</div>
+
+<div class="responden-wilayah-pair">
+
+{{-- KODE POS --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Kode Pos
+                            </label>
+
+                            <input
+                                type="text"
+                                name="kode_pos"
+                                id="edit_kode_pos"
+                                class="responden-form-control"
+                                maxlength="10"
+                                inputmode="numeric"
+                                placeholder="Masukkan kode pos"
+                            >
+
+                        </div>
+
+{{-- ALAMAT --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                Alamat Lengkap
+                                <span class="required">*</span>
+                            </label>
+
+                            <textarea
+                                name="alamat_lengkap"
+                                id="edit_alamat_lengkap"
+                                class="responden-form-control"
+                                rows="3"
+                                placeholder="Masukkan alamat lengkap"
+                                required
+                            ></textarea>
+
+                        </div>
+
+</div>
+
+                    </div>
+
+                </div>
+
+
+
                 {{-- =================================================
                      ANGGOTA EDIT
                 ================================================== --}}
@@ -2403,7 +2567,7 @@ textarea.responden-form-control {
                     </div>
 
                     <div class="responden-section-description">
-                        Lokasi tersimpan dapat dilihat pada peta dan dapat diperbarui dengan mengambil lokasi dari perangkat.
+                        Lokasi tersimpan dapat dilihat pada peta. Titik dapat digeser untuk memperbarui lokasi, atau gunakan tombol Ambil Lokasi Saya.
                     </div>
 
                     <button
@@ -2427,7 +2591,7 @@ textarea.responden-form-control {
                     </div>
 
                     <div class="geotagging-help">
-                        Peta hanya menampilkan lokasi yang diperoleh dari perangkat dan tidak dapat dipilih secara manual.
+                        Geser titik pada peta ke lokasi yang benar, lalu klik Simpan Lokasi.
                     </div>
 
                     <div
@@ -2473,7 +2637,7 @@ textarea.responden-form-control {
                 </button>
 
                 <button
-                    type="submit"
+                    type="Tinjau"
                     class="responden-btn responden-btn-primary"
                 >
                     Simpan Perubahan
@@ -2491,9 +2655,32 @@ textarea.responden-form-control {
 
 
 
+<div id="modalDetailResponden" class="responden-modal-overlay">
+<div class="responden-modal">
+<div class="responden-modal-header"><div><div class="responden-modal-label">Informasi</div><h3 class="responden-modal-title">Detail Responden</h3></div><button type="button" class="responden-modal-close" onclick="tutupModalDetail()">&times;</button></div>
+<div class="responden-modal-body" id="detailRespondenBody"></div>
+<div class="responden-modal-footer"><button type="button" class="responden-btn responden-btn-secondary" onclick="tutupModalDetail()">Tutup</button></div>
+</div></div>
+
 @push('scripts')
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const n = document.getElementById('respondenNotification');
+    if (n) {
+        setTimeout(function () { n.remove(); }, 4000);
+    }
+
+    const m = document.getElementById('modalDetailResponden');
+    if (m) {
+        m.addEventListener('click', function (e) {
+            if (e.target === m) tutupModalDetail();
+        });
+    }
+});
+</script>
 
 <script>
 
@@ -2780,12 +2967,83 @@ function hapusAnggotaTambah(index) {
    JUMLAH ANGGOTA
 ========================================================= */
 
+function syncJumlahAnggotaTambah() {
+
+    const container = document.getElementById('anggotaContainer');
+    const input = document.getElementById('jumlah_anggota');
+
+    if (!container || !input) {
+        return;
+    }
+
+    let jumlahBaru = parseInt(input.value) || 0;
+
+    if (jumlahBaru < 0) {
+        jumlahBaru = 0;
+        input.value = 0;
+    }
+
+    if (jumlahBaru > 19) {
+        jumlahBaru = 19;
+        input.value = 19;
+    }
+
+    let jumlahSekarang = container.querySelectorAll('.anggota-card').length;
+
+    while (jumlahSekarang < jumlahBaru) {
+        tambahAnggota(false, null, false);
+        jumlahSekarang++;
+    }
+
+    while (jumlahSekarang > jumlahBaru) {
+        const cards = container.querySelectorAll('.anggota-card');
+        const lastCard = cards[cards.length - 1];
+
+        if (!lastCard) {
+            break;
+        }
+
+        lastCard.remove();
+        jumlahSekarang--;
+    }
+
+    const cards = container.querySelectorAll('.anggota-card');
+
+    cards.forEach(function (card, cardIndex) {
+
+        card.dataset.index = cardIndex;
+
+        const number = card.querySelector('.anggota-number');
+        const title = card.querySelector('.anggota-card-title > span');
+
+        if (number) {
+            number.textContent = cardIndex + 1;
+        }
+
+        if (title) {
+            title.textContent = 'Anggota Keluarga ' + (cardIndex + 1);
+        }
+
+        card.querySelectorAll('[name^=\"anggota[\"]').forEach(function (field) {
+            field.name = field.name.replace(/^anggota\[\d+\]/, 'anggota[' + cardIndex + ']');
+        });
+
+        const removeButton = card.querySelector('.btn-hapus-anggota-baru');
+
+        if (removeButton) {
+            removeButton.setAttribute('onclick', 'hapusAnggotaTambah(' + cardIndex + ')');
+        }
+    });
+
+    anggotaIndex = cards.length;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
 
     const jumlah = document.getElementById('jumlah_anggota');
 
     if (jumlah) {
-        jumlah.addEventListener('input', renderAnggotaTambah);
+        jumlah.addEventListener('input', syncJumlahAnggotaTambah);
         renderAnggotaTambah();
     }
 
@@ -2842,8 +3100,17 @@ function setMarkerOnly(type, lat, lng) {
             markerEdit.setLatLng(latLng);
         } else {
             markerEdit = L.marker(latLng, {
-                draggable: false
+                draggable: true
             }).addTo(map);
+
+            markerEdit.on('dragend', function () {
+                const position = markerEdit.getLatLng();
+                setPendingLocation(
+                    'edit',
+                    position.lat,
+                    position.lng
+                );
+            });
         }
     }
 
@@ -3050,6 +3317,14 @@ function initMapTambah() {
         ).addTo(mapTambah);
 
         kunciInteraksiPeta(mapTambah);
+
+        mapTambah.on('click', function (event) {
+            setPendingLocation(
+                'tambah',
+                event.latlng.lat,
+                event.latlng.lng
+            );
+        });
     }
 
     setTimeout(function () {
@@ -3090,6 +3365,14 @@ function initMapEdit(latitude = null, longitude = null) {
         ).addTo(mapEdit);
 
         kunciInteraksiPeta(mapEdit);
+
+        mapEdit.on('click', function (event) {
+            setPendingLocation(
+                'edit',
+                event.latlng.lat,
+                event.latlng.lng
+            );
+        });
     }
 
     if (latitude !== null && longitude !== null) {
@@ -3162,6 +3445,160 @@ function ambilLokasi(type, button) {
 
 
 /* =========================================================
+   DETAIL RESPONDEN
+========================================================= */
+function tutupModalDetail() {
+    const modal = document.getElementById('modalDetailResponden');
+
+    if (modal) {
+        modal.classList.remove('active');
+    }
+
+    document.body.style.overflow = '';
+}
+
+
+window.detailResponden = function (id) {
+
+    const modal = document.getElementById('modalDetailResponden');
+    const body = document.getElementById('detailRespondenBody');
+
+    if (!modal || !body) {
+        return;
+    }
+
+    const detailUrl = @json(route('responden.editData', ['id' => '__ID__']));
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+
+    body.innerHTML = `
+        <div class="responden-section">
+            <div class="responden-section-heading">
+                Memuat data...
+            </div>
+        </div>
+    `;
+
+    fetch(detailUrl.replace('__ID__', id), {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(function (response) {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+
+            return response.json();
+        })
+        .then(function (data) {
+
+            const anggota = Array.isArray(data.anggota)
+                ? data.anggota
+                : [];
+
+            const rt = data.rt ?? '-';
+            const rw = data.rw ?? '-';
+
+            body.innerHTML = `
+                <div class="responden-detail-summary">
+                    <div class="responden-detail-summary-item">
+                        <div class="responden-detail-summary-label">Nomor KK</div>
+                        <div class="responden-detail-summary-value">${escapeHtml(data.no_kk ?? '-')}</div>
+                    </div>
+                    <div class="responden-detail-summary-item">
+                        <div class="responden-detail-summary-label">Kepala Keluarga</div>
+                        <div class="responden-detail-summary-value">${escapeHtml(data.nama_kepala_keluarga ?? data.nama_lengkap ?? '-')}</div>
+                    </div>
+                </div>
+
+                <div class="responden-section">
+                    <div class="responden-detail-section-title">Identitas Keluarga</div>
+                    <div class="responden-detail-grid">
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">NIK Kepala Keluarga</div>
+                            <div class="responden-detail-value">${escapeHtml(data.nik_kepala_keluarga ?? data.nik ?? '-')}</div>
+                        </div>
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">Jumlah Anggota</div>
+                            <div class="responden-detail-value">${anggota.length} anggota</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="responden-section">
+                    <div class="responden-detail-section-title">Wilayah dan Alamat</div>
+                    <div class="responden-detail-grid">
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">Kecamatan</div>
+                            <div class="responden-detail-value">${escapeHtml(data.kecamatan ?? '-')}</div>
+                        </div>
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">Kelurahan/Desa</div>
+                            <div class="responden-detail-value">${escapeHtml(data.kelurahan ?? '-')}</div>
+                        </div>
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">RT</div>
+                            <div class="responden-detail-value">${escapeHtml(rt)}</div>
+                        </div>
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">RW</div>
+                            <div class="responden-detail-value">${escapeHtml(rw)}</div>
+                        </div>
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">Kode Pos</div>
+                            <div class="responden-detail-value">${escapeHtml(data.kode_pos ?? '-')}</div>
+                        </div>
+                        <div class="responden-detail-item full">
+                            <div class="responden-detail-label">Alamat Lengkap</div>
+                            <div class="responden-detail-value">${escapeHtml(data.alamat_lengkap ?? '-').replace(/\n/g, '<br>')}</div>
+                        </div>
+                        <div class="responden-detail-item full">
+                            <div class="responden-detail-label">Titik Koordinat</div>
+                            <div class="responden-detail-value">${escapeHtml(data.geotangging ?? '-')}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="responden-section">
+                    <div class="responden-detail-section-title">Anggota Keluarga</div>
+                    ${anggota.length
+                        ? anggota.map(function (item, index) {
+                            return `
+                                <div class="responden-detail-member">
+                                    <div class="responden-detail-member-name">${index + 1}. ${escapeHtml(item.nama_lengkap ?? '-')}</div>
+                                    <div class="responden-detail-member-meta">
+                                        NIK: ${escapeHtml(item.nik ?? '-')} &nbsp;•&nbsp;
+                                        Status: ${escapeHtml(item.status_keluarga ?? '-')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')
+                        : '<div class="responden-detail-value">Belum ada anggota.</div>'
+                    }
+                </div>
+            `;
+        })
+        .catch(function (error) {
+            console.error('Detail responden:', error);
+
+            body.innerHTML = `
+                <div class="responden-section">
+                    <div class="responden-section-heading">
+                        Gagal memuat detail responden
+                    </div>
+                    <div class="responden-detail-value" style="margin-top:8px;">
+                        Data tidak dapat dimuat. Silakan coba lagi.
+                    </div>
+                </div>
+            `;
+        });
+};
+
+/* =========================================================
    EDIT RESPONDEN
 ========================================================= */
 
@@ -3197,6 +3634,18 @@ window.editResponden = function (id) {
             document.getElementById('edit_provinsi').value = data.provinsi ?? 'Jawa Timur';
             document.getElementById('edit_daerah').value = data.daerah ?? 'Kota Pasuruan';
             document.getElementById('edit_kode_pos').value = data.kode_pos ?? '';
+
+            // RT/RW disimpan langsung di tabel keluargas.
+            // Gunakan data.rt dan data.rw; fallback ke rt_rw untuk kompatibilitas.
+            const rtRwValue = String(data.rt_rw ?? '').trim();
+            const rtRwParts = rtRwValue.split('/');
+
+            document.getElementById('edit_rt').value =
+                data.rt ?? (rtRwParts[0] ? rtRwParts[0].trim() : '');
+
+            document.getElementById('edit_rw').value =
+                data.rw ?? (rtRwParts[1] ? rtRwParts[1].trim() : '');
+
             document.getElementById('edit_alamat_lengkap').value = data.alamat_lengkap ?? '';
             document.getElementById('edit_nomor_kk').value = data.no_kk ?? '';
             document.getElementById('edit_nik_kepala_keluarga').value = data.nik_kepala_keluarga ?? data.nik ?? '';
@@ -3322,15 +3771,19 @@ function tambahAnggotaEditBaru() {
 }
 
 
-function hapusAnggotaEditBaru(index) {
+function hapusAnggotaEdit(index) {
 
     const item = anggotaEditData[index];
 
-    if (!item || item.id) {
+    if (!item) {
         return;
     }
 
-    if (!confirm('Hapus anggota baru ini dari form?')) {
+    const nama = item.nama_lengkap
+        ? ' ' + item.nama_lengkap
+        : '';
+
+    if (!confirm('Hapus anggota' + nama + ' dari KK ini?')) {
         return;
     }
 
@@ -3371,11 +3824,12 @@ function tambahAnggotaEdit(data = null, isKepala = false) {
                 <span>${isKepala ? 'Kepala Keluarga' : 'Anggota Keluarga ' + nomor}</span>
                 ${!id && !isKepala ? '<span class="anggota-baru-badge">Anggota Baru</span>' : ''}
             </div>
-            ${!id && !isKepala ? `
+            ${!isKepala ? `
                 <button
                     type="button"
                     class="btn-hapus-anggota-baru"
-                    onclick="hapusAnggotaEditBaru(${index})"
+                    onclick="hapusAnggotaEdit(${index})"
+                    title="Hapus anggota dari KK"
                 >
                     Hapus
                 </button>
@@ -3499,25 +3953,70 @@ function hapusResponden(id) {
         return;
     }
 
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/responden/hapus/' + id;
+    const url = '{{ url('/responden/hapus') }}/' + id;
 
-    const csrf = document.createElement('input');
-    csrf.type = 'hidden';
-    csrf.name = '_token';
-    csrf.value = '{{ csrf_token() }}';
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(function (response) {
+        return response.json().then(function (data) {
+            return {
+                ok: response.ok,
+                data: data
+            };
+        });
+    })
+    .then(function (result) {
+        if (result.data.blocked) {
+            tampilkanNotifikasi(result.data.message, 'warning');
+            return;
+        }
 
-    const method = document.createElement('input');
-    method.type = 'hidden';
-    method.name = '_method';
-    method.value = 'DELETE';
+        if (!result.ok || !result.data.success) {
+            throw new Error(result.data.message || 'Data responden gagal dihapus.');
+        }
 
-    form.appendChild(csrf);
-    form.appendChild(method);
-    document.body.appendChild(form);
-    form.submit();
+        const row = document.getElementById('keluarga-row-' + id);
+        if (row) {
+            row.remove();
+        }
+
+        document
+            .querySelectorAll('.responden-member-row[data-keluarga="' + id + '"]')
+            .forEach(function (memberRow) {
+                memberRow.remove();
+            });
+
+        tampilkanNotifikasi(result.data.message, 'success');
+    })
+    .catch(function (error) {
+        tampilkanNotifikasi(
+            error.message || 'Terjadi kesalahan saat menghapus data responden.',
+            'warning'
+        );
+    });
 }
+
+function tampilkanNotifikasi(pesan, tipe = 'success') {
+    const lama = document.getElementById('respondenNotificationDynamic');
+    if (lama) lama.remove();
+
+    const notifikasi = document.createElement('div');
+    notifikasi.id = 'respondenNotificationDynamic';
+    notifikasi.className = 'responden-notification ' + (tipe === 'warning' ? 'warning' : 'success');
+    notifikasi.innerHTML = '<span class="responden-notification-icon">' + (tipe === 'warning' ? '!' : '✓') + '</span><span>' + escapeHtml(pesan) + '</span>';
+    document.body.appendChild(notifikasi);
+
+    setTimeout(function () {
+        notifikasi.remove();
+    }, 4000);
+}
+
 
 
 /* =========================================================
@@ -3664,6 +4163,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const modalTambah = document.getElementById('modalTambahResponden');
     const modalEdit = document.getElementById('modalEditResponden');
+    const modalDetail = document.getElementById('modalDetailResponden');
+
+    if (modalDetail) {
+        modalDetail.addEventListener('click', function (event) {
+            if (event.target === this) {
+                tutupModalDetail();
+            }
+        });
+    }
 
     if (modalTambah) {
         modalTambah.addEventListener('click', function (event) {
@@ -3688,6 +4196,7 @@ document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         tutupModalTambah();
         tutupModalEdit();
+        tutupModalDetail();
     }
 });
 

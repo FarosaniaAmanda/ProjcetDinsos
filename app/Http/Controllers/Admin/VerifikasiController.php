@@ -24,31 +24,45 @@ class VerifikasiController extends Controller
 
     public function index(Request $request)
     {
-        $allData = $this->getData();
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL SEMUA DATA
+        |--------------------------------------------------------------------------
+        |
+        |
+        */
+
+        $allData = collect(
+            $this->getData()
+        );
+
 
         /*
         |--------------------------------------------------------------------------
-        | STATISTIK
+        | STATISTIK CARD
         |--------------------------------------------------------------------------
+       
+        |
         */
 
-        $totalResponden = count($allData);
+        $totalResponden = $allData->count();
 
-        $draftCount = collect($allData)
+        $draftCount = $allData
             ->where('status', 'draft')
             ->count();
 
-        $pendingCount = collect($allData)
+        $pendingCount = $allData
             ->where('status', 'pending')
             ->count();
 
-        $approvedCount = collect($allData)
+        $approvedCount = $allData
             ->where('status', 'approved')
             ->count();
 
-        $rejectedCount = collect($allData)
+        $rejectedCount = $allData
             ->where('status', 'rejected')
             ->count();
+
 
         /*
         |--------------------------------------------------------------------------
@@ -61,7 +75,8 @@ class VerifikasiController extends Controller
         );
 
         if ($search !== '') {
-            $allData = collect($allData)
+
+            $allData = $allData
                 ->filter(function ($item) use ($search) {
 
                     $haystack = strtolower(
@@ -80,9 +95,9 @@ class VerifikasiController extends Controller
                         strtolower($search)
                     );
                 })
-                ->values()
-                ->all();
+                ->values();
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -114,12 +129,17 @@ class VerifikasiController extends Controller
             default => '',
         };
 
+
         if ($statusFilter !== '') {
-            $allData = collect($allData)
-                ->where('status', $statusFilter)
-                ->values()
-                ->all();
+
+            $allData = $allData
+                ->where(
+                    'status',
+                    $statusFilter
+                )
+                ->values();
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -132,9 +152,7 @@ class VerifikasiController extends Controller
         $currentPage =
             LengthAwarePaginator::resolveCurrentPage();
 
-        $collection = collect($allData);
-
-        $currentItems = $collection
+        $currentItems = $allData
             ->slice(
                 ($currentPage - 1) * $perPage,
                 $perPage
@@ -143,7 +161,7 @@ class VerifikasiController extends Controller
 
         $data = new LengthAwarePaginator(
             $currentItems,
-            $collection->count(),
+            $allData->count(),
             $perPage,
             $currentPage,
             [
@@ -151,6 +169,7 @@ class VerifikasiController extends Controller
                 'query' => $request->query(),
             ]
         );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -161,27 +180,55 @@ class VerifikasiController extends Controller
         return view(
             'admin.verifikasi.index',
             [
-                'data' => $data,
+                'data' =>
+                    $data,
 
-                'totalResponden' => $totalResponden,
+                /*
+                |--------------------------------------------------------------------------
+                | CARD STATISTIK
+                |--------------------------------------------------------------------------
+                */
 
-                'draftCount' => $draftCount,
+                'totalResponden' =>
+                    $totalResponden,
 
-                'pendingCount' => $pendingCount,
+                'draftCount' =>
+                    $draftCount,
 
-                'approvedCount' => $approvedCount,
+                'pendingCount' =>
+                    $pendingCount,
 
-                'rejectedCount' => $rejectedCount,
+                'approvedCount' =>
+                    $approvedCount,
 
-                // Kompatibilitas Blade lama
-                'total' => $totalResponden,
-                'draft' => $draftCount,
-                'pending' => $pendingCount,
-                'approved' => $approvedCount,
-                'rejected' => $rejectedCount,
+                'rejectedCount' =>
+                    $rejectedCount,
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | KOMPATIBILITAS BLADE LAMA
+                |--------------------------------------------------------------------------
+                */
+
+                'total' =>
+                    $totalResponden,
+
+                'draft' =>
+                    $draftCount,
+
+                'pending' =>
+                    $pendingCount,
+
+                'approved' =>
+                    $approvedCount,
+
+                'rejected' =>
+                    $rejectedCount,
             ]
         );
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -214,6 +261,7 @@ class VerifikasiController extends Controller
                     )->first();
                 }
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | FALLBACK BERDASARKAN NO KK
@@ -221,8 +269,8 @@ class VerifikasiController extends Controller
                 */
 
                 if (
-                    !$keluarga
-                    && $item->no_kk
+                    !$keluarga &&
+                    $item->no_kk
                 ) {
 
                     $keluarga = Keluarga::where(
@@ -230,6 +278,7 @@ class VerifikasiController extends Controller
                         $item->no_kk
                     )->first();
                 }
+
 
                 /*
                 |--------------------------------------------------------------------------
@@ -247,6 +296,7 @@ class VerifikasiController extends Controller
                         ->get();
                 }
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | STATUS VERIFIKASI
@@ -258,6 +308,7 @@ class VerifikasiController extends Controller
                     $keluarga
                 );
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | PROGRESS KUISIONER
@@ -268,6 +319,7 @@ class VerifikasiController extends Controller
                     $item,
                     $keluarga
                 );
+
 
                 /*
                 |--------------------------------------------------------------------------
@@ -295,6 +347,7 @@ class VerifikasiController extends Controller
                     ->values()
                     ->all();
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | TANGGAL
@@ -304,6 +357,7 @@ class VerifikasiController extends Controller
                 $tanggal =
                     $item->updated_at
                     ?? $item->created_at;
+
 
                 /*
                 |--------------------------------------------------------------------------
@@ -315,6 +369,7 @@ class VerifikasiController extends Controller
 
                     'id' =>
                         $item->id,
+
 
                     /*
                     |--------------------------------------------------------------------------
@@ -335,6 +390,7 @@ class VerifikasiController extends Controller
                         ?? $item->nama_lengkap
                         ?? '-',
 
+
                     /*
                     |--------------------------------------------------------------------------
                     | JUMLAH ANGGOTA
@@ -352,6 +408,7 @@ class VerifikasiController extends Controller
                     'anggota_detail' =>
                         $anggotaDetail,
 
+
                     /*
                     |--------------------------------------------------------------------------
                     | STATUS
@@ -362,7 +419,10 @@ class VerifikasiController extends Controller
                         $status,
 
                     'status_label' =>
-                        $this->getStatusLabel($status),
+                        $this->getStatusLabel(
+                            $status
+                        ),
+
 
                     /*
                     |--------------------------------------------------------------------------
@@ -385,6 +445,7 @@ class VerifikasiController extends Controller
                     'progress_detail' =>
                         $progress['parts'],
 
+
                     /*
                     |--------------------------------------------------------------------------
                     | WILAYAH
@@ -396,6 +457,7 @@ class VerifikasiController extends Controller
                             $item,
                             $keluarga
                         ),
+
 
                     /*
                     |--------------------------------------------------------------------------
@@ -410,8 +472,11 @@ class VerifikasiController extends Controller
 
                     'tanggal' =>
                         $tanggal
-                            ? $tanggal->format('d-m-Y H:i')
+                            ? $tanggal->format(
+                                'd-m-Y H:i'
+                            )
                             : '-',
+
 
                     /*
                     |--------------------------------------------------------------------------
@@ -454,6 +519,7 @@ class VerifikasiController extends Controller
                     'is_alamat_sesuai' =>
                         $item->is_alamat_sesuai,
 
+
                     /*
                     |--------------------------------------------------------------------------
                     | GEOTAGGING
@@ -462,6 +528,7 @@ class VerifikasiController extends Controller
 
                     'geotangging' =>
                         $item->geotangging ?? '-',
+
 
                     /*
                     |--------------------------------------------------------------------------
@@ -484,6 +551,7 @@ class VerifikasiController extends Controller
                             )
                             : '-',
 
+
                     /*
                     |--------------------------------------------------------------------------
                     | KUISIONER
@@ -501,6 +569,7 @@ class VerifikasiController extends Controller
             ->all();
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | MENENTUKAN STATUS VERIFIKASI
@@ -517,6 +586,7 @@ class VerifikasiController extends Controller
                 (string) $item->status
             )
         );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -536,6 +606,7 @@ class VerifikasiController extends Controller
         ) {
             return 'approved';
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -557,6 +628,7 @@ class VerifikasiController extends Controller
             return 'rejected';
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | CEK PROGRESS
@@ -568,22 +640,21 @@ class VerifikasiController extends Controller
             $keluarga
         );
 
+
         /*
         |--------------------------------------------------------------------------
         | KUISIONER SELESAI
         |--------------------------------------------------------------------------
-        |
-        | Jika seluruh Part 1-5 selesai dan status database
-        | masih "selesai", maka tampil sebagai Menunggu Verifikasi.
+        
         |
         */
 
         if (
             $progress['completed'] === 5
-            && $rawStatus === 'selesai'
         ) {
             return 'pending';
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -593,6 +664,7 @@ class VerifikasiController extends Controller
 
         return 'draft';
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -613,6 +685,7 @@ class VerifikasiController extends Controller
                 $item->current_part ?? 1
             );
 
+
         /*
         |--------------------------------------------------------------------------
         | PART 1
@@ -621,6 +694,7 @@ class VerifikasiController extends Controller
 
         $part1 =
             $currentPart >= 2;
+
 
         /*
         |--------------------------------------------------------------------------
@@ -634,11 +708,13 @@ class VerifikasiController extends Controller
 
             $part2 =
                 $currentPart >= 3
-                && KeluargaPart2::where(
+                &&
+                KeluargaPart2::where(
                     'keluarga_periode_kode',
                     $kode
                 )->exists();
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -652,11 +728,13 @@ class VerifikasiController extends Controller
 
             $part3 =
                 $currentPart >= 4
-                && KeluargaPart3::where(
+                &&
+                KeluargaPart3::where(
                     'keluarga_periode_kode',
                     $kode
                 )->exists();
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -670,11 +748,13 @@ class VerifikasiController extends Controller
 
             $part4 =
                 $currentPart >= 5
-                && KeluargaPart4::where(
+                &&
+                KeluargaPart4::where(
                     'keluarga_periode_kode',
                     $kode
                 )->exists();
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -687,6 +767,7 @@ class VerifikasiController extends Controller
                 $item,
                 $keluarga
             );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -772,6 +853,13 @@ class VerifikasiController extends Controller
             ],
         ];
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | HITUNG PROGRESS
+        |--------------------------------------------------------------------------
+        */
+
         $completed = collect($parts)
             ->where(
                 'completed',
@@ -791,6 +879,7 @@ class VerifikasiController extends Controller
                 )
                 : 0;
 
+
         return [
 
             'completed' =>
@@ -807,6 +896,7 @@ class VerifikasiController extends Controller
         ];
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | CEK PART 5
@@ -817,22 +907,6 @@ class VerifikasiController extends Controller
         KeluargaPart1 $item,
         ?Keluarga $keluarga
     ): bool {
-
-        /*
-        |--------------------------------------------------------------------------
-        | STATUS HARUS SELESAI
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            strtolower(
-                trim(
-                    (string) $item->status
-                )
-            ) !== 'selesai'
-        ) {
-            return false;
-        }
 
         /*
         |--------------------------------------------------------------------------
@@ -848,8 +922,6 @@ class VerifikasiController extends Controller
             return false;
         }
 
-        $kode =
-            $item->keluarga_periode_kode;
 
         /*
         |--------------------------------------------------------------------------
@@ -857,12 +929,17 @@ class VerifikasiController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $kode =
+            $item->keluarga_periode_kode;
+
         if (
             !$kode
-            || !$keluarga
+            ||
+            !$keluarga
         ) {
             return false;
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -880,11 +957,13 @@ class VerifikasiController extends Controller
             )
             ->values();
 
+
         if (
             $memberCodes->isEmpty()
         ) {
             return false;
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -908,6 +987,7 @@ class VerifikasiController extends Controller
             ->unique()
             ->values();
 
+
         /*
         |--------------------------------------------------------------------------
         | SETIAP ANGGOTA HARUS MEMILIKI PART 5
@@ -918,6 +998,7 @@ class VerifikasiController extends Controller
             ->diff($part5Codes)
             ->isEmpty();
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -944,6 +1025,7 @@ class VerifikasiController extends Controller
                 'Draft',
         };
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -992,6 +1074,7 @@ class VerifikasiController extends Controller
             ?: '-';
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | BUILD KUISIONER
@@ -1005,6 +1088,7 @@ class VerifikasiController extends Controller
 
         $kode =
             $item->keluarga_periode_kode;
+
 
         /*
         |--------------------------------------------------------------------------
@@ -1091,14 +1175,11 @@ class VerifikasiController extends Controller
                 )
             ),
 
+
             /*
             |--------------------------------------------------------------------------
-            | GEOTAGGING - MAP
+            | GEOTAGGING
             |--------------------------------------------------------------------------
-            |
-            | Jangan menggunakan $this->question() di sini karena
-            | geotagging perlu dikenali Blade sebagai type "map".
-            |
             */
 
             [
@@ -1118,6 +1199,7 @@ class VerifikasiController extends Controller
                     'map',
             ],
         ];
+
 
         /*
         |--------------------------------------------------------------------------
@@ -1251,6 +1333,7 @@ class VerifikasiController extends Controller
             ];
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | PART 3 - PENGELUARAN & PENDAPATAN
@@ -1321,6 +1404,7 @@ class VerifikasiController extends Controller
             ];
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | PART 4 - ASET KELUARGA
@@ -1361,6 +1445,7 @@ class VerifikasiController extends Controller
             }
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | PART 5 - DATA ANGGOTA KELUARGA
@@ -1371,7 +1456,8 @@ class VerifikasiController extends Controller
 
         if (
             $kode
-            && $keluarga
+            &&
+            $keluarga
         ) {
 
             $members =
@@ -1389,6 +1475,7 @@ class VerifikasiController extends Controller
                 ->keyBy(
                     'keluarga_anggota_kode'
                 );
+
 
             foreach ($members as $member) {
 
@@ -1411,6 +1498,7 @@ class VerifikasiController extends Controller
                     'Anggota: '
                     . $namaMember;
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | NIK
@@ -1424,6 +1512,7 @@ class VerifikasiController extends Controller
                         $member->nik
                     );
 
+
                 /*
                 |--------------------------------------------------------------------------
                 | HUBUNGAN KELUARGA
@@ -1436,6 +1525,7 @@ class VerifikasiController extends Controller
                         . ' — Hubungan Keluarga',
                         $member->status_keluarga
                     );
+
 
                 if ($part5) {
 
@@ -1584,6 +1674,7 @@ class VerifikasiController extends Controller
             }
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | FOTO RUMAH
@@ -1601,6 +1692,7 @@ class VerifikasiController extends Controller
                 ->keyBy(
                     'jenis_foto'
                 );
+
 
             /*
             |--------------------------------------------------------------------------
@@ -1625,15 +1717,26 @@ class VerifikasiController extends Controller
 
                 'answer' =>
                     $fotoTampakDepan
-                        ? Storage::url(
-                            $fotoTampakDepan
-                                ->path_file
+                        ? Storage::disk('public')->url(
+                            ltrim(
+                                preg_replace(
+                                    '#^(public/|storage/)#i',
+                                    '',
+                                    str_replace(
+                                        '\\',
+                                        '/',
+                                        $fotoTampakDepan->path_file
+                                    )
+                                ),
+                                '/'
+                            )
                         )
                         : '',
 
                 'type' =>
                     'image',
             ];
+
 
             /*
             |--------------------------------------------------------------------------
@@ -1658,15 +1761,26 @@ class VerifikasiController extends Controller
 
                 'answer' =>
                     $fotoRuangTamu
-                        ? Storage::url(
-                            $fotoRuangTamu
-                                ->path_file
+                        ? Storage::disk('public')->url(
+                            ltrim(
+                                preg_replace(
+                                    '#^(public/|storage/)#i',
+                                    '',
+                                    str_replace(
+                                        '\\',
+                                        '/',
+                                        $fotoRuangTamu->path_file
+                                    )
+                                ),
+                                '/'
+                            )
                         )
                         : '',
 
                 'type' =>
                     'image',
             ];
+
 
             /*
             |--------------------------------------------------------------------------
@@ -1691,9 +1805,19 @@ class VerifikasiController extends Controller
 
                 'answer' =>
                     $fotoKamarMandi
-                        ? Storage::url(
-                            $fotoKamarMandi
-                                ->path_file
+                        ? Storage::disk('public')->url(
+                            ltrim(
+                                preg_replace(
+                                    '#^(public/|storage/)#i',
+                                    '',
+                                    str_replace(
+                                        '\\',
+                                        '/',
+                                        $fotoKamarMandi->path_file
+                                    )
+                                ),
+                                '/'
+                            )
                         )
                         : '',
 
@@ -1701,6 +1825,7 @@ class VerifikasiController extends Controller
                     'image',
             ];
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -1762,6 +1887,7 @@ class VerifikasiController extends Controller
         ];
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | QUESTION HELPER
@@ -1794,6 +1920,7 @@ class VerifikasiController extends Controller
         ];
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | FORMAT ANSWER
@@ -1806,12 +1933,14 @@ class VerifikasiController extends Controller
 
         if (
             $value === null
-            || $value === ''
+            ||
+            $value === ''
         ) {
             return '-';
         }
 
         if (is_bool($value)) {
+
             return $value
                 ? 'Ya'
                 : 'Tidak';
@@ -1863,6 +1992,7 @@ class VerifikasiController extends Controller
         return (string) $value;
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | FORMAT BOOLEAN
@@ -1875,17 +2005,20 @@ class VerifikasiController extends Controller
 
         if (
             $value === null
-            || $value === ''
+            ||
+            $value === ''
         ) {
             return '-';
         }
 
         if (
             $value === true
-            || $value === 1
-            || $value === '1'
-            || $value === 'true'
-            || strtolower(
+            ||
+            $value === 1
+            ||
+            $value === '1' ||
+            $value === 'true' ||
+            strtolower(
                 (string) $value
             ) === 'ya'
         ) {
@@ -1894,10 +2027,11 @@ class VerifikasiController extends Controller
 
         if (
             $value === false
-            || $value === 0
-            || $value === '0'
-            || $value === 'false'
-            || strtolower(
+            ||
+            $value === 0 ||
+            $value === '0' ||
+            $value === 'false' ||
+            strtolower(
                 (string) $value
             ) === 'tidak'
         ) {
@@ -1906,6 +2040,7 @@ class VerifikasiController extends Controller
 
         return (string) $value;
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -1940,6 +2075,7 @@ class VerifikasiController extends Controller
         );
     }
 
+
     /*
     |--------------------------------------------------------------------------
     | UPDATE STATUS VERIFIKASI
@@ -1958,6 +2094,7 @@ class VerifikasiController extends Controller
                     'in:approved,rejected',
                 ],
             ]);
+
 
         /*
         |--------------------------------------------------------------------------
@@ -1980,6 +2117,7 @@ class VerifikasiController extends Controller
                 );
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | CARI KELUARGA
@@ -1999,9 +2137,11 @@ class VerifikasiController extends Controller
                 )->first();
         }
 
+
         if (
             !$keluarga
-            && $item->no_kk
+            &&
+            $item->no_kk
         ) {
 
             $keluarga =
@@ -2010,6 +2150,7 @@ class VerifikasiController extends Controller
                     $item->no_kk
                 )->first();
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -2022,6 +2163,7 @@ class VerifikasiController extends Controller
                 $item,
                 $keluarga
             );
+
 
         /*
         |--------------------------------------------------------------------------
@@ -2043,6 +2185,7 @@ class VerifikasiController extends Controller
                 );
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | APPROVED TIDAK BOLEH DIVERIFIKASI ULANG
@@ -2062,6 +2205,7 @@ class VerifikasiController extends Controller
                     'Data sudah berstatus Disetujui dan tidak dapat diverifikasi ulang.'
                 );
         }
+
 
         /*
         |--------------------------------------------------------------------------
@@ -2083,6 +2227,7 @@ class VerifikasiController extends Controller
                 );
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | HARUS PENDING
@@ -2103,6 +2248,7 @@ class VerifikasiController extends Controller
                 );
         }
 
+
         /*
         |--------------------------------------------------------------------------
         | SIMPAN STATUS
@@ -2114,11 +2260,15 @@ class VerifikasiController extends Controller
 
         $item->updated_by =
             auth()->user()->name
-            ?? auth()->user()->username
-            ?? auth()->id()
-            ?? 'admin';
+            ??
+            auth()->user()->username
+            ??
+            auth()->id()
+            ??
+            'admin';
 
         $item->save();
+
 
         /*
         |--------------------------------------------------------------------------
@@ -2131,6 +2281,7 @@ class VerifikasiController extends Controller
                 === 'approved'
                     ? 'Data berhasil disetujui.'
                     : 'Data berhasil ditolak.';
+
 
         return redirect()
             ->route(

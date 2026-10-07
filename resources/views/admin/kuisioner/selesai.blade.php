@@ -300,9 +300,6 @@
                                     title="Lihat Detail Kuisioner"
                                 >
 
-                                    <span class="btn-detail-icon">
-                                        👁
-                                    </span>
 
                                     <span>
                                         Detail
