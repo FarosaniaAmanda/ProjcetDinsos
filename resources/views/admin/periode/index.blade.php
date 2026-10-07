@@ -36,7 +36,7 @@
 
         /* =====================================================
            SIDEBAR
-        ===================================================== */
+        ====================================================== */
 
         .page {
             min-height: 100vh;
@@ -247,7 +247,7 @@
             width: 100%;
             margin: 0;
             padding: 0;
-}
+        }
 
         .logout-link button {
             width: 100%;
@@ -264,12 +264,12 @@
             text-align: left;
             cursor: pointer;
             transition: all .2s ease;
-}
+        }
 
         .logout-link button:hover {
             background: rgba(255,255,255,.10);
             color: #ffffff;
-}
+        }
 
         .logout-link .menu-icon {
             width: 20px;
@@ -278,17 +278,17 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-}
+        }
 
         .logout-link .menu-icon svg {
             width: 20px;
             height: 20px;
-}
+        }
 
 
         /* =====================================================
            MAIN
-        ===================================================== */
+        ====================================================== */
 
         .main {
             flex: 1;
@@ -300,7 +300,7 @@
 
         /* =====================================================
            HEADER
-        ===================================================== */
+        ====================================================== */
 
         .top-header {
             height: 75px;
@@ -376,7 +376,7 @@
 
         /* =====================================================
            PROFILE
-        ===================================================== */
+        ====================================================== */
 
         .profile-link {
             display: flex;
@@ -403,7 +403,7 @@
 
         /* =====================================================
            HAMBURGER MOBILE
-        ===================================================== */
+        ====================================================== */
 
         .hamburger {
             display: none;
@@ -440,9 +440,10 @@
             display: block;
         }
 
+
         /* =====================================================
            CONTENT
-        ===================================================== */
+        ====================================================== */
 
         .content {
             padding: 30px;
@@ -476,7 +477,7 @@
 
         /* =====================================================
            TOOLBAR
-        ===================================================== */
+        ====================================================== */
 
         .toolbar {
             display: flex;
@@ -510,7 +511,7 @@
 
         /* =====================================================
            CARD
-        ===================================================== */
+        ====================================================== */
 
         .card {
             width: 100%;
@@ -524,7 +525,7 @@
 
         /* =====================================================
            SEARCH
-        ===================================================== */
+        ====================================================== */
 
         .search {
             width: 100%;
@@ -562,7 +563,7 @@
 
         /* =====================================================
            TABLE
-        ===================================================== */
+        ====================================================== */
 
         .table-wrapper {
             width: 100%;
@@ -604,7 +605,7 @@
 
         /* =====================================================
            STATUS
-        ===================================================== */
+        ====================================================== */
 
         .status {
             display: inline-flex;
@@ -634,7 +635,7 @@
 
         /* =====================================================
            AKSI
-        ===================================================== */
+        ====================================================== */
 
         .action-group {
             display: flex;
@@ -678,8 +679,80 @@
 
 
         /* =====================================================
+           PAGINATION
+           10 DATA PER HALAMAN
+        ====================================================== */
+
+        .pagination-wrapper {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 18px;
+            padding-top: 15px;
+            border-top: 1px solid #eeeef2;
+        }
+
+        .pagination-info {
+            display: block;
+            color: #777;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+
+        .pagination button {
+            min-width: 28px;
+            height: 28px;
+            padding: 0 8px;
+            border: 1px solid #dfe1e8;
+            background: #ffffff;
+            color: #555;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .pagination button:hover:not(:disabled):not(.page-number.active) {
+            background: #f1f2fa;
+            border-color: #292d8f;
+            color: #292d8f;
+        }
+
+        .pagination button.arrow-button {
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .pagination button.page-number {
+            font-weight: 500;
+        }
+
+        .pagination button.page-number.active {
+            background: #292d8f;
+            border-color: #292d8f;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: default;
+        }
+
+        .pagination button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+
+        /* =====================================================
            MODAL
-        ===================================================== */
+        ====================================================== */
 
         .modal-overlay {
             position: fixed;
@@ -822,7 +895,7 @@
 
         /* =====================================================
            PESAN
-        ===================================================== */
+        ====================================================== */
 
         .alert {
             padding: 13px 16px;
@@ -849,7 +922,7 @@
 
         /* =====================================================
            RESPONSIVE
-        ===================================================== */
+        ====================================================== */
 
         @media (max-width: 900px) {
 
@@ -909,8 +982,6 @@
                 min-width: 720px;
             }
 
-            /* Hanya memperpanjang area abu-abu kolom AKSI di HP.
-               Tombol dan fungsi lainnya tidak diubah. */
             table th:last-child,
             table td:last-child {
                 width: 130px !important;
@@ -919,6 +990,10 @@
 
             .user-info {
                 display: none;
+            }
+
+            .pagination-wrapper {
+                justify-content: space-between;
             }
 
         }
@@ -950,6 +1025,10 @@
 
             .modal-box {
                 width: 100%;
+            }
+
+            .pagination-info {
+                font-size: 10px;
             }
 
         }
@@ -1004,33 +1083,13 @@
                         stroke-width="2"
                     >
 
-                        <rect
-                            x="3"
-                            y="3"
-                            width="7"
-                            height="7"
-                        ></rect>
+                        <rect x="3" y="3" width="7" height="7"></rect>
 
-                        <rect
-                            x="14"
-                            y="3"
-                            width="7"
-                            height="7"
-                        ></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
 
-                        <rect
-                            x="3"
-                            y="14"
-                            width="7"
-                            height="7"
-                        ></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
 
-                        <rect
-                            x="14"
-                            y="14"
-                            width="7"
-                            height="7"
-                        ></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
 
                     </svg>
 
@@ -1057,15 +1116,9 @@
                         stroke-width="2"
                     >
 
-                        <path
-                            d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
-                        ></path>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
 
-                        <circle
-                            cx="12"
-                            cy="7"
-                            r="4"
-                        ></circle>
+                        <circle cx="12" cy="7" r="4"></circle>
 
                     </svg>
 
@@ -1092,27 +1145,13 @@
                         stroke-width="2"
                     >
 
-                        <path
-                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                        ></path>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 
-                        <polyline
-                            points="14 2 14 8 20 8"
-                        ></polyline>
+                        <polyline points="14 2 14 8 20 8"></polyline>
 
-                        <line
-                            x1="8"
-                            y1="13"
-                            x2="16"
-                            y2="13"
-                        ></line>
+                        <line x1="8" y1="13" x2="16" y2="13"></line>
 
-                        <line
-                            x1="8"
-                            y1="17"
-                            x2="16"
-                            y2="17"
-                        ></line>
+                        <line x1="8" y1="17" x2="16" y2="17"></line>
 
                     </svg>
 
@@ -1141,9 +1180,7 @@
 
                         <path d="M9 11l3 3L22 4"></path>
 
-                        <path
-                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-                        ></path>
+                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
 
                     </svg>
 
@@ -1170,13 +1207,9 @@
                         stroke-width="2"
                     >
 
-                        <polyline
-                            points="3 3 3 21 21 21"
-                        ></polyline>
+                        <polyline points="3 3 3 21 21 21"></polyline>
 
-                        <polyline
-                            points="7 16 11 12 14 15 21 8"
-                        ></polyline>
+                        <polyline points="7 16 11 12 14 15 21 8"></polyline>
 
                     </svg>
 
@@ -1203,27 +1236,13 @@
                         stroke-width="2"
                     >
 
-                        <path
-                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                        ></path>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V8z"></path>
 
-                        <polyline
-                            points="14 2 14 8 20 8"
-                        ></polyline>
+                        <polyline points="14 2 14 8 20 8"></polyline>
 
-                        <line
-                            x1="8"
-                            y1="13"
-                            x2="16"
-                            y2="13"
-                        ></line>
+                        <line x1="8" y1="13" x2="16" y2="13"></line>
 
-                        <line
-                            x1="8"
-                            y1="17"
-                            x2="16"
-                            y2="17"
-                        ></line>
+                        <line x1="8" y1="17" x2="16" y2="17"></line>
 
                     </svg>
 
@@ -1254,15 +1273,9 @@
                             stroke-width="2"
                         >
 
-                            <circle
-                                cx="12"
-                                cy="12"
-                                r="3"
-                            ></circle>
+                            <circle cx="12" cy="12" r="3"></circle>
 
-                            <path
-                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"
-                            ></path>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
 
                         </svg>
 
@@ -1282,9 +1295,7 @@
                         stroke-width="2"
                     >
 
-                        <polyline
-                            points="6 9 12 15 18 9"
-                        ></polyline>
+                        <polyline points="6 9 12 15 18 9"></polyline>
 
                     </svg>
 
@@ -1316,34 +1327,13 @@
                             stroke-width="2"
                         >
 
-                            <rect
-                                x="3"
-                                y="4"
-                                width="18"
-                                height="17"
-                                rx="2"
-                            ></rect>
+                            <rect x="3" y="4" width="18" height="17" rx="2"></rect>
 
-                            <line
-                                x1="16"
-                                y1="2"
-                                x2="16"
-                                y2="6"
-                            ></line>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
 
-                            <line
-                                x1="8"
-                                y1="2"
-                                x2="8"
-                                y2="6"
-                            ></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
 
-                            <line
-                                x1="3"
-                                y1="10"
-                                x2="21"
-                                y2="10"
-                            ></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
 
                         </svg>
 
@@ -1370,23 +1360,13 @@
                             stroke-width="2"
                         >
 
-                            <path
-                                d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-                            ></path>
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
 
-                            <circle
-                                cx="9"
-                                cy="7"
-                                r="4"
-                            ></circle>
+                            <circle cx="9" cy="7" r="4"></circle>
 
-                            <path
-                                d="M22 21v-2a4 4 0 0 0-3-3.87"
-                            ></path>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
 
-                            <path
-                                d="M16 3.13a4 4 0 0 1 0 7.75"
-                            ></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
 
                         </svg>
 
@@ -1424,20 +1404,11 @@
                             stroke-width="2"
                         >
 
-                            <path
-                                d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
-                            ></path>
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
 
-                            <polyline
-                                points="16 17 21 12 16 7"
-                            ></polyline>
+                            <polyline points="16 17 21 12 16 7"></polyline>
 
-                            <line
-                                x1="21"
-                                y1="12"
-                                x2="9"
-                                y2="12"
-                            ></line>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
 
                         </svg>
 
@@ -1481,9 +1452,11 @@
                     id="hamburger"
                     aria-label="Buka menu"
                 >
+
                     <span></span>
                     <span></span>
                     <span></span>
+
                 </button>
 
                 <div>
@@ -1654,7 +1627,7 @@
 
                             @forelse ($periodes as $index => $periode)
 
-                                <tr>
+                                <tr class="periode-row">
 
                                     <td>
                                         {{ $index + 1 }}
@@ -1663,21 +1636,21 @@
 
                                     <td class="nama-kegiatan">
 
-                                     {{ $periode->nama }}
+                                        {{ $periode->nama }}
 
                                     </td>
 
 
                                     <td class="tanggal-mulai">
 
-                                      {{ $periode->tgl_awal->format('d-m-Y') }}
+                                        {{ $periode->tgl_awal->format('d-m-Y') }}
 
                                     </td>
 
 
                                     <td class="tanggal-selesai">
 
-                                      {{ $periode->tgl_akhir->format('d-m-Y') }}
+                                        {{ $periode->tgl_akhir->format('d-m-Y') }}
 
                                     </td>
 
@@ -1699,7 +1672,7 @@
                                         @else
 
                                             <span class="status akan-datang">
-                                             {{ $periode->status_periode }}
+                                                {{ $periode->status_periode }}
                                             </span>
 
                                         @endif
@@ -1714,8 +1687,8 @@
 
                                             <!-- EDIT -->
 
-                                            <button 
-                                                type="button" 
+                                            <button
+                                                type="button"
                                                 class="btn-edit edit-button"
 
                                                 data-id="{{ $periode->id }}"
@@ -1758,7 +1731,7 @@
 
                             @empty
 
-                                <tr>
+                                <tr id="emptyPeriodeRow">
 
                                     <td
                                         colspan="6"
@@ -1776,6 +1749,30 @@
                     </table>
 
                 </div>
+
+
+                <!-- =================================================
+                     PAGINATION
+                ================================================== -->
+
+                @if ($periodes->count() > 0)
+
+                    <div class="pagination-wrapper">
+
+                        <div
+                            class="pagination-info"
+                            id="paginationInfo"
+                        ></div>
+
+                        <div
+                            class="pagination"
+                            id="paginationButtons"
+                        ></div>
+
+                    </div>
+
+                @endif
+
 
             </div>
 
@@ -1974,6 +1971,7 @@
 
     function openAddModal()
     {
+
         document.getElementById(
             "modalTitle"
         ).textContent = "Tambah Periode";
@@ -2022,6 +2020,7 @@
             ).focus();
 
         }, 100);
+
     }
 
 
@@ -2141,7 +2140,439 @@
 
 
     /* =====================================================
+       PAGINATION PERIODE
+
+       10 DATA PER HALAMAN
+
+       Contoh:
+
+       14 DATA
+
+       HALAMAN 1
+       Menampilkan 1–10 dari 14 periode
+       ←  1  2  →
+
+       HALAMAN 2
+       Menampilkan 11–14 dari 14 periode
+       ←  1  2  →
+    ===================================================== */
+
+    const rowsPerPage = 10;
+
+    let currentPage = 1;
+
+
+
+    /* =====================================================
+       AMBIL SEMUA BARIS DATA
+    ===================================================== */
+
+    function getPeriodeRows()
+    {
+
+        return Array.from(
+            document.querySelectorAll(
+                "#periodeTable .periode-row"
+            )
+        );
+
+    }
+
+
+
+    /* =====================================================
+       RENDER PAGINATION
+    ===================================================== */
+
+    function renderPagination()
+    {
+
+        const allRows =
+            getPeriodeRows();
+
+
+        const searchInput =
+            document.getElementById(
+                "searchPeriode"
+            );
+
+
+        const keyword =
+            searchInput
+                ? searchInput.value
+                    .toLowerCase()
+                    .trim()
+                : "";
+
+
+        /* =================================================
+           FILTER SEARCH
+        ================================================= */
+
+        const filteredRows =
+            allRows.filter(function(row)
+            {
+
+                const text =
+                    row.textContent
+                        .toLowerCase();
+
+                return text.includes(keyword);
+
+            });
+
+
+
+        /* =================================================
+           HITUNG TOTAL HALAMAN
+        ================================================= */
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    filteredRows.length /
+                    rowsPerPage
+                )
+            );
+
+
+
+        /* =================================================
+           PASTIKAN CURRENT PAGE VALID
+        ================================================= */
+
+        if (currentPage > totalPages)
+        {
+
+            currentPage = totalPages;
+
+        }
+
+
+        if (currentPage < 1)
+        {
+
+            currentPage = 1;
+
+        }
+
+
+
+        /* =================================================
+           SEMBUNYIKAN SEMUA BARIS
+        ================================================= */
+
+        allRows.forEach(function(row)
+        {
+
+            row.style.display = "none";
+
+        });
+
+
+
+        /* =================================================
+           TENTUKAN DATA HALAMAN SEKARANG
+        ================================================= */
+
+        const start =
+            (currentPage - 1) *
+            rowsPerPage;
+
+
+        const end =
+            start +
+            rowsPerPage;
+
+
+        const pageRows =
+            filteredRows.slice(
+                start,
+                end
+            );
+
+
+
+        /* =================================================
+           TAMPILKAN DATA HALAMAN SEKARANG
+        ================================================= */
+
+        pageRows.forEach(function(row)
+        {
+
+            row.style.display = "";
+
+        });
+
+
+
+        /* =================================================
+           PAGINATION CONTAINER
+        ================================================= */
+
+        const paginationButtons =
+            document.getElementById(
+                "paginationButtons"
+            );
+
+
+        const paginationInfo =
+            document.getElementById(
+                "paginationInfo"
+            );
+
+
+        if (!paginationButtons)
+        {
+
+            return;
+
+        }
+
+
+
+        /* =================================================
+           HAPUS PAGINATION LAMA
+        ================================================= */
+
+        paginationButtons.innerHTML = "";
+
+
+
+        /* =================================================
+           INFORMASI DATA
+        ================================================= */
+
+        if (paginationInfo)
+        {
+
+            if (filteredRows.length === 0)
+            {
+
+                paginationInfo.textContent =
+                    "Tidak ada data";
+
+            }
+            else
+            {
+
+                const displayStart =
+                    start + 1;
+
+
+                const displayEnd =
+                    Math.min(
+                        end,
+                        filteredRows.length
+                    );
+
+
+                paginationInfo.textContent =
+                    "Menampilkan " +
+                    displayStart +
+                    "–" +
+                    displayEnd +
+                    " dari " +
+                    filteredRows.length +
+                    " periode";
+
+            }
+
+        }
+
+
+
+        /* =================================================
+           KALAU TIDAK ADA DATA HASIL SEARCH
+        ================================================= */
+
+        if (filteredRows.length === 0)
+        {
+
+            return;
+
+        }
+
+
+
+        /* =================================================
+           TOMBOL SEBELUMNYA
+        ================================================= */
+
+        const previousButton =
+            document.createElement(
+                "button"
+            );
+
+
+        previousButton.type =
+            "button";
+
+
+        previousButton.className =
+            "arrow-button";
+
+
+        previousButton.innerHTML =
+            "‹";
+
+
+        previousButton.title =
+            "Halaman sebelumnya";
+
+
+        previousButton.disabled =
+            currentPage === 1;
+
+
+        previousButton.addEventListener(
+            "click",
+            function()
+            {
+
+                if (currentPage > 1)
+                {
+
+                    currentPage--;
+
+                    renderPagination();
+
+                }
+
+            }
+        );
+
+
+        paginationButtons.appendChild(
+            previousButton
+        );
+
+
+
+        /* =================================================
+           NOMOR HALAMAN
+        ================================================= */
+
+        for (
+            let page = 1;
+            page <= totalPages;
+            page++
+        )
+        {
+
+            const pageButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            pageButton.type =
+                "button";
+
+
+            pageButton.className =
+                "page-number";
+
+
+            pageButton.textContent =
+                page;
+
+
+            if (page === currentPage)
+            {
+
+                pageButton.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            pageButton.addEventListener(
+                "click",
+                function()
+                {
+
+                    currentPage = page;
+
+                    renderPagination();
+
+                }
+            );
+
+
+            paginationButtons.appendChild(
+                pageButton
+            );
+
+        }
+
+
+
+        /* =================================================
+           TOMBOL BERIKUTNYA
+        ================================================= */
+
+        const nextButton =
+            document.createElement(
+                "button"
+            );
+
+
+        nextButton.type =
+            "button";
+
+
+        nextButton.className =
+            "arrow-button";
+
+
+        nextButton.innerHTML =
+            "›";
+
+
+        nextButton.title =
+            "Halaman selanjutnya";
+
+
+        nextButton.disabled =
+            currentPage === totalPages;
+
+
+        nextButton.addEventListener(
+            "click",
+            function()
+            {
+
+                if (
+                    currentPage <
+                    totalPages
+                )
+                {
+
+                    currentPage++;
+
+                    renderPagination();
+
+                }
+
+            }
+        );
+
+
+        paginationButtons.appendChild(
+            nextButton
+        );
+
+    }
+
+
+
+    /* =====================================================
        SEARCH
+
+       Search tetap bekerja bersama pagination.
     ===================================================== */
 
     const searchInput =
@@ -2158,39 +2589,22 @@
             function()
             {
 
-                const keyword =
-                    this.value
-                        .toLowerCase()
-                        .trim();
+                currentPage = 1;
 
-
-                const rows =
-                    document.querySelectorAll(
-                        "#periodeTable tr"
-                    );
-
-
-                rows.forEach(
-                    function(row)
-                    {
-
-                        const text =
-                            row.textContent
-                                .toLowerCase();
-
-
-                        row.style.display =
-                            text.includes(keyword)
-                                ? ""
-                                : "none";
-
-                    }
-                );
+                renderPagination();
 
             }
         );
 
     }
+
+
+
+    /* =====================================================
+       JALANKAN PAGINATION
+    ===================================================== */
+
+    renderPagination();
 
 
 
@@ -2292,6 +2706,7 @@
             "hamburger"
         );
 
+
     const overlay =
         document.getElementById(
             "overlay"
@@ -2300,62 +2715,100 @@
 
     function openSidebar()
     {
+
         if (sidebar)
         {
-            sidebar.classList.add("show");
+
+            sidebar.classList.add(
+                "show"
+            );
+
         }
+
 
         if (overlay)
         {
-            overlay.classList.add("show");
+
+            overlay.classList.add(
+                "show"
+            );
+
         }
+
     }
 
 
     function closeSidebar()
     {
+
         if (sidebar)
         {
-            sidebar.classList.remove("show");
+
+            sidebar.classList.remove(
+                "show"
+            );
+
         }
+
 
         if (overlay)
         {
-            overlay.classList.remove("show");
+
+            overlay.classList.remove(
+                "show"
+            );
+
         }
+
     }
 
 
     if (hamburger)
     {
+
         hamburger.addEventListener(
             "click",
             function()
             {
-                if (sidebar && sidebar.classList.contains("show"))
+
+                if (
+                    sidebar &&
+                    sidebar.classList.contains(
+                        "show"
+                    )
+                )
                 {
+
                     closeSidebar();
+
                 }
                 else
                 {
+
                     openSidebar();
+
                 }
+
             }
         );
+
     }
 
 
     if (overlay)
     {
+
         overlay.addEventListener(
             "click",
             closeSidebar
         );
+
     }
 
 
     if (sidebar)
     {
+
         sidebar
             .querySelectorAll("a")
             .forEach(
@@ -2386,6 +2839,7 @@
             );
 
     }
+
 
 </script>
 

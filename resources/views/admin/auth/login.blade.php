@@ -504,6 +504,7 @@
         <form
             method="POST"
             action="{{ route('login.process') }}"
+            autocomplete="off"
         >
 
             @csrf
@@ -551,7 +552,11 @@
                         id="nomor_identitas"
                         name="nomor_identitas"
                         placeholder="Masukkan nomor identitas"
-                        value="{{ old('nomor_identitas') }}"
+                        value=""
+                        autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
                         required
                         autofocus
                     >
@@ -607,6 +612,10 @@
                         id="password"
                         name="password"
                         placeholder="Masukkan password"
+                        autocomplete="new-password"
+                        autocorrect="off"
+                        autocapitalize="off"
+                        spellcheck="false"
                         required
                     >
 
@@ -706,9 +715,6 @@
                     'Sembunyikan password'
                 );
 
-
-                /* MATA TERBUKA */
-
                 eyeIcon.innerHTML = `
 
                     <path
@@ -738,9 +744,6 @@
                     'title',
                     'Tampilkan password'
                 );
-
-
-                /* MATA TERTUTUP */
 
                 eyeIcon.innerHTML = `
 

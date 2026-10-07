@@ -31,7 +31,7 @@
         .profile-container {
             min-height: 100vh;
 
-            padding: 40px;
+            padding: 35px 20px;
 
             display: flex;
             flex-direction: column;
@@ -46,19 +46,19 @@
 
         .profile-header {
             width: 100%;
-            max-width: 850px;
+            max-width: 700px;
 
-            margin: 0 auto 25px;
+            margin: 0 auto 20px;
 
             text-align: center;
         }
 
         .profile-header h1 {
-            font-size: 28px;
+            font-size: 27px;
 
             color: #252A86;
 
-            margin-bottom: 8px;
+            margin-bottom: 7px;
         }
 
         .profile-header p {
@@ -74,15 +74,15 @@
 
         .profile-card {
             width: 100%;
-            max-width: 650px;
+            max-width: 600px;
 
             margin: 0 auto;
 
             background: #fff;
 
-            border-radius: 16px;
+            border-radius: 15px;
 
-            padding: 25px;
+            padding: 22px;
 
             box-shadow: 0 5px 20px rgba(0,0,0,.08);
         }
@@ -97,19 +97,19 @@
 
             align-items: center;
 
-            gap: 20px;
+            gap: 18px;
 
-            padding-bottom: 25px;
+            padding-bottom: 20px;
 
             border-bottom: 1px solid #eee;
 
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
 
         .profile-avatar {
-            width: 85px;
-            height: 85px;
+            width: 78px;
+            height: 78px;
 
             border-radius: 50%;
 
@@ -122,7 +122,7 @@
             align-items: center;
             justify-content: center;
 
-            font-size: 32px;
+            font-size: 30px;
 
             font-weight: bold;
 
@@ -131,9 +131,9 @@
 
 
         .profile-name h2 {
-            font-size: 22px;
+            font-size: 21px;
 
-            margin-bottom: 5px;
+            margin-bottom: 4px;
 
             color: #252A86;
         }
@@ -142,7 +142,7 @@
         .profile-name span {
             color: #777;
 
-            font-size: 14px;
+            font-size: 13px;
         }
 
 
@@ -155,34 +155,34 @@
 
             grid-template-columns: repeat(2, 1fr);
 
-            gap: 20px;
+            gap: 16px;
         }
 
 
         .info-item {
             background: #f7f9fc;
 
-            border-radius: 10px;
+            border-radius: 9px;
 
-            padding: 18px;
+            padding: 15px;
         }
 
 
         .info-item label {
             display: block;
 
-            font-size: 12px;
+            font-size: 11px;
 
             color: #888;
 
-            margin-bottom: 7px;
+            margin-bottom: 6px;
 
             text-transform: uppercase;
         }
 
 
         .info-item strong {
-            font-size: 15px;
+            font-size: 14px;
 
             color: #333;
         }
@@ -198,9 +198,9 @@
         ====================================================== */
 
         .profile-actions {
-            margin-top: 30px;
+            margin-top: 25px;
 
-            padding-top: 25px;
+            padding-top: 20px;
 
             border-top: 1px solid #eee;
 
@@ -221,11 +221,11 @@
 
             text-decoration: none;
 
-            padding: 12px 20px;
+            padding: 11px 18px;
 
-            border-radius: 9px;
+            border-radius: 8px;
 
-            font-size: 14px;
+            font-size: 13px;
 
             font-weight: 600;
 
@@ -241,9 +241,9 @@
         .btn-back {
             display: inline-block;
 
-            padding: 12px 20px;
+            padding: 11px 18px;
 
-            border-radius: 9px;
+            border-radius: 8px;
 
             text-decoration: none;
 
@@ -251,7 +251,7 @@
 
             color: #444;
 
-            font-size: 14px;
+            font-size: 13px;
 
             transition: .2s;
         }
@@ -269,19 +269,19 @@
         .success-message {
             width: 100%;
 
-            max-width: 650px;
+            max-width: 600px;
 
             background: #e8f7ed;
 
             color: #16803c;
 
-            padding: 14px 18px;
+            padding: 13px 17px;
 
-            border-radius: 9px;
+            border-radius: 8px;
 
-            margin-bottom: 20px;
+            margin-bottom: 18px;
 
-            font-size: 14px;
+            font-size: 13px;
         }
 
 
@@ -297,7 +297,7 @@
 
 
             .profile-header {
-                margin-bottom: 20px;
+                margin-bottom: 18px;
             }
 
 
@@ -307,7 +307,7 @@
 
 
             .profile-card {
-                padding: 22px;
+                padding: 20px;
             }
 
 
@@ -348,30 +348,30 @@
 
 
             .profile-card {
-                padding: 18px;
+                padding: 17px;
             }
 
 
             .profile-top {
-                gap: 14px;
+                gap: 13px;
             }
 
 
             .profile-avatar {
-                width: 65px;
-                height: 65px;
+                width: 62px;
+                height: 62px;
 
-                font-size: 25px;
+                font-size: 24px;
             }
 
 
             .profile-name h2 {
-                font-size: 19px;
+                font-size: 18px;
             }
 
 
             .profile-name span {
-                font-size: 12px;
+                font-size: 11px;
             }
 
         }

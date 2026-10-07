@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
@@ -82,16 +83,36 @@ Route::get('/profil/ubah-password', function () {
 })->name('profil.password');
 
 
+/*
+|--------------------------------------------------------------------------
+| UBAH PASSWORD
+|--------------------------------------------------------------------------
+*/
+
 Route::post('/profil/ubah-password', function (Request $request) {
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI
+    |--------------------------------------------------------------------------
+    */
 
     $request->validate([
 
-        'password_lama' => 'required',
+        'password_lama' => [
+            'required',
+        ],
 
-        'password_baru' => 'required|min:6',
+        'password_baru' => [
+            'required',
+            'string',
+            'min:8',
+        ],
 
-        'password_baru_confirmation' =>
-            'required|same:password_baru',
+        'password_baru_confirmation' => [
+            'required',
+            'same:password_baru',
+        ],
 
     ], [
 
@@ -102,7 +123,7 @@ Route::post('/profil/ubah-password', function (Request $request) {
             'Password baru wajib diisi.',
 
         'password_baru.min' =>
-            'Password baru minimal 6 karakter.',
+            'Password baru minimal 8 karakter.',
 
         'password_baru_confirmation.required' =>
             'Konfirmasi password wajib diisi.',
@@ -113,10 +134,13 @@ Route::post('/profil/ubah-password', function (Request $request) {
     ]);
 
 
-    $user = Auth::user();
+    /*
+    |--------------------------------------------------------------------------
+    | CEK LOGIN
+    |--------------------------------------------------------------------------
+    */
 
-
-    if (!$user) {
+    if (!Auth::check()) {
 
         return redirect()
             ->route('login');
@@ -124,27 +148,147 @@ Route::post('/profil/ubah-password', function (Request $request) {
     }
 
 
-    if (!Hash::check(
-        $request->password_lama,
-        $user->password
-    )) {
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL USER YANG SEDANG LOGIN
+    |--------------------------------------------------------------------------
+    */
+
+    $userId = Auth::id();
+
+    $user = DB::table('users')
+        ->where('id', $userId)
+        ->first();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER TIDAK DITEMUKAN
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$user) {
+
+        Auth::logout();
+
+        return redirect()
+            ->route('login');
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PASSWORD DARI DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    $passwordDatabase = (string) $user->password;
+
+    $passwordLamaInput =
+        (string) $request->input('password_lama');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK PASSWORD LAMA
+    |--------------------------------------------------------------------------
+    */
+
+    $passwordBenar = false;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | JIKA PASSWORD LAMA DI DATABASE BCRYPT
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        str_starts_with(
+            $passwordDatabase,
+            '$2y$'
+        )
+    ) {
+
+        $passwordBenar = Hash::check(
+            $passwordLamaInput,
+            $passwordDatabase
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | JIKA PASSWORD LAMA DI DATABASE TEKS BIASA
+    |--------------------------------------------------------------------------
+    */
+
+    else {
+
+        $passwordBenar = hash_equals(
+            $passwordDatabase,
+            $passwordLamaInput
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PASSWORD LAMA SALAH
+    |--------------------------------------------------------------------------
+    |
+    | PENTING:
+    |
+    | Kalau password lama salah,
+    | proses LANGSUNG BERHENTI.
+    |
+    | Password baru TIDAK AKAN DISIMPAN.
+    |
+    */
+
+    if (!$passwordBenar) {
 
         return back()
             ->withErrors([
                 'password_lama' =>
-                    'Password lama salah.'
+                    'Password lama salah.',
             ])
             ->withInput();
 
     }
 
 
-    $user->password = Hash::make(
-        $request->password_baru
-    );
+    /*
+    |--------------------------------------------------------------------------
+    | PASSWORD LAMA BENAR
+    |--------------------------------------------------------------------------
+    |
+    | Hanya kalau password lama benar,
+    | password baru boleh disimpan.
+    |
+    */
 
-    $user->save();
+    DB::table('users')
+        ->where('id', $userId)
+        ->update([
 
+            'password' =>
+                $request->input('password_baru'),
+
+            'updated_at' =>
+                now(),
+
+        ]);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BERHASIL
+    |--------------------------------------------------------------------------
+    */
 
     return redirect()
         ->route('profil.index')
@@ -323,6 +467,7 @@ Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner
 
 Route::get('/kuisioner/selesai/{id}', [KuisionerController::class, 'detailSelesai'])
     ->name('kuisioner.selesai.detail');
+
 
 /*
 |--------------------------------------------------------------------------

@@ -9,8 +9,44 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $periodeAktif = Periode::where('status_periode', 'Aktif')->count();
+        /*
+        |--------------------------------------------------------------------------
+        | PERIODE AKTIF
+        |--------------------------------------------------------------------------
+        */
 
-        return view('admin.dashboard', compact('periodeAktif'));
+        $periodeAktif = Periode::where(
+            'status_periode',
+            'Aktif'
+        )->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | REKAP DATA TIAP PERIODE
+        |--------------------------------------------------------------------------
+        |
+        | Mengambil maksimal 10 periode terbaru.
+        |
+        */
+
+        $rekapPeriode = Periode::orderByDesc('tgl_awal')
+            ->limit(10)
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DASHBOARD
+        |--------------------------------------------------------------------------
+        */
+
+        return view(
+            'admin.dashboard',
+            compact(
+                'periodeAktif',
+                'rekapPeriode'
+            )
+        );
     }
 }

@@ -4,7 +4,11 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Ubah Password</title>
 
@@ -22,19 +26,11 @@
             min-height: 100vh;
         }
 
-        /* =========================
-           HALAMAN
-        ========================= */
-
         .password-page {
             width: 100%;
-            min-height: calc(100vh - 20px);
+            min-height: 100vh;
             padding: 35px 20px 60px;
         }
-
-        /* =========================
-           HEADER
-        ========================= */
 
         .password-header {
             text-align: center;
@@ -53,10 +49,6 @@
             font-size: 14px;
         }
 
-        /* =========================
-           CARD
-        ========================= */
-
         .password-card {
             width: 100%;
             max-width: 650px;
@@ -64,21 +56,23 @@
             background: #ffffff;
             padding: 30px;
             border-radius: 18px;
+
             box-shadow:
                 0 10px 30px rgba(31, 50, 100, 0.08);
         }
 
-        /* =========================
-           INFORMASI
-        ========================= */
-
         .password-info {
             background: #eef2ff;
             color: #263c91;
+
             padding: 15px 18px;
+
             border-radius: 10px;
+
             font-size: 13px;
+
             line-height: 1.6;
+
             margin-bottom: 26px;
         }
 
@@ -86,9 +80,21 @@
             font-weight: 700;
         }
 
-        /* =========================
-           FORM
-        ========================= */
+        .success-message {
+            background: #ecfdf3;
+
+            color: #16803c;
+
+            border: 1px solid #c8efd8;
+
+            padding: 13px 15px;
+
+            border-radius: 9px;
+
+            font-size: 13px;
+
+            margin-bottom: 20px;
+        }
 
         .form-group {
             margin-bottom: 20px;
@@ -96,9 +102,13 @@
 
         .form-group label {
             display: block;
+
             color: #222;
+
             font-size: 14px;
+
             font-weight: 600;
+
             margin-bottom: 8px;
         }
 
@@ -108,41 +118,59 @@
 
         .input-wrapper input {
             width: 100%;
+
             height: 45px;
-            padding: 0 45px 0 14px;
-            border: 1px solid #d7dce5;
+
+            padding:
+                0 45px 0 14px;
+
+            border:
+                1px solid #d7dce5;
+
             border-radius: 9px;
+
             background: #ffffff;
+
             color: #333;
+
             font-size: 14px;
+
             outline: none;
+
             transition: 0.2s ease;
         }
 
         .input-wrapper input:focus {
             border-color: #29469b;
+
             box-shadow:
-                0 0 0 3px rgba(41, 70, 155, 0.10);
+                0 0 0 3px
+                rgba(41, 70, 155, 0.10);
         }
 
         .input-wrapper input::placeholder {
             color: #8b93a1;
         }
 
-        /* =========================
-           ICON PASSWORD
-        ========================= */
-
         .toggle-password {
             position: absolute;
+
             right: 13px;
+
             top: 50%;
+
             transform: translateY(-50%);
+
             border: none;
+
             background: transparent;
+
             cursor: pointer;
+
             color: #7b8494;
+
             font-size: 15px;
+
             padding: 4px;
         }
 
@@ -150,93 +178,89 @@
             color: #29469b;
         }
 
-        /* =========================
-           ERROR
-        ========================= */
-
         .error-message {
             color: #d93025;
+
             font-size: 13px;
+
             margin-top: 6px;
         }
 
-        /* =========================
-           PEMISAH
-        ========================= */
-
         .form-divider {
             height: 1px;
+
             background: #eeeeee;
+
             margin: 25px 0;
         }
 
-        /* =========================
-           BUTTON
-        ========================= */
-
         .form-actions {
             display: flex;
+
             align-items: center;
+
             gap: 10px;
         }
 
         .btn-save {
             border: none;
+
             background: #29469b;
+
             color: #ffffff;
+
             padding: 12px 22px;
+
             border-radius: 9px;
+
             font-size: 14px;
+
             font-weight: 600;
+
             cursor: pointer;
+
             transition: all 0.25s ease;
         }
 
         .btn-save:hover {
             background: #1f3780;
+
             transform: translateY(-1px);
+
             box-shadow:
-                0 5px 12px rgba(41, 70, 155, 0.20);
+                0 5px 12px
+                rgba(41, 70, 155, 0.20);
         }
 
         .btn-cancel {
             display: inline-block;
+
             text-decoration: none;
+
             background: #f0f1f3;
+
             color: #4b5563;
+
             padding: 12px 22px;
+
             border-radius: 9px;
+
             font-size: 14px;
+
             transition: all 0.25s ease;
         }
 
         .btn-cancel:hover {
             background: #e4e6e9;
+
             color: #222;
         }
-
-        /* =========================
-           SUCCESS
-        ========================= */
-
-        .success-message {
-            background: #ecfdf3;
-            color: #16803c;
-            border: 1px solid #c8efd8;
-            padding: 13px 15px;
-            border-radius: 9px;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        /* =========================
-           RESPONSIVE
-        ========================= */
 
         @media (max-width: 600px) {
 
             .password-page {
-                padding: 25px 15px 40px;
+                padding:
+                    25px 15px 40px;
             }
 
             .password-header h1 {
@@ -249,12 +273,14 @@
 
             .form-actions {
                 flex-direction: column;
+
                 align-items: stretch;
             }
 
             .btn-save,
             .btn-cancel {
                 width: 100%;
+
                 text-align: center;
             }
 
@@ -264,17 +290,19 @@
 
 </head>
 
+
 <body>
 
     <div class="password-page">
 
-        <!-- =========================
-             JUDUL
-        ========================= -->
+
+        <!-- JUDUL -->
 
         <div class="password-header">
 
-            <h1>Ubah Password</h1>
+            <h1>
+                Ubah Password
+            </h1>
 
             <p>
                 Ganti password akun administrator Anda.
@@ -283,11 +311,10 @@
         </div>
 
 
-        <!-- =========================
-             CARD
-        ========================= -->
+        <!-- CARD -->
 
         <div class="password-card">
+
 
             <!-- INFORMASI -->
 
@@ -304,19 +331,8 @@
             @if (session('success'))
 
                 <div class="success-message">
+
                     {{ session('success') }}
-                </div>
-
-            @endif
-
-
-            <!-- ERROR -->
-
-            @if ($errors->any())
-
-                <div class="error-message" style="margin-bottom: 20px;">
-
-                    {{ $errors->first() }}
 
                 </div>
 
@@ -341,6 +357,7 @@
                         Password Lama
                     </label>
 
+
                     <div class="input-wrapper">
 
                         <input
@@ -348,23 +365,31 @@
                             id="password_lama"
                             name="password_lama"
                             placeholder="Masukkan password lama"
+                            autocomplete="current-password"
                             required
                         >
+
 
                         <button
                             type="button"
                             class="toggle-password"
-                            onclick="togglePassword('password_lama', this)"
+                            onclick="togglePassword(
+                                'password_lama',
+                                this
+                            )"
                         >
                             👁
                         </button>
 
                     </div>
 
+
                     @error('password_lama')
 
                         <div class="error-message">
+
                             {{ $message }}
+
                         </div>
 
                     @enderror
@@ -380,6 +405,7 @@
                         Password Baru
                     </label>
 
+
                     <div class="input-wrapper">
 
                         <input
@@ -387,24 +413,32 @@
                             id="password_baru"
                             name="password_baru"
                             placeholder="Masukkan password baru"
-                            required
+                            autocomplete="new-password"
                             minlength="8"
+                            required
                         >
+
 
                         <button
                             type="button"
                             class="toggle-password"
-                            onclick="togglePassword('password_baru', this)"
+                            onclick="togglePassword(
+                                'password_baru',
+                                this
+                            )"
                         >
                             👁
                         </button>
 
                     </div>
 
+
                     @error('password_baru')
 
                         <div class="error-message">
+
                             {{ $message }}
+
                         </div>
 
                     @enderror
@@ -412,13 +446,14 @@
                 </div>
 
 
-                <!-- KONFIRMASI -->
+                <!-- KONFIRMASI PASSWORD -->
 
                 <div class="form-group">
 
                     <label for="password_baru_confirmation">
                         Konfirmasi Password Baru
                     </label>
+
 
                     <div class="input-wrapper">
 
@@ -427,9 +462,11 @@
                             id="password_baru_confirmation"
                             name="password_baru_confirmation"
                             placeholder="Ulangi password baru"
-                            required
+                            autocomplete="new-password"
                             minlength="8"
+                            required
                         >
+
 
                         <button
                             type="button"
@@ -444,10 +481,13 @@
 
                     </div>
 
+
                     @error('password_baru_confirmation')
 
                         <div class="error-message">
+
                             {{ $message }}
+
                         </div>
 
                     @enderror
@@ -460,7 +500,7 @@
                 <div class="form-divider"></div>
 
 
-                <!-- BUTTON -->
+                <!-- TOMBOL -->
 
                 <div class="form-actions">
 
@@ -470,6 +510,7 @@
                     >
                         Ubah Password
                     </button>
+
 
                     <a
                         href="{{ route('profil.index') }}"
@@ -491,19 +532,17 @@
 
         function togglePassword(id, button) {
 
-            const input = document.getElementById(id);
+            const input =
+                document.getElementById(id);
 
-            if (input.type === "password") {
 
-                input.type = "text";
+            if (input.type === 'password') {
 
-                button.textContent = "👁";
+                input.type = 'text';
 
             } else {
 
-                input.type = "password";
-
-                button.textContent = "👁";
+                input.type = 'password';
 
             }
 

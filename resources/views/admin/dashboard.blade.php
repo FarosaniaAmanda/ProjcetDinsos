@@ -9,7 +9,6 @@
 
     <title>Dashboard | Sistem Pendataan Perlindungan Dinas Sosial</title>
 
-    <!-- CHART JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -32,6 +31,7 @@
             overflow-x: hidden;
         }
 
+
         /* =====================================================
            SIDEBAR
         ====================================================== */
@@ -51,10 +51,6 @@
             transition: transform .3s ease;
         }
 
-        /* =====================================================
-           LOGO
-        ====================================================== */
-
         .sidebar-logo {
             height: 105px;
             display: flex;
@@ -73,10 +69,6 @@
             background: #ffffff;
             display: block;
         }
-
-        /* =====================================================
-           MENU
-        ====================================================== */
 
         .sidebar-menu {
             padding: 20px 14px;
@@ -119,10 +111,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,.10);
         }
 
-        /* =====================================================
-           ICON
-        ====================================================== */
-
         .menu-icon {
             width: 20px;
             height: 20px;
@@ -137,6 +125,7 @@
             height: 18px;
             display: block;
         }
+
 
         /* =====================================================
            MASTER
@@ -251,8 +240,9 @@
             display: block;
         }
 
+
         /* =====================================================
-           FOOTER SIDEBAR
+           FOOTER
         ====================================================== */
 
         .sidebar-footer {
@@ -260,10 +250,6 @@
             border-top: 1px solid rgba(255,255,255,.12);
             flex-shrink: 0;
         }
-
-        /* =====================================================
-           LOGOUT
-        ====================================================== */
 
         .logout-form {
             width: 100%;
@@ -293,6 +279,7 @@
             color: #ffffff;
         }
 
+
         /* =====================================================
            MAIN
         ====================================================== */
@@ -302,6 +289,7 @@
             min-height: 100vh;
             width: calc(100% - 260px);
         }
+
 
         /* =====================================================
            HEADER
@@ -341,10 +329,6 @@
             font-size: 12px;
             color: #9ca3af;
         }
-
-        /* =====================================================
-           ADMIN HEADER
-        ====================================================== */
 
         .header-admin {
             display: flex;
@@ -398,6 +382,7 @@
             flex-shrink: 0;
         }
 
+
         /* =====================================================
            HAMBURGER
         ====================================================== */
@@ -424,10 +409,6 @@
             border-radius: 2px;
         }
 
-        /* =====================================================
-           OVERLAY
-        ====================================================== */
-
         .overlay {
             display: none;
             position: fixed;
@@ -439,6 +420,7 @@
         .overlay.show {
             display: block;
         }
+
 
         /* =====================================================
            CONTENT
@@ -469,6 +451,7 @@
             line-height: 1.6;
             margin-bottom: 25px;
         }
+
 
         /* =====================================================
            WELCOME
@@ -511,6 +494,7 @@
             z-index: 2;
         }
 
+
         /* =====================================================
            STATISTICS
         ====================================================== */
@@ -528,6 +512,12 @@
             border-radius: 9px;
             padding: 18px;
             min-width: 0;
+            transition: .2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(37,42,134,.08);
         }
 
         .stat-label {
@@ -549,16 +539,28 @@
             color: #9ca3af;
         }
 
+
         /* =====================================================
            GRAFIK
         ====================================================== */
+
+        .dashboard-chart-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.10fr) minmax(430px, .90fr);
+            gap: 20px;
+            margin-top: 24px;
+            align-items: start;
+        }
 
         .chart-card {
             background: #ffffff;
             border: 1px solid #e5e7eb;
             border-radius: 10px;
             padding: 22px;
-            margin-top: 5px;
+            margin-top: 0;
+            height: 350px;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .chart-header {
@@ -581,22 +583,295 @@
         .chart-container {
             position: relative;
             width: 100%;
-            height: 250px;
+            height: 245px;
+            padding: 0 6px;
         }
 
+
         /* =====================================================
-           TABLET
+           VERIFIKASI
+        ====================================================== */
+
+        .verification-chart-container {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding: 0 8px;
+            box-sizing: border-box;
+            overflow: visible;
+        }
+
+        .verification-chart {
+            width: 175px;
+            height: 175px;
+            position: relative;
+            flex: 0 0 175px;
+        }
+
+        .verification-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            width: 175px;
+            min-width: 175px;
+            box-sizing: border-box;
+        }
+
+        .verification-legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            width: 100%;
+            font-size: 11px;
+            line-height: 1.3;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .verification-legend-left {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        .verification-dot {
+            width: 11px;
+            height: 11px;
+            min-width: 11px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .verification-blue {
+            background: #252A86;
+        }
+
+        .verification-light {
+            background: #8A96E8;
+        }
+
+        .verification-legend-item strong {
+            font-size: 11px;
+            font-weight: 500;
+            color: #252A86;
+        }
+
+
+        /* =====================================================
+           CARD TABEL
+        ====================================================== */
+
+        .questionnaire-card,
+        .period-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 22px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .questionnaire-header,
+        .period-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .questionnaire-title,
+        .period-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #252A86;
+            margin-bottom: 5px;
+        }
+
+        .questionnaire-description,
+        .period-description {
+            font-size: 11px;
+            color: #9ca3af;
+            line-height: 1.5;
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .questionnaire-table,
+        .period-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .questionnaire-table thead th,
+        .period-table thead th {
+            background: #f7f8fc;
+            color: #252A86;
+            font-size: 11px;
+            font-weight: 700;
+            text-align: left;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+
+        .questionnaire-table tbody td,
+        .period-table tbody td {
+            padding: 13px 14px;
+            font-size: 11px;
+            color: #4b5563;
+            border-bottom: 1px solid #f0f1f5;
+            vertical-align: middle;
+        }
+
+        .questionnaire-table tbody tr:last-child td,
+        .period-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .questionnaire-table tbody tr:hover,
+        .period-table tbody tr:hover {
+            background: #fafbff;
+        }
+
+
+        /* =====================================================
+           STATUS
+        ====================================================== */
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-selesai {
+            background: #eaf7ef;
+            color: #21874b;
+        }
+
+        .status-proses {
+            background: #fff5dc;
+            color: #a36b00;
+        }
+
+        .status-belum {
+            background: #f1f2f5;
+            color: #6b7280;
+        }
+
+        .status-aktif {
+            background: #e8edff;
+            color: #252A86;
+        }
+
+
+        /* =====================================================
+           PAGINATION
+        ====================================================== */
+
+        .pagination-area {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid #f0f1f5;
+        }
+
+        .pagination-info {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            min-width: 31px;
+            height: 31px;
+            padding: 0 9px;
+            border: 1px solid #e1e4ec;
+            background: #ffffff;
+            color: #252A86;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #f1f3ff;
+            border-color: #252A86;
+        }
+
+        .pagination-button.active {
+            background: #252A86;
+            border-color: #252A86;
+            color: #ffffff;
+        }
+
+        .pagination-button:disabled {
+            opacity: .45;
+            cursor: not-allowed;
+        }
+
+        .empty-table {
+            text-align: center !important;
+            padding: 25px !important;
+            color: #9ca3af !important;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
         ====================================================== */
 
         @media (max-width: 1100px) {
+
             .stats-grid {
                 grid-template-columns: repeat(2,minmax(0,1fr));
             }
+
+            .dashboard-chart-grid {
+                grid-template-columns: minmax(0,1fr) minmax(390px,1fr);
+                gap: 18px;
+            }
+
+            .verification-chart {
+                width: 165px;
+                height: 165px;
+                flex-basis: 165px;
+            }
+
+            .verification-legend {
+                width: 150px;
+                min-width: 150px;
+            }
         }
 
-        /* =====================================================
-           MOBILE
-        ====================================================== */
 
         @media (max-width: 900px) {
 
@@ -633,12 +908,32 @@
 
             .content {
                 padding: 20px;
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            .dashboard-chart-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .chart-card {
+                width: 100%;
+                height: auto;
+                min-height: 350px;
+            }
+
+            .verification-chart-container {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .questionnaire-card,
+            .period-card {
+                width: 100%;
             }
         }
 
-        /* =====================================================
-           SMALL MOBILE
-        ====================================================== */
 
         @media (max-width: 600px) {
 
@@ -657,8 +952,8 @@
             }
 
             .header-title {
-                font-size: 13px;
-                max-width: 190px;
+                font-size: 12px;
+                max-width: 170px;
             }
 
             .header-admin .admin-text {
@@ -672,46 +967,164 @@
             }
 
             .content {
-                padding: 16px;
+                padding: 16px 12px 28px;
+            }
+
+            .page-kicker {
+                font-size: 10px;
+                margin-bottom: 5px;
             }
 
             .page-title {
                 font-size: 22px;
+                margin-bottom: 6px;
             }
 
             .page-description {
-                font-size: 12px;
+                font-size: 11px;
+                line-height: 1.55;
+                margin-bottom: 16px;
             }
 
             .welcome-card {
-                padding: 20px;
+                padding: 16px;
+                margin-bottom: 14px;
             }
 
             .welcome-title {
-                font-size: 16px;
+                font-size: 14px;
+            }
+
+            .welcome-text {
+                font-size: 10px;
+                line-height: 1.5;
             }
 
             .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 12px;
+                grid-template-columns: repeat(2, minmax(0,1fr));
+                gap: 9px;
+                margin-bottom: 14px;
             }
 
             .stat-card {
-                padding: 16px;
+                padding: 13px;
+            }
+
+            .stat-label {
+                font-size: 9px;
+                line-height: 1.35;
+                margin-bottom: 7px;
+            }
+
+            .stat-value {
+                font-size: 21px;
+            }
+
+            .stat-description {
+                font-size: 8px;
+                line-height: 1.4;
+                margin-top: 6px;
+            }
+
+            .dashboard-chart-grid {
+                gap: 14px;
+                margin-top: 14px;
             }
 
             .chart-card {
-                padding: 16px;
+                padding: 14px;
+                min-height: 0;
+                border-radius: 10px;
+            }
+
+            .chart-header {
+                margin-bottom: 12px;
+            }
+
+            .chart-title {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .chart-description {
+                font-size: 9px;
+                line-height: 1.5;
             }
 
             .chart-container {
-                height: 280px;
+                height: 240px;
+            }
+
+            .verification-chart-container {
+                height: auto;
+                min-height: 250px;
+                flex-direction: column;
+                gap: 12px;
+                padding: 8px 0 14px;
+            }
+
+            .verification-chart {
+                width: 175px;
+                height: 175px;
+                flex-basis: 175px;
+            }
+
+            .verification-legend {
+                width: 100%;
+                max-width: 270px;
+                min-width: 0;
+                gap: 10px;
+            }
+
+            .questionnaire-card,
+            .period-card {
+                padding: 14px;
+                margin-top: 14px;
+            }
+
+            .questionnaire-header,
+            .period-header {
+                margin-bottom: 12px;
+            }
+
+            .questionnaire-title,
+            .period-title {
+                font-size: 13px;
+            }
+
+            .questionnaire-description,
+            .period-description {
+                font-size: 9px;
+            }
+
+            .questionnaire-table thead th,
+            .period-table thead th {
+                font-size: 9px;
+                padding: 10px;
+            }
+
+            .questionnaire-table tbody td,
+            .period-table tbody td {
+                font-size: 9px;
+                padding: 10px;
+            }
+
+            .status-badge {
+                font-size: 8px;
+                padding: 4px 8px;
+            }
+
+            .pagination-area {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .pagination-buttons {
+                width: 100%;
+                justify-content: flex-end;
             }
         }
 
-        /* =====================================================
-           VERY SMALL MOBILE
-        ====================================================== */
 
         @media (max-width: 400px) {
 
@@ -720,428 +1133,32 @@
             }
 
             .content {
-                padding: 12px;
-            }
-
-            .page-title {
-                font-size: 20px;
+                padding: 14px 10px 24px;
             }
 
             .header-title {
-                max-width: 150px;
-                font-size: 12px;
-            }
-        }
-
-        /* =====================================================
-           DASHBOARD TAMBAHAN
-        ====================================================== */
-
-        .dashboard-chart-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 1.10fr) minmax(430px, .90fr);
-            gap: 20px;
-            margin-top: 24px;
-            align-items: start;
-        }
-
-        .dashboard-chart-grid .chart-card {
-            margin-top: 0;
-            height: 350px;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .dashboard-chart-grid .chart-container {
-            height: 245px;
-            padding: 0 6px;
-            box-sizing: border-box;
-        }
-
-        .gender-chart-container {
-            height: 250px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* =====================================================
-           RESPONSIVE FINAL - HP
-        ====================================================== */
-
-        @media (max-width: 900px) {
-
-            .main {
-                margin-left: 0 !important;
-                width: 100% !important;
-                min-width: 0 !important;
-            }
-
-            .header {
-                width: 100% !important;
-                box-sizing: border-box;
-            }
-
-            .content {
-                width: 100%;
-                box-sizing: border-box;
-                overflow-x: hidden;
-            }
-
-            .dashboard-chart-grid {
-                grid-template-columns: 1fr !important;
-                gap: 16px !important;
-            }
-
-            .dashboard-chart-grid .chart-card {
-                width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
-            }
-
-            .chart-container,
-            .gender-chart-container {
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-            }
-        }
-
-        @media (max-width: 600px) {
-
-            .header {
-                height: 64px !important;
-                padding: 0 14px !important;
-            }
-
-            .header-title {
-                font-size: 12px !important;
-                line-height: 1.3;
-                max-width: 170px !important;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .content {
-                padding: 16px 12px 28px !important;
-            }
-
-            .page-kicker {
-                font-size: 10px !important;
-                margin-bottom: 5px;
-            }
-
-            .page-title {
-                font-size: 22px !important;
-                margin-bottom: 6px;
-            }
-
-            .page-description {
-                font-size: 11px !important;
-                line-height: 1.55 !important;
-                margin-bottom: 16px !important;
-            }
-
-            .welcome-card {
-                padding: 16px !important;
-                margin-bottom: 14px !important;
-            }
-
-            .welcome-title {
-                font-size: 14px !important;
-            }
-
-            .welcome-text {
-                font-size: 10px !important;
-                line-height: 1.5 !important;
+                max-width: 145px;
+                font-size: 11px;
             }
 
             .stats-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                gap: 9px !important;
-                margin-bottom: 14px !important;
+                gap: 8px;
             }
 
             .stat-card {
-                padding: 13px !important;
-                min-width: 0 !important;
-            }
-
-            .stat-label {
-                font-size: 9px !important;
-                line-height: 1.35;
-                margin-bottom: 7px;
+                padding: 11px;
             }
 
             .stat-value {
-                font-size: 21px !important;
-            }
-
-            .stat-description {
-                font-size: 8px !important;
-                line-height: 1.4;
-                margin-top: 6px;
-            }
-
-            .dashboard-chart-grid {
-                grid-template-columns: 1fr !important;
-                gap: 14px !important;
-                margin-top: 14px !important;
-            }
-
-            .chart-card {
-                padding: 14px !important;
-                margin-top: 0 !important;
-                border-radius: 10px !important;
-            }
-
-            .chart-header {
-                margin-bottom: 12px !important;
-            }
-
-            .chart-title {
-                font-size: 13px !important;
-                line-height: 1.4 !important;
-            }
-
-            .chart-description {
-                font-size: 9px !important;
-                line-height: 1.5 !important;
+                font-size: 19px;
             }
 
             .chart-container {
-                height: 240px !important;
+                height: 220px;
             }
 
             .verification-chart-container {
-                height: 250px !important;
-            }
-        }
-
-        @media (max-width: 400px) {
-
-            .content {
-                padding: 14px 10px 24px !important;
-            }
-
-            .header-title {
-                max-width: 145px !important;
-                font-size: 11px !important;
-            }
-
-            .stats-grid {
-                gap: 8px !important;
-            }
-
-            .stat-card {
-                padding: 11px !important;
-            }
-
-            .stat-value {
-                font-size: 19px !important;
-            }
-
-            .chart-container {
-                height: 220px !important;
-            }
-
-            .verification-chart-container {
-                height: auto !important;
-            }
-        }
-
-        /* =====================================================
-           STATUS VERIFIKASI RESPONDEN
-        ===================================================== */
-
-        .verification-chart-container {
-            width: 100%;
-            height: 250px !important;
-            position: relative;
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 18px !important;
-            padding: 0 !important;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .verification-chart {
-            width: 175px !important;
-            height: 175px !important;
-            position: relative;
-            flex: 0 0 175px !important;
-        }
-
-        .verification-legend {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 14px !important;
-            width: 175px !important;
-            min-width: 175px !important;
-            box-sizing: border-box;
-        }
-
-        .verification-legend-item {
-            display: flex !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            gap: 8px !important;
-            width: 100%;
-            font-size: 11px !important;
-            line-height: 1.3;
-            color: #555;
-            white-space: nowrap;
-        }
-
-        .verification-legend-left {
-            display: flex !important;
-            align-items: center !important;
-            gap: 7px !important;
-            min-width: 0;
-        }
-
-        .verification-dot {
-            width: 11px;
-            height: 11px;
-            min-width: 11px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .verification-blue {
-            background: #252A86;
-        }
-
-        .verification-light {
-            background: #8A96E8;
-        }
-
-        .verification-legend-item strong {
-            font-size: 11px !important;
-            font-weight: 500;
-            color: #252A86;
-        }
-
-        @media (min-width: 901px) {
-
-            .dashboard-chart-grid .chart-card {
-                height: 350px !important;
-            }
-
-            .dashboard-chart-grid .chart-container {
-                height: 245px !important;
-            }
-
-            .verification-chart-container {
-                height: 250px !important;
-                padding: 0 4px !important;
-            }
-        }
-
-        @media (min-width: 901px) {
-
-            .dashboard-chart-grid .chart-card:last-child {
-                min-width: 0;
-            }
-
-            .verification-chart-container {
-                padding: 0 8px !important;
-                overflow: visible !important;
-            }
-
-            .verification-chart {
-                width: 175px !important;
-                height: 175px !important;
-                flex: 0 0 175px !important;
-            }
-
-            .verification-legend {
-                width: 175px !important;
-                min-width: 175px !important;
-            }
-        }
-
-        /* Tablet */
-        @media (max-width: 1100px) and (min-width: 901px) {
-
-            .dashboard-chart-grid {
-                grid-template-columns: minmax(0, 1fr) minmax(390px, 1fr);
-                gap: 18px;
-            }
-
-            .verification-chart {
-                width: 175px !important;
-                height: 175px !important;
-                flex-basis: 175px !important;
-            }
-
-            .verification-legend {
-                width: 150px !important;
-                min-width: 150px !important;
-            }
-        }
-
-        /* HP / layar kecil */
-        @media (max-width: 900px) {
-
-            .dashboard-chart-grid {
-                grid-template-columns: 1fr !important;
-                gap: 14px !important;
-            }
-
-            .dashboard-chart-grid .chart-card {
-                height: auto !important;
-                min-height: 0 !important;
-            }
-
-            .dashboard-chart-grid .chart-container {
-                height: 240px !important;
-            }
-
-            .verification-chart-container {
-                height: 250px !important;
-                flex-direction: row !important;
-                gap: 12px !important;
-            }
-
-            .verification-chart {
-                width: 165px !important;
-                height: 165px !important;
-                flex-basis: 165px !important;
-            }
-
-            .verification-legend {
-                width: 145px !important;
-                min-width: 145px !important;
-            }
-        }
-
-        @media (max-width: 600px) {
-
-            .verification-chart-container {
-                height: auto !important;
                 min-height: 250px;
-                flex-direction: column !important;
-                gap: 12px !important;
-                padding: 8px 0 14px !important;
-            }
-
-            .verification-chart {
-                width: 175px !important;
-                height: 175px !important;
-                flex-basis: 175px !important;
-            }
-
-            .verification-legend {
-                width: 100% !important;
-                max-width: 270px !important;
-                min-width: 0 !important;
-                gap: 10px !important;
             }
         }
 
@@ -1150,6 +1167,7 @@
 </head>
 
 <body>
+
 
 <!-- =====================================================
      SIDEBAR
@@ -1166,11 +1184,13 @@
 
     </div>
 
+
     <nav class="sidebar-menu">
 
         <div class="menu-title">
             Menu Utama
         </div>
+
 
         <!-- DASHBOARD -->
 
@@ -1197,11 +1217,10 @@
 
             </span>
 
-            <span>
-                Dashboard
-            </span>
+            <span>Dashboard</span>
 
         </a>
+
 
         <!-- RESPONDEN -->
 
@@ -1226,11 +1245,10 @@
 
             </span>
 
-            <span>
-                Responden
-            </span>
+            <span>Responden</span>
 
         </a>
+
 
         <!-- KUISIONER -->
 
@@ -1257,11 +1275,10 @@
 
             </span>
 
-            <span>
-                Kuisioner
-            </span>
+            <span>Kuisioner</span>
 
         </a>
+
 
         <!-- VERIFIKASI -->
 
@@ -1286,11 +1303,10 @@
 
             </span>
 
-            <span>
-                Verifikasi
-            </span>
+            <span>Verifikasi</span>
 
         </a>
+
 
         <!-- MONITORING -->
 
@@ -1315,11 +1331,10 @@
 
             </span>
 
-            <span>
-                Monitoring
-            </span>
+            <span>Monitoring</span>
 
         </a>
+
 
         <!-- LAPORAN -->
 
@@ -1346,13 +1361,14 @@
 
             </span>
 
-            <span>
-                Laporan
-            </span>
+            <span>Laporan</span>
 
         </a>
 
-        <!-- MASTER -->
+
+        <!-- =================================================
+             MASTER
+        ================================================== -->
 
         <div
             class="master-menu"
@@ -1384,11 +1400,10 @@
 
                     </span>
 
-                    <span>
-                        Master
-                    </span>
+                    <span>Master</span>
 
                 </span>
+
 
                 <span class="master-arrow">
 
@@ -1407,7 +1422,6 @@
 
             </button>
 
-            <!-- SUBMENU -->
 
             <div
                 class="master-submenu"
@@ -1428,6 +1442,7 @@
                     </span>
 
                 </a>
+
 
                 <a
                     href="{{ route('master.index') }}"
@@ -1464,7 +1479,8 @@
 
     </nav>
 
-    <!-- LOGOUT -->
+
+    <!-- SIDEBAR FOOTER -->
 
     <div class="sidebar-footer">
 
@@ -1510,18 +1526,19 @@
 
 </aside>
 
-<!-- OVERLAY -->
 
 <div
     class="overlay"
     id="overlay"
 ></div>
 
+
 <!-- =====================================================
      MAIN
 ===================================================== -->
 
 <main class="main">
+
 
     <!-- HEADER -->
 
@@ -1542,6 +1559,7 @@
 
             </button>
 
+
             <div>
 
                 <div class="header-title">
@@ -1556,7 +1574,6 @@
 
         </div>
 
-        <!-- PROFIL OPERATOR -->
 
         <a
             href="{{ route('profil.index') }}"
@@ -1575,6 +1592,7 @@
 
             </div>
 
+
             <div class="admin-avatar">
                 {{ strtoupper(substr(auth()->user()->name ?? 'P', 0, 1)) }}
             </div>
@@ -1583,24 +1601,30 @@
 
     </header>
 
+
     <!-- =================================================
          CONTENT
     ================================================== -->
 
     <section class="content">
 
+
         <div class="page-kicker">
             {{ strtoupper(auth()->user()->role ?? 'PENGGUNA') }}
         </div>
+
 
         <h1 class="page-title">
             Dashboard
         </h1>
 
+
         <p class="page-description">
             Selamat datang di panel administrasi Sistem Pendataan
-            Perlinsos Kota Pasuruan.
+            Perlinsos Kota Pasuruan. Pantau data responden,
+            kuisioner, dan proses verifikasi melalui dashboard ini.
         </p>
+
 
         <!-- =================================================
              WELCOME
@@ -1609,21 +1633,25 @@
         <div class="welcome-card">
 
             <div class="welcome-title">
-                Selamat Datang, {{ ucfirst(auth()->user()->role ?? 'Pengguna') }}
+                Selamat Datang,
+                {{ ucfirst(auth()->user()->role ?? 'Pengguna') }}
             </div>
 
             <div class="welcome-text">
-                Kelola data pendataan sosial, verifikasi,
-                monitoring, dan laporan melalui sistem ini.
+                Kelola data pendataan sosial, kuisioner,
+                verifikasi alamat, monitoring, dan laporan
+                melalui sistem ini.
             </div>
 
         </div>
+
 
         <!-- =================================================
              STATISTICS
         ================================================== -->
 
         <div class="stats-grid">
+
 
             <!-- TOTAL RESPONDEN -->
 
@@ -1643,6 +1671,7 @@
 
             </div>
 
+
             <!-- PERIODE AKTIF -->
 
             <div class="stat-card">
@@ -1652,7 +1681,7 @@
                 </div>
 
                 <div class="stat-value">
-                    {{ $periodeAktif }}
+                    {{ $periodeAktif ?? 0 }}
                 </div>
 
                 <div class="stat-description">
@@ -1661,12 +1690,13 @@
 
             </div>
 
-            <!-- DATA MASUK -->
+
+            <!-- DATA BERJALAN -->
 
             <div class="stat-card">
 
                 <div class="stat-label">
-                    Data Masuk Hari Ini
+                    Data Berjalan Saat Ini
                 </div>
 
                 <div class="stat-value">
@@ -1674,10 +1704,11 @@
                 </div>
 
                 <div class="stat-description">
-                    Data baru hari ini
+                    Data pendataan yang sedang berjalan
                 </div>
 
             </div>
+
 
             <!-- DATA TERVERIFIKASI -->
 
@@ -1692,64 +1723,78 @@
                 </div>
 
                 <div class="stat-description">
-                    Data telah diverifikasi
+                    Data alamat telah diverifikasi
                 </div>
 
             </div>
 
         </div>
 
+
         <!-- =================================================
-             GRAFIK KECAMATAN + JENIS KELAMIN
+             GRAFIK
         ================================================== -->
 
         <div class="dashboard-chart-grid">
 
-            <!-- PERSEBARAN KECAMATAN -->
+
+            <!-- GRAFIK KECAMATAN -->
 
             <div class="chart-card">
 
                 <div class="chart-header">
 
                     <div class="chart-title">
-                        Persebaran Data Berdasarkan Kecamatan
+                        Persebaran Data Responden Berdasarkan Kecamatan
                     </div>
 
                     <div class="chart-description">
-                        Visualisasi jumlah data pendataan berdasarkan kecamatan.
+                        Jumlah data responden berdasarkan kecamatan
+                        pada pendataan yang sedang berjalan.
                     </div>
 
                 </div>
 
+
                 <div class="chart-container">
+
                     <canvas id="kecamatanChart"></canvas>
+
                 </div>
 
             </div>
 
-            <!-- STATUS VERIFIKASI RESPONDEN -->
+
+            <!-- GRAFIK VERIFIKASI -->
 
             <div class="chart-card">
 
                 <div class="chart-header">
 
                     <div class="chart-title">
-                        Status Verifikasi Responden
+                        Status Verifikasi Alamat
                     </div>
 
                     <div class="chart-description">
-                        Perbandingan data yang sudah dan belum terverifikasi.
+                        Perbandingan alamat responden yang sudah
+                        dan belum diverifikasi sesuai data kuisioner.
                     </div>
 
                 </div>
 
+
                 <div class="verification-chart-container">
 
+
                     <div class="verification-chart">
-                        <canvas id="genderChart"></canvas>
+
+                        <canvas id="verificationChart"></canvas>
+
                     </div>
 
+
                     <div class="verification-legend">
+
 
                         <div class="verification-legend-item">
 
@@ -1769,6 +1814,7 @@
 
                         </div>
 
+
                         <div class="verification-legend-item">
 
                             <div class="verification-legend-left">
@@ -1787,9 +1833,503 @@
 
                         </div>
 
+
                     </div>
 
                 </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             KUISIONER TERAKHIR
+        ================================================== -->
+
+        <div class="questionnaire-card">
+
+
+            <div class="questionnaire-header">
+
+                <div>
+
+                    <div class="questionnaire-title">
+                        Kuisioner Terakhir
+                    </div>
+
+                    <div class="questionnaire-description">
+                        Data kuisioner yang dilakukan atau diperbarui.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+
+                <table
+                    class="questionnaire-table"
+                    id="questionnaireTable"
+                >
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                Nama Responden
+                            </th>
+
+                            <th>
+                                Kecamatan
+                            </th>
+
+                            <th>
+                                Tanggal
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        @if(isset($kuisionerTerakhir) && count($kuisionerTerakhir) > 0)
+
+
+                            @foreach($kuisionerTerakhir as $index => $kuisioner)
+
+
+                                {{-- TIDAK ADA LAGI BATAS 10 DATA --}}
+
+                                <tr class="questionnaire-row">
+
+
+                                    <td>
+                                        {{ $index + 1 }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ $kuisioner->nama_responden
+                                            ?? $kuisioner->nama
+                                            ?? '-' }}
+                                    </td>
+
+
+                                    <td>
+                                        {{ $kuisioner->kecamatan ?? '-' }}
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ isset($kuisioner->created_at)
+                                            ? \Carbon\Carbon::parse(
+                                                $kuisioner->created_at
+                                            )->format('d/m/Y')
+                                            : '-' }}
+
+                                    </td>
+
+
+                                    <td>
+
+
+                                        @php
+
+                                            $status = strtolower(
+                                                $kuisioner->status
+                                                ?? 'belum'
+                                            );
+
+                                        @endphp
+
+
+                                        @if($status === 'selesai')
+
+
+                                            <span class="status-badge status-selesai">
+                                                Selesai
+                                            </span>
+
+
+                                        @elseif(
+                                            $status === 'proses'
+                                            || $status === 'diproses'
+                                        )
+
+
+                                            <span class="status-badge status-proses">
+                                                Dalam Proses
+                                            </span>
+
+
+                                        @else
+
+
+                                            <span class="status-badge status-belum">
+                                                Belum Selesai
+                                            </span>
+
+
+                                        @endif
+
+
+                                    </td>
+
+
+                                </tr>
+
+
+                            @endforeach
+
+
+                        @else
+
+
+                            <tr>
+
+                                <td
+                                    colspan="5"
+                                    class="empty-table"
+                                >
+                                    Belum ada data kuisioner terakhir.
+                                </td>
+
+                            </tr>
+
+
+                        @endif
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- PAGINATION KUISIONER -->
+
+            <div
+                class="pagination-area"
+                id="questionnairePagination"
+            >
+
+                <div
+                    class="pagination-info"
+                    id="questionnaireInfo"
+                ></div>
+
+
+                <div
+                    class="pagination-buttons"
+                    id="questionnaireButtons"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REKAP DATA TIAP PERIODE
+        ================================================== -->
+
+        <div class="period-card">
+
+
+            <div class="period-header">
+
+                <div>
+
+                    <div class="period-title">
+                        Rekap Data Tiap Periode
+                    </div>
+
+                    <div class="period-description">
+                        Ringkasan jumlah responden dan hasil verifikasi
+                        berdasarkan periode pendataan.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+
+                <table
+                    class="period-table"
+                    id="periodTable"
+                >
+
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                Nama Periode
+                            </th>
+
+                            <th>
+                                Tanggal Mulai
+                            </th>
+
+                            <th>
+                                Tanggal Selesai
+                            </th>
+
+                            <th>
+                                Total Responden
+                            </th>
+
+                            <th>
+                                Terverifikasi
+                            </th>
+
+                            <th>
+                                Belum Verifikasi
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+
+                        @if(isset($rekapPeriode) && count($rekapPeriode) > 0)
+
+
+                            @foreach($rekapPeriode as $index => $periode)
+
+
+                                <tr class="period-row">
+
+
+                                    <td>
+                                        {{ $index + 1 }}
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ $periode->nama_periode
+                                            ?? $periode->nama
+                                            ?? $periode->periode
+                                            ?? '-' }}
+
+                                    </td>
+
+
+                                    <td>
+
+
+                                        @if(!empty($periode->tgl_awal))
+
+
+                                            {{ \Carbon\Carbon::parse(
+                                                $periode->tgl_awal
+                                            )->format('d/m/Y') }}
+
+
+                                        @elseif(!empty($periode->tanggal_mulai))
+
+
+                                            {{ \Carbon\Carbon::parse(
+                                                $periode->tanggal_mulai
+                                            )->format('d/m/Y') }}
+
+
+                                        @else
+
+
+                                            -
+
+
+                                        @endif
+
+
+                                    </td>
+
+
+                                    <td>
+
+
+                                        @if(!empty($periode->tgl_akhir))
+
+
+                                            {{ \Carbon\Carbon::parse(
+                                                $periode->tgl_akhir
+                                            )->format('d/m/Y') }}
+
+
+                                        @elseif(!empty($periode->tanggal_selesai))
+
+
+                                            {{ \Carbon\Carbon::parse(
+                                                $periode->tanggal_selesai
+                                            )->format('d/m/Y') }}
+
+
+                                        @else
+
+
+                                            -
+
+
+                                        @endif
+
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ $periode->total_responden
+                                            ?? $periode->jumlah_responden
+                                            ?? 0 }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ $periode->terverifikasi
+                                            ?? $periode->jumlah_terverifikasi
+                                            ?? 0 }}
+
+                                    </td>
+
+
+                                    <td>
+
+                                        {{ $periode->belum_verifikasi
+                                            ?? $periode->belum_terverifikasi
+                                            ?? 0 }}
+
+                                    </td>
+
+
+                                    <td>
+
+
+                                        @php
+
+                                            $statusPeriode = strtolower(
+                                                $periode->status_periode
+                                                ?? $periode->status
+                                                ?? 'selesai'
+                                            );
+
+                                        @endphp
+
+
+                                        @if($statusPeriode === 'aktif')
+
+
+                                            <span class="status-badge status-aktif">
+                                                Aktif
+                                            </span>
+
+
+                                        @elseif($statusPeriode === 'selesai')
+
+
+                                            <span class="status-badge status-selesai">
+                                                Selesai
+                                            </span>
+
+
+                                        @else
+
+
+                                            <span class="status-badge status-belum">
+                                                {{ ucfirst($statusPeriode) }}
+                                            </span>
+
+
+                                        @endif
+
+
+                                    </td>
+
+
+                                </tr>
+
+
+                            @endforeach
+
+
+                        @else
+
+
+                            <tr>
+
+                                <td
+                                    colspan="8"
+                                    class="empty-table"
+                                >
+                                    Belum ada data rekap periode.
+                                </td>
+
+                            </tr>
+
+
+                        @endif
+
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- PAGINATION REKAP PERIODE -->
+
+            <div
+                class="pagination-area"
+                id="periodPagination"
+            >
+
+                <div
+                    class="pagination-info"
+                    id="periodInfo"
+                ></div>
+
+
+                <div
+                    class="pagination-buttons"
+                    id="periodButtons"
+                ></div>
 
             </div>
 
@@ -1799,11 +2339,13 @@
 
 </main>
 
+
 <!-- =====================================================
      JAVASCRIPT
 ===================================================== -->
 
 <script>
+
 
     /* =====================================================
        SIDEBAR
@@ -1812,11 +2354,14 @@
     const sidebar =
         document.getElementById('sidebar');
 
+
     const hamburger =
         document.getElementById('hamburger');
 
+
     const overlay =
         document.getElementById('overlay');
+
 
     function openSidebar() {
 
@@ -1826,6 +2371,7 @@
 
     }
 
+
     function closeSidebar() {
 
         sidebar.classList.remove('show');
@@ -1834,27 +2380,36 @@
 
     }
 
-    hamburger.addEventListener('click', function () {
 
-        if (
-            sidebar.classList.contains('show')
-        ) {
+    hamburger.addEventListener(
+        'click',
+        function () {
+
+            if (
+                sidebar.classList.contains('show')
+            ) {
+
+                closeSidebar();
+
+            } else {
+
+                openSidebar();
+
+            }
+
+        }
+    );
+
+
+    overlay.addEventListener(
+        'click',
+        function () {
 
             closeSidebar();
 
-        } else {
-
-            openSidebar();
-
         }
+    );
 
-    });
-
-    overlay.addEventListener('click', function () {
-
-        closeSidebar();
-
-    });
 
     /* =====================================================
        MASTER DROPDOWN
@@ -1863,21 +2418,34 @@
     const masterMenu =
         document.getElementById('masterMenu');
 
+
     const masterToggle =
         document.getElementById('masterToggle');
+
 
     const masterSubmenu =
         document.getElementById('masterSubmenu');
 
-    masterToggle.addEventListener('click', function () {
 
-        masterMenu.classList.toggle('open');
+    masterToggle.addEventListener(
+        'click',
+        function () {
 
-        masterToggle.classList.toggle('open');
+            masterMenu.classList.toggle(
+                'open'
+            );
 
-        masterSubmenu.classList.toggle('open');
+            masterToggle.classList.toggle(
+                'open'
+            );
 
-    });
+            masterSubmenu.classList.toggle(
+                'open'
+            );
+
+        }
+    );
+
 
     /* =====================================================
        CLOSE SIDEBAR MOBILE
@@ -1886,274 +2454,746 @@
     const menuLinks =
         sidebar.querySelectorAll('a');
 
-    menuLinks.forEach(function (link) {
 
-        link.addEventListener('click', function () {
+    menuLinks.forEach(
+        function (link) {
 
-            if (window.innerWidth <= 900) {
+            link.addEventListener(
+                'click',
+                function () {
 
-                closeSidebar();
+                    if (
+                        window.innerWidth <= 900
+                    ) {
 
-            }
+                        closeSidebar();
 
-        });
+                    }
 
-    });
+                }
+            );
+
+        }
+    );
+
 
     /* =====================================================
        RESET SIDEBAR DESKTOP
     ===================================================== */
 
-    window.addEventListener('resize', function () {
+    window.addEventListener(
+        'resize',
+        function () {
 
-        if (window.innerWidth > 900) {
+            if (
+                window.innerWidth > 900
+            ) {
 
-            closeSidebar();
-
-        }
-
-    });
-
-    /* =====================================================
-       GRAFIK PERSEBARAN DATA BERDASARKAN KECAMATAN
-       DATA DI BAWAH MASIH CONTOH
-       NANTI BISA DIGANTI DENGAN DATA DARI DATABASE
-    ===================================================== */
-
-    const kecamatanCtx =
-        document.getElementById('kecamatanChart');
-
-    new Chart(kecamatanCtx, {
-
-        type: 'bar',
-
-        data: {
-
-            labels: [
-                'Bugul Kidul',
-                'Gadingrejo',
-                'Panggungrejo',
-                'Purworejo'
-            ],
-
-            datasets: [
-
-                {
-
-                    label: 'Jumlah Data',
-
-                    data: [
-                        35,
-                        25,
-                        30,
-                        38
-                    ],
-
-                    backgroundColor: [
-                        '#252A86',
-                        '#3B4CCA',
-                        '#6675D9',
-                        '#8A96E8'
-                    ],
-
-                    borderRadius: 6,
-
-                    borderWidth: 0,
-
-                    categoryPercentage: 0.65,
-                    barPercentage: 0.78
-
-                }
-
-            ]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            plugins: {
-
-                legend: {
-                    display: false
-                }
-
-            },
-
-            scales: {
-
-                y: {
-
-                    beginAtZero: true,
-
-                    ticks: {
-                        precision: 0
-                    },
-
-                    grid: {
-                        color: '#eef0f5'
-                    },
-
-                    title: {
-                        display: true,
-                        text: 'Jumlah Data'
-                    }
-
-                },
-
-                x: {
-
-                    grid: {
-                        display: false
-                    },
-
-                    title: {
-                        display: true,
-                        text: 'Kecamatan'
-                    }
-
-                }
+                closeSidebar();
 
             }
 
         }
+    );
 
-    });
 
     /* =====================================================
-       GRAFIK STATUS VERIFIKASI RESPONDEN
+       PAGINATION
+       
+       5 DATA PER HALAMAN
+       JUMLAH DATA TIDAK DIBATASI
     ===================================================== */
 
-    const verificationCtx =
-        document.getElementById('genderChart');
+    function setupPagination(
+        tableId,
+        rowClass,
+        infoId,
+        buttonsId
+    ) {
 
-    const centerTextPlugin = {
 
-        id: 'centerText',
+        const table =
+            document.getElementById(tableId);
 
-        afterDraw(chart) {
 
-            const { ctx } = chart;
-            const meta = chart.getDatasetMeta(0);
+        if (!table) {
+            return;
+        }
 
-            if (!meta.data.length) {
+
+        const rows =
+            Array.from(
+                table.querySelectorAll(
+                    'tbody .' + rowClass
+                )
+            );
+
+
+        const info =
+            document.getElementById(infoId);
+
+
+        const buttons =
+            document.getElementById(buttonsId);
+
+
+        /* =========================
+           5 DATA PER HALAMAN
+        ========================= */
+
+        const perPage = 5;
+
+
+        /* =========================
+           SEMUA DATA DIGUNAKAN
+           
+           TIDAK ADA:
+           limit 10
+           limit 50
+           atau batas lainnya
+        ========================= */
+
+        const dataRows = rows;
+
+
+        let currentPage = 1;
+
+
+        const totalData =
+            dataRows.length;
+
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(
+                    totalData / perPage
+                )
+            );
+
+
+        /* =================================================
+           TAMPILKAN HALAMAN
+        ================================================= */
+
+        function showPage(page) {
+
+
+            currentPage = page;
+
+
+            const start =
+                (page - 1) * perPage;
+
+
+            const end =
+                start + perPage;
+
+
+            dataRows.forEach(
+                function (row, index) {
+
+
+                    if (
+                        index >= start &&
+                        index < end
+                    ) {
+
+
+                        row.style.display =
+                            '';
+
+
+                    } else {
+
+
+                        row.style.display =
+                            'none';
+
+
+                    }
+
+                }
+            );
+
+
+            /* =========================
+               INFORMASI DATA
+            ========================= */
+
+            if (totalData > 0) {
+
+
+                const startNumber =
+                    start + 1;
+
+
+                const endNumber =
+                    Math.min(
+                        end,
+                        totalData
+                    );
+
+
+                info.textContent =
+                    'Menampilkan ' +
+                    startNumber +
+                    '–' +
+                    endNumber +
+                    ' dari ' +
+                    totalData +
+                    ' data';
+
+
+            } else {
+
+
+                info.textContent =
+                    'Belum ada data';
+
+
+            }
+
+
+            renderButtons();
+
+        }
+
+
+        /* =================================================
+           BUAT TOMBOL PAGINATION
+        ================================================= */
+
+        function renderButtons() {
+
+
+            buttons.innerHTML = '';
+
+
+            /*
+             * Kalau hanya 1 halaman,
+             * tombol pagination tidak perlu
+             * ditampilkan.
+             */
+
+            if (
+                totalPages <= 1
+            ) {
+
+                return;
+
+            }
+
+
+            /* =========================
+               TOMBOL SEBELUMNYA
+            ========================= */
+
+            const previous =
+                document.createElement(
+                    'button'
+                );
+
+
+            previous.type =
+                'button';
+
+
+            previous.className =
+                'pagination-button';
+
+
+            previous.innerHTML =
+                '‹';
+
+
+            previous.title =
+                'Sebelumnya';
+
+
+            previous.disabled =
+                currentPage === 1;
+
+
+            previous.addEventListener(
+                'click',
+                function () {
+
+
+                    if (
+                        currentPage > 1
+                    ) {
+
+
+                        showPage(
+                            currentPage - 1
+                        );
+
+
+                    }
+
+                }
+            );
+
+
+            buttons.appendChild(
+                previous
+            );
+
+
+            /* =========================
+               NOMOR HALAMAN OTOMATIS
+            ========================= */
+
+            for (
+                let page = 1;
+                page <= totalPages;
+                page++
+            ) {
+
+
+                const button =
+                    document.createElement(
+                        'button'
+                    );
+
+
+                button.type =
+                    'button';
+
+
+                button.className =
+                    'pagination-button';
+
+
+                button.textContent =
+                    page;
+
+
+                if (
+                    page === currentPage
+                ) {
+
+
+                    button.classList.add(
+                        'active'
+                    );
+
+
+                }
+
+
+                button.addEventListener(
+                    'click',
+                    function () {
+
+
+                        showPage(
+                            page
+                        );
+
+
+                    }
+                );
+
+
+                buttons.appendChild(
+                    button
+                );
+
+            }
+
+
+            /* =========================
+               TOMBOL BERIKUTNYA
+            ========================= */
+
+            const next =
+                document.createElement(
+                    'button'
+                );
+
+
+            next.type =
+                'button';
+
+
+            next.className =
+                'pagination-button';
+
+
+            next.innerHTML =
+                '›';
+
+
+            next.title =
+                'Berikutnya';
+
+
+            next.disabled =
+                currentPage === totalPages;
+
+
+            next.addEventListener(
+                'click',
+                function () {
+
+
+                    if (
+                        currentPage <
+                        totalPages
+                    ) {
+
+
+                        showPage(
+                            currentPage + 1
+                        );
+
+
+                    }
+
+                }
+            );
+
+
+            buttons.appendChild(
+                next
+            );
+
+        }
+
+
+        /* =================================================
+           MULAI DARI HALAMAN 1
+        ================================================= */
+
+        showPage(1);
+
+    }
+
+
+    /* =====================================================
+       PAGINATION KUISIONER
+       
+       5 DATA PER HALAMAN
+       TANPA BATAS JUMLAH DATA
+    ===================================================== */
+
+    setupPagination(
+        'questionnaireTable',
+        'questionnaire-row',
+        'questionnaireInfo',
+        'questionnaireButtons'
+    );
+
+
+    /* =====================================================
+       PAGINATION REKAP PERIODE
+       5 DATA PER HALAMAN
+       FORMAT: 1/2, 2/2, 1/3, 2/3, 3/3
+       TANPA MENAMPILKAN NOMOR 1 2 3
+    ===================================================== */
+
+    function setupPeriodPagination() {
+
+        const table =
+            document.getElementById('periodTable');
+
+        if (!table) {
+            return;
+        }
+
+        const rows =
+            Array.from(
+                table.querySelectorAll(
+                    'tbody .period-row'
+                )
+            );
+
+        const info =
+            document.getElementById('periodInfo');
+
+        const buttons =
+            document.getElementById('periodButtons');
+
+        if (!info || !buttons) {
+            return;
+        }
+
+        const perPage = 5;
+        let currentPage = 1;
+
+        const totalData = rows.length;
+
+        const totalPages =
+            Math.max(
+                1,
+                Math.ceil(totalData / perPage)
+            );
+
+        function showPage(page) {
+
+            currentPage = page;
+
+            const start =
+                (currentPage - 1) * perPage;
+
+            const end =
+                start + perPage;
+
+            rows.forEach(function(row, index) {
+
+                row.style.display =
+                    index >= start && index < end
+                        ? ''
+                        : 'none';
+
+            });
+
+            if (totalData > 0) {
+
+                const startNumber = start + 1;
+
+                const endNumber =
+                    Math.min(end, totalData);
+
+                info.textContent =
+                    'Menampilkan ' +
+                    startNumber +
+                    '–' +
+                    endNumber +
+                    ' dari ' +
+                    totalData +
+                    ' data';
+
+            } else {
+
+                info.textContent =
+                    'Belum ada data';
+
+            }
+
+            renderPeriodButtons();
+        }
+
+        function renderPeriodButtons() {
+
+            buttons.innerHTML = '';
+
+            if (totalPages <= 1) {
                 return;
             }
 
-            const x = meta.data[0].x;
-            const y = meta.data[0].y;
+            const previous =
+                document.createElement('button');
 
-            ctx.save();
+            previous.type = 'button';
+            previous.className = 'pagination-button';
+            previous.innerHTML = '‹';
+            previous.disabled = currentPage === 1;
 
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            previous.addEventListener('click', function() {
 
-            ctx.font = '12px Arial';
-            ctx.fillStyle = '#777';
+                if (currentPage > 1) {
+                    showPage(currentPage - 1);
+                }
 
-            ctx.fillText(
-                'Total',
-                x,
-                y - 18
-            );
+            });
 
-            ctx.font = 'bold 20px Arial';
-            ctx.fillStyle = '#252A86';
+            buttons.appendChild(previous);
 
-            ctx.fillText(
-                '128',
-                x,
-                y + 3
-            );
+            const indicator =
+                document.createElement('button');
 
-            ctx.font = '11px Arial';
-            ctx.fillStyle = '#777';
+            indicator.type = 'button';
+            indicator.className = 'pagination-button active';
+            indicator.textContent =
+                currentPage + '/' + totalPages;
+            indicator.style.cursor = 'default';
 
-            ctx.fillText(
-                'Responden',
-                x,
-                y + 22
-            );
+            buttons.appendChild(indicator);
 
-            ctx.restore();
+            const next =
+                document.createElement('button');
+
+            next.type = 'button';
+            next.className = 'pagination-button';
+            next.innerHTML = '›';
+            next.disabled = currentPage === totalPages;
+
+            next.addEventListener('click', function() {
+
+                if (currentPage < totalPages) {
+                    showPage(currentPage + 1);
+                }
+
+            });
+
+            buttons.appendChild(next);
         }
 
-    };
+        showPage(1);
+    }
 
-    new Chart(verificationCtx, {
 
-        type: 'doughnut',
+    setupPeriodPagination();
 
-        data: {
 
-            labels: [
-                'Terverifikasi',
-                'Belum Terverifikasi'
-            ],
+    /* =====================================================
+       GRAFIK KECAMATAN
+    ===================================================== */
 
-            datasets: [{
+    const kecamatanCtx =
+        document.getElementById(
+            'kecamatanChart'
+        );
 
-                data: [
-                    96,
-                    32
+
+    new Chart(
+        kecamatanCtx,
+        {
+
+            type: 'bar',
+
+
+            data: {
+
+                labels: [
+
+                    'Bugul Kidul',
+                    'Gadingrejo',
+                    'Panggungrejo',
+                    'Purworejo'
+
                 ],
 
-                backgroundColor: [
-                    '#252A86',
-                    '#8A96E8'
-                ],
 
-                borderWidth: 0,
+                datasets: [
 
-                hoverOffset: 4
+                    {
 
-            }]
+                        label:
+                            'Jumlah Responden',
 
-        },
 
-        options: {
+                        data: [
 
-            responsive: true,
+                            35,
+                            25,
+                            30,
+                            38
 
-            maintainAspectRatio: false,
+                        ],
 
-            cutout: '62%',
 
-            plugins: {
+                        backgroundColor: [
 
-                legend: {
-                    display: false
+                            '#252A86',
+                            '#3B4CCA',
+                            '#6675D9',
+                            '#8A96E8'
+
+                        ],
+
+
+                        borderRadius: 6,
+
+
+                        borderWidth: 0,
+
+
+                        categoryPercentage:
+                            0.65,
+
+
+                        barPercentage:
+                            0.78
+
+                    }
+
+                ]
+
+            },
+
+
+            options: {
+
+                responsive: true,
+
+
+                maintainAspectRatio:
+                    false,
+
+
+                plugins: {
+
+                    legend: {
+
+                        display:
+                            false
+
+                    }
+
                 },
 
-                tooltip: {
 
-                    callbacks: {
+                scales: {
 
-                        label: function(context) {
+                    y: {
 
-                            const total =
-                                context.dataset.data.reduce(
-                                    (a, b) => a + b,
-                                    0
-                                );
+                        beginAtZero:
+                            true,
 
-                            const value =
-                                context.raw;
 
-                            const percentage =
-                                Math.round(
-                                    (value / total) * 100
-                                );
+                        ticks: {
 
-                            return context.label +
-                                ': ' +
-                                value +
-                                ' (' +
-                                percentage +
-                                '%)';
+                            precision:
+                                0
+
+                        },
+
+
+                        grid: {
+
+                            color:
+                                '#eef0f5'
+
+                        },
+
+
+                        title: {
+
+                            display:
+                                true,
+
+
+                            text:
+                                'Jumlah Responden'
+
+                        }
+
+                    },
+
+
+                    x: {
+
+                        grid: {
+
+                            display:
+                                false
+
+                        },
+
+
+                        title: {
+
+                            display:
+                                true,
+
+
+                            text:
+                                'Kecamatan'
+
                         }
 
                     }
@@ -2162,15 +3202,254 @@
 
             }
 
-        },
+        }
+    );
 
-        plugins: [
-            centerTextPlugin
-        ]
 
-    });
+    /* =====================================================
+       GRAFIK STATUS VERIFIKASI
+    ===================================================== */
+
+    const verificationCtx =
+        document.getElementById(
+            'verificationChart'
+        );
+
+
+    const centerTextPlugin = {
+
+
+        id:
+            'centerText',
+
+
+        afterDraw(chart) {
+
+
+            const { ctx } =
+                chart;
+
+
+            const meta =
+                chart.getDatasetMeta(0);
+
+
+            if (
+                !meta.data.length
+            ) {
+
+                return;
+
+            }
+
+
+            const x =
+                meta.data[0].x;
+
+
+            const y =
+                meta.data[0].y;
+
+
+            ctx.save();
+
+
+            ctx.textAlign =
+                'center';
+
+
+            ctx.textBaseline =
+                'middle';
+
+
+            ctx.font =
+                '12px Arial';
+
+
+            ctx.fillStyle =
+                '#777';
+
+
+            ctx.fillText(
+                'Total',
+                x,
+                y - 18
+            );
+
+
+            ctx.font =
+                'bold 20px Arial';
+
+
+            ctx.fillStyle =
+                '#252A86';
+
+
+            ctx.fillText(
+                '128',
+                x,
+                y + 3
+            );
+
+
+            ctx.font =
+                '11px Arial';
+
+
+            ctx.fillStyle =
+                '#777';
+
+
+            ctx.fillText(
+                'Responden',
+                x,
+                y + 22
+            );
+
+
+            ctx.restore();
+
+        }
+
+    };
+
+
+    new Chart(
+        verificationCtx,
+        {
+
+            type:
+                'doughnut',
+
+
+            data: {
+
+                labels: [
+
+                    'Terverifikasi',
+                    'Belum Terverifikasi'
+
+                ],
+
+
+                datasets: [
+
+                    {
+
+                        data: [
+
+                            96,
+                            32
+
+                        ],
+
+
+                        backgroundColor: [
+
+                            '#252A86',
+                            '#8A96E8'
+
+                        ],
+
+
+                        borderWidth:
+                            0,
+
+
+                        hoverOffset:
+                            4
+
+                    }
+
+                ]
+
+            },
+
+
+            options: {
+
+                responsive:
+                    true,
+
+
+                maintainAspectRatio:
+                    false,
+
+
+                cutout:
+                    '62%',
+
+
+                plugins: {
+
+                    legend: {
+
+                        display:
+                            false
+
+                    },
+
+
+                    tooltip: {
+
+                        callbacks: {
+
+                            label:
+                                function(context) {
+
+
+                                    const total =
+                                        context.dataset.data.reduce(
+                                            (a, b) =>
+                                                a + b,
+                                            0
+                                        );
+
+
+                                    const value =
+                                        context.raw;
+
+
+                                    const percentage =
+                                        Math.round(
+                                            (
+                                                value /
+                                                total
+                                            ) * 100
+                                        );
+
+
+                                    return (
+                                        context.label +
+                                        ': ' +
+                                        value +
+                                        ' (' +
+                                        percentage +
+                                        '%)'
+                                    );
+
+                                }
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+
+            plugins: [
+
+                centerTextPlugin
+
+            ]
+
+        }
+    );
 
 </script>
+
 
 </body>
 
