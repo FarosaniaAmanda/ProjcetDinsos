@@ -2,13 +2,24 @@
  
 @section('title', 'Verifikasi Data') 
  
-@push('styles') 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style> 
-    /* ===================================================== 
-       CARD BESAR VERIFIKASI 
-    ====================================================== */ 
- 
-    .verification-card { 
+    
+    /* =====================================================
+       VERIFICATION PAGE
+       UKURAN DAN POSISI MENGIKUTI MONITORING
+    ====================================================== */
+
+    .verification-page {
+        padding: 24px 32px 40px;
+        background: #f5f7fb;
+        min-height: calc(100vh - 70px);
+        box-sizing: border-box;
+    }
+
+    .verification-card {
+        width: 100%;
         background: #ffffff; 
         border: 1px solid #e8e9ef; 
         border-radius: 16px; 
@@ -74,52 +85,99 @@
         } 
     } 
  
-    /* ===================================================== 
-       STATISTICS 
-       CARD KECIL HANYA UNTUK STATISTIK 
-    ====================================================== */ 
- 
-    .stats-section { 
-        padding: 0 28px 26px; 
-    } 
- 
-    .stats-grid { 
-        display: grid; 
-        grid-template-columns: repeat(6, minmax(0, 1fr)); 
-        gap: 12px; 
-    } 
- 
-    .stat-card { 
-        background: #ffffff; 
-        border: 1px solid #e8e9ef; 
-        border-radius: 11px; 
-        padding: 15px; 
-        min-width: 0; 
-        transition: all .2s ease; 
-    } 
- 
-    .stat-card:hover { 
-        transform: translateY(-2px); 
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06); 
-    } 
- 
-    .stat-label { 
-        font-size: 12px; 
-        color: #777; 
-        margin-bottom: 8px; 
-        line-height: 1.4; 
-    } 
- 
-    .stat-value { 
-        font-size: 23px; 
-        font-weight: 700; 
-        color: #252A86; 
-        line-height: 1; 
-    } 
- 
+    /* =====================================================
+       STATISTICS
+    ====================================================== */
+
+    .stats-section {
+        padding: 0 28px 26px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .stat-card {
+        position: relative;
+        min-height: 125px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: #FFFFFF;
+        border: 1px solid #E6E8F1;
+        border-radius: 16px;
+        padding: 20px;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(41, 45, 143, .045);
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 4px;
+        background: currentColor;
+    }
+
+    .stat-card > div {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(41, 45, 143, .07);
+    }
+
+    /* WARNA 100% MENGIKUTI CARD KUISIONER */
+    .stat-card.total-card {
+        color: #3155C6;
+    }
+
+    .stat-card.pending-card {
+        color: #D99A00;
+    }
+
+    .stat-card.draft-card {
+        color: #6B7280;
+    }
+
+    .stat-card.approved-card {
+        color: #15916D;
+    }
+
+    .stat-card.rejected-card {
+        color: #D14B4B;
+    }
+
+    .stat-label {
+        margin: 0;
+        color: #27305E;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.3;
+    }
+
+    .stat-value {
+        margin-top: 8px;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        line-height: 1;
+        color: currentColor;
+    }
+
     /* ===================================================== 
        SEARCH SECTION 
-       MASIH DI DALAM CARD BESAR 
     ====================================================== */ 
  
     .search-section { 
@@ -486,7 +544,46 @@
     .status-rejected { 
         background: #fdecec; 
         color: #a53636; 
-    } 
+    }
+
+    /* STATUS PENDATAAN / STATUS SAAT INI */
+    .status-current {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        max-width: 100%;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .status-current.status-approved {
+        background: #eaf8ef;
+        color: #24723c;
+        border: 1px solid #bce5c9;
+    }
+
+    .status-current.status-rejected {
+        background: #fdecec;
+        color: #a53636;
+        border: 1px solid #f2c4c4;
+    }
+
+    .status-current.status-draft {
+        background: #f0f0f2;
+        color: #666b75;
+        border: 1px solid #dcdde2;
+    }
+
+    .status-current.status-pending {
+        background: #fff4db;
+        color: #9a6a00;
+        border: 1px solid #f2dfaa;
+    }
  
     /* ===================================================== 
        ACTION BUTTON 
@@ -1011,10 +1108,123 @@
         color: #888;
     }
 
+    /* =====================================================
+       GEOTAGGING / PETA
+    ====================================================== */
+
+    .questionnaire-answer-map {
+        margin-top: 10px;
+        padding: 10px;
+        background: #f8f9fc;
+        border: 1px solid #e6e8ef;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .questionnaire-map-coordinates {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 9px 11px;
+        border: 1px solid #e2e5ec;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #4b5563;
+        font-size: 12px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .questionnaire-map-coordinates strong {
+        color: #333;
+        font-weight: 700;
+    }
+
+    .questionnaire-map-container {
+        width: 100%;
+        height: 330px;
+        min-height: 260px;
+        border: 1px solid #dfe3eb;
+        border-radius: 9px;
+        overflow: hidden;
+        background: #eef1f5;
+    }
+
+    .questionnaire-map-container .leaflet-container {
+        width: 100%;
+        height: 100%;
+        font-family: inherit;
+    }
+
+    .questionnaire-map-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 150px;
+        padding: 20px;
+        text-align: center;
+        color: #777;
+        font-size: 12px;
+        line-height: 1.5;
+        background: #f8f9fc;
+        border: 1px dashed #d8dce6;
+        border-radius: 9px;
+    }
+
+    .questionnaire-map-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 9px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        background: #eef0ff;
+        color: #252A86;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .questionnaire-map-link:hover {
+        background: #252A86;
+        color: #ffffff;
+    }
+
+    @media (max-width: 600px) {
+        .questionnaire-map-container {
+            height: 260px;
+            min-height: 220px;
+        }
+
+        .questionnaire-map-coordinates {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 2px;
+        }
+    }
+
     /* ===================================================== 
        RESPONSIVE 
     ====================================================== */ 
  
+    /* =====================================================
+       RESPONSIVE VERIFICATION PAGE
+       MENGIKUTI BREAKPOINT MONITORING
+    ===================================================== */
+
+    @media (max-width: 1200px) {
+        .verification-page {
+            padding: 22px 24px 35px;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .verification-page {
+            padding: 16px 12px 30px;
+        }
+    }
+
     @media (max-width: 1200px) { 
  
     .verification-modal-box { 
@@ -1500,13 +1710,18 @@
             font-size: 23px; 
         } 
  
-        .stats-section { 
-            padding: 0 20px 22px; 
-        } 
- 
-        .stats-grid { 
-            grid-template-columns: repeat(2, minmax(0, 1fr)); 
-        } 
+        .stats-section {
+            padding: 0 20px 22px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .stat-card {
+            min-height: 125px;
+        }
  
         .search-section { 
             padding: 0 20px 22px; 
@@ -1553,22 +1768,27 @@
             font-size: 13px; 
         } 
  
-        .stats-section { 
-            padding: 0 16px 20px; 
-        } 
- 
-        .stats-grid { 
-            grid-template-columns: repeat(2, minmax(0, 1fr)); 
-            gap: 9px; 
-        } 
- 
-        .stat-card { 
-            padding: 13px; 
-        } 
- 
-        .stat-value { 
-            font-size: 21px; 
-        } 
+        .stats-section {
+            padding: 0 16px 20px;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .stat-card {
+            min-height: 125px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+        }
  
         .search-section { 
             padding: 0 16px 20px; 
@@ -1610,22 +1830,33 @@
         } 
     } 
  
+    @media (max-width: 520px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-card {
+            min-height: 125px;
+        }
+    }
+
     @media (max-width: 400px) { 
-        .stats-grid { 
-            gap: 8px; 
-        } 
- 
-        .stat-card { 
-            padding: 11px; 
-        } 
- 
-        .stat-label { 
-            font-size: 10px; 
-        } 
- 
-        .stat-value { 
-            font-size: 19px; 
-        } 
+        .stats-grid {
+            gap: 10px;
+        }
+
+        .stat-card {
+            min-height: 125px;
+            padding: 16px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+        }
  
         .verification-actions { 
             flex-direction: column-reverse; 
@@ -1693,7 +1924,56 @@
 }
 
 .verification-summary-status {
-    color: #B42318 !important;
+    color: #263238 !important;
+}
+
+.verification-summary-status.status-approved {
+    color: #24723c !important;
+}
+
+.verification-summary-status.status-rejected {
+    color: #a53636 !important;
+}
+
+.verification-summary-status.status-draft {
+    color: #666b75 !important;
+}
+
+.verification-summary-status.status-pending {
+    color: #9a6a00 !important;
+}
+
+.verification-summary-status.status-approved,
+.verification-summary-status.status-rejected,
+.verification-summary-status.status-draft,
+.verification-summary-status.status-pending {
+    display: inline-flex !important;
+    align-items: center;
+    width: fit-content;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px !important;
+    line-height: 1.2;
+}
+
+.verification-summary-status.status-approved {
+    background: #eaf8ef;
+    border: 1px solid #bce5c9;
+}
+
+.verification-summary-status.status-rejected {
+    background: #fdecec;
+    border: 1px solid #f2c4c4;
+}
+
+.verification-summary-status.status-draft {
+    background: #f0f0f2;
+    border: 1px solid #dcdde2;
+}
+
+.verification-summary-status.status-pending {
+    background: #fff4db;
+    border: 1px solid #f2dfaa;
 }
  
 .verification-detail-section { 
@@ -1767,8 +2047,9 @@
     text-overflow: ellipsis;
 }
 .verification-info-item strong#modalStatusLabel {
-    color: #B42318;
-    font-weight: 700;
+    font-weight: 800;
+    overflow: visible;
+    text-overflow: clip;
 }
  
 .questionnaire-total { 
@@ -2487,6 +2768,8 @@
          SATU CARD BESAR 
     ====================================================== --}} 
  
+    <div class="verification-page">
+
     <div class="verification-card"> 
  
         {{-- ================================================= 
@@ -2531,91 +2814,83 @@
         @endif 
  
  
-        {{-- ================================================= 
-             STATISTIK 
-        ================================================== --}} 
  
-      {{-- ================================================= 
-     STATISTIK 
-     DATA LANGSUNG DARI DATABASE 
-================================================== --}} 
- 
-<div class="stats-section"> 
- 
-    <div class="stats-grid"> 
- 
-        {{-- TOTAL RESPONDEN --}} 
-        <div class="stat-card"> 
- 
-            <div class="stat-label"> 
-                Total Responden 
-            </div> 
- 
-            <div class="stat-value"> 
-                {{ $totalResponden ?? 0 }} 
-            </div> 
- 
-        </div> 
- 
- 
-        {{--  Menunggu Verifikasi --}} 
-        <div class="stat-card"> 
- 
-            <div class="stat-label"> 
-                Menunggu Verifikasi 
-            </div> 
- 
-            <div class="stat-value"> 
-                {{ $belumDidata ?? 0 }} 
-            </div> 
- 
-        </div> 
- 
- 
-        {{-- Draft --}} 
-        <div class="stat-card"> 
- 
-            <div class="stat-label"> 
-                Draft 
-            </div> 
- 
-            <div class="stat-value"> 
-                {{ $menungguVerifikasi ?? 0 }} 
-            </div> 
- 
-        </div> 
- 
- 
-        {{-- DISETUJUI --}} 
-        <div class="stat-card"> 
- 
-            <div class="stat-label"> 
-                Disetujui 
-            </div> 
- 
-            <div class="stat-value"> 
-                {{ $disetujui ?? 0 }} 
-            </div> 
- 
-        </div> 
- 
- 
-        {{-- DITOLAK --}} 
-        <div class="stat-card"> 
- 
-            <div class="stat-label"> 
-                Ditolak 
-            </div> 
- 
-            <div class="stat-value"> 
-                {{ $ditolak ?? 0 }} 
-            </div> 
- 
-        </div> 
- 
-    </div> 
- 
-</div> 
+   
+{{-- =================================================
+     STATISTIK VERIFIKASI
+     DATA DINAMIS DARI DATABASE
+================================================== --}}
+
+<div class="stats-section">
+
+    <div class="stats-grid">
+
+        {{-- TOTAL RESPONDEN --}}
+        <div class="stat-card total-card">
+            <div>
+                <div class="stat-label">
+                    Total Responden
+                </div>
+                <div class="stat-value">
+                    {{ $totalResponden ?? 0 }}
+                </div>
+            </div>
+        </div>
+
+        {{-- MENUNGGU VERIFIKASI --}}
+        <div class="stat-card pending-card">
+            <div>
+                <div class="stat-label">
+                    Menunggu Verifikasi
+                </div>
+                <div class="stat-value">
+                    {{ $pendingCount ?? 0 }}
+                </div>
+            </div>
+        </div>
+
+        {{-- DRAFT --}}
+        <div class="stat-card draft-card">
+            <div>
+                <div class="stat-label">
+                    Draft
+                </div>
+                <div class="stat-value">
+                    {{ $draftCount ?? 0 }}
+                </div>
+            </div>
+        </div>
+
+        {{-- DISETUJUI --}}
+        <div class="stat-card approved-card">
+            <div>
+                <div class="stat-label">
+                    Disetujui
+                </div>
+                <div class="stat-value">
+                    {{ $approvedCount ?? 0 }}
+                </div>
+            </div>
+        </div>
+
+        {{-- DITOLAK --}}
+        <div class="stat-card rejected-card">
+            <div>
+                <div class="stat-label">
+                    Ditolak
+                </div>
+                <div class="stat-value">
+                    {{ $rejectedCount ?? 0 }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
  
  
         {{-- ================================================= 
@@ -3321,13 +3596,10 @@
  
                         <div class="verification-info-item"> 
                             <span>Status Saat Ini</span> 
-                            <strong id="modalStatusLabel">-</strong> 
+                            <strong id="modalStatusLabel" class="status-current status-draft">-</strong> 
                         </div>
 
-                        <div class="verification-info-item verification-info-item-full">
-                            <span>Titik Lokasi (Geotagging)</span>
-                            <strong id="modalGeotangging">-</strong>
-                        </div> 
+                        
  
                     </div> 
  
@@ -3471,11 +3743,15 @@
  
     </div> 
  
+
+    </div>
+
 @endsection 
  
  
 
-@push('scripts') 
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script> 
 document.addEventListener('DOMContentLoaded', function () { 
  
@@ -4330,8 +4606,13 @@ document.addEventListener('DOMContentLoaded', function () {
             finalImageUrl = answer;
         }
 
+        /*
+         * NOMOR PERTANYAAN SELALU BERDASARKAN URUTAN DI DALAM PART.
+         * Jangan gunakan number/nomor/no/urutan dari database karena
+         * beberapa data lama menyimpan nilai 0 sehingga tampil "Pertanyaan 0".
+         */
         return {
-            number: getFirstValue(question, ['number', 'nomor', 'no', 'urutan'], index + 1),
+            number: index + 1,
             text: normalizeQuestionAnswer(text),
             answer: normalizeQuestionAnswer(answer),
             type: finalType || 'text',
@@ -4352,16 +4633,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return []; 
         } 
  
-        /* 
-         * Kalau data sudah berbentuk Part: 
-         * [ 
-         *   { 
-         *      part: 1, 
-         *      title: "...", 
-         *      questions: [...] 
-         *   } 
-         * ] 
-         */ 
+        
         const looksLikeParts = 
             source.some(function (item) { 
  
@@ -4699,9 +4971,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 answerElement.className =
                     'questionnaire-answer';
 
+                const questionType =
+                    String(question.type || '').toLowerCase();
+
                 const isImage =
-                    String(question.type || '').toLowerCase() === 'image' &&
+                    questionType === 'image' &&
                     String(question.imageUrl || '').trim() !== '';
+
+                const isMap =
+                    questionType === 'map';
 
                 if (isImage) {
                     answerElement.classList.add('questionnaire-answer-image');
@@ -4733,6 +5011,107 @@ document.addEventListener('DOMContentLoaded', function () {
                     link.rel = 'noopener noreferrer';
                     link.textContent = 'Buka gambar';
                     answerElement.appendChild(link);
+
+                } else if (isMap) {
+                    answerElement.classList.add('questionnaire-answer-map');
+
+                    const rawCoordinates =
+                        String(question.answer ?? '').trim();
+
+                    const coordinateLabel = document.createElement('div');
+                    coordinateLabel.className = 'questionnaire-map-coordinates';
+
+                    const coordinateStrong = document.createElement('strong');
+                    coordinateStrong.textContent = 'Koordinat lokasi:';
+
+                    const coordinateValue = document.createElement('span');
+                    coordinateValue.textContent = rawCoordinates || 'Belum tersedia';
+
+                    coordinateLabel.appendChild(coordinateStrong);
+                    coordinateLabel.appendChild(coordinateValue);
+                    answerElement.appendChild(coordinateLabel);
+
+                    const coordinateParts = rawCoordinates.split(',').map(function (value) {
+                        return value.trim();
+                    });
+
+                    const latitude = Number(coordinateParts[0]);
+                    const longitude = Number(coordinateParts[1]);
+
+                    const validCoordinates =
+                        coordinateParts.length >= 2 &&
+                        Number.isFinite(latitude) &&
+                        Number.isFinite(longitude) &&
+                        latitude >= -90 && latitude <= 90 &&
+                        longitude >= -180 && longitude <= 180;
+
+                    if (!validCoordinates) {
+                        const emptyMap = document.createElement('div');
+                        emptyMap.className = 'questionnaire-map-empty';
+                        emptyMap.textContent =
+                            'Titik lokasi belum tersedia atau koordinat tidak valid.';
+                        answerElement.appendChild(emptyMap);
+                    } else if (typeof L === 'undefined') {
+                        const emptyMap = document.createElement('div');
+                        emptyMap.className = 'questionnaire-map-empty';
+                        emptyMap.textContent =
+                            'Peta tidak dapat dimuat. Pastikan koneksi internet tersedia.';
+                        answerElement.appendChild(emptyMap);
+                    } else {
+                        const mapContainer = document.createElement('div');
+                        mapContainer.className = 'questionnaire-map-container';
+
+                        const mapId =
+                            'verification-map-' + Date.now() + '-' +
+                            Math.random().toString(36).slice(2, 8);
+
+                        mapContainer.id = mapId;
+                        answerElement.appendChild(mapContainer);
+
+                        const mapLink = document.createElement('a');
+                        mapLink.className = 'questionnaire-map-link';
+                        mapLink.href =
+                            'https://www.openstreetmap.org/?mlat=' +
+                            encodeURIComponent(latitude) +
+                            '&mlon=' + encodeURIComponent(longitude) +
+                            '#map=18/' + encodeURIComponent(latitude) +
+                            '/' + encodeURIComponent(longitude);
+                        mapLink.target = '_blank';
+                        mapLink.rel = 'noopener noreferrer';
+                        mapLink.textContent = 'Buka lokasi di OpenStreetMap';
+                        answerElement.appendChild(mapLink);
+
+                        window.setTimeout(function () {
+                            if (!document.getElementById(mapId)) return;
+
+                            const map = L.map(mapContainer, {
+                                scrollWheelZoom: false,
+                                attributionControl: true
+                            }).setView([latitude, longitude], 16);
+
+                            mapContainer._leaflet_map = map;
+
+                            L.tileLayer(
+                                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                {
+                                    maxZoom: 19,
+                                    attribution: '&copy; OpenStreetMap contributors'
+                                }
+                            ).addTo(map);
+
+                            L.marker([latitude, longitude])
+                                .addTo(map)
+                                .bindPopup(
+                                    '<strong>Titik Lokasi Responden</strong><br>' +
+                                    escapeHtml(rawCoordinates)
+                                )
+                                .openPopup();
+
+                            window.setTimeout(function () {
+                                map.invalidateSize();
+                            }, 100);
+                        }, 50);
+                    }
 
                 } else if (answerText === '') {
                     answerElement.classList.add('is-empty');
@@ -4842,8 +5221,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        // Sengaja tidak membuka Part 1 secara otomatis.
-        // Pengguna harus memilih Part terlebih dahulu.
+      
     }
 
     /* =====================================================
@@ -5021,8 +5399,42 @@ document.addEventListener('DOMContentLoaded', function () {
             modalTanggal.textContent = tanggal; 
         } 
  
-        if (modalStatusLabel) { 
-            modalStatusLabel.textContent = statusLabel; 
+        let normalizedStatusForDisplay =
+            status
+                .toLowerCase()
+                .replace(/[\s-]+/g, '_');
+
+        if (
+            normalizedStatusForDisplay === 'disetujui' ||
+            normalizedStatusForDisplay === 'approved'
+        ) {
+            normalizedStatusForDisplay = 'approved';
+        } else if (
+            normalizedStatusForDisplay === 'ditolak' ||
+            normalizedStatusForDisplay === 'rejected'
+        ) {
+            normalizedStatusForDisplay = 'rejected';
+        } else if (
+            normalizedStatusForDisplay === 'pending' ||
+            normalizedStatusForDisplay === 'menunggu' ||
+            normalizedStatusForDisplay === 'menunggu_verifikasi'
+        ) {
+            normalizedStatusForDisplay = 'pending';
+        } else {
+            normalizedStatusForDisplay = 'draft';
+        }
+
+        if (modalStatusLabel) {
+            modalStatusLabel.textContent = statusLabel;
+            modalStatusLabel.classList.remove(
+                'status-approved',
+                'status-rejected',
+                'status-draft',
+                'status-pending'
+            );
+            modalStatusLabel.classList.add(
+                'status-' + normalizedStatusForDisplay
+            );
         }
 
         if (modalGeotangging) {
@@ -5037,24 +5449,21 @@ document.addEventListener('DOMContentLoaded', function () {
             modalSummaryNoKK.textContent = noKK; 
         } 
  
-        if (modalSummaryStatus) { 
-            modalSummaryStatus.textContent = statusLabel; 
+        if (modalSummaryStatus) {
+            modalSummaryStatus.textContent = statusLabel;
+            modalSummaryStatus.classList.remove(
+                'status-approved',
+                'status-rejected',
+                'status-draft',
+                'status-pending'
+            );
+            modalSummaryStatus.classList.add(
+                'status-' + normalizedStatusForDisplay
+            );
         } 
  
  
-        let normalizedStatus = 
-            status 
-                .toLowerCase() 
-                .replace(/[\s-]+/g, '_'); 
- 
- 
-        if (normalizedStatus === 'disetujui') { 
-            normalizedStatus = 'approved'; 
-        } 
- 
-        if (normalizedStatus === 'ditolak') { 
-            normalizedStatus = 'rejected'; 
-        }
+        let normalizedStatus = normalizedStatusForDisplay;
         // Ubah Status Data selalu ditampilkan agar aksi Setujui/Tolak tetap tersedia.
         if (verificationActionSection) {
             verificationActionSection.classList.remove('is-hidden');

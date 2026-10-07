@@ -4,6 +4,10 @@
 
 @section('content')
 
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+@endpush
+
 <style>
     /* =====================================================
        MONITORING PAGE
@@ -16,15 +20,17 @@
         box-sizing: border-box;
     }
 
-    .monitoring-main-card {
-        width: 100%;
-        background: #ffffff;
-        border: 1px solid #e2e6f2;
-        border-radius: 18px;
-        box-shadow: 0 4px 18px rgba(37, 42, 134, 0.06);
-        overflow: hidden;
-    }
-
+       .monitoring-main-card {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e6f2;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(37, 42, 134, 0.06);
+    overflow: hidden;
+    box-sizing: border-box;
+}
 
     /* =====================================================
        HEADER
@@ -62,38 +68,108 @@
 
     .monitoring-stats {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 14px;
     }
 
     .monitoring-stat-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 0;
+        min-height: 125px;
         background: #ffffff;
-        border: 1px solid #e2e6f2;
-        border-radius: 14px;
-        padding: 17px 18px;
-        min-height: 86px;
-        box-shadow: 0 2px 8px rgba(37, 42, 134, 0.04);
-        transition: .2s ease;
+        border: 1px solid #e6e8f1;
+        border-radius: 16px;
+        padding: 20px;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(41, 45, 143, .045);
+        transition: transform .2s ease, box-shadow .2s ease;
         box-sizing: border-box;
+    }
+
+    .monitoring-stat-card-link {
+        display: flex;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .monitoring-stat-card-link:hover {
+        text-decoration: none;
+    }
+
+    .monitoring-stat-card-link.active {
+        border-color: currentColor;
+        box-shadow: 0 0 0 2px rgba(37, 42, 134, 0.08);
+    }
+
+    .monitoring-stat-card-link.active::after {
+        content: '';
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: 0;
+        height: 3px;
+        background: currentColor;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .monitoring-stat-filter-hint {
+        margin-top: 8px;
+        color: #64748b;
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    .monitoring-stat-card-link:focus-visible {
+        outline: 3px solid rgba(37, 42, 134, 0.15);
+        outline-offset: 2px;
+    }
+
+    .monitoring-stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: currentColor;
     }
 
     .monitoring-stat-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 14px rgba(37, 42, 134, 0.08);
+        box-shadow: 0 8px 24px rgba(41, 45, 143, .07);
+    }
+
+    .monitoring-stat-card.total-card {
+        color: #3155c6;
+    }
+
+    .monitoring-stat-card.approved-card {
+        color: #15916d;
+    }
+
+    .monitoring-stat-card.rejected-card {
+        color: #d14b4b;
     }
 
     .monitoring-stat-label {
-        color: #64748b;
-        font-size: 12px;
-        margin-bottom: 5px;
-        line-height: 1.4;
+        color: #27305e;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.3;
     }
 
     .monitoring-stat-value {
-        color: #252A86;
-        font-size: 22px;
-        line-height: 1.2;
-        font-weight: 700;
+        margin-top: 8px;
+        color: currentColor;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        line-height: 1;
     }
 
 
@@ -109,12 +185,6 @@
         display: flex;
         flex-direction: column;
     }
-
-
-    /* =====================================================
-       SEARCH
-       SEARCH DI ATAS JUDUL
-    ===================================================== */
 
     /* =====================================================
    SEARCH MONITORING
@@ -548,15 +618,20 @@
     .monitoring-detail-summary {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
+        gap: 10px;
         margin-bottom: 22px;
     }
 
     .monitoring-detail-summary-card {
-        border: 1px solid #e2e6f2;
-        border-radius: 12px;
-        padding: 15px;
-        background: #f8f9ff;
+        display: flex;
+        min-width: 0;
+        min-height: 76px;
+        flex-direction: column;
+        justify-content: center;
+        padding: 13px 14px;
+        border: 1px solid #e7e9f1;
+        border-radius: 10px;
+        background: #f8f9fc;
     }
 
     .monitoring-detail-summary-label {
@@ -570,6 +645,45 @@
         font-size: 14px;
         font-weight: 700;
         word-break: break-word;
+    }
+
+    .monitoring-summary-status,
+    .monitoring-detail-value.status-value {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        max-width: 100%;
+        padding: 6px 10px;
+        border: 1px solid #dcdde2;
+        border-radius: 999px;
+        background: #f0f0f2;
+        color: #666b75;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .monitoring-summary-status.status-approved,
+    .monitoring-detail-value.status-value.status-approved {
+        border-color: #bce5c9;
+        background: #eaf8ef;
+        color: #24723c;
+    }
+
+    .monitoring-summary-status.status-rejected,
+    .monitoring-detail-value.status-value.status-rejected {
+        border-color: #f2c4c4;
+        background: #fdecec;
+        color: #a53636;
+    }
+
+    .monitoring-summary-status.status-pending,
+    .monitoring-detail-value.status-value.status-pending {
+        border-color: #f1dfaa;
+        background: #fff7d6;
+        color: #9a6a00;
     }
 
     /* =====================================================
@@ -636,10 +750,6 @@
         word-break: break-word;
     }
 
-    .monitoring-detail-value.status-value {
-        color: #b42318;
-    }
-
     /* =====================================================
        JUMLAH ANGGOTA + TOMBOL LIHAT ANGGOTA
     ===================================================== */
@@ -687,7 +797,6 @@
 
     /* =====================================================
        FLOATING PANEL ANGGOTA KELUARGA
-       MUNCUL MENGAMBANG DI ATAS DETAIL
     ===================================================== */
 
     .monitoring-members-popover {
@@ -854,7 +963,7 @@
     }
 
     /* =====================================================
-       HASIL KUISIONER - MASTER DETAIL SEPERTI VERIFIKASI
+       HASIL KUISIONER 
     ===================================================== */
 
     .monitoring-questionnaire-wrapper {
@@ -1099,6 +1208,75 @@
         font-style: italic;
     }
 
+    .monitoring-answer-value.is-visual {
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .monitoring-map {
+        width: 100%;
+        height: 260px;
+        border: 1px solid #e2e6f2;
+        border-radius: 10px;
+        background: #f1f5f9;
+        z-index: 0;
+    }
+
+    .monitoring-map-coordinates {
+        margin-top: 9px;
+        color: #475569;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .monitoring-map-link {
+        display: inline-flex;
+        margin-top: 7px;
+        color: #252A86;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .monitoring-map-link:hover {
+        text-decoration: underline;
+    }
+
+    .monitoring-images {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    .monitoring-image-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid #e2e6f2;
+        border-radius: 10px;
+        background: #ffffff;
+    }
+
+    .monitoring-image-link,
+    .monitoring-image {
+        display: block;
+        width: 100%;
+    }
+
+    .monitoring-image {
+        height: 150px;
+        object-fit: cover;
+        background: #f1f5f9;
+    }
+
+    .monitoring-image-name {
+        padding: 8px 10px;
+        color: #475569;
+        font-size: 11px;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
     /* =====================================================
        RESPONSIVE DETAIL
     ===================================================== */
@@ -1241,10 +1419,12 @@
 
     @media (max-width: 1200px) {
 
-        .monitoring-page {
-            padding: 22px 24px 35px;
+                .monitoring-page {
+            padding: 24px 40px 40px;
+            background: #f5f7fb;
+            min-height: calc(100vh - 70px);
+            box-sizing: border-box;
         }
-
         .monitoring-stats {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
@@ -1273,6 +1453,12 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
 
             gap: 10px;
+        }
+
+        .monitoring-stat-card:nth-child(3) {
+            grid-column: 1 / -1;
+            width: calc(50% - 5px);
+            justify-self: center;
         }
 
         .monitoring-table-header {
@@ -1324,7 +1510,6 @@
 
 /* =====================================================
    FINAL RESPONSIVE DETAIL MONITORING
-   Rapikan mobile tanpa mengubah struktur desktop utama
 ===================================================== */
 .monitoring-members-popover-close {
     width: 38px;
@@ -1462,45 +1647,72 @@
 
         <div class="monitoring-stats-wrapper">
 
-            <div class="monitoring-stats">
+           <div class="monitoring-stats">
 
-                <div class="monitoring-stat-card">
-                    <div class="monitoring-stat-label">
-                        Total Responden
-                    </div>
-
-                    <div class="monitoring-stat-value">
-                        {{ $totalResponden ?? 0 }}
-                    </div>
-                </div>
-
-
-    
-
-                <div class="monitoring-stat-card">
-                    <div class="monitoring-stat-label">
-                        Disetujui
-                    </div>
-
-                    <div class="monitoring-stat-value">
-                        {{ $disetujui ?? 0 }}
-                    </div>
-                </div>
-
-
-                <div class="monitoring-stat-card">
-                    <div class="monitoring-stat-label">
-                        Ditolak
-                    </div>
-
-                    <div class="monitoring-stat-value">
-                        {{ $ditolak ?? 0 }}
-                    </div>
-                </div>
-
-            </div>
-
+    {{-- =====================================================
+         TOTAL
+    ====================================================== --}}
+    <a
+        href="{{ route('monitoring.index') }}"
+        class="monitoring-stat-card monitoring-stat-card-link total-card {{ ($statusFilter ?? 'all') === 'all' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">
+            Total Responden
         </div>
+
+        <div class="monitoring-stat-value">
+            {{ $totalResponden ?? 0 }}
+        </div>
+
+        <div class="monitoring-stat-filter-hint">
+            Semua data terverifikasi
+        </div>
+    </a>
+
+
+    {{-- =====================================================
+         DISETUJUI
+    ====================================================== --}}
+    <a
+        href="{{ route('monitoring.index', ['status' => 'approved']) }}"
+        class="monitoring-stat-card monitoring-stat-card-link approved-card {{ ($statusFilter ?? 'all') === 'approved' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">
+            Disetujui
+        </div>
+
+        <div class="monitoring-stat-value">
+            {{ $disetujui ?? 0 }}
+        </div>
+
+        <div class="monitoring-stat-filter-hint">
+            Data yang disetujui
+        </div>
+    </a>
+
+
+   
+    <a
+        href="{{ route('monitoring.index', ['status' => 'rejected']) }}"
+        class="monitoring-stat-card monitoring-stat-card-link rejected-card {{ ($statusFilter ?? 'all') === 'rejected' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">
+            Ditolak
+        </div>
+
+        <div class="monitoring-stat-value">
+            {{ $ditolak ?? 0 }}
+        </div>
+
+        <div class="monitoring-stat-filter-hint">
+            Data yang ditolak
+        </div>
+    </a>
+
+</div>
+
+
+
 
 
         {{-- =====================================================
@@ -1602,37 +1814,17 @@
                                 /*
                                  * NORMALISASI STATUS
                                  */
-                                $statusClass = match ($status) {
-                                    'approved',
-                                    'disetujui' => 'approved',
+                              $statusClass = match ($status) {
+                                        'approved' => 'approved',
+                                        'rejected' => 'rejected',
+                                        default => 'rejected',
+                                    };
 
-                                    'rejected',
-                                    'reject',
-                                    'ditolak' => 'reject',
-
-                                    'pending',
-                                    'menunggu' => 'pending',
-
-                                    default => 'draft',
-                                };
-
-                                $statusLabel = match ($status) {
-                                    'approved',
-                                    'disetujui' => 'Disetujui',
-
-                                    'rejected',
-                                    'reject',
-                                    'ditolak' => 'Ditolak',
-
-                                    'pending',
-                                    'menunggu' => 'Menunggu',
-
-                                    'draft' => 'Draft',
-
-                                    'not_processed' => 'Belum Diproses',
-
-                                    default => 'Menunggu',
-                                };
+                                    $statusLabel = match ($status) {
+                                        'approved' => 'Disetujui',
+                                        'rejected' => 'Ditolak',
+                                        default => '-',
+                                    };
 
                                 /*
                                  * KUISIONER PART 1
@@ -1920,7 +2112,7 @@
                     </div>
 
                     <div
-                        class="monitoring-detail-summary-value"
+                        class="monitoring-detail-summary-value monitoring-summary-status"
                         id="detailStatusSummary"
                     >
                         -
@@ -2201,6 +2393,8 @@
 </div>
 
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -2419,6 +2613,197 @@ document.addEventListener('DOMContentLoaded', function () {
        QUESTIONNAIRE
     ===================================================== */
 
+    function extractCoordinates(value) {
+
+        if (Array.isArray(value) && value.length >= 2) {
+            return extractCoordinates({
+                latitude: value[0],
+                longitude: value[1]
+            });
+        }
+
+        if (value && typeof value === 'object') {
+
+            const latitude =
+                value.latitude ??
+                value.lat;
+
+            const longitude =
+                value.longitude ??
+                value.lng ??
+                value.lon;
+
+            if (
+                latitude !== undefined &&
+                latitude !== null &&
+                latitude !== '' &&
+                longitude !== undefined &&
+                longitude !== null &&
+                longitude !== '' &&
+                Number.isFinite(Number(latitude)) &&
+                Number.isFinite(Number(longitude))
+            ) {
+                const lat = Number(latitude);
+                const lng = Number(longitude);
+
+                if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                    return { latitude: lat, longitude: lng };
+                }
+            }
+
+            for (const key of ['coordinates', 'location', 'value', 'answer']) {
+                if (value[key] !== undefined && value[key] !== value) {
+                    const coordinates = extractCoordinates(value[key]);
+
+                    if (coordinates) {
+                        return coordinates;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        const text = String(value ?? '').trim();
+
+        if (!text) {
+            return null;
+        }
+
+        if (
+            (text.startsWith('{') && text.endsWith('}')) ||
+            (text.startsWith('[') && text.endsWith(']'))
+        ) {
+            try {
+                const coordinates = extractCoordinates(JSON.parse(text));
+
+                if (coordinates) {
+                    return coordinates;
+                }
+            } catch (error) {
+                // Try the supported plain-text coordinate formats next.
+            }
+        }
+
+        const patterns = [
+            /(?:lat(?:itude)?)[\s:=]+(-?\d+(?:\.\d+)?).*?(?:lng|lon|longitude)[\s:=]+(-?\d+(?:\.\d+)?)/i,
+            /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/,
+            /(?:[?&]|\b)m?(?:lat|latitude)=(-?\d+(?:\.\d+)?).*?(?:[?&]|\b)m?(?:lng|lon|longitude)=(-?\d+(?:\.\d+)?)/i,
+            /(-?\d+(?:\.\d+)?)\s*[,;]\s*(-?\d+(?:\.\d+)?)/
+        ];
+
+        for (const pattern of patterns) {
+            const match = text.match(pattern);
+
+            if (match) {
+                const coordinates = extractCoordinates({
+                    latitude: match[1],
+                    longitude: match[2]
+                });
+
+                if (coordinates) {
+                    return coordinates;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    function normalizeQuestionImages(item, answer, type, question) {
+
+        const candidates = [];
+
+        function addCandidate(value, fallbackName) {
+
+            if (Array.isArray(value)) {
+                value.forEach(function (entry) {
+                    addCandidate(entry, fallbackName);
+                });
+
+                return;
+            }
+
+            if (value && typeof value === 'object') {
+                const url =
+                    value.imageUrl ??
+                    value.image_url ??
+                    value.url ??
+                    value.src ??
+                    value.path ??
+                    value.answer;
+
+                if (url) {
+                    addCandidate(
+                        url,
+                        value.imageName ??
+                        value.image_name ??
+                        value.name ??
+                        fallbackName
+                    );
+                }
+
+                return;
+            }
+
+            if (typeof value === 'string' && value.trim() !== '') {
+                candidates.push({
+                    url: value.trim(),
+                    name: fallbackName || ''
+                });
+            }
+        }
+
+        addCandidate(
+            item.imageUrls ??
+            item.image_urls ??
+            item.photos ??
+            item.images,
+            item.imageName ?? item.image_name
+        );
+
+        addCandidate(
+            item.imageUrl ??
+            item.image_url ??
+            item.photoUrl ??
+            item.photo_url ??
+            item.url,
+            item.imageName ?? item.image_name
+        );
+
+        if (
+            ['image', 'foto', 'photo', 'gambar'].includes(type) ||
+            /foto|photo|gambar/i.test(String(question)) ||
+            /\.(?:jpe?g|png|gif|webp|bmp)(?:[?#].*)?$/i.test(String(answer ?? '').trim()) ||
+            /^data:image\//i.test(String(answer ?? '').trim())
+        ) {
+            addCandidate(answer, item.imageName ?? item.image_name);
+        }
+
+        const unique = new Map();
+
+        candidates.forEach(function (image) {
+            if (!unique.has(image.url)) {
+                unique.set(image.url, image);
+            }
+        });
+
+        return Array.from(unique.values());
+    }
+
+
+    function isSafeImageUrl(value) {
+
+        const url = String(value ?? '').trim();
+
+        return (
+            /^(https?:\/\/|\/|storage\/|public\/)/i.test(url) ||
+            /^data:image\/(?:png|jpe?g|gif|webp);base64,/i.test(url)
+        );
+    }
+
+
     function normalizeQuestionnaire(raw) {
 
         if (!raw) {
@@ -2555,33 +2940,54 @@ document.addEventListener('DOMContentLoaded', function () {
             ('Pertanyaan ' + (index + 1));
 
 
-        let answer =
+        let answerValue =
             item.answer ??
             item.jawaban ??
             item.response ??
             item.nilai ??
             item.value ??
             '';
+        const rawAnswer = answerValue;
 
+        const type =
+            String(
+                item.type ??
+                item.answer_type ??
+                item.input_type ??
+                ''
+            ).toLowerCase();
 
-        if (Array.isArray(answer)) {
+        if (Array.isArray(answerValue)) {
 
-            answer =
-                answer.join(', ');
+            answerValue =
+                answerValue.join(', ');
 
         } else if (
-            answer &&
-            typeof answer === 'object'
+            answerValue &&
+            typeof answerValue === 'object'
         ) {
 
-            answer =
-                answer.label ??
-                answer.nama ??
-                answer.value ??
-                JSON.stringify(answer);
+            answerValue =
+                answerValue.label ??
+                answerValue.nama ??
+                answerValue.value ??
+                JSON.stringify(answerValue);
 
         }
 
+        const isMapQuestion =
+            type === 'map' ||
+            /geotagging|geotag|titik lokasi|lokasi tempat tinggal|koordinat|latitude|longitude/i.test(String(question));
+
+        const directCoordinates = extractCoordinates({
+            latitude: item.latitude ?? item.lat,
+            longitude: item.longitude ?? item.lng ?? item.lon
+        });
+
+        const coordinates =
+            directCoordinates ??
+            extractCoordinates(item.coordinates ?? item.location) ??
+            extractCoordinates(item.answer ?? item.jawaban ?? item.value);
 
         const part =
             item.part ||
@@ -2595,8 +3001,145 @@ document.addEventListener('DOMContentLoaded', function () {
         return {
             part: String(part),
             question: String(question),
-            answer: String(answer ?? '')
+            answer: String(answerValue ?? ''),
+            type: isMapQuestion ? 'map' : type,
+            latitude: coordinates?.latitude ?? null,
+            longitude: coordinates?.longitude ?? null,
+            images: normalizeQuestionImages(
+                item,
+                rawAnswer,
+                type,
+                question
+            )
         };
+    }
+
+
+    function renderQuestionAnswer(item, answerElement) {
+
+        if (
+            item.type === 'map' &&
+            Number.isFinite(item.latitude) &&
+            Number.isFinite(item.longitude)
+        ) {
+            const latitude = item.latitude;
+            const longitude = item.longitude;
+            const coordinateText =
+                latitude + ', ' + longitude;
+            const mapId =
+                'monitoring-map-' +
+                Date.now() +
+                '-' +
+                Math.random().toString(36).slice(2, 8);
+            const mapUrl =
+                'https://www.openstreetmap.org/?mlat=' +
+                encodeURIComponent(latitude) +
+                '&mlon=' +
+                encodeURIComponent(longitude) +
+                '#map=17/' +
+                encodeURIComponent(latitude) +
+                '/' +
+                encodeURIComponent(longitude);
+
+            answerElement.classList.add('is-visual');
+            answerElement.innerHTML = `
+                <div class="monitoring-map" id="${mapId}"></div>
+                <div class="monitoring-map-coordinates">
+                    Koordinat: ${escapeHtml(coordinateText)}
+                </div>
+                <a
+                    class="monitoring-map-link"
+                    href="${escapeHtml(mapUrl)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Buka lokasi di OpenStreetMap
+                </a>
+            `;
+
+            if (window.L) {
+                const mapElement =
+                    document.getElementById(mapId);
+
+                const map =
+                    window.L.map(mapElement, {
+                        scrollWheelZoom: false
+                    }).setView([latitude, longitude], 17);
+
+                window.L.tileLayer(
+                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }
+                ).addTo(map);
+
+                const marker =
+                    window.L.marker([latitude, longitude]).addTo(map);
+
+                const popup =
+                    document.createElement('div');
+
+                popup.textContent =
+                    'Titik Lokasi Responden: ' + coordinateText;
+
+                marker.bindPopup(popup);
+
+                window.setTimeout(function () {
+                    map.invalidateSize();
+                }, 100);
+            } else {
+                answerElement.insertAdjacentHTML(
+                    'afterbegin',
+                    '<div class="monitoring-map-coordinates">Peta tidak dapat dimuat saat ini.</div>'
+                );
+            }
+
+            return;
+        }
+
+        const images =
+            item.images.filter(function (image) {
+                return isSafeImageUrl(image.url);
+            });
+
+        if (images.length > 0) {
+            answerElement.classList.add('is-visual');
+            answerElement.innerHTML = `
+                <div class="monitoring-images">
+                    ${images.map(function (image, index) {
+                        const imageName =
+                            image.name ||
+                            ('Foto ' + (index + 1));
+                        const url =
+                            escapeHtml(image.url);
+                        const isDataImage =
+                            /^data:image\//i.test(image.url);
+
+                        return `
+                            <div class="monitoring-image-card">
+                                ${isDataImage
+                                    ? `<img class="monitoring-image" src="${url}" alt="${escapeHtml(imageName)}" loading="lazy">`
+                                    : `<a class="monitoring-image-link" href="${url}" target="_blank" rel="noopener noreferrer"><img class="monitoring-image" src="${url}" alt="${escapeHtml(imageName)}" loading="lazy"></a>`
+                                }
+                                <div class="monitoring-image-name">${escapeHtml(imageName)}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            return;
+        }
+
+        answerElement.textContent =
+            item.answer.trim() === ''
+                ? 'Belum diisi'
+                : item.answer;
+
+        if (item.answer.trim() === '') {
+            answerElement.classList.add('is-empty');
+        }
     }
 
 
@@ -2607,7 +3150,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const match =
             String(partName).match(
-                /(?:part|bagian)\s*(\d+)/i
+                /^(?:(?:part|bagian)\s*)?(\d+)\b/i
             );
 
 
@@ -2898,9 +3441,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 selectedBody.innerHTML =
                     items.map(function (item, qIndex) {
 
-                        const empty =
-                            item.answer.trim() === '';
-
                         return `
                             <div class="monitoring-question-item">
 
@@ -2916,18 +3456,28 @@ document.addEventListener('DOMContentLoaded', function () {
                                     Jawaban Responden
                                 </div>
 
-                                <div class="monitoring-answer-value ${empty ? 'is-empty' : ''}">
-                                    ${
-                                        empty
-                                            ? 'Belum diisi'
-                                            : escapeHtml(item.answer)
-                                    }
+                                <div
+                                    class="monitoring-answer-value"
+                                    data-answer-index="${qIndex}"
+                                >
                                 </div>
 
                             </div>
                         `;
 
                     }).join('');
+
+                selectedBody
+                    .querySelectorAll('[data-answer-index]')
+                    .forEach(function (answerElement) {
+                        const answerIndex =
+                            Number(answerElement.dataset.answerIndex);
+
+                        renderQuestionAnswer(
+                            items[answerIndex],
+                            answerElement
+                        );
+                    });
 
                 selectedBody.scrollTop = 0;
 
@@ -3177,6 +3727,47 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    function setMonitoringStatus(element, status) {
+
+        const value =
+            String(status || '').trim();
+
+        const normalized =
+            value.toLowerCase();
+
+        const statusClasses = [
+            'status-approved',
+            'status-rejected',
+            'status-pending',
+            'status-draft'
+        ];
+
+        const statusClass =
+            normalized === 'approved' ||
+            normalized.includes('disetujui')
+                ? 'status-approved'
+                : normalized === 'rejected' ||
+                    normalized === 'reject' ||
+                    normalized.includes('ditolak')
+                    ? 'status-rejected'
+                    : normalized === 'pending' ||
+                        normalized.includes('menunggu')
+                        ? 'status-pending'
+                        : normalized === 'draft'
+                            ? 'status-draft'
+                            : '';
+
+        element.textContent =
+            value || '-';
+
+        element.classList.remove(...statusClasses);
+
+        if (statusClass) {
+            element.classList.add(statusClass);
+        }
+    }
+
+
     function openDetailModal(button) {
 
         document.getElementById(
@@ -3191,10 +3782,10 @@ document.addEventListener('DOMContentLoaded', function () {
             button.dataset.noKk || '-';
 
 
-        document.getElementById(
-            'detailStatusSummary'
-        ).textContent =
-            button.dataset.status || '-';
+        setMonitoringStatus(
+            document.getElementById('detailStatusSummary'),
+            button.dataset.status
+        );
 
 
         document.getElementById(
@@ -3242,10 +3833,10 @@ document.addEventListener('DOMContentLoaded', function () {
             button.dataset.tanggal || '-';
 
 
-        document.getElementById(
-            'detailStatus'
-        ).textContent =
-            button.dataset.status || '-';
+        setMonitoringStatus(
+            document.getElementById('detailStatus'),
+            button.dataset.status
+        );
 
 
         /* RESET ANGGOTA */

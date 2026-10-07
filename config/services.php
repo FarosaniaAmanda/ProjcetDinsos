@@ -50,6 +50,10 @@ return [
             'ProjcetDinsos/1.0'
         ),
         'email' => env('GEOCODING_CONTACT_EMAIL'),
+        'location_suffix' => env(
+            'GEOCODING_LOCATION_SUFFIX',
+            'Kota Pasuruan, Jawa Timur, Indonesia'
+        ),
     ],
 
 ];

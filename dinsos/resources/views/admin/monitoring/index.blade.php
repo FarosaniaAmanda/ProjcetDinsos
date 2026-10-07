@@ -76,6 +76,48 @@
         transition: .2s ease;
         box-sizing: border-box;
     }
+    
+
+    .monitoring-stat-card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+    }
+
+    .monitoring-stat-card-link:hover {
+    text-decoration: none;
+    color: inherit;
+    }
+
+    .monitoring-stat-card-link.active {
+    border-color: #252A86;
+    box-shadow: 0 0 0 2px rgba(37, 42, 134, 0.08);
+    }
+
+    .monitoring-stat-card-link.active::after {
+    content: '';
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 0;
+    height: 3px;
+    background: #252A86;
+    border-radius: 3px 3px 0 0;
+    }
+
+    .monitoring-stat-filter-hint {
+    margin-top: 8px;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #64748b;
+    }
+
+    .monitoring-stat-card-link:focus-visible {
+    outline: 3px solid rgba(37, 42, 134, 0.15);
+    outline-offset: 2px;
+    }
 
     .monitoring-stat-card:hover {
         transform: translateY(-2px);
@@ -109,12 +151,6 @@
         display: flex;
         flex-direction: column;
     }
-
-
-    /* =====================================================
-       SEARCH
-       SEARCH DI ATAS JUDUL
-    ===================================================== */
 
     /* =====================================================
    SEARCH MONITORING
@@ -687,7 +723,6 @@
 
     /* =====================================================
        FLOATING PANEL ANGGOTA KELUARGA
-       MUNCUL MENGAMBANG DI ATAS DETAIL
     ===================================================== */
 
     .monitoring-members-popover {
@@ -854,7 +889,7 @@
     }
 
     /* =====================================================
-       HASIL KUISIONER - MASTER DETAIL SEPERTI VERIFIKASI
+       HASIL KUISIONER 
     ===================================================== */
 
     .monitoring-questionnaire-wrapper {
@@ -1100,6 +1135,100 @@
     }
 
     /* =====================================================
+       MEDIA KUISIONER - FOTO & PETA
+    ===================================================== */
+    .monitoring-media-answer {
+        width: 100%;
+        border: 1px solid #e2e6f2;
+        border-radius: 12px;
+        background: #f8f9fd;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .monitoring-answer-image {
+        display: block;
+        width: 100%;
+        max-width: 620px;
+        max-height: 430px;
+        margin: 0 auto;
+        object-fit: contain;
+        border-radius: 9px;
+        background: #eef1f6;
+        cursor: zoom-in;
+    }
+
+    .monitoring-image-fallback {
+        padding: 20px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.6;
+        text-align: center;
+        word-break: break-all;
+    }
+
+    .monitoring-map-answer {
+        width: 100%;
+        border: 1px solid #e2e6f2;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #f8f9fd;
+    }
+
+    .monitoring-map-coordinates {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 12px;
+        align-items: center;
+        padding: 11px 13px;
+        color: #374151;
+        font-size: 12px;
+        background: #f3f5ff;
+    }
+
+    .monitoring-map-coordinates strong {
+        color: #252A86;
+    }
+
+    .monitoring-map-coordinates span {
+        font-family: Consolas, monospace;
+        color: #475569;
+    }
+
+    .monitoring-answer-map {
+        display: block;
+        width: 100%;
+        height: 330px;
+        border: 0;
+        background: #eef1f6;
+    }
+
+    .monitoring-map-link {
+        display: block;
+        padding: 10px 13px;
+        color: #252A86;
+        background: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        border-top: 1px solid #e2e6f2;
+    }
+
+    .monitoring-map-link:hover {
+        background: #f3f5ff;
+        text-decoration: underline;
+    }
+
+    @media (max-width: 700px) {
+        .monitoring-answer-map {
+            height: 280px;
+        }
+        .monitoring-answer-image {
+            max-height: 320px;
+        }
+    }
+
+    /* =====================================================
        RESPONSIVE DETAIL
     ===================================================== */
 
@@ -1324,7 +1453,6 @@
 
 /* =====================================================
    FINAL RESPONSIVE DETAIL MONITORING
-   Rapikan mobile tanpa mengubah struktur desktop utama
 ===================================================== */
 .monitoring-members-popover-close {
     width: 38px;
@@ -1462,45 +1590,72 @@
 
         <div class="monitoring-stats-wrapper">
 
-            <div class="monitoring-stats">
+           <div class="monitoring-stats">
 
-                <div class="monitoring-stat-card">
-                    <div class="monitoring-stat-label">
-                        Total Responden
-                    </div>
-
-                    <div class="monitoring-stat-value">
-                        {{ $totalResponden ?? 0 }}
-                    </div>
-                </div>
-
-
-    
-
-                <div class="monitoring-stat-card">
-                    <div class="monitoring-stat-label">
-                        Disetujui
-                    </div>
-
-                    <div class="monitoring-stat-value">
-                        {{ $disetujui ?? 0 }}
-                    </div>
-                </div>
-
-
-                <div class="monitoring-stat-card">
-                    <div class="monitoring-stat-label">
-                        Ditolak
-                    </div>
-
-                    <div class="monitoring-stat-value">
-                        {{ $ditolak ?? 0 }}
-                    </div>
-                </div>
-
-            </div>
-
+    {{-- =====================================================
+         TOTAL
+    ====================================================== --}}
+    <a
+        href="{{ route('monitoring.index') }}"
+        class="monitoring-stat-card monitoring-stat-card-link {{ ($statusFilter ?? 'all') === 'all' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">
+            Total Responden
         </div>
+
+        <div class="monitoring-stat-value">
+            {{ $totalResponden ?? 0 }}
+        </div>
+
+        <div class="monitoring-stat-filter-hint">
+            Semua data terverifikasi
+        </div>
+    </a>
+
+
+    {{-- =====================================================
+         DISETUJUI
+    ====================================================== --}}
+    <a
+        href="{{ route('monitoring.index', ['status' => 'approved']) }}"
+        class="monitoring-stat-card monitoring-stat-card-link {{ ($statusFilter ?? 'all') === 'approved' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">
+            Disetujui
+        </div>
+
+        <div class="monitoring-stat-value">
+            {{ $disetujui ?? 0 }}
+        </div>
+
+        <div class="monitoring-stat-filter-hint">
+            Data yang disetujui
+        </div>
+    </a>
+
+
+   
+    <a
+        href="{{ route('monitoring.index', ['status' => 'rejected']) }}"
+        class="monitoring-stat-card monitoring-stat-card-link {{ ($statusFilter ?? 'all') === 'rejected' ? 'active' : '' }}"
+    >
+        <div class="monitoring-stat-label">
+            Ditolak
+        </div>
+
+        <div class="monitoring-stat-value">
+            {{ $ditolak ?? 0 }}
+        </div>
+
+        <div class="monitoring-stat-filter-hint">
+            Data yang ditolak
+        </div>
+    </a>
+
+</div>
+
+
+
 
 
         {{-- =====================================================
@@ -1602,37 +1757,17 @@
                                 /*
                                  * NORMALISASI STATUS
                                  */
-                                $statusClass = match ($status) {
-                                    'approved',
-                                    'disetujui' => 'approved',
+                              $statusClass = match ($status) {
+                                        'approved' => 'approved',
+                                        'rejected' => 'rejected',
+                                        default => 'rejected',
+                                    };
 
-                                    'rejected',
-                                    'reject',
-                                    'ditolak' => 'reject',
-
-                                    'pending',
-                                    'menunggu' => 'pending',
-
-                                    default => 'draft',
-                                };
-
-                                $statusLabel = match ($status) {
-                                    'approved',
-                                    'disetujui' => 'Disetujui',
-
-                                    'rejected',
-                                    'reject',
-                                    'ditolak' => 'Ditolak',
-
-                                    'pending',
-                                    'menunggu' => 'Menunggu',
-
-                                    'draft' => 'Draft',
-
-                                    'not_processed' => 'Belum Diproses',
-
-                                    default => 'Menunggu',
-                                };
+                                    $statusLabel = match ($status) {
+                                        'approved' => 'Disetujui',
+                                        'rejected' => 'Ditolak',
+                                        default => '-',
+                                    };
 
                                 /*
                                  * KUISIONER PART 1
@@ -1730,6 +1865,10 @@
                                         data-anggota-detail='@json($anggotaDetail)'
 
                                         data-kuisioner='@json($kuisioner)'
+
+                                        data-foto-rumah='@json(data_get($item, "foto_rumah", []))'
+
+                                        data-geotagging="{{ e(data_get($item, 'geotangging', data_get($item, 'geotagging', data_get($item, 'coordinates', '')))) }}"
                                     >
                                         Detail
                                     </button>
@@ -2419,522 +2558,504 @@ document.addEventListener('DOMContentLoaded', function () {
        QUESTIONNAIRE
     ===================================================== */
 
-    function normalizeQuestionnaire(raw) {
+    function safeJsonParse(value, fallback = []) {
 
-        if (!raw) {
-            return [];
+        if (value === null || value === undefined || value === '') {
+            return fallback;
         }
 
-        let data = raw;
+        if (typeof value !== 'string') {
+            return value;
+        }
+
+        try {
+            return JSON.parse(value);
+        } catch (error) {
+            return fallback;
+        }
+    }
 
 
-        if (typeof data === 'string') {
+    function firstValue(object, keys, fallback = '') {
+
+        if (!object || typeof object !== 'object') {
+            return fallback;
+        }
+
+        for (const key of keys) {
+            if (
+                object[key] !== undefined &&
+                object[key] !== null &&
+                String(object[key]).trim() !== ''
+            ) {
+                return object[key];
+            }
+        }
+
+        return fallback;
+    }
+
+
+    function normalizeAnswer(value) {
+
+        if (value === null || value === undefined) {
+            return '';
+        }
+
+        if (Array.isArray(value)) {
+            return value.map(normalizeAnswer).filter(Boolean).join(', ');
+        }
+
+        if (typeof value === 'object') {
+            const nested = firstValue(value, [
+                'label', 'nama', 'value', 'answer', 'jawaban',
+                'url', 'imageUrl', 'image_url', 'path_file', 'path'
+            ], '');
+
+            if (nested !== '') {
+                return normalizeAnswer(nested);
+            }
 
             try {
-
-                data = JSON.parse(data);
-
+                return JSON.stringify(value);
             } catch (error) {
-
-                return [];
-
+                return '';
             }
         }
 
+        return String(value);
+    }
 
-        if (
-            data &&
-            !Array.isArray(data) &&
-            typeof data === 'object'
-        ) {
 
-            if (Array.isArray(data.parts)) {
+    function normalizeMediaUrl(value) {
 
-                data = data.parts;
+        let url = normalizeAnswer(value).trim();
 
-            } else if (Array.isArray(data.bagian)) {
+        if (!url) return '';
 
-                data = data.bagian;
+        url = url.replace(/\\/g, '/');
 
-            } else if (Array.isArray(data.questions)) {
+        if (/^(https?:)?\/\//i.test(url) || /^(data:|blob:)/i.test(url)) {
+            return url;
+        }
 
-                data = data.questions;
+        url = url.replace(/^\.\//, '');
+        url = url.replace(/^public\//i, '');
+        url = url.replace(/^storage\/storage\//i, 'storage/');
+        url = url.replace(/^\/storage\/storage\//i, '/storage/');
+        url = url.replace(/^storage\/app\/public\//i, 'storage/');
+        url = url.replace(/^\/storage\/app\/public\//i, '/storage/');
 
-            } else if (Array.isArray(data.data)) {
+        if (/^\/storage\//i.test(url)) {
+            return url;
+        }
 
-                data = data.data;
+        if (/^storage\//i.test(url)) {
+            return '/' + url;
+        }
 
-            } else {
+        if (/^kuisioner\//i.test(url)) {
+            return '/storage/' + url;
+        }
 
-                data = Object.values(data);
+        return '/storage/' + url.replace(/^\/+/, '');
+    }
 
+
+    function parseCoordinates(value) {
+
+        if (value === null || value === undefined || value === '') {
+            return null;
+        }
+
+        if (typeof value === 'object') {
+            const lat = Number(firstValue(value, ['lat', 'latitude'], ''));
+            const lng = Number(firstValue(value, ['lng', 'lon', 'longitude'], ''));
+
+            if (Number.isFinite(lat) && Number.isFinite(lng) &&
+                lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { lat, lng };
             }
+
+            return null;
         }
 
+        const raw = String(value).trim();
+        if (!raw) return null;
 
-        if (!Array.isArray(data)) {
-
-            return [];
-
+        const decoded = safeJsonParse(raw, null);
+        if (decoded && decoded !== raw) {
+            const parsed = parseCoordinates(decoded);
+            if (parsed) return parsed;
         }
 
+        let match = raw.match(/@\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/);
+        if (match) return validateCoordinates(match[1], match[2]);
+
+        match = raw.match(/[?&](?:lat|latitude)=\s*(-?\d+(?:\.\d+)?).*?[&](?:lng|lon|longitude)=\s*(-?\d+(?:\.\d+)?)/i);
+        if (match) return validateCoordinates(match[1], match[2]);
+
+        match = raw.match(/(?:lat(?:itude)?)[\s:=]+(-?\d+(?:\.\d+)?).*?(?:lng|lon|longitude)[\s:=]+(-?\d+(?:\.\d+)?)/i);
+        if (match) return validateCoordinates(match[1], match[2]);
+
+        match = raw.match(/^\s*(-?\d+(?:\.\d+)?)\s*[,;|]\s*(-?\d+(?:\.\d+)?)\s*$/);
+        if (match) return validateCoordinates(match[1], match[2]);
+
+        return null;
+    }
+
+
+    function validateCoordinates(latValue, lngValue) {
+        const lat = Number(latValue);
+        const lng = Number(lngValue);
+
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+        if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+
+        return { lat, lng };
+    }
+
+
+    function looksLikeImage(text) {
+        return /\.(jpg|jpeg|png|gif|webp|bmp|svg)(?:\?.*)?$/i.test(String(text || '').trim()) ||
+            /(?:^|\/)storage\/.*\.(jpg|jpeg|png|gif|webp|bmp|svg)/i.test(String(text || '')) ||
+            /(?:^|\/)kuisioner\/.*\.(jpg|jpeg|png|gif|webp|bmp|svg)/i.test(String(text || ''));
+    }
+
+
+    function normalizeQuestion(item, inheritedPart, index) {
+
+        const questionText = String(firstValue(item, [
+            'pertanyaan', 'question', 'question_text', 'nama_pertanyaan',
+            'text', 'judul', 'label'
+        ], `Pertanyaan ${index + 1}`));
+
+        let answerValue = firstValue(item, [
+            'jawaban', 'answer', 'response', 'nilai', 'value', 'hasil'
+        ], '');
+
+        let imageUrl = firstValue(item, [
+            'imageUrl', 'image_url', 'gambar', 'url_gambar', 'photoUrl',
+            'photo_url', 'foto_url', 'path_file', 'pathFile', 'file_url', 'url'
+        ], '');
+
+        let imageName = firstValue(item, [
+            'imageName', 'image_name', 'nama_file', 'file_name', 'filename', 'jenis_foto'
+        ], '');
+
+        let type = String(firstValue(item, [
+            'type', 'tipe', 'jenis', 'input_type', 'answer_type'
+        ], '') || '').toLowerCase().trim();
+
+        if (answerValue && typeof answerValue === 'object') {
+            const objectImage = firstValue(answerValue, [
+                'url', 'imageUrl', 'image_url', 'path_file', 'path', 'file_url'
+            ], '');
+            if (!imageUrl && objectImage) imageUrl = objectImage;
+        }
+
+        const answer = normalizeAnswer(answerValue).trim();
+        const lowerQuestion = questionText.toLowerCase();
+
+        if (!imageUrl && looksLikeImage(answer)) imageUrl = answer;
+
+        const mapLike =
+            lowerQuestion.includes('geotagging') ||
+            lowerQuestion.includes('geotag') ||
+            lowerQuestion.includes('titik lokasi') ||
+            lowerQuestion.includes('koordinat') ||
+            lowerQuestion.includes('lokasi tempat tinggal') ||
+            ['map', 'location', 'geotag', 'geotagging'].includes(type);
+
+        if (mapLike) type = 'map';
+        if (['foto', 'photo', 'gambar'].includes(type)) type = 'image';
+        if (!type && (imageUrl || looksLikeImage(answer) || lowerQuestion.includes('foto') || lowerQuestion.includes('gambar'))) {
+            type = 'image';
+        }
+
+        return {
+            part: String(firstValue(item, [
+                'part', 'bagian', 'section', 'part_name'
+            ], inheritedPart || 'Part 1')),
+            question: questionText,
+            answer,
+            type,
+            imageUrl: normalizeMediaUrl(imageUrl),
+            imageName: String(imageName || '')
+        };
+    }
+
+
+    function normalizeQuestionnaire(raw) {
+
+        if (!raw) return [];
+
+        let data = safeJsonParse(raw, raw);
+
+        if (data && !Array.isArray(data) && typeof data === 'object') {
+            if (Array.isArray(data.parts)) data = data.parts;
+            else if (Array.isArray(data.bagian)) data = data.bagian;
+            else if (Array.isArray(data.questions)) data = data.questions;
+            else if (Array.isArray(data.data)) data = data.data;
+            else data = Object.values(data);
+        }
+
+        if (!Array.isArray(data)) return [];
 
         const result = [];
 
-
         data.forEach(function (item, index) {
+            if (!item || typeof item !== 'object') return;
 
-            if (
-                !item ||
-                typeof item !== 'object'
-            ) {
-                return;
-            }
-
-
-            const nested =
-                item.questions ||
-                item.pertanyaan_list ||
-                item.items;
-
+            const nested = item.questions || item.pertanyaan_list || item.items;
 
             if (Array.isArray(nested)) {
-
-                const partName =
-                    item.title ||
-                    item.part ||
-                    item.bagian ||
-                    item.section ||
-                    ('Part ' + (index + 1));
-
+                const partName = firstValue(item, [
+                    'title', 'part', 'bagian', 'section', 'part_name'
+                ], `Part ${index + 1}`);
 
                 nested.forEach(function (question, qIndex) {
-
-                    result.push(
-                        normalizeQuestion(
-                            question,
-                            partName,
-                            qIndex
-                        )
-                    );
-
+                    if (question && typeof question === 'object') {
+                        result.push(normalizeQuestion(question, partName, qIndex));
+                    }
                 });
-
                 return;
             }
 
-
-            result.push(
-                normalizeQuestion(
-                    item,
-                    item.part || 'Part 1',
-                    index
-                )
-            );
-
+            result.push(normalizeQuestion(item, firstValue(item, ['part', 'bagian', 'section'], 'Part 1'), index));
         });
-
 
         return result;
     }
 
 
-    function normalizeQuestion(
-        item,
-        inheritedPart,
-        index
-    ) {
+    function normalizeParts(raw) {
 
-        const question =
-            item.question ||
-            item.pertanyaan ||
-            item.question_text ||
-            item.nama_pertanyaan ||
-            item.text ||
-            item.label ||
-            ('Pertanyaan ' + (index + 1));
+        const data = safeJsonParse(raw, raw);
+        if (!Array.isArray(data)) return [];
 
+        const parts = [];
+        const directQuestions = [];
 
-        let answer =
-            item.answer ??
-            item.jawaban ??
-            item.response ??
-            item.nilai ??
-            item.value ??
-            '';
+        data.forEach(function (item, index) {
+            if (!item || typeof item !== 'object') return;
 
+            const nested = item.questions || item.pertanyaan_list || item.items;
+            const hasPartContainer = Array.isArray(nested);
 
-        if (Array.isArray(answer)) {
+            if (hasPartContainer) {
+                const partNumber = Number(firstValue(item, ['part_number', 'part', 'number'], index + 1));
+                const title = firstValue(item, ['title', 'part_name', 'bagian', 'section'], `Part ${partNumber}`);
+                parts.push({
+                    number: Number.isFinite(partNumber) && partNumber > 0 ? partNumber : index + 1,
+                    title: String(title),
+                    questions: nested.map(function (q, qIndex) {
+                        return normalizeQuestion(q, title, qIndex);
+                    })
+                });
+            } else {
+                directQuestions.push(item);
+            }
+        });
 
-            answer =
-                answer.join(', ');
+        if (directQuestions.length) {
+            const grouped = {};
+            directQuestions.forEach(function (item, index) {
+                const partName = String(firstValue(item, ['part', 'bagian', 'section', 'part_name'], 'Part 1'));
+                if (!grouped[partName]) grouped[partName] = [];
+                grouped[partName].push(normalizeQuestion(item, partName, index));
+            });
 
-        } else if (
-            answer &&
-            typeof answer === 'object'
-        ) {
-
-            answer =
-                answer.label ??
-                answer.nama ??
-                answer.value ??
-                JSON.stringify(answer);
-
+            Object.keys(grouped).forEach(function (title, index) {
+                const match = title.match(/(?:part|bagian)\s*(\d+)/i);
+                parts.push({
+                    number: match ? Number(match[1]) : index + 1,
+                    title,
+                    questions: grouped[title]
+                });
+            });
         }
 
-
-        const part =
-            item.part ||
-            item.bagian ||
-            item.section ||
-            item.part_name ||
-            inheritedPart ||
-            'Part 1';
-
-
-        return {
-            part: String(part),
-            question: String(question),
-            answer: String(answer ?? '')
-        };
+        parts.sort(function (a, b) { return a.number - b.number; });
+        return parts;
     }
 
 
-    function getPartNumber(
-        partName,
-        fallbackIndex
-    ) {
-
-        const match =
-            String(partName).match(
-                /(?:part|bagian)\s*(\d+)/i
-            );
+    function getPartNumber(partName, fallbackIndex) {
+        const match = String(partName).match(/(?:part|bagian)\s*(\d+)/i);
+        return match ? parseInt(match[1], 10) : fallbackIndex + 1;
+    }
 
 
-        return match
-            ? parseInt(match[1], 10)
-            : fallbackIndex + 1;
+    function renderMonitoringAnswer(item) {
+
+        const type = String(item.type || '').toLowerCase();
+        const answer = String(item.answer || '').trim();
+        const imageUrl = String(item.imageUrl || '').trim();
+
+        if (type === 'image' || imageUrl || looksLikeImage(answer)) {
+            const url = normalizeMediaUrl(imageUrl || answer);
+            if (!url) return '<div class="monitoring-answer-value is-empty">Foto belum tersedia</div>';
+
+            const name = escapeHtml(item.imageName || item.question || 'Foto');
+
+            return `
+                <div class="monitoring-media-answer">
+                    <img src="${escapeHtml(url)}"
+                         alt="${name}"
+                         class="monitoring-answer-image"
+                         loading="lazy"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <div class="monitoring-image-fallback" style="display:none;">
+                        Foto tidak dapat ditampilkan.<br>
+                        <small>${escapeHtml(url)}</small>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (type === 'map' || parseCoordinates(answer)) {
+            const coords = parseCoordinates(answer);
+
+            if (!coords) {
+                return `<div class="monitoring-answer-value">${escapeHtml(answer || 'Koordinat belum tersedia')}</div>`;
+            }
+
+            const lat = coords.lat.toFixed(7);
+            const lng = coords.lng.toFixed(7);
+            const bbox = `${coords.lng - 0.005}%2C${coords.lat - 0.005}%2C${coords.lng + 0.005}%2C${coords.lat + 0.005}`;
+            const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
+            const googleUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+
+            return `
+                <div class="monitoring-map-answer">
+                    <div class="monitoring-map-coordinates">
+                        <strong>Titik Lokasi</strong>
+                        <span>${escapeHtml(lat)}, ${escapeHtml(lng)}</span>
+                    </div>
+                    <iframe
+                        class="monitoring-answer-map"
+                        src="${mapUrl}"
+                        title="Peta titik lokasi"
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                    <a class="monitoring-map-link" href="${googleUrl}" target="_blank" rel="noopener noreferrer">
+                        Buka lokasi di Google Maps
+                    </a>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="monitoring-answer-value ${answer ? '' : 'is-empty'}">
+                ${answer ? escapeHtml(answer) : 'Belum diisi'}
+            </div>
+        `;
     }
 
 
     function renderQuestionnaire(raw) {
 
-        if (!questionnaireContent) {
-            return;
-        }
+        if (!questionnaireContent) return;
 
-        const questions = normalizeQuestionnaire(raw);
+        const parts = normalizeParts(raw);
 
-        if (questions.length === 0) {
-
+        if (parts.length === 0) {
             questionnaireContent.innerHTML = `
                 <div class="monitoring-questionnaire-placeholder">
                     <strong>Belum Ada Hasil Kuisioner</strong>
-                    <span>
-                        Hasil kuisioner untuk responden ini belum tersedia.
-                    </span>
+                    <span>Hasil kuisioner untuk responden ini belum tersedia.</span>
                 </div>
             `;
-
             return;
         }
 
-        const grouped = {};
-
-        questions.forEach(function (question) {
-
-            if (!grouped[question.part]) {
-                grouped[question.part] = [];
-            }
-
-            grouped[question.part].push(question);
-
-        });
-
-        const sortedParts =
-            Object.keys(grouped).sort(function (a, b) {
-
-                return (
-                    getPartNumber(a, 0) -
-                    getPartNumber(b, 0)
-                );
-
-            });
-
-        /*
-         * MASTER DETAIL:
-         * - KIRI = daftar part
-         * - KANAN = isi part terpilih
-         * - SAAT AWAL TIDAK ADA PART YANG TERBUKA
-         */
         questionnaireContent.innerHTML = `
             <div class="monitoring-questionnaire-master">
-
                 <div class="monitoring-questionnaire-sidebar">
-
-                    <div class="monitoring-questionnaire-sidebar-title">
-                        Bagian Kuisioner
-                    </div>
-
-                    ${
-                        sortedParts.map(function (partName, partIndex) {
-
-                            const items = grouped[partName];
-
-                            const answered =
-                                items.filter(function (item) {
-                                    return item.answer.trim() !== '';
-                                }).length;
-
-                            const partNumber =
-                                getPartNumber(partName, partIndex);
-
-                            let cleanTitle =
-                                String(partName)
-                                    .replace(
-                                        /^part\s*\d+\s*[-:–]?\s*/i,
-                                        ''
-                                    );
-
-                            if (
-                                cleanTitle.toLowerCase() ===
-                                ('part ' + partNumber).toLowerCase()
-                            ) {
-                                cleanTitle = '';
-                            }
-
-                            return `
-                                <div class="monitoring-questionnaire-part">
-
-                                    <button
-                                        type="button"
-                                        class="monitoring-questionnaire-part-header"
-                                        data-part-index="${partIndex}"
-                                        aria-expanded="false"
-                                    >
-
-                                        <div class="monitoring-questionnaire-part-left">
-
-                                            <span class="monitoring-questionnaire-part-number">
-                                                ${partNumber}
-                                            </span>
-
-                                            <div>
-                                                <div class="monitoring-questionnaire-part-title">
-                                                    ${escapeHtml(
-                                                        cleanTitle ||
-                                                        ('Part ' + partNumber)
-                                                    )}
-                                                </div>
-
-                                                <div class="monitoring-questionnaire-part-meta">
-                                                    ${items.length} pertanyaan
-                                                </div>
-                                            </div>
-
+                    <div class="monitoring-questionnaire-sidebar-title">Bagian Kuisioner</div>
+                    ${parts.map(function (part, index) {
+                        return `
+                            <div class="monitoring-questionnaire-part">
+                                <button type="button" class="monitoring-questionnaire-part-header" data-part-index="${index}" aria-expanded="false">
+                                    <div class="monitoring-questionnaire-part-left">
+                                        <span class="monitoring-questionnaire-part-number">${part.number}</span>
+                                        <div>
+                                            <div class="monitoring-questionnaire-part-title">${escapeHtml(String(part.title).replace(/^part\s*\d+\s*[-:–]?\s*/i, '') || 'Part ' + part.number)}</div>
+                                            <div class="monitoring-questionnaire-part-meta">${part.questions.length} pertanyaan</div>
                                         </div>
-
-                                        <span class="monitoring-questionnaire-part-arrow">
-                                            <svg
-                                                width="15"
-                                                height="15"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                stroke-width="2"
-                                            >
-                                                <polyline points="6 9 12 15 18 9"></polyline>
-                                            </svg>
-                                        </span>
-
-                                    </button>
-
-                                </div>
-                            `;
-
-                        }).join('')
-                    }
-
+                                    </div>
+                                    <span class="monitoring-questionnaire-part-arrow">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </span>
+                                </button>
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
-
 
                 <div class="monitoring-questionnaire-content-panel">
-
                     <div class="monitoring-questionnaire-content-header">
-
-                        <div class="monitoring-questionnaire-content-eyebrow">
-                            Bagian Terpilih
-                        </div>
-
-                        <h3
-                            class="monitoring-questionnaire-content-title"
-                            id="monitoringSelectedPartTitle"
-                        >
-                            Pilih Bagian Kuisioner
-                        </h3>
-
+                        <div class="monitoring-questionnaire-content-eyebrow">Bagian Terpilih</div>
+                        <h3 class="monitoring-questionnaire-content-title" id="monitoringSelectedPartTitle">Pilih Bagian Kuisioner</h3>
                     </div>
-
-                    <div
-                        class="monitoring-questionnaire-content-body"
-                        id="monitoringSelectedPartBody"
-                    >
-
+                    <div class="monitoring-questionnaire-content-body" id="monitoringSelectedPartBody">
                         <div class="monitoring-questionnaire-placeholder">
-
-                            <strong>
-                                Belum Ada Bagian Dipilih
-                            </strong>
-
-                            <span>
-                                Pilih salah satu bagian kuisioner di sebelah kiri
-                                untuk melihat pertanyaan dan jawaban responden.
-                            </span>
-
+                            <strong>Belum Ada Bagian Dipilih</strong>
+                            <span>Pilih salah satu bagian kuisioner di sebelah kiri untuk melihat pertanyaan dan jawaban responden.</span>
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
         `;
 
-        const partButtons =
-            questionnaireContent.querySelectorAll(
-                '.monitoring-questionnaire-part-header'
-            );
+        const buttons = questionnaireContent.querySelectorAll('.monitoring-questionnaire-part-header');
+        const title = questionnaireContent.querySelector('#monitoringSelectedPartTitle');
+        const body = questionnaireContent.querySelector('#monitoringSelectedPartBody');
 
-        const selectedTitle =
-            questionnaireContent.querySelector(
-                '#monitoringSelectedPartTitle'
-            );
-
-        const selectedBody =
-            questionnaireContent.querySelector(
-                '#monitoringSelectedPartBody'
-            );
-
-        partButtons.forEach(function (button) {
-
+        buttons.forEach(function (button) {
             button.addEventListener('click', function () {
+                const index = Number(this.dataset.partIndex);
+                const alreadyOpen = this.classList.contains('active');
 
-                const index =
-                    Number(this.dataset.partIndex);
-
-                const wasActive =
-                    this.classList.contains('active');
-
-                partButtons.forEach(function (other) {
-
+                buttons.forEach(function (other) {
                     other.classList.remove('active');
-
-                    other.setAttribute(
-                        'aria-expanded',
-                        'false'
-                    );
-
+                    other.setAttribute('aria-expanded', 'false');
                 });
 
-                if (wasActive) {
-
-                    selectedTitle.textContent =
-                        'Pilih Bagian Kuisioner';
-
-                    selectedBody.innerHTML = `
-                        <div class="monitoring-questionnaire-placeholder">
-                            <strong>
-                                Belum Ada Bagian Dipilih
-                            </strong>
-
-                            <span>
-                                Pilih salah satu bagian kuisioner di sebelah kiri
-                                untuk melihat pertanyaan dan jawaban responden.
-                            </span>
-                        </div>
-                    `;
-
+                if (alreadyOpen) {
+                    title.textContent = 'Pilih Bagian Kuisioner';
+                    body.innerHTML = '<div class="monitoring-questionnaire-placeholder"><strong>Belum Ada Bagian Dipilih</strong><span>Pilih salah satu bagian kuisioner di sebelah kiri untuk melihat pertanyaan dan jawaban responden.</span></div>';
                     return;
                 }
 
                 this.classList.add('active');
+                this.setAttribute('aria-expanded', 'true');
 
-                this.setAttribute(
-                    'aria-expanded',
-                    'true'
-                );
+                const part = parts[index];
+                title.textContent = `Part ${part.number}${String(part.title).replace(/^part\s*\d+\s*[-:–]?\s*/i, '').trim() ? ' — ' + String(part.title).replace(/^part\s*\d+\s*[-:–]?\s*/i, '').trim() : ''}`;
 
-                const partName =
-                    sortedParts[index];
+                body.innerHTML = part.questions.map(function (item, qIndex) {
+                    return `
+                        <div class="monitoring-question-item">
+                            <div class="monitoring-question-number">Pertanyaan ${qIndex + 1}</div>
+                            <div class="monitoring-question-text">${escapeHtml(item.question)}</div>
+                            <div class="monitoring-answer-label">Jawaban Responden</div>
+                            ${renderMonitoringAnswer(item)}
+                        </div>
+                    `;
+                }).join('');
 
-                const items =
-                    grouped[partName];
+                body.querySelectorAll('.monitoring-answer-image').forEach(function (image) {
+                    image.addEventListener('click', function () {
+                        window.open(this.src, '_blank', 'noopener,noreferrer');
+                    });
+                });
 
-                const partNumber =
-                    getPartNumber(partName, index);
-
-                let cleanTitle =
-                    String(partName)
-                        .replace(
-                            /^part\s*\d+\s*[-:–]?\s*/i,
-                            ''
-                        );
-
-                if (
-                    cleanTitle.toLowerCase() ===
-                    ('part ' + partNumber).toLowerCase()
-                ) {
-                    cleanTitle = '';
-                }
-
-                selectedTitle.textContent =
-                    cleanTitle
-                        ? 'Part ' +
-                          partNumber +
-                          ' — ' +
-                          cleanTitle
-                        : 'Part ' + partNumber;
-
-                selectedBody.innerHTML =
-                    items.map(function (item, qIndex) {
-
-                        const empty =
-                            item.answer.trim() === '';
-
-                        return `
-                            <div class="monitoring-question-item">
-
-                                <div class="monitoring-question-number">
-                                    Pertanyaan ${qIndex + 1}
-                                </div>
-
-                                <div class="monitoring-question-text">
-                                    ${escapeHtml(item.question)}
-                                </div>
-
-                                <div class="monitoring-answer-label">
-                                    Jawaban Responden
-                                </div>
-
-                                <div class="monitoring-answer-value ${empty ? 'is-empty' : ''}">
-                                    ${
-                                        empty
-                                            ? 'Belum diisi'
-                                            : escapeHtml(item.answer)
-                                    }
-                                </div>
-
-                            </div>
-                        `;
-
-                    }).join('');
-
-                selectedBody.scrollTop = 0;
-
+                body.scrollTop = 0;
             });
-
         });
-
     }
 
 
@@ -3258,10 +3379,120 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-        /* KUISIONER */
-        renderQuestionnaire(
-            button.dataset.kuisioner || '[]'
+        /* KUISIONER + MEDIA KHUSUS */
+        let rawQuestionnaire = safeJsonParse(
+            button.dataset.kuisioner || '[]',
+            []
         );
+
+        let fotoRumah = safeJsonParse(
+            button.dataset.fotoRumah || '[]',
+            []
+        );
+
+        if (fotoRumah && !Array.isArray(fotoRumah) && typeof fotoRumah === 'object') {
+            fotoRumah = fotoRumah.data || fotoRumah.foto_rumah || fotoRumah.photos || fotoRumah.fotos || [];
+        }
+
+        if (!Array.isArray(fotoRumah)) fotoRumah = [];
+
+        /* Pastikan foto rumah masuk ke Part 5. */
+        if (fotoRumah.length) {
+            if (!Array.isArray(rawQuestionnaire)) rawQuestionnaire = [];
+
+            let part5 = rawQuestionnaire.find(function (part) {
+                return Number(firstValue(part, ['part_number', 'part', 'number'], 0)) === 5;
+            });
+
+            if (!part5) {
+                part5 = {
+                    part: 5,
+                    number: 5,
+                    title: 'Data Anggota Keluarga',
+                    questions: []
+                };
+                rawQuestionnaire.push(part5);
+            }
+
+            if (!Array.isArray(part5.questions)) part5.questions = [];
+
+            fotoRumah.forEach(function (foto, fotoIndex) {
+                if (!foto || typeof foto !== 'object') return;
+
+                const url = firstValue(foto, [
+                    'url', 'imageUrl', 'image_url', 'path', 'path_file', 'file_url'
+                ], '');
+
+                if (!url) return;
+
+                const normalized = normalizeMediaUrl(url);
+                const exists = part5.questions.some(function (q) {
+                    return normalizeMediaUrl(firstValue(q, ['imageUrl', 'image_url', 'answer', 'path_file', 'url'], '')) === normalized;
+                });
+
+                if (exists) return;
+
+                const jenis = normalizeAnswer(firstValue(foto, ['jenis_foto', 'jenis', 'kategori', 'type'], ''))
+                    .replace(/_/g, ' ')
+                    .trim();
+
+                const label = jenis ? 'Foto ' + jenis : 'Foto Rumah ' + (fotoIndex + 1);
+
+                part5.questions.push({
+                    number: part5.questions.length + 1,
+                    question: label,
+                    text: label,
+                    answer: normalized,
+                    imageUrl: normalized,
+                    imageName: firstValue(foto, ['nama_file', 'file_name', 'filename'], label),
+                    type: 'image'
+                });
+            });
+        }
+
+        /* Pastikan geotagging selalu ada di Part 1 bila controller mengirimkannya. */
+        const geotagging = String(button.dataset.geotagging || '').trim();
+
+        if (geotagging) {
+            if (!Array.isArray(rawQuestionnaire)) rawQuestionnaire = [];
+
+            let part1 = rawQuestionnaire.find(function (part) {
+                return Number(firstValue(part, ['part_number', 'part', 'number'], 0)) === 1;
+            });
+
+            if (!part1) {
+                part1 = {
+                    part: 1,
+                    number: 1,
+                    title: 'Data Keluarga',
+                    questions: []
+                };
+                rawQuestionnaire.unshift(part1);
+            }
+
+            if (!Array.isArray(part1.questions)) part1.questions = [];
+
+            let mapQuestion = part1.questions.find(function (q) {
+                const text = normalizeAnswer(firstValue(q, ['question', 'pertanyaan', 'text'], '')).toLowerCase();
+                const type = normalizeAnswer(firstValue(q, ['type', 'tipe', 'jenis'], '')).toLowerCase();
+                return type === 'map' || text.includes('geotagging') || text.includes('titik lokasi') || text.includes('geotag');
+            });
+
+            if (mapQuestion) {
+                mapQuestion.answer = geotagging;
+                mapQuestion.type = 'map';
+            } else {
+                part1.questions.push({
+                    number: part1.questions.length + 1,
+                    question: 'Titik Lokasi (Geotagging)',
+                    text: 'Titik Lokasi (Geotagging)',
+                    answer: geotagging,
+                    type: 'map'
+                });
+            }
+        }
+
+        renderQuestionnaire(rawQuestionnaire);
 
 
         modal.classList.add('active');
