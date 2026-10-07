@@ -297,7 +297,6 @@ Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner
 
 Route::get('/kuisioner/selesai/{id}', [KuisionerController::class, 'detailSelesai'])
     ->name('kuisioner.selesai.detail');
-
 /*
 |--------------------------------------------------------------------------
 | VERIFIKASI

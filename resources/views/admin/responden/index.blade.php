@@ -1363,6 +1363,9 @@ textarea.responden-form-control {
                                 </div>
                                 <div style="font-size:11px;color:#777;margin-top:3px;">
                                     {{ $keluarga->alamat_lengkap ?? '-' }}
+                                    @if($keluarga->rt || $keluarga->rw)
+                                        , RT {{ $keluarga->rt ?? '-' }}/RW {{ $keluarga->rw ?? '-' }}
+                                    @endif
                                 </div>
                             </td>
 
@@ -1428,6 +1431,9 @@ textarea.responden-form-control {
                                     </div>
                                     <div style="font-size:11px;color:#777;margin-top:3px;">
                                         {{ $keluarga->alamat_lengkap ?? '-' }}
+                                        @if($keluarga->rt || $keluarga->rw)
+                                            , RT {{ $keluarga->rt ?? '-' }}/RW {{ $keluarga->rw ?? '-' }}
+                                        @endif
                                     </div>
                                 </td>
                                 <td>
@@ -1707,6 +1713,45 @@ textarea.responden-form-control {
                                 class="responden-form-control"
                                 placeholder="Masukkan kode pos"
                                 maxlength="10"
+                                inputmode="numeric"
+                            >
+
+                        </div>
+
+                        {{-- RT --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RT
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rt"
+                                class="responden-form-control"
+                                placeholder="Contoh: 001"
+                                maxlength="5"
+                                inputmode="numeric"
+                            >
+
+                        </div>
+
+
+                        {{-- RW --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RW
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rw"
+                                class="responden-form-control"
+                                placeholder="Contoh: 002"
+                                maxlength="5"
                                 inputmode="numeric"
                             >
 
@@ -2193,8 +2238,46 @@ textarea.responden-form-control {
 
                         </div>
 
+                        {{-- RT --}}
 
-                        
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RT
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rt"
+                                id="edit_rt"
+                                class="responden-form-control"
+                                maxlength="5"
+                                inputmode="numeric"
+                                placeholder="Contoh: 001"
+                            >
+
+                        </div>
+
+
+                        {{-- RW --}}
+
+                        <div class="responden-form-group">
+
+                            <label class="responden-form-label">
+                                RW
+                            </label>
+
+                            <input
+                                type="text"
+                                name="rw"
+                                id="edit_rw"
+                                class="responden-form-control"
+                                maxlength="5"
+                                inputmode="numeric"
+                                placeholder="Contoh: 002"
+                            >
+
+                        </div>
 
 
                         {{-- ALAMAT --}}

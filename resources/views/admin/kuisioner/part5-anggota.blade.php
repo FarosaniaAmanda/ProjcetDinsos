@@ -108,6 +108,7 @@
         color: #333;
         background: #fff;
         outline: none;
+        box-sizing: border-box;
     }
 
     .part5-input:focus,
@@ -191,6 +192,30 @@
         border-bottom: 1px solid #e5e5e5;
     }
 
+    .part5-extra-input {
+        margin: 10px 0 12px 22px;
+        display: none;
+    }
+
+    .part5-extra-input.show {
+        display: block;
+    }
+
+    .part5-extra-input .part5-label {
+        margin-bottom: 6px;
+    }
+
+    .part5-question.hidden-question {
+        display: none;
+    }
+
+    .part5-note {
+        margin-top: 5px;
+        font-size: 11px;
+        color: #777;
+        line-height: 1.5;
+    }
+
     @media (max-width: 768px) {
         .part5-grid,
         .part5-disability-grid {
@@ -206,12 +231,19 @@
         .part5-save-btn {
             width: 100%;
         }
+
+        .part5-extra-input {
+            margin-left: 22px;
+        }
     }
 </style>
 
 <div class="part5-anggota-wrapper">
 
+    {{-- ========================================================= --}}
     {{-- HEADER ANGGOTA --}}
+    {{-- ========================================================= --}}
+
     <div class="part5-member-header">
 
         <div class="part5-member-title">
@@ -239,12 +271,14 @@
 
     </div>
 
+
     <form
         action="{{ route('kuisioner.part5.anggota.store', $anggota->kode) }}"
         method="POST"
     >
 
         @csrf
+
 
         {{-- ========================================================= --}}
         {{-- 52. KEBERADAAN --}}
@@ -254,7 +288,9 @@
 
             <div class="part5-question-title">
                 <span class="part5-question-number">52.</span>
-                <span>Dimana keberadaan {{ $anggota->nama_lengkap }} sekarang?</span>
+                <span>
+                    Dimana keberadaan {{ $anggota->nama_lengkap }} sekarang?
+                </span>
             </div>
 
             @php
@@ -270,6 +306,7 @@
             @foreach ($keberadaanOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="keberadaan"
@@ -279,6 +316,7 @@
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
@@ -298,7 +336,9 @@
 
             <div class="part5-question-title">
                 <span class="part5-question-number">53.</span>
-                <span>Nomor Handphone {{ $anggota->nama_lengkap }}</span>
+                <span>
+                    Nomor Handphone {{ $anggota->nama_lengkap }}
+                </span>
             </div>
 
             <div class="part5-input-group">
@@ -333,7 +373,9 @@
 
             <div class="part5-question-title">
                 <span class="part5-question-number">54.</span>
-                <span>Jenis Kelamin {{ $anggota->nama_lengkap }}</span>
+                <span>
+                    Jenis Kelamin {{ $anggota->nama_lengkap }}
+                </span>
             </div>
 
             @php
@@ -346,6 +388,7 @@
             @foreach ($jenisKelaminOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="jenis_kelamin"
@@ -355,6 +398,7 @@
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
@@ -393,7 +437,10 @@
 
             <div class="part5-question-title">
                 <span class="part5-question-number">55.</span>
-                <span>Status hubungan {{ $anggota->nama_lengkap }} dengan kepala keluarga</span>
+                <span>
+                    Status hubungan {{ $anggota->nama_lengkap }}
+                    dengan kepala keluarga
+                </span>
             </div>
 
             <input
@@ -403,7 +450,7 @@
                 readonly
             >
 
-            <div style="margin-top: 6px; font-size: 11px; color: #777;">
+            <div class="part5-note">
                 Data hubungan keluarga diambil dari data anggota keluarga.
             </div>
 
@@ -433,6 +480,7 @@
             @foreach ($perkawinanOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="status_perkawinan"
@@ -442,6 +490,7 @@
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
@@ -475,6 +524,7 @@
             @foreach ($sekolahOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="status_sekolah"
@@ -484,6 +534,7 @@
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
@@ -496,8 +547,23 @@
 
 
         {{-- ========================================================= --}}
-        {{-- 58. IJAZAH --}}
+        {{-- 58. IJAZAH / STTB --}}
         {{-- ========================================================= --}}
+
+        @php
+            $ijazahValue = old(
+                'ijazah_tertinggi',
+                $dataPart5->ijazah_tertinggi ?? ''
+            );
+
+            $ijazahLainnyaValue = old(
+                'ijazah_lainnya',
+                $dataPart5->ijazah_lainnya ?? ''
+            );
+
+            $ijazahLainnyaAktif =
+                $ijazahValue === 'Lainnya';
+        @endphp
 
         <div class="part5-question">
 
@@ -513,26 +579,58 @@
                     'SMP/Sederajat',
                     'SMA/Sederajat',
                     'Diploma (D1/D2/D3)',
+                    'S1',
+                    'S2',
+                    'S3',
+                    'Lainnya',
                 ];
             @endphp
 
             @foreach ($ijazahOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="ijazah_tertinggi"
                         value="{{ $option }}"
-                        {{ old('ijazah_tertinggi', $dataPart5->ijazah_tertinggi ?? '') === $option ? 'checked' : '' }}
+                        class="ijazah-radio"
+                        {{ $ijazahValue === $option ? 'checked' : '' }}
                         required
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
 
+            <div
+                id="ijazah-lainnya-wrapper"
+                class="part5-extra-input {{ $ijazahLainnyaAktif ? 'show' : '' }}"
+            >
+
+                <label class="part5-label">
+                    Keterangan ijazah lainnya
+                </label>
+
+                <input
+                    type="text"
+                    name="ijazah_lainnya"
+                    id="ijazah_lainnya"
+                    class="part5-input"
+                    value="{{ $ijazahLainnyaValue }}"
+                    placeholder="Tuliskan ijazah/STTB lainnya"
+                    {{ $ijazahLainnyaAktif ? 'required' : '' }}
+                >
+
+            </div>
+
             @error('ijazah_tertinggi')
+                <div class="part5-error">{{ $message }}</div>
+            @enderror
+
+            @error('ijazah_lainnya')
                 <div class="part5-error">{{ $message }}</div>
             @enderror
 
@@ -540,8 +638,26 @@
 
 
         {{-- ========================================================= --}}
-        {{-- 59. PROFESI --}}
+        {{-- 59. PROFESI / PEKERJAAN --}}
         {{-- ========================================================= --}}
+
+        @php
+            $pekerjaanValue = old(
+                'pekerjaan_utama',
+                $dataPart5->pekerjaan_utama ?? ''
+            );
+
+            $pekerjaanLainnyaValue = old(
+                'pekerjaan_lainnya',
+                $dataPart5->pekerjaan_lainnya ?? ''
+            );
+
+            $pekerjaanLainnyaAktif =
+                $pekerjaanValue === 'Lainnya';
+
+            $tidakBekerja =
+                $pekerjaanValue === 'Tidak Bekerja';
+        @endphp
 
         <div class="part5-question">
 
@@ -557,26 +673,57 @@
                     'Ahli Sejarah dan Cagar Budaya',
                     'Akuntan',
                     'Analisis Keuangan',
+                    'Tenaga Pengajar',
+                    'Wiraswasta',
+                    'Lainnya',
                 ];
             @endphp
 
             @foreach ($pekerjaanOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="pekerjaan_utama"
                         value="{{ $option }}"
-                        {{ old('pekerjaan_utama', $dataPart5->pekerjaan_utama ?? '') === $option ? 'checked' : '' }}
+                        class="pekerjaan-radio"
+                        {{ $pekerjaanValue === $option ? 'checked' : '' }}
                         required
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
 
+            <div
+                id="pekerjaan-lainnya-wrapper"
+                class="part5-extra-input {{ $pekerjaanLainnyaAktif ? 'show' : '' }}"
+            >
+
+                <label class="part5-label">
+                    Keterangan pekerjaan lainnya
+                </label>
+
+                <input
+                    type="text"
+                    name="pekerjaan_lainnya"
+                    id="pekerjaan_lainnya"
+                    class="part5-input"
+                    value="{{ $pekerjaanLainnyaValue }}"
+                    placeholder="Tuliskan pekerjaan lainnya"
+                    {{ $pekerjaanLainnyaAktif ? 'required' : '' }}
+                >
+
+            </div>
+
             @error('pekerjaan_utama')
+                <div class="part5-error">{{ $message }}</div>
+            @enderror
+
+            @error('pekerjaan_lainnya')
                 <div class="part5-error">{{ $message }}</div>
             @enderror
 
@@ -587,11 +734,19 @@
         {{-- 60. STATUS KEDUDUKAN PEKERJAAN --}}
         {{-- ========================================================= --}}
 
-        <div class="part5-question">
+        <div
+            id="part5-question-60"
+            class="part5-question {{ $tidakBekerja ? 'hidden-question' : '' }}"
+        >
 
             <div class="part5-question-title">
+
                 <span class="part5-question-number">60.</span>
-                <span>Status kedudukan dalam pekerjaan</span>
+
+                <span>
+                    Status kedudukan dalam pekerjaan
+                </span>
+
             </div>
 
             @php
@@ -601,20 +756,28 @@
                     'Buruh/karyawan/pegawai swasta',
                     'ASN/TNI/POLRI/BUMN/BUMD/pejabat negara/kades',
                 ];
+
+                $statusPekerjaanValue = old(
+                    'status_pekerjaan',
+                    $dataPart5->status_pekerjaan ?? ''
+                );
             @endphp
 
             @foreach ($statusPekerjaanOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="status_pekerjaan"
                         value="{{ $option }}"
-                        {{ old('status_pekerjaan', $dataPart5->status_pekerjaan ?? '') === $option ? 'checked' : '' }}
-                        required
+                        class="status-pekerjaan-radio"
+                        {{ $statusPekerjaanValue === $option ? 'checked' : '' }}
+                        {{ $tidakBekerja ? 'disabled' : 'required' }}
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
@@ -649,6 +812,7 @@
             @foreach ($rekeningOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="kepemilikan_rekening"
@@ -658,6 +822,7 @@
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
@@ -679,14 +844,18 @@
                 Disabilitas
             </div>
 
+
             {{-- 62 --}}
+
             <div class="part5-question-title">
                 <span class="part5-question-number">62.</span>
                 <span>Disabilitas fisik</span>
             </div>
 
             <div class="part5-disability-grid">
+
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_fisik"
@@ -694,29 +863,40 @@
                         {{ old('is_disabilitas_fisik', $dataPart5->is_disabilitas_fisik ?? '') == '1' ? 'checked' : '' }}
                         required
                     >
+
                     <span>Ya</span>
+
                 </label>
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_fisik"
                         value="0"
                         {{ old('is_disabilitas_fisik', $dataPart5->is_disabilitas_fisik ?? '') == '0' ? 'checked' : '' }}
                     >
+
                     <span>Tidak</span>
+
                 </label>
+
             </div>
 
 
             {{-- 63 --}}
+
             <div class="part5-question-title" style="margin-top: 15px;">
+
                 <span class="part5-question-number">63.</span>
                 <span>Disabilitas mental</span>
+
             </div>
 
             <div class="part5-disability-grid">
+
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_mental"
@@ -724,29 +904,40 @@
                         {{ old('is_disabilitas_mental', $dataPart5->is_disabilitas_mental ?? '') == '1' ? 'checked' : '' }}
                         required
                     >
+
                     <span>Ya</span>
+
                 </label>
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_mental"
                         value="0"
                         {{ old('is_disabilitas_mental', $dataPart5->is_disabilitas_mental ?? '') == '0' ? 'checked' : '' }}
                     >
+
                     <span>Tidak</span>
+
                 </label>
+
             </div>
 
 
             {{-- 64 --}}
+
             <div class="part5-question-title" style="margin-top: 15px;">
+
                 <span class="part5-question-number">64.</span>
                 <span>Disabilitas intelektual</span>
+
             </div>
 
             <div class="part5-disability-grid">
+
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_intelektual"
@@ -754,29 +945,40 @@
                         {{ old('is_disabilitas_intelektual', $dataPart5->is_disabilitas_intelektual ?? '') == '1' ? 'checked' : '' }}
                         required
                     >
+
                     <span>Ya</span>
+
                 </label>
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_intelektual"
                         value="0"
                         {{ old('is_disabilitas_intelektual', $dataPart5->is_disabilitas_intelektual ?? '') == '0' ? 'checked' : '' }}
                     >
+
                     <span>Tidak</span>
+
                 </label>
+
             </div>
 
 
             {{-- 65 --}}
+
             <div class="part5-question-title" style="margin-top: 15px;">
+
                 <span class="part5-question-number">65.</span>
                 <span>Disabilitas sensorik netra</span>
+
             </div>
 
             <div class="part5-disability-grid">
+
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_netra"
@@ -784,29 +986,40 @@
                         {{ old('is_disabilitas_netra', $dataPart5->is_disabilitas_netra ?? '') == '1' ? 'checked' : '' }}
                         required
                     >
+
                     <span>Ya</span>
+
                 </label>
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_netra"
                         value="0"
                         {{ old('is_disabilitas_netra', $dataPart5->is_disabilitas_netra ?? '') == '0' ? 'checked' : '' }}
                     >
+
                     <span>Tidak</span>
+
                 </label>
+
             </div>
 
 
             {{-- 66 --}}
+
             <div class="part5-question-title" style="margin-top: 15px;">
+
                 <span class="part5-question-number">66.</span>
                 <span>Disabilitas sensorik rungu</span>
+
             </div>
 
             <div class="part5-disability-grid">
+
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_rungu"
@@ -814,29 +1027,40 @@
                         {{ old('is_disabilitas_rungu', $dataPart5->is_disabilitas_rungu ?? '') == '1' ? 'checked' : '' }}
                         required
                     >
+
                     <span>Ya</span>
+
                 </label>
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_rungu"
                         value="0"
                         {{ old('is_disabilitas_rungu', $dataPart5->is_disabilitas_rungu ?? '') == '0' ? 'checked' : '' }}
                     >
+
                     <span>Tidak</span>
+
                 </label>
+
             </div>
 
 
             {{-- 67 --}}
+
             <div class="part5-question-title" style="margin-top: 15px;">
+
                 <span class="part5-question-number">67.</span>
                 <span>Disabilitas sensorik wicara</span>
+
             </div>
 
             <div class="part5-disability-grid">
+
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_wicara"
@@ -844,18 +1068,24 @@
                         {{ old('is_disabilitas_wicara', $dataPart5->is_disabilitas_wicara ?? '') == '1' ? 'checked' : '' }}
                         required
                     >
+
                     <span>Ya</span>
+
                 </label>
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="is_disabilitas_wicara"
                         value="0"
                         {{ old('is_disabilitas_wicara', $dataPart5->is_disabilitas_wicara ?? '') == '0' ? 'checked' : '' }}
                     >
+
                     <span>Tidak</span>
+
                 </label>
+
             </div>
 
         </div>
@@ -868,8 +1098,13 @@
         <div class="part5-question">
 
             <div class="part5-question-title">
+
                 <span class="part5-question-number">68.</span>
-                <span>Keluhan kesehatan kronis</span>
+
+                <span>
+                    Keluhan kesehatan kronis
+                </span>
+
             </div>
 
             @php
@@ -898,6 +1133,7 @@
             @foreach ($kesehatanOptions as $option)
 
                 <label class="part5-option">
+
                     <input
                         type="radio"
                         name="keluhan_kesehatan"
@@ -907,6 +1143,7 @@
                     >
 
                     <span>{{ $option }}</span>
+
                 </label>
 
             @endforeach
@@ -918,7 +1155,10 @@
         </div>
 
 
+        {{-- ========================================================= --}}
         {{-- FOOTER --}}
+        {{-- ========================================================= --}}
+
         <div class="part5-footer">
 
             <a
@@ -940,5 +1180,217 @@
     </form>
 
 </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | PERTANYAAN 58 - IJAZAH LAINNYA
+    |--------------------------------------------------------------------------
+    */
+
+    const ijazahRadios = document.querySelectorAll(
+        'input[name="ijazah_tertinggi"]'
+    );
+
+    const ijazahLainnyaWrapper = document.getElementById(
+        'ijazah-lainnya-wrapper'
+    );
+
+    const ijazahLainnyaInput = document.getElementById(
+        'ijazah_lainnya'
+    );
+
+
+    function toggleIjazahLainnya() {
+
+        const selected = document.querySelector(
+            'input[name="ijazah_tertinggi"]:checked'
+        );
+
+        if (!selected) {
+            ijazahLainnyaWrapper.classList.remove('show');
+            ijazahLainnyaInput.required = false;
+            return;
+        }
+
+        if (selected.value === 'Lainnya') {
+
+            ijazahLainnyaWrapper.classList.add('show');
+            ijazahLainnyaInput.required = true;
+
+        } else {
+
+            ijazahLainnyaWrapper.classList.remove('show');
+            ijazahLainnyaInput.required = false;
+
+        }
+    }
+
+
+    ijazahRadios.forEach(function (radio) {
+
+        radio.addEventListener('change', function () {
+            toggleIjazahLainnya();
+        });
+
+    });
+
+
+    toggleIjazahLainnya();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PERTANYAAN 59 - PEKERJAAN LAINNYA
+    |--------------------------------------------------------------------------
+    */
+
+    const pekerjaanRadios = document.querySelectorAll(
+        'input[name="pekerjaan_utama"]'
+    );
+
+    const pekerjaanLainnyaWrapper = document.getElementById(
+        'pekerjaan-lainnya-wrapper'
+    );
+
+    const pekerjaanLainnyaInput = document.getElementById(
+        'pekerjaan_lainnya'
+    );
+
+
+    function togglePekerjaanLainnya() {
+
+        const selected = document.querySelector(
+            'input[name="pekerjaan_utama"]:checked'
+        );
+
+        if (!selected) {
+
+            pekerjaanLainnyaWrapper.classList.remove('show');
+            pekerjaanLainnyaInput.required = false;
+
+            return;
+        }
+
+
+        if (selected.value === 'Lainnya') {
+
+            pekerjaanLainnyaWrapper.classList.add('show');
+            pekerjaanLainnyaInput.required = true;
+
+        } else {
+
+            pekerjaanLainnyaWrapper.classList.remove('show');
+            pekerjaanLainnyaInput.required = false;
+
+        }
+    }
+
+
+    pekerjaanRadios.forEach(function (radio) {
+
+        radio.addEventListener('change', function () {
+            togglePekerjaanLainnya();
+        });
+
+    });
+
+
+    togglePekerjaanLainnya();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PERTANYAAN 59 -> 60
+    |--------------------------------------------------------------------------
+    |
+    | Jika pekerjaan = Tidak Bekerja:
+    | - Pertanyaan 60 disembunyikan
+    | - Radio 60 disabled
+    | - Required dihapus
+    | - Pilihan 60 dihapus
+    |
+    | Jika pekerjaan selain Tidak Bekerja:
+    | - Pertanyaan 60 ditampilkan
+    | - Radio 60 aktif
+    | - Required kembali
+    |
+    */
+
+    const pekerjaanQuestionRadios = document.querySelectorAll(
+    'input[name="pekerjaan_utama"]'
+    );
+
+    const question60 = document.getElementById(
+        'part5-question-60'
+    );
+
+    const statusPekerjaanRadios = document.querySelectorAll(
+        'input[name="status_pekerjaan"]'
+    );
+
+    function toggleQuestion60() {
+
+        const selected = document.querySelector(
+            'input[name="pekerjaan_utama"]:checked'
+        );
+
+        if (!selected) {
+
+            question60.classList.remove('hidden-question');
+
+            statusPekerjaanRadios.forEach(function (radio) {
+                radio.disabled = false;
+                radio.required = true;
+            });
+
+            return;
+        }
+
+        if (selected.value === 'Tidak Bekerja') {
+
+            // Sembunyikan pertanyaan 60
+            question60.classList.add('hidden-question');
+
+            // Nonaktifkan dan kosongkan jawaban pertanyaan 60
+            statusPekerjaanRadios.forEach(function (radio) {
+                radio.checked = false;
+                radio.disabled = true;
+                radio.required = false;
+            });
+
+        } else {
+
+            // Tampilkan pertanyaan 60
+            question60.classList.remove('hidden-question');
+
+            // Aktifkan kembali pilihan pertanyaan 60
+            statusPekerjaanRadios.forEach(function (radio) {
+                radio.disabled = false;
+                radio.required = true;
+            });
+        }
+    }
+
+    pekerjaanQuestionRadios.forEach(function (radio) {
+
+        radio.addEventListener('change', function () {
+            toggleQuestion60();
+        });
+
+    });
+    /*
+    |--------------------------------------------------------------------------
+    | JALANKAN SAAT HALAMAN PERTAMA KALI DIBUKA
+    |--------------------------------------------------------------------------
+    */
+
+    toggleQuestion60();
+
+});
+</script>
 
 @endsection

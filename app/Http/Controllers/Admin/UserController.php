@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Kelurahan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -44,7 +43,7 @@ class UserController extends Controller
     }
 
     /**
-     * Simpan Operator / Verifikator / Petugas.
+     * Menyimpan Operator / Verifikator / Petugas.
      *
      * Password otomatis:
      * perlinsos123
@@ -52,7 +51,6 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-
             'role' => [
                 'required',
                 Rule::in([
@@ -94,74 +92,45 @@ class UserController extends Controller
 
             $kelurahan = null;
 
-            /*
-             * Ambil Kelurahan jika role Petugas.
-             */
             if ($validated['role'] === 'petugas') {
-
                 $kelurahan = Kelurahan::where(
                     'kelurahan_id',
                     $validated['kelurahan_id']
                 )->firstOrFail();
             }
 
-            /*
-             * Simpan User.
-             *
-             * Password awal:
-             * perlinsos123
-             */
             User::create([
+                'nomor_identitas' => $validated['nomor_identitas'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
 
-                'nomor_identitas' =>
-                    $validated['nomor_identitas'],
+                // Password default
+                'password' => 'perlinsos123',
 
-                'name' =>
-                    $validated['name'],
+                'role' => $validated['role'],
 
-                'email' =>
-                    $validated['email'],
-
-                'password' =>
-                    Hash::make('perlinsos123'),
-
-                'role' =>
-                    $validated['role'],
-
-                'kelurahan' =>
-                    $kelurahan
-                        ? $kelurahan->deskripsi
-                        : null,
-
-                'is_active' => 1,
+                'kelurahan' => $kelurahan
+                    ? $kelurahan->deskripsi
+                    : null,
             ]);
         });
 
         return response()->json([
-
             'success' => true,
-
-            'message' =>
-                ucfirst($validated['role'])
+            'message' => ucfirst($validated['role'])
                 . ' berhasil ditambahkan.',
-
         ]);
     }
 
     /**
      * Update Operator / Verifikator / Petugas.
      *
-     * Password tidak diubah dari form Edit.
-     * Untuk mengembalikan password ke default,
-     * gunakan tombol Reset Password.
+     * Password tidak diubah dari halaman edit.
+     * User dapat mengganti passwordnya sendiri.
      */
-    public function update(
-        Request $request,
-        User $user
-    ) {
-
+    public function update(Request $request, User $user)
+    {
         $validated = $request->validate([
-
             'role' => [
                 'required',
                 Rule::in([
@@ -175,7 +144,6 @@ class UserController extends Controller
                 'required',
                 'string',
                 'max:50',
-
                 Rule::unique(
                     'users',
                     'nomor_identitas'
@@ -192,7 +160,6 @@ class UserController extends Controller
                 'required',
                 'email',
                 'max:255',
-
                 Rule::unique(
                     'users',
                     'email'
@@ -207,101 +174,60 @@ class UserController extends Controller
             ],
         ]);
 
-        DB::transaction(function () use (
-            $validated,
-            $user
-        ) {
+        DB::transaction(function () use ($validated, $user) {
 
             $kelurahan = null;
 
-            /*
-             * Ambil Kelurahan jika Petugas.
-             */
             if ($validated['role'] === 'petugas') {
-
                 $kelurahan = Kelurahan::where(
                     'kelurahan_id',
                     $validated['kelurahan_id']
                 )->firstOrFail();
             }
 
-            /*
-             * Data yang diperbarui.
-             *
-             * Password sengaja tidak dimasukkan.
-             */
-            $data = [
+            $user->update([
+                'nomor_identitas' => $validated['nomor_identitas'],
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role' => $validated['role'],
 
-                'nomor_identitas' =>
-                    $validated['nomor_identitas'],
-
-                'name' =>
-                    $validated['name'],
-
-                'email' =>
-                    $validated['email'],
-
-                'role' =>
-                    $validated['role'],
-
-                'kelurahan' =>
-                    $kelurahan
-                        ? $kelurahan->deskripsi
-                        : null,
-            ];
-
-            $user->update($data);
+                'kelurahan' => $kelurahan
+                    ? $kelurahan->deskripsi
+                    : null,
+            ]);
         });
 
         return response()->json([
-
             'success' => true,
-
-            'message' =>
-                'Data pengguna berhasil diperbarui.',
-
+            'message' => 'Data pengguna berhasil diperbarui.',
         ]);
     }
 
     /**
-     * Reset Password User.
-     *
-     * Password dikembalikan menjadi:
-     * perlinsos123
+     * Reset password ke password default.
      */
     public function resetPassword(User $user)
     {
         $user->update([
-
-            'password' =>
-                Hash::make('perlinsos123'),
-
+            'password' => 'perlinsos123',
         ]);
 
         return response()->json([
-
             'success' => true,
-
-            'message' =>
-                'Password berhasil direset ke perlinsos123.',
-
+            'message' => 'Password berhasil direset ke password default.',
         ]);
     }
 
     /**
-     * Hapus User.
+     * Menghapus User.
      */
     public function destroy(User $user)
     {
         $user->delete();
 
         return response()->json([
-
             'success' => true,
-
-            'message' =>
-                'Data pengguna berhasil dihapus.',
-
+            'message' => 'Data pengguna berhasil dihapus.',
         ]);
     }
 }
