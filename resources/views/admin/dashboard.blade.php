@@ -649,12 +649,16 @@
             display: inline-block;
         }
 
-        .verification-blue {
+        .verification-approved {
             background: #252A86;
         }
 
-        .verification-light {
+        .verification-submitted {
             background: #8A96E8;
+        }
+
+        .verification-rejected {
+            background: #d9534f;
         }
 
         .verification-legend-item strong {
@@ -713,6 +717,56 @@
             border-collapse: collapse;
             min-width: 650px;
         }
+
+
+        /* =====================================================
+           POSISI KOLOM REKAP PERIODE
+        ====================================================== */
+
+        .period-table {
+            table-layout: fixed;
+        }
+
+        .period-table th:nth-child(1),
+        .period-table td:nth-child(1) {
+            width: 5%;
+        }
+
+        .period-table th:nth-child(2),
+        .period-table td:nth-child(2) {
+            width: 18%;
+        }
+
+        .period-table th:nth-child(3),
+        .period-table td:nth-child(3) {
+            width: 13%;
+        }
+
+        .period-table th:nth-child(4),
+        .period-table td:nth-child(4) {
+            width: 13%;
+        }
+
+        .period-table th:nth-child(5),
+        .period-table td:nth-child(5) {
+            width: 13%;
+        }
+
+        .period-table th:nth-child(6),
+        .period-table td:nth-child(6) {
+            width: 13%;
+        }
+
+        .period-table th:nth-child(7),
+        .period-table td:nth-child(7) {
+            width: 13%;
+        }
+
+        .period-table th:nth-child(8),
+        .period-table td:nth-child(8) {
+            width: 12%;
+        }
+
 
         .questionnaire-table thead th,
         .period-table thead th {
@@ -778,6 +832,21 @@
         .status-aktif {
             background: #e8edff;
             color: #252A86;
+        }
+
+        .status-disetujui {
+            background: #eaf7ef;
+            color: #21874b;
+        }
+
+        .status-diajukan {
+            background: #fff5dc;
+            color: #a36b00;
+        }
+
+        .status-ditolak {
+            background: #fdecec;
+            color: #c0392b;
         }
 
 
@@ -1366,9 +1435,7 @@
         </a>
 
 
-        <!-- =================================================
-             MASTER
-        ================================================== -->
+        <!-- MASTER -->
 
         <div
             class="master-menu"
@@ -1602,9 +1669,7 @@
     </header>
 
 
-    <!-- =================================================
-         CONTENT
-    ================================================== -->
+    <!-- CONTENT -->
 
     <section class="content">
 
@@ -1626,9 +1691,7 @@
         </p>
 
 
-        <!-- =================================================
-             WELCOME
-        ================================================== -->
+        <!-- WELCOME -->
 
         <div class="welcome-card">
 
@@ -1646,14 +1709,10 @@
         </div>
 
 
-        <!-- =================================================
-             STATISTICS
-        ================================================== -->
+        <!-- STATISTICS -->
 
         <div class="stats-grid">
 
-
-            <!-- TOTAL RESPONDEN -->
 
             <div class="stat-card">
 
@@ -1672,8 +1731,6 @@
             </div>
 
 
-            <!-- PERIODE AKTIF -->
-
             <div class="stat-card">
 
                 <div class="stat-label">
@@ -1691,8 +1748,6 @@
             </div>
 
 
-            <!-- DATA BERJALAN -->
-
             <div class="stat-card">
 
                 <div class="stat-label">
@@ -1709,8 +1764,6 @@
 
             </div>
 
-
-            <!-- DATA TERVERIFIKASI -->
 
             <div class="stat-card">
 
@@ -1731,9 +1784,7 @@
         </div>
 
 
-        <!-- =================================================
-             GRAFIK
-        ================================================== -->
+        <!-- GRAFIK -->
 
         <div class="dashboard-chart-grid">
 
@@ -1776,8 +1827,8 @@
                     </div>
 
                     <div class="chart-description">
-                        Perbandingan alamat responden yang sudah
-                        dan belum diverifikasi sesuai data kuisioner.
+                        Perbandingan status verifikasi alamat
+                        responden berdasarkan data kuisioner.
                     </div>
 
                 </div>
@@ -1796,39 +1847,64 @@
                     <div class="verification-legend">
 
 
+                        <!-- DISETUJUI -->
+
                         <div class="verification-legend-item">
 
                             <div class="verification-legend-left">
 
-                                <span class="verification-dot verification-blue"></span>
+                                <span class="verification-dot verification-approved"></span>
 
                                 <span>
-                                    Terverifikasi
+                                    Disetujui
                                 </span>
 
                             </div>
 
-                            <strong>
+                            <strong id="approvedValue">
                                 96 (75%)
                             </strong>
 
                         </div>
 
 
+                        <!-- DIAJUKAN -->
+
                         <div class="verification-legend-item">
 
                             <div class="verification-legend-left">
 
-                                <span class="verification-dot verification-light"></span>
+                                <span class="verification-dot verification-submitted"></span>
 
                                 <span>
-                                    Belum Terverifikasi
+                                    Diajukan
                                 </span>
 
                             </div>
 
-                            <strong>
-                                32 (25%)
+                            <strong id="submittedValue">
+                                20 (16%)
+                            </strong>
+
+                        </div>
+
+
+                        <!-- DITOLAK -->
+
+                        <div class="verification-legend-item">
+
+                            <div class="verification-legend-left">
+
+                                <span class="verification-dot verification-rejected"></span>
+
+                                <span>
+                                    Ditolak
+                                </span>
+
+                            </div>
+
+                            <strong id="rejectedValue">
+                                12 (9%)
                             </strong>
 
                         </div>
@@ -1843,9 +1919,7 @@
         </div>
 
 
-        <!-- =================================================
-             KUISIONER TERAKHIR
-        ================================================== -->
+        <!-- KUISIONER TERAKHIR -->
 
         <div class="questionnaire-card">
 
@@ -1914,8 +1988,6 @@
                             @foreach($kuisionerTerakhir as $index => $kuisioner)
 
 
-                                {{-- TIDAK ADA LAGI BATAS 10 DATA --}}
-
                                 <tr class="questionnaire-row">
 
 
@@ -1949,46 +2021,58 @@
 
                                     <td>
 
-
                                         @php
 
-                                            $status = strtolower(
-                                                $kuisioner->status
-                                                ?? 'belum'
-                                            );
+                                            $status = strtolower(trim(
+                                                $kuisioner->status_verifikasi
+                                                ?? $kuisioner->status
+                                                ?? 'diajukan'
+                                            ));
 
                                         @endphp
 
 
-                                        @if($status === 'selesai')
+                                        @if(
+                                            $status === 'disetujui'
+                                            || $status === 'approved'
+                                            || $status === 'setuju'
+                                        )
 
-
-                                            <span class="status-badge status-selesai">
-                                                Selesai
+                                            <span class="status-badge status-disetujui">
+                                                Disetujui
                                             </span>
 
 
                                         @elseif(
-                                            $status === 'proses'
-                                            || $status === 'diproses'
+                                            $status === 'ditolak'
+                                            || $status === 'rejected'
+                                            || $status === 'tolak'
                                         )
 
+                                            <span class="status-badge status-ditolak">
+                                                Ditolak
+                                            </span>
 
-                                            <span class="status-badge status-proses">
-                                                Dalam Proses
+
+                                        @elseif(
+                                            $status === 'diajukan'
+                                            || $status === 'pending'
+                                            || $status === 'menunggu'
+                                            || $status === 'diperiksa'
+                                        )
+
+                                            <span class="status-badge status-diajukan">
+                                                Diajukan
                                             </span>
 
 
                                         @else
 
-
                                             <span class="status-badge status-belum">
-                                                Belum Selesai
+                                                {{ ucfirst($status) }}
                                             </span>
 
-
                                         @endif
-
 
                                     </td>
 
@@ -2047,9 +2131,7 @@
         </div>
 
 
-        <!-- =================================================
-             REKAP DATA TIAP PERIODE
-        ================================================== -->
+        <!-- REKAP DATA TIAP PERIODE -->
 
         <div class="period-card">
 
@@ -2151,62 +2233,46 @@
 
                                     <td>
 
-
                                         @if(!empty($periode->tgl_awal))
-
 
                                             {{ \Carbon\Carbon::parse(
                                                 $periode->tgl_awal
                                             )->format('d/m/Y') }}
 
-
                                         @elseif(!empty($periode->tanggal_mulai))
-
 
                                             {{ \Carbon\Carbon::parse(
                                                 $periode->tanggal_mulai
                                             )->format('d/m/Y') }}
 
-
                                         @else
-
 
                                             -
 
-
                                         @endif
-
 
                                     </td>
 
 
                                     <td>
 
-
                                         @if(!empty($periode->tgl_akhir))
-
 
                                             {{ \Carbon\Carbon::parse(
                                                 $periode->tgl_akhir
                                             )->format('d/m/Y') }}
 
-
                                         @elseif(!empty($periode->tanggal_selesai))
-
 
                                             {{ \Carbon\Carbon::parse(
                                                 $periode->tanggal_selesai
                                             )->format('d/m/Y') }}
 
-
                                         @else
-
 
                                             -
 
-
                                         @endif
-
 
                                     </td>
 
@@ -2240,7 +2306,6 @@
 
                                     <td>
 
-
                                         @php
 
                                             $statusPeriode = strtolower(
@@ -2254,30 +2319,23 @@
 
                                         @if($statusPeriode === 'aktif')
 
-
                                             <span class="status-badge status-aktif">
                                                 Aktif
                                             </span>
 
-
                                         @elseif($statusPeriode === 'selesai')
-
 
                                             <span class="status-badge status-selesai">
                                                 Selesai
                                             </span>
 
-
                                         @else
-
 
                                             <span class="status-badge status-belum">
                                                 {{ ucfirst($statusPeriode) }}
                                             </span>
 
-
                                         @endif
-
 
                                     </td>
 
@@ -2537,21 +2595,8 @@
             document.getElementById(buttonsId);
 
 
-        /* =========================
-           5 DATA PER HALAMAN
-        ========================= */
-
         const perPage = 5;
 
-
-        /* =========================
-           SEMUA DATA DIGUNAKAN
-           
-           TIDAK ADA:
-           limit 10
-           limit 50
-           atau batas lainnya
-        ========================= */
 
         const dataRows = rows;
 
@@ -2571,10 +2616,6 @@
                 )
             );
 
-
-        /* =================================================
-           TAMPILKAN HALAMAN
-        ================================================= */
 
         function showPage(page) {
 
@@ -2599,27 +2640,17 @@
                         index < end
                     ) {
 
-
-                        row.style.display =
-                            '';
-
+                        row.style.display = '';
 
                     } else {
 
-
-                        row.style.display =
-                            'none';
-
+                        row.style.display = 'none';
 
                     }
 
                 }
             );
 
-
-            /* =========================
-               INFORMASI DATA
-            ========================= */
 
             if (totalData > 0) {
 
@@ -2651,7 +2682,6 @@
                 info.textContent =
                     'Belum ada data';
 
-
             }
 
 
@@ -2660,21 +2690,11 @@
         }
 
 
-        /* =================================================
-           BUAT TOMBOL PAGINATION
-        ================================================= */
-
         function renderButtons() {
 
 
             buttons.innerHTML = '';
 
-
-            /*
-             * Kalau hanya 1 halaman,
-             * tombol pagination tidak perlu
-             * ditampilkan.
-             */
 
             if (
                 totalPages <= 1
@@ -2684,10 +2704,6 @@
 
             }
 
-
-            /* =========================
-               TOMBOL SEBELUMNYA
-            ========================= */
 
             const previous =
                 document.createElement(
@@ -2724,11 +2740,9 @@
                         currentPage > 1
                     ) {
 
-
                         showPage(
                             currentPage - 1
                         );
-
 
                     }
 
@@ -2740,10 +2754,6 @@
                 previous
             );
 
-
-            /* =========================
-               NOMOR HALAMAN OTOMATIS
-            ========================= */
 
             for (
                 let page = 1;
@@ -2774,11 +2784,9 @@
                     page === currentPage
                 ) {
 
-
                     button.classList.add(
                         'active'
                     );
-
 
                 }
 
@@ -2787,11 +2795,7 @@
                     'click',
                     function () {
 
-
-                        showPage(
-                            page
-                        );
-
+                        showPage(page);
 
                     }
                 );
@@ -2803,10 +2807,6 @@
 
             }
 
-
-            /* =========================
-               TOMBOL BERIKUTNYA
-            ========================= */
 
             const next =
                 document.createElement(
@@ -2844,11 +2844,9 @@
                         totalPages
                     ) {
 
-
                         showPage(
                             currentPage + 1
                         );
-
 
                     }
 
@@ -2863,10 +2861,6 @@
         }
 
 
-        /* =================================================
-           MULAI DARI HALAMAN 1
-        ================================================= */
-
         showPage(1);
 
     }
@@ -2877,7 +2871,7 @@
        
        5 DATA PER HALAMAN
        TANPA BATAS JUMLAH DATA
-    ===================================================== */
+    ====================================================== */
 
     setupPagination(
         'questionnaireTable',
@@ -2889,19 +2883,35 @@
 
     /* =====================================================
        PAGINATION REKAP PERIODE
+
        5 DATA PER HALAMAN
-       FORMAT: 1/2, 2/2, 1/3, 2/3, 3/3
-       TANPA MENAMPILKAN NOMOR 1 2 3
-    ===================================================== */
+
+       FORMAT:
+       1/2
+       2/2
+
+       ATAU:
+
+       1/3
+       2/3
+       3/3
+
+       TANPA BATAS JUMLAH DATA
+    ====================================================== */
 
     function setupPeriodPagination() {
 
+
         const table =
-            document.getElementById('periodTable');
+            document.getElementById(
+                'periodTable'
+            );
+
 
         if (!table) {
             return;
         }
+
 
         const rows =
             Array.from(
@@ -2910,52 +2920,92 @@
                 )
             );
 
+
         const info =
-            document.getElementById('periodInfo');
+            document.getElementById(
+                'periodInfo'
+            );
+
 
         const buttons =
-            document.getElementById('periodButtons');
+            document.getElementById(
+                'periodButtons'
+            );
 
-        if (!info || !buttons) {
+
+        if (
+            !info ||
+            !buttons
+        ) {
+
             return;
+
         }
 
+
         const perPage = 5;
+
+
         let currentPage = 1;
 
-        const totalData = rows.length;
+
+        const totalData =
+            rows.length;
+
 
         const totalPages =
             Math.max(
                 1,
-                Math.ceil(totalData / perPage)
+                Math.ceil(
+                    totalData / perPage
+                )
             );
+
 
         function showPage(page) {
 
+
             currentPage = page;
 
+
             const start =
-                (currentPage - 1) * perPage;
+                (currentPage - 1) *
+                perPage;
+
 
             const end =
                 start + perPage;
 
-            rows.forEach(function(row, index) {
 
-                row.style.display =
-                    index >= start && index < end
-                        ? ''
-                        : 'none';
+            rows.forEach(
+                function(row, index) {
 
-            });
 
-            if (totalData > 0) {
+                    row.style.display =
+                        index >= start &&
+                        index < end
+                            ? ''
+                            : 'none';
 
-                const startNumber = start + 1;
+                }
+            );
+
+
+            if (
+                totalData > 0
+            ) {
+
+
+                const startNumber =
+                    start + 1;
+
 
                 const endNumber =
-                    Math.min(end, totalData);
+                    Math.min(
+                        end,
+                        totalData
+                    );
+
 
                 info.textContent =
                     'Menampilkan ' +
@@ -2966,73 +3016,170 @@
                     totalData +
                     ' data';
 
+
             } else {
+
 
                 info.textContent =
                     'Belum ada data';
 
             }
 
+
             renderPeriodButtons();
+
         }
+
 
         function renderPeriodButtons() {
 
+
             buttons.innerHTML = '';
 
-            if (totalPages <= 1) {
+
+            if (
+                totalPages <= 1
+            ) {
+
                 return;
+
             }
 
+
             const previous =
-                document.createElement('button');
+                document.createElement(
+                    'button'
+                );
 
-            previous.type = 'button';
-            previous.className = 'pagination-button';
-            previous.innerHTML = '‹';
-            previous.disabled = currentPage === 1;
 
-            previous.addEventListener('click', function() {
+            previous.type =
+                'button';
 
-                if (currentPage > 1) {
-                    showPage(currentPage - 1);
+
+            previous.className =
+                'pagination-button';
+
+
+            previous.innerHTML =
+                '‹';
+
+
+            previous.title =
+                'Sebelumnya';
+
+
+            previous.disabled =
+                currentPage === 1;
+
+
+            previous.addEventListener(
+                'click',
+                function() {
+
+
+                    if (
+                        currentPage > 1
+                    ) {
+
+                        showPage(
+                            currentPage - 1
+                        );
+
+                    }
+
                 }
+            );
 
-            });
 
-            buttons.appendChild(previous);
+            buttons.appendChild(
+                previous
+            );
+
 
             const indicator =
-                document.createElement('button');
+                document.createElement(
+                    'button'
+                );
 
-            indicator.type = 'button';
-            indicator.className = 'pagination-button active';
+
+            indicator.type =
+                'button';
+
+
+            indicator.className =
+                'pagination-button active';
+
+
             indicator.textContent =
-                currentPage + '/' + totalPages;
-            indicator.style.cursor = 'default';
+                currentPage +
+                '/' +
+                totalPages;
 
-            buttons.appendChild(indicator);
+
+            indicator.style.cursor =
+                'default';
+
+
+            buttons.appendChild(
+                indicator
+            );
+
 
             const next =
-                document.createElement('button');
+                document.createElement(
+                    'button'
+                );
 
-            next.type = 'button';
-            next.className = 'pagination-button';
-            next.innerHTML = '›';
-            next.disabled = currentPage === totalPages;
 
-            next.addEventListener('click', function() {
+            next.type =
+                'button';
 
-                if (currentPage < totalPages) {
-                    showPage(currentPage + 1);
+
+            next.className =
+                'pagination-button';
+
+
+            next.innerHTML =
+                '›';
+
+
+            next.title =
+                'Berikutnya';
+
+
+            next.disabled =
+                currentPage === totalPages;
+
+
+            next.addEventListener(
+                'click',
+                function() {
+
+
+                    if (
+                        currentPage <
+                        totalPages
+                    ) {
+
+                        showPage(
+                            currentPage + 1
+                        );
+
+                    }
+
                 }
+            );
 
-            });
 
-            buttons.appendChild(next);
+            buttons.appendChild(
+                next
+            );
+
         }
 
+
         showPage(1);
+
     }
 
 
@@ -3041,7 +3188,7 @@
 
     /* =====================================================
        GRAFIK KECAMATAN
-    ===================================================== */
+    ====================================================== */
 
     const kecamatanCtx =
         document.getElementById(
@@ -3208,7 +3355,13 @@
 
     /* =====================================================
        GRAFIK STATUS VERIFIKASI
-    ===================================================== */
+       
+       3 STATUS:
+       1. DISETUJUI
+       2. DIAJUKAN
+       3. DITOLAK
+    ====================================================== */
+
 
     const verificationCtx =
         document.getElementById(
@@ -3216,11 +3369,103 @@
         );
 
 
+    /* =====================================================
+       DATA VERIFIKASI
+
+       TOTAL:
+       96 + 20 + 12 = 128
+    ====================================================== */
+
+    const verificationData = {
+
+        disetujui: 96,
+
+        diajukan: 20,
+
+        ditolak: 12
+
+    };
+
+
+    /* =====================================================
+       HITUNG TOTAL
+    ====================================================== */
+
+    const verificationTotal =
+        verificationData.disetujui +
+        verificationData.diajukan +
+        verificationData.ditolak;
+
+
+    /* =====================================================
+       HITUNG PERSENTASE
+    ====================================================== */
+
+    const approvedPercentage =
+        Math.round(
+            (
+                verificationData.disetujui /
+                verificationTotal
+            ) * 100
+        );
+
+
+    const submittedPercentage =
+        Math.round(
+            (
+                verificationData.diajukan /
+                verificationTotal
+            ) * 100
+        );
+
+
+    const rejectedPercentage =
+        Math.round(
+            (
+                verificationData.ditolak /
+                verificationTotal
+            ) * 100
+        );
+
+
+    /* =====================================================
+       MASUKKAN NILAI KE LEGEND
+    ====================================================== */
+
+    document.getElementById(
+        'approvedValue'
+    ).textContent =
+        verificationData.disetujui +
+        ' (' +
+        approvedPercentage +
+        '%)';
+
+
+    document.getElementById(
+        'submittedValue'
+    ).textContent =
+        verificationData.diajukan +
+        ' (' +
+        submittedPercentage +
+        '%)';
+
+
+    document.getElementById(
+        'rejectedValue'
+    ).textContent =
+        verificationData.ditolak +
+        ' (' +
+        rejectedPercentage +
+        '%)';
+
+
+    /* =====================================================
+       TEXT DI TENGAH DONUT
+    ====================================================== */
+
     const centerTextPlugin = {
 
-
-        id:
-            'centerText',
+        id: 'centerText',
 
 
         afterDraw(chart) {
@@ -3262,6 +3507,8 @@
                 'middle';
 
 
+            /* TOTAL */
+
             ctx.font =
                 '12px Arial';
 
@@ -3277,6 +3524,8 @@
             );
 
 
+            /* ANGKA TOTAL */
+
             ctx.font =
                 'bold 20px Arial';
 
@@ -3286,11 +3535,13 @@
 
 
             ctx.fillText(
-                '128',
+                verificationTotal,
                 x,
                 y + 3
             );
 
+
+            /* LABEL */
 
             ctx.font =
                 '11px Arial';
@@ -3314,6 +3565,10 @@
     };
 
 
+    /* =====================================================
+       CHART DONUT VERIFIKASI
+    ====================================================== */
+
     new Chart(
         verificationCtx,
         {
@@ -3326,8 +3581,11 @@
 
                 labels: [
 
-                    'Terverifikasi',
-                    'Belum Terverifikasi'
+                    'Disetujui',
+
+                    'Diajukan',
+
+                    'Ditolak'
 
                 ],
 
@@ -3338,8 +3596,11 @@
 
                         data: [
 
-                            96,
-                            32
+                            verificationData.disetujui,
+
+                            verificationData.diajukan,
+
+                            verificationData.ditolak
 
                         ],
 
@@ -3347,7 +3608,10 @@
                         backgroundColor: [
 
                             '#252A86',
-                            '#8A96E8'
+
+                            '#8A96E8',
+
+                            '#d9534f'
 
                         ],
 
@@ -3398,14 +3662,6 @@
                                 function(context) {
 
 
-                                    const total =
-                                        context.dataset.data.reduce(
-                                            (a, b) =>
-                                                a + b,
-                                            0
-                                        );
-
-
                                     const value =
                                         context.raw;
 
@@ -3414,18 +3670,25 @@
                                         Math.round(
                                             (
                                                 value /
-                                                total
+                                                verificationTotal
                                             ) * 100
                                         );
 
 
                                     return (
+
                                         context.label +
+
                                         ': ' +
+
                                         value +
+
                                         ' (' +
+
                                         percentage +
+
                                         '%)'
+
                                     );
 
                                 }
@@ -3447,6 +3710,7 @@
 
         }
     );
+
 
 </script>
 
