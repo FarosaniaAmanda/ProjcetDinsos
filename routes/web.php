@@ -507,11 +507,10 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/laporan', function () {
 
-    return view('admin.laporan.index');
 
-})->name('laporan.index');
+Route::get('/laporan', [LaporanController::class, 'index'])
+    ->name('laporan.index');
 
 
 Route::get('/laporan/export', function () {

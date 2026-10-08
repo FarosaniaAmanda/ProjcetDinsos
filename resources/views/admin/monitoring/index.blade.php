@@ -1795,79 +1795,64 @@ color: #7652C8;
         href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'all'])) }}"
         class="monitoring-stat-card monitoring-stat-card-link total-card {{ ($statusFilter ?? 'all') === 'all' ? 'active' : '' }}"
     >
-        <div class="monitoring-stat-label">
-            Total Responden
-        </div>
+        <div class="monitoring-stat-label"> 
+        Total Responden 
+    </div> 
+ 
+    <div class="monitoring-stat-value"> 
+        {{ $totalResponden ?? 0 }} 
+    </div> 
+</a>
 
-        <div class="monitoring-stat-value">
-            {{ $totalResponden ?? 0 }}
-        </div>
+    <a 
+    href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'not_processed'])) }}" 
+    class="monitoring-stat-card monitoring-stat-card-link not-processed-card {{ ($statusFilter ?? 'all') === 'not_processed' ? 'active' : '' }}" 
+> 
+    <div class="monitoring-stat-label">Belum Didata</div> 
+    <div class="monitoring-stat-value">{{ $belumDidata ?? 0 }}</div> 
+</a>
 
-        <div class="monitoring-stat-filter-hint">
-            Semua status pendataan
-        </div>
-    </a>
+    <a 
+    href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'draft'])) }}" 
+    class="monitoring-stat-card monitoring-stat-card-link draft-card {{ ($statusFilter ?? 'all') === 'draft' ? 'active' : '' }}" 
+> 
+    <div class="monitoring-stat-label">Draft</div> 
+    <div class="monitoring-stat-value">{{ $draftCount ?? 0 }}</div> 
+</a>
 
-    <a
-        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'not_processed'])) }}"
-        class="monitoring-stat-card monitoring-stat-card-link not-processed-card {{ ($statusFilter ?? 'all') === 'not_processed' ? 'active' : '' }}"
-    >
-        <div class="monitoring-stat-label">Belum Didata</div>
-        <div class="monitoring-stat-value">{{ $belumDidata ?? 0 }}</div>
-        <div class="monitoring-stat-filter-hint">Belum masuk proses pendataan</div>
-    </a>
+  <a 
+    href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'pending'])) }}" 
+    class="monitoring-stat-card monitoring-stat-card-link pending-card {{ ($statusFilter ?? 'all') === 'pending' ? 'active' : '' }}" 
+> 
+    <div class="monitoring-stat-label">Menunggu Verifikasi</div> 
+    <div class="monitoring-stat-value">{{ $menungguVerifikasi ?? 0 }}</div> 
+</a>
 
-    <a
-        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'draft'])) }}"
-        class="monitoring-stat-card monitoring-stat-card-link draft-card {{ ($statusFilter ?? 'all') === 'draft' ? 'active' : '' }}"
-    >
-        <div class="monitoring-stat-label">Draft</div>
-        <div class="monitoring-stat-value">{{ $draftCount ?? 0 }}</div>
-        <div class="monitoring-stat-filter-hint">Kuisioner belum selesai</div>
-    </a>
+   <a 
+    href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'approved'])) }}" 
+    class="monitoring-stat-card monitoring-stat-card-link approved-card {{ ($statusFilter ?? 'all') === 'approved' ? 'active' : '' }}" 
+> 
+    <div class="monitoring-stat-label"> 
+        Disetujui 
+    </div> 
 
-    <a
-        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'pending'])) }}"
-        class="monitoring-stat-card monitoring-stat-card-link pending-card {{ ($statusFilter ?? 'all') === 'pending' ? 'active' : '' }}"
-    >
-        <div class="monitoring-stat-label">Menunggu Verifikasi</div>
-        <div class="monitoring-stat-value">{{ $menungguVerifikasi ?? 0 }}</div>
-        <div class="monitoring-stat-filter-hint">Menunggu pemeriksaan</div>
-    </a>
+    <div class="monitoring-stat-value"> 
+        {{ $disetujui ?? 0 }} 
+    </div> 
+</a>
 
-    <a
-        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'approved'])) }}"
-        class="monitoring-stat-card monitoring-stat-card-link approved-card {{ ($statusFilter ?? 'all') === 'approved' ? 'active' : '' }}"
-    >
-        <div class="monitoring-stat-label">
-            Disetujui
-        </div>
+    <a 
+    href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'rejected'])) }}" 
+    class="monitoring-stat-card monitoring-stat-card-link rejected-card {{ ($statusFilter ?? 'all') === 'rejected' ? 'active' : '' }}" 
+> 
+    <div class="monitoring-stat-label"> 
+        Ditolak 
+    </div> 
 
-        <div class="monitoring-stat-value">
-            {{ $disetujui ?? 0 }}
-        </div>
-
-        <div class="monitoring-stat-filter-hint">
-            Data yang disetujui
-        </div>
-    </a>
-
-    <a
-        href="{{ route('monitoring.index', array_merge(request()->except('page'), ['status' => 'rejected'])) }}"
-        class="monitoring-stat-card monitoring-stat-card-link rejected-card {{ ($statusFilter ?? 'all') === 'rejected' ? 'active' : '' }}"
-    >
-        <div class="monitoring-stat-label">
-            Ditolak
-        </div>
-
-        <div class="monitoring-stat-value">
-            {{ $ditolak ?? 0 }}
-        </div>
-
-        <div class="monitoring-stat-filter-hint">
-            Data yang ditolak
-        </div>
-    </a>
+    <div class="monitoring-stat-value"> 
+        {{ $ditolak ?? 0 }} 
+    </div> 
+</a>
            </div>
         </div>
 

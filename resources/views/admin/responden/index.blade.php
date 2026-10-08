@@ -647,6 +647,10 @@
 
 .responden-detail-btn{height:31px;padding:0 10px;border:1px solid #dfe1e8;background:#f8f9ff;color:#555;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;transition:all .2s ease}.responden-detail-btn:hover{background:#eef0ff;border-color:#252A86;color:#252A86}
 .responden-notification{position:fixed;top:24px;left:24px;right:auto;z-index:99999;min-width:330px;max-width:440px;padding:14px 18px;border-radius:10px;color:#fff;font-size:12px;font-weight:600;display:flex;gap:11px;align-items:center;box-shadow:0 10px 28px rgba(0,0,0,.20);animation:respondenNotifIn .25s ease-out}.responden-notification.success{background:#198754;border:1px solid #157347}.responden-notification.warning{background:#dc3545;border:1px solid #bb2d3b}.responden-notification-icon{width:23px;height:23px;flex:0 0 23px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.18);color:#fff;font-weight:800;font-size:13px}.responden-detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.responden-detail-item{padding:13px 14px;background:#fff;border:1px solid #e5e6ed;border-radius:9px;box-shadow:0 2px 7px rgba(0,0,0,.035)}.responden-detail-item.full{grid-column:1/-1}.responden-detail-label{font-size:9px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.35px;margin-bottom:6px}.responden-detail-value{font-size:12px;color:#333;line-height:1.6;word-break:break-word}.responden-detail-member{padding:12px 14px;border:1px solid #e5e6ed;border-radius:9px;background:#fff;margin-bottom:9px;box-shadow:0 2px 7px rgba(0,0,0,.035)}.responden-detail-member-name{font-size:11px;font-weight:700;color:#252A86}.responden-detail-member-meta{font-size:10px;color:#777;margin-top:5px;line-height:1.5}.responden-detail-section-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:11px;font-weight:700;color:#252A86}.responden-detail-section-title::before{content:'';width:4px;height:17px;border-radius:3px;background:#252A86}.responden-detail-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}.responden-detail-summary-item{padding:12px 14px;background:#f7f8fc;border:1px solid #e5e6ed;border-radius:9px}.responden-detail-summary-label{font-size:9px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.3px}.responden-detail-summary-value{margin-top:4px;font-size:13px;color:#252A86;font-weight:700;line-height:1.4}
+.responden-detail-map-wrapper{margin-top:14px;padding:13px 14px;background:#fff;border:1px solid #e5e6ed;border-radius:9px;box-shadow:0 2px 7px rgba(0,0,0,.035)}
+.responden-detail-map{width:100%;height:300px;border:1px solid #dfe1e8;border-radius:8px;overflow:hidden;margin-top:9px}
+.responden-detail-map-empty{display:flex;align-items:center;justify-content:center;min-height:120px;padding:20px;text-align:center;background:#f7f8fc;border:1px dashed #dfe1e8;border-radius:8px;color:#888;font-size:11px;line-height:1.6}
+
 @keyframes respondenNotifIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:700px){.responden-detail-grid{grid-template-columns:1fr}.responden-detail-item.full{grid-column:auto}.responden-notification{left:15px;right:15px;min-width:0;max-width:none}.responden-detail-summary{grid-template-columns:1fr}}
 
@@ -3450,6 +3454,11 @@ function ambilLokasi(type, button) {
 function tutupModalDetail() {
     const modal = document.getElementById('modalDetailResponden');
 
+    if (window.detailRespondenMap) {
+        window.detailRespondenMap.remove();
+        window.detailRespondenMap = null;
+    }
+
     if (modal) {
         modal.classList.remove('active');
     }
@@ -3558,7 +3567,12 @@ window.detailResponden = function (id) {
                         </div>
                         <div class="responden-detail-item full">
                             <div class="responden-detail-label">Titik Koordinat</div>
-                            <div class="responden-detail-value">${escapeHtml(data.geotangging ?? '-')}</div>
+                            <div class="responden-detail-value" id="detailKoordinatText">${escapeHtml(data.geotangging ?? '-')}</div>
+
+                            <div class="responden-detail-map-wrapper">
+                                <div class="responden-detail-label">Peta Lokasi Rumah</div>
+                                <div id="detailRespondenMap" class="responden-detail-map"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -3581,6 +3595,49 @@ window.detailResponden = function (id) {
                     }
                 </div>
             `;
+
+            // Tampilkan peta berdasarkan koordinat geotangging yang tersimpan.
+            const detailMapElement = document.getElementById('detailRespondenMap');
+            const detailGeo = parseGeotangging(data.geotangging);
+
+            if (detailMapElement && detailGeo) {
+                setTimeout(function () {
+                    if (window.detailRespondenMap) {
+                        window.detailRespondenMap.remove();
+                        window.detailRespondenMap = null;
+                    }
+
+                    window.detailRespondenMap = L.map('detailRespondenMap', {
+                        zoomControl: true
+                    }).setView(
+                        [detailGeo.lat, detailGeo.lng],
+                        17
+                    );
+
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(window.detailRespondenMap);
+
+                    L.marker([detailGeo.lat, detailGeo.lng])
+                        .addTo(window.detailRespondenMap)
+                        .bindPopup(
+                            '<strong>Lokasi Rumah</strong><br>' +
+                            escapeHtml(data.geotangging ?? '')
+                        )
+                        .openPopup();
+
+                    setTimeout(function () {
+                        window.detailRespondenMap.invalidateSize();
+                    }, 100);
+                }, 100);
+            } else if (detailMapElement) {
+                detailMapElement.innerHTML = `
+                    <div class="responden-detail-map-empty">
+                        Titik koordinat belum tersedia, sehingga peta lokasi tidak dapat ditampilkan.
+                    </div>
+                `;
+            }
         })
         .catch(function (error) {
             console.error('Detail responden:', error);
