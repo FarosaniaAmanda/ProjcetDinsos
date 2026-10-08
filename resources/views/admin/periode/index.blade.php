@@ -1132,7 +1132,7 @@
             <!-- KUISIONER -->
 
             <a
-                href="{{ route('kuisioner.index') }}"
+                href="{{ route('periode.pilih', ['tujuan' => 'kuisioner.index']) }}" 
                 class="{{ request()->routeIs('kuisioner.*') ? 'active' : '' }}"
             >
 
@@ -1165,7 +1165,7 @@
             <!-- VERIFIKASI -->
 
             <a
-                href="{{ route('verifikasi.index') }}"
+                href="{{ route('periode.pilih', ['tujuan' => 'verifikasi.index']) }}"
                 class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}"
             >
 
@@ -1194,7 +1194,7 @@
             <!-- MONITORING -->
 
             <a
-                href="{{ route('monitoring.index') }}"
+                href="{{ route('periode.pilih', ['tujuan' => 'monitoring.index']) }}"
                 class="{{ request()->routeIs('monitoring.*') ? 'active' : '' }}"
             >
 
@@ -1223,7 +1223,7 @@
             <!-- LAPORAN -->
 
             <a
-                href="{{ route('laporan.index') }}"
+                href="{{ route('periode.pilih', ['tujuan' => 'laporan.index']) }}"
                 class="{{ request()->routeIs('laporan.*') ? 'active' : '' }}"
             >
 

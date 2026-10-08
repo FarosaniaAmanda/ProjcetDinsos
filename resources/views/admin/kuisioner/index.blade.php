@@ -32,9 +32,9 @@
         margin: 0 auto;
     }
 
-    /* =========================
+    /* =========================================================
        ALERT
-    ========================= */
+    ========================================================= */
 
     .kuisioner-page .alert {
         display: flex;
@@ -59,9 +59,9 @@
         border: 1px solid #F6DEA0;
     }
 
-    /* =========================
+    /* =========================================================
        HEADER
-    ========================= */
+    ========================================================= */
 
     .page-header {
         position: relative;
@@ -116,14 +116,14 @@
         line-height: 1.6;
     }
 
-    /* =========================
+    /* =========================================================
        STATUS GRID
-    ========================= */
+    ========================================================= */
 
     .status-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 14px;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 12px;
         margin-bottom: 24px;
     }
 
@@ -134,12 +134,20 @@
         align-items: center;
         justify-content: center;
         text-align: center;
+
         background: #FFFFFF;
         border: 1px solid var(--border);
         border-radius: 16px;
-        padding: 20px;
+        padding: 18px 10px;
         overflow: hidden;
+
         box-shadow: 0 6px 20px rgba(41, 45, 143, .045);
+
+        text-decoration: none !important;
+
+        transition:
+            transform .2s ease,
+            box-shadow .2s ease;
     }
 
     .status-card::before {
@@ -160,73 +168,127 @@
         justify-content: center;
     }
 
-    /* WARNA CARD */
-
-    .draft-card {
-        color: #6B7280;
+    .status-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(41, 45, 143, .08);
+        text-decoration: none !important;
     }
 
-    .respondent-card {
-        color: #3155C6;
-        text-decoration: none;
+    /* =========================================================
+       WARNA CARD
+    ========================================================= */
+
+    .respondent-card,
+    .respondent-card:hover,
+    .respondent-card:visited,
+    .respondent-card:focus,
+    .respondent-card:active {
+        color: #3155C6 !important;
     }
 
-    .submit-card {
-        color: #D99A00;
-        text-decoration: none;
+    .belum-card,
+    .belum-card:hover,
+    .belum-card:visited,
+    .belum-card:focus,
+    .belum-card:active {
+        color: #7C3AED !important;
     }
 
-    .reject-card {
-        color: #D14B4B;
-        text-decoration: none;
+    .draft-card,
+    .draft-card:hover,
+    .draft-card:visited,
+    .draft-card:focus,
+    .draft-card:active {
+        color: #6B7280 !important;
     }
 
-    .accept-card {
-        color: #15916D;
-        text-decoration: none;
+    .submit-card,
+    .submit-card:hover,
+    .submit-card:visited,
+    .submit-card:focus,
+    .submit-card:active {
+        color: #D99A00 !important;
+        background: #FFFFFF !important;
+        text-decoration: none !important;
     }
+
+    .reject-card,
+    .reject-card:hover,
+    .reject-card:visited,
+    .reject-card:focus,
+    .reject-card:active {
+        color: #D14B4B !important;
+        background: #FFFFFF !important;
+        text-decoration: none !important;
+    }
+
+    .accept-card,
+    .accept-card:hover,
+    .accept-card:visited,
+    .accept-card:focus,
+    .accept-card:active {
+        color: #15916D !important;
+        background: #FFFFFF !important;
+        text-decoration: none !important;
+    }
+
+    /* =========================================================
+       JUDUL CARD
+    ========================================================= */
 
     .status-title {
         margin: 0;
-        color: #27305E;
-        font-size: 14px;
+        color: #27305E !important;
+        font-size: 13px;
         font-weight: 700;
-        line-height: 1.3;
+        line-height: 1.35;
     }
 
+    /* =========================================================
+       ANGKA CARD
+    ========================================================= */
+
     .status-count {
-        margin-top: 8px;
-        font-size: 30px;
+        margin-top: 9px;
+        font-size: 29px;
         font-weight: 800;
         letter-spacing: -1px;
         line-height: 1;
     }
 
-    .draft-card .status-count {
-        color: #4B5563;
-    }
-
     .respondent-card .status-count {
-        color: #3155C6;
+        color: #3155C6 !important;
     }
 
-    .submit-card .status-count {
-        color: #D99A00;
+    .belum-card .status-count {
+        color: #7C3AED !important;
     }
 
-    .reject-card .status-count {
-        color: #C43E3E;
+    .draft-card .status-count {
+        color: #4B5563 !important;
     }
 
-    .accept-card .status-count {
-        color: #138360;
+    .submit-card .status-count,
+    .submit-card:hover .status-count {
+        color: #D99A00 !important;
     }
 
-    /* =========================
+    .reject-card .status-count,
+    .reject-card:hover .status-count {
+        color: #C43E3E !important;
+    }
+
+    .accept-card .status-count,
+    .accept-card:hover .status-count {
+        color: #138360 !important;
+    }
+
+    /* =========================================================
        DRAFT SECTION
-    ========================= */
+    ========================================================= */
 
     .draft-section {
+        margin-top: 28px;
         margin-bottom: 24px;
     }
 
@@ -235,70 +297,67 @@
         align-items: flex-end;
         justify-content: space-between;
         gap: 20px;
-        margin-bottom: 13px;
+        margin-bottom: 14px;
     }
 
     .draft-heading h2 {
-        margin: 0;
-        color: var(--primary-dark);
-        font-size: 19px;
+        margin: 0 0 5px;
+        color: #252A86;
+        font-size: 21px;
         font-weight: 800;
         letter-spacing: -.3px;
     }
 
     .draft-heading p {
-        margin: 5px 0 0;
-        color: var(--muted);
-        font-size: 12px;
+        margin: 0;
+        color: #68738A;
+        font-size: 13px;
+        line-height: 1.5;
     }
 
-    .draft-total {
-        color: #68738C;
-        font-size: 12px;
-        font-weight: 600;
-        white-space: nowrap;
-    }
+    /* =========================================================
+       TABLE CARD
+    ========================================================= */
 
-    /* =========================
-       TABLE
-    ========================= */
-
-    .table-card {
+    .draft-table-card {
         background: #FFFFFF;
-        border: 1px solid var(--border);
+        border: 1px solid #E5E8F0;
         border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 6px 20px rgba(41, 45, 143, .045);
+        box-shadow: 0 5px 18px rgba(25, 35, 70, 0.05);
     }
 
-    .table-wrapper {
+    .table-responsive {
         width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .draft-table {
         width: 100%;
+        min-width: 1050px;
         border-collapse: collapse;
     }
 
+    .draft-table thead {
+        background: #F7F8FC;
+    }
+
     .draft-table th {
-        background: #F8F9FD;
-        color: #68738C;
-        padding: 14px 17px;
-        border-bottom: 1px solid #E9EBF2;
-        font-size: 11px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: .35px;
+        padding: 15px 16px;
         text-align: left;
+        font-size: 13px;
+        font-weight: 800;
+        color: #39415C;
+        border-bottom: 1px solid #E5E8F0;
         white-space: nowrap;
     }
 
     .draft-table td {
-        padding: 15px 17px;
-        border-bottom: 1px solid #EEF0F5;
-        color: #374151;
-        font-size: 13px;
+        padding: 16px;
+        border-bottom: 1px solid #EDF0F5;
+        color: #3F465A;
+        font-size: 14px;
         vertical-align: middle;
     }
 
@@ -306,171 +365,211 @@
         border-bottom: none;
     }
 
-    .draft-table tbody tr:hover td {
-        background: #FAFBFF;
+    .draft-table tbody tr:hover {
+        background: #FAFBFE;
     }
 
-    .number-cell {
-        width: 55px;
-        color: #7B8498 !important;
+    /* =========================================================
+       DATA
+    ========================================================= */
+
+    .row-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: #F1F3F8;
+        color: #4B5368;
+        font-weight: 700;
+    }
+
+    .data-primary {
+        color: #3F465A;
         font-weight: 600;
-        text-align: center;
-    }
-
-    .kk-cell {
-        color: #252A86 !important;
-        font-weight: 700;
         white-space: nowrap;
     }
 
-    .nik-cell {
-        white-space: nowrap;
+    .family-name {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
     }
 
-    .name-cell {
-        min-width: 190px;
-        color: #27305E !important;
+    .family-name strong {
+        color: #30384D;
+        font-size: 14px;
         font-weight: 700;
     }
 
-    .address-cell {
-        min-width: 270px;
-        max-width: 360px;
-        color: #68738C !important;
-        line-height: 1.5;
-    }
-
-    .progress-cell {
-        min-width: 120px;
-        white-space: nowrap;
-    }
-
-    .progress-text {
-        color: #292D8F;
+    .family-name small {
+        color: #8A92A5;
         font-size: 12px;
-        font-weight: 700;
     }
 
-    .progress-bar {
-        width: 90px;
-        height: 5px;
-        margin-top: 6px;
+    /* =========================================================
+       PROGRESS
+    ========================================================= */
+
+    .progress-wrapper {
+        width: 145px;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        color: #596277;
+        font-size: 12px;
+    }
+
+    .progress-label strong {
+        color: #252A86;
+        font-size: 12px;
+    }
+
+    .progress-track {
+        width: 100%;
+        height: 7px;
+        background: #E9EDF4;
+        border-radius: 20px;
         overflow: hidden;
-        background: #E9EBF3;
-        border-radius: 99px;
     }
 
     .progress-fill {
         height: 100%;
-        background: #292D8F;
-        border-radius: 99px;
+        background: #55B5D5;
+        border-radius: 20px;
+        transition: width .25s ease;
     }
 
-    .btn-continue {
+    /* =========================================================
+       DATE
+    ========================================================= */
+
+    .date-info {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        white-space: nowrap;
+    }
+
+    .date-info strong {
+        color: #4A5266;
+        font-size: 13px;
+    }
+
+    .date-info small {
+        color: #8B93A5;
+        font-size: 12px;
+    }
+
+    /* =========================================================
+       BUTTON LANJUTKAN
+    ========================================================= */
+
+    .btn-lanjutkan {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 7px;
-        min-width: 95px;
         padding: 9px 13px;
-        background: #292D8F;
+        border-radius: 8px;
+        background: #252A86;
         color: #FFFFFF !important;
-        border-radius: 9px;
         text-decoration: none !important;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 700;
-        transition: .2s ease;
-        white-space: nowrap;
+        transition:
+            transform .2s ease,
+            opacity .2s ease,
+            box-shadow .2s ease;
     }
 
-    .btn-continue:hover {
-        background: #222675;
+    .btn-lanjutkan:hover {
+        opacity: .92;
         transform: translateY(-1px);
+        box-shadow: 0 5px 12px rgba(37, 42, 134, .18);
+        color: #FFFFFF !important;
+        text-decoration: none !important;
     }
 
-    /* =========================
-       EMPTY
-    ========================= */
-
-    .empty-state {
-        padding: 50px 25px;
-        text-align: center;
+    .btn-icon {
+        font-size: 15px;
     }
 
-    .empty-title {
-        color: #374151;
-        font-size: 14px;
-        font-weight: 800;
-    }
-
-    .empty-description {
-        margin-top: 6px;
-        color: #7B8498;
-        font-size: 12px;
-    }
-
-    /* =========================
+    /* =========================================================
        PAGINATION
-    ========================= */
+    ========================================================= */
 
-    .pagination-wrapper {
+    .draft-pagination {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 15px;
-        padding: 15px 17px;
-        border-top: 1px solid #EEF0F5;
-        background: #FFFFFF;
+        gap: 20px;
+        padding: 16px 18px;
+        border-top: 1px solid #EDF0F5;
     }
 
     .pagination-info {
-        color: #7B8498;
-        font-size: 12px;
+        color: #737C91;
+        font-size: 13px;
     }
 
-    .pagination {
+    .pagination-info strong {
+        color: #424A5F;
+    }
+
+    .pagination-links {
         display: flex;
         align-items: center;
-        gap: 5px;
     }
 
-    .pagination a,
-    .pagination span {
-        min-width: 32px;
-        height: 32px;
-        display: inline-flex;
+    /* =========================================================
+       EMPTY
+    ========================================================= */
+
+    .empty-draft {
+        background: #FFFFFF;
+        border: 1px solid #E5E8F0;
+        border-radius: 16px;
+        padding: 50px 20px;
+        text-align: center;
+        box-shadow: 0 5px 18px rgba(25, 35, 70, 0.04);
+    }
+
+    .empty-draft-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 14px;
+        display: flex;
         align-items: center;
         justify-content: center;
-        padding: 0 9px;
-        border: 1px solid #E2E5ED;
-        border-radius: 8px;
-        background: #FFFFFF;
-        color: #4B5563;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 700;
+        border-radius: 50%;
+        background: #EDF8F1;
+        color: #299447;
+        font-size: 22px;
+        font-weight: 800;
     }
 
-    .pagination a:hover {
-        border-color: #292D8F;
-        color: #292D8F;
+    .empty-draft h4 {
+        margin: 0 0 7px;
+        color: #39415A;
+        font-size: 17px;
+        font-weight: 800;
     }
 
-    .pagination .active {
-        background: #292D8F;
-        border-color: #292D8F;
-        color: #FFFFFF;
+    .empty-draft p {
+        margin: 0;
+        color: #7D8598;
+        font-size: 14px;
     }
 
-    .pagination .disabled {
-        color: #B5BAC5;
-        background: #F7F8FA;
-        cursor: not-allowed;
-    }
-
-    /* =========================
-       MULAI KUISIONER
-    ========================= */
+    /* =========================================================
+       MULAI KUISIONER BARU
+    ========================================================= */
 
     .new-kuisioner {
         position: relative;
@@ -539,10 +638,10 @@
         min-width: 175px;
         padding: 12px 21px;
         background: #FFFFFF;
-        color: var(--primary);
+        color: var(--primary) !important;
         border: 1px solid rgba(255,255,255,.8);
         border-radius: 10px;
-        text-decoration: none;
+        text-decoration: none !important;
         font-size: 13px;
         font-weight: 800;
         box-shadow: 0 5px 14px rgba(20, 23, 75, .14);
@@ -558,26 +657,29 @@
 
     .btn-start:hover {
         background: #F5F6FF;
-        color: var(--primary-dark);
+        color: var(--primary-dark) !important;
         transform: translateY(-2px);
-        text-decoration: none;
+        text-decoration: none !important;
     }
 
     .btn-start:hover::after {
         transform: translateX(3px);
     }
 
-    /* =========================
+    /* =========================================================
        RESPONSIVE
-    ========================= */
+    ========================================================= */
 
-    @media (max-width: 1050px) {
+    @media (max-width: 1150px) {
+
         .status-grid {
             grid-template-columns: repeat(3, minmax(0, 1fr));
         }
+
     }
 
     @media (max-width: 750px) {
+
         .kuisioner-page {
             padding: 22px;
         }
@@ -592,13 +694,15 @@
             gap: 5px;
         }
 
-        .pagination-wrapper {
+        .draft-pagination {
             align-items: flex-start;
             flex-direction: column;
         }
+
     }
 
     @media (max-width: 520px) {
+
         .kuisioner-page {
             padding: 16px;
         }
@@ -624,6 +728,7 @@
         .btn-start {
             width: 100%;
         }
+
     }
 </style>
 
@@ -632,21 +737,32 @@
 
     <div class="kuisioner-container">
 
-        {{-- ALERT --}}
+        {{-- =====================================================
+             ALERT
+        ====================================================== --}}
+
         @if(session('success'))
+
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
+
         @endif
 
+
         @if(session('warning'))
+
             <div class="alert alert-warning">
                 {{ session('warning') }}
             </div>
+
         @endif
 
 
-        {{-- HEADER --}}
+        {{-- =====================================================
+             HEADER
+        ====================================================== --}}
+
         <div class="page-header">
 
             <h1>
@@ -660,15 +776,46 @@
         </div>
 
 
-        {{-- =========================
+        {{-- =====================================================
              STATUS CARD
-        ========================== --}}
+        ====================================================== --}}
+
         <div class="status-grid">
 
-            {{-- DRAFT --}}
-            {{-- SENGAJA DIV, BUKAN A --}}
-            <div class="status-card draft-card">
+            {{-- TOTAL RESPONDEN --}}
+            <div class="status-card respondent-card">
+                <div>
 
+                    <h2 class="status-title">
+                        Total Responden
+                    </h2>
+
+                    <div class="status-count">
+                        {{ $respondenCount ?? 0 }}
+                    </div>
+
+                </div>
+            </div>
+
+
+            {{-- BELUM DIDATA --}}
+            <div class="status-card belum-card">
+                <div>
+
+                    <h2 class="status-title">
+                        Belum Didata
+                    </h2>
+
+                    <div class="status-count">
+                        {{ $belumDidataCount ?? 0 }}
+                    </div>
+
+                </div>
+            </div>
+
+
+            {{-- DRAFT --}}
+            <div class="status-card draft-card">
                 <div>
 
                     <h2 class="status-title">
@@ -680,38 +827,18 @@
                     </div>
 
                 </div>
-
             </div>
 
 
-            {{-- JUMLAH RESPONDEN --}}
-            <div class="status-card respondent-card">
-
-                <div>
-
-                    <h2 class="status-title">
-                        Jumlah Responden
-                    </h2>
-
-                    <div class="status-count">
-                        {{ $respondenCount ?? 0 }}
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- DIAJUKAN --}}
+            {{-- MENUNGGU VERIFIKASI --}}
             <a
                 href="{{ route('kuisioner.selesai') }}"
                 class="status-card submit-card"
             >
-
                 <div>
 
                     <h2 class="status-title">
-                        Diajukan
+                        Menunggu Verifikasi
                     </h2>
 
                     <div class="status-count">
@@ -719,7 +846,6 @@
                     </div>
 
                 </div>
-
             </a>
 
 
@@ -728,7 +854,6 @@
                 href="{{ route('verifikasi.index', ['status' => 'ditolak']) }}"
                 class="status-card reject-card"
             >
-
                 <div>
 
                     <h2 class="status-title">
@@ -740,16 +865,14 @@
                     </div>
 
                 </div>
-
             </a>
 
 
-            {{-- DITERIMA --}}
+            {{-- DISETUJUI --}}
             <a
                 href="{{ route('verifikasi.index', ['status' => 'disetujui']) }}"
                 class="status-card accept-card"
             >
-
                 <div>
 
                     <h2 class="status-title">
@@ -761,20 +884,21 @@
                     </div>
 
                 </div>
-
             </a>
 
         </div>
 
 
-        {{-- =========================
-             TABEL DRAFT
-        ========================== --}}
+        {{-- =====================================================
+             DRAFT KUISIONER
+        ====================================================== --}}
+
         <div class="draft-section">
 
             <div class="draft-heading">
 
                 <div>
+
                     <h2>
                         Draft Kuisioner
                     </h2>
@@ -782,659 +906,298 @@
                     <p>
                         Data keluarga yang sudah mulai didata tetapi belum menyelesaikan seluruh kuisioner.
                     </p>
+
                 </div>
 
             </div>
 
 
-            <div class="table-card">
+            @if(isset($drafts) && $drafts->count() > 0)
 
+                <div class="draft-table-card">
 
-        @if(isset($drafts) && $drafts->count() > 0)
+                    <div class="table-responsive">
 
-            <div class="draft-table-card">
+                        <table class="draft-table">
 
-                <div class="table-responsive">
-
-                    <table class="draft-table">
-
-                        <thead>
-                            <tr>
-                                <th width="60">No.</th>
-
-                                <th>No. KK</th>
-
-                                <th>NIK</th>
-
-                                <th>Nama Kepala Keluarga</th>
-
-                                <th>Progress</th>
-
-                                <th>Terakhir Diperbarui</th>
-
-                                <th width="150">Aksi</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            @foreach($drafts as $index => $item)
-
-                                @php
-
-                                    /*
-                                    |--------------------------------------------------------------------------
-                                    | CURRENT PART
-                                    |--------------------------------------------------------------------------
-                                    */
-
-                                    $currentPart = (int) ($item->current_part ?? 1);
-
-                                    /*
-                                    |--------------------------------------------------------------------------
-                                    | PROGRESS
-                                    |--------------------------------------------------------------------------
-                                    |
-                                    | current_part menunjukkan part berikutnya
-                                    | yang harus dikerjakan.
-                                    |
-                                    | Contoh:
-                                    | current_part = 1 → belum menyelesaikan Part 1
-                                    | current_part = 2 → Part 1 selesai
-                                    | current_part = 3 → Part 2 selesai
-                                    | current_part = 4 → Part 3 selesai
-                                    | current_part = 5 → Part 4 selesai
-                                    |
-                                    */
-
-                                    $completedPart = max(
-                                        0,
-                                        min(5, $currentPart - 1)
-                                    );
-
-                                    $progressPercent = ($completedPart / 5) * 100;
-
-                                @endphp
-
+                            <thead>
 
                                 <tr>
 
-                                    {{-- NOMOR --}}
-                                    <td>
-                                        <span class="row-number">
-                                            {{ $drafts->firstItem() + $index }}
-                                        </span>
-                                    </td>
+                                    <th width="60">
+                                        No.
+                                    </th>
+
+                                    <th>
+                                        No. KK
+                                    </th>
+
+                                    <th>
+                                        NIK
+                                    </th>
+
+                                    <th>
+                                        Nama Kepala Keluarga
+                                    </th>
+
+                                    <th>
+                                        Progress
+                                    </th>
+
+                                    <th>
+                                        Terakhir Diperbarui
+                                    </th>
+
+                                    <th width="150">
+                                        Aksi
+                                    </th>
+
+                                </tr>
+
+                            </thead>
 
 
-                                    {{-- NO KK --}}
-                                    <td>
+                            <tbody>
 
-                                        <span class="data-primary">
-                                            {{ $item->no_kk ?? '-' }}
-                                        </span>
+                                @foreach($drafts as $index => $item)
 
-                                    </td>
+                                    @php
 
+                                        $currentPart = (int) (
+                                            $item->current_part ?? 1
+                                        );
 
-                                    {{-- NIK --}}
-                                    <td>
+                                        $completedPart = max(
+                                            0,
+                                            min(
+                                                5,
+                                                $currentPart - 1
+                                            )
+                                        );
 
-                                        <span class="data-primary">
-                                            {{ $item->nik ?? '-' }}
-                                        </span>
+                                        $progressPercent = (
+                                            $completedPart / 5
+                                        ) * 100;
 
-                                    </td>
-
-
-                                    {{-- NAMA --}}
-                                    <td>
-
-                                        <div class="family-name">
-                                            <strong>
-                                                {{ $item->nama_kepala_keluarga ?? '-' }}
-                                            </strong>
-
-                                            <small>
-                                                Data kuisioner keluarga
-                                            </small>
-                                        </div>
-
-                                    </td>
+                                    @endphp
 
 
-                                    {{-- PROGRESS --}}
-                                    <td>
+                                    <tr>
 
-                                        <div class="progress-wrapper">
+                                        {{-- NOMOR --}}
+                                        <td>
 
-                                            <div class="progress-label">
+                                            <span class="row-number">
+                                                {{ $drafts->firstItem() + $index }}
+                                            </span>
 
-                                                <span>
-                                                    Part {{ $completedPart }}/5
-                                                </span>
+                                        </td>
+
+
+                                        {{-- NO KK --}}
+                                        <td>
+
+                                            <span class="data-primary">
+                                                {{ $item->no_kk ?? '-' }}
+                                            </span>
+
+                                        </td>
+
+
+                                        {{-- NIK --}}
+                                        <td>
+
+                                            <span class="data-primary">
+                                                {{ $item->nik ?? '-' }}
+                                            </span>
+
+                                        </td>
+
+
+                                        {{-- NAMA KEPALA KELUARGA --}}
+                                        <td>
+
+                                            <div class="family-name">
 
                                                 <strong>
-                                                    {{ number_format($progressPercent, 0) }}%
-                                                </strong>
-
-                                            </div>
-
-                                            <div class="progress-track">
-
-                                                <div
-                                                    class="progress-fill"
-                                                    style="width: {{ $progressPercent }}%;"
-                                                ></div>
-
-                                            </div>
-
-                                        </div>
-
-                                    </td>
-
-
-                                    {{-- TANGGAL UPDATE --}}
-                                    <td>
-
-                                        @if($item->updated_at)
-
-                                            <div class="date-info">
-
-                                                <strong>
-                                                    {{ $item->updated_at->format('d/m/Y') }}
+                                                    {{ $item->nama_kepala_keluarga ?? '-' }}
                                                 </strong>
 
                                                 <small>
-                                                    {{ $item->updated_at->format('H:i') }}
+                                                    Data kuisioner keluarga
                                                 </small>
 
                                             </div>
 
-                                        @else
-
-                                            -
-
-                                        @endif
-
-                                    </td>
+                                        </td>
 
 
-                                    {{-- AKSI --}}
-                                    <td>
+                                        {{-- PROGRESS --}}
+                                        <td>
 
-                                        <a
-                                            href="{{ route('kuisioner.draft.resume', $item->id) }}"
-                                            class="btn-lanjutkan"
-                                        >
+                                            <div class="progress-wrapper">
 
-                                            <span class="btn-icon">
-                                                ↻
-                                            </span>
+                                                <div class="progress-label">
 
-                                            <span>
-                                                Lanjutkan
-                                            </span>
+                                                    <span>
+                                                        Part {{ $completedPart }}/5
+                                                    </span>
 
-                                        </a>
+                                                    <strong>
+                                                        {{ number_format($progressPercent, 0) }}%
+                                                    </strong>
 
-                                    </td>
+                                                </div>
 
-                                </tr>
 
-                            @endforeach
+                                                <div class="progress-track">
 
-                        </tbody>
+                                                    <div
+                                                        class="progress-fill"
+                                                        style="width: {{ $progressPercent }}%;"
+                                                    ></div>
 
-                    </table>
+                                                </div>
+
+                                            </div>
+
+                                        </td>
+
+
+                                        {{-- TERAKHIR DIPERBARUI --}}
+                                        <td>
+
+                                            @if($item->updated_at)
+
+                                                <div class="date-info">
+
+                                                    <strong>
+                                                        {{ $item->updated_at->format('d/m/Y') }}
+                                                    </strong>
+
+                                                    <small>
+                                                        {{ $item->updated_at->format('H:i') }}
+                                                    </small>
+
+                                                </div>
+
+                                            @else
+
+                                                -
+
+                                            @endif
+
+                                        </td>
+
+
+                                        {{-- AKSI --}}
+                                        <td>
+
+                                            <a
+                                                href="{{ route('kuisioner.draft.resume', $item->id) }}"
+                                                class="btn-lanjutkan"
+                                            >
+
+                                                <span class="btn-icon">
+                                                    ↻
+                                                </span>
+
+                                                <span>
+                                                    Lanjutkan
+                                                </span>
+
+                                            </a>
+
+                                        </td>
+
+                                    </tr>
+
+                                @endforeach
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    {{-- =================================================
+                         PAGINATION
+                    ================================================== --}}
+
+                    @if($drafts->hasPages())
+
+                        <div class="draft-pagination">
+
+                            <div class="pagination-info">
+
+                                Menampilkan
+
+                                <strong>
+                                    {{ $drafts->firstItem() }}
+                                </strong>
+
+                                sampai
+
+                                <strong>
+                                    {{ $drafts->lastItem() }}
+                                </strong>
+
+                                dari
+
+                                <strong>
+                                    {{ $drafts->total() }}
+                                </strong>
+
+                                data draft
+
+                            </div>
+
+
+                            <div class="pagination-links">
+
+                                {{ $drafts->onEachSide(1)->links() }}
+
+                            </div>
+
+                        </div>
+
+                    @endif
 
                 </div>
 
 
+            @else
+
                 {{-- =================================================
-                    PAGINATION
+                     EMPTY STATE
                 ================================================== --}}
 
-                @if($drafts->hasPages())
+                <div class="empty-draft">
 
-                    <div class="draft-pagination">
-
-                        <div class="pagination-info">
-
-                            Menampilkan
-                            <strong>
-                                {{ $drafts->firstItem() }}
-                            </strong>
-
-                            sampai
-
-                            <strong>
-                                {{ $drafts->lastItem() }}
-                            </strong>
-
-                            dari
-
-                            <strong>
-                                {{ $drafts->total() }}
-                            </strong>
-
-                            data draft
-
-                        </div>
-
-
-                        <div class="pagination-links">
-
-                            {{ $drafts->onEachSide(1)->links() }}
-
-                        </div>
-
+                    <div class="empty-draft-icon">
+                        ✓
                     </div>
 
-                @endif
+                    <h4>
+                        Belum ada draft kuisioner
+                    </h4>
 
-            </div>
+                    <p>
+                        Data kuisioner yang belum selesai akan muncul di sini.
+                    </p>
 
+                </div>
 
-    @else
-
-        {{-- =================================================
-             EMPTY STATE
-        ================================================== --}}
-
-        <div class="empty-draft">
-
-            <div class="empty-draft-icon">
-                ✓
-            </div>
-
-            <h4>
-                Belum ada draft kuisioner
-            </h4>
-
-            <p>
-                Data kuisioner yang belum selesai akan muncul di sini.
-            </p>
+            @endif
 
         </div>
 
-    @endif
-        <style>
-            /* =========================================================
-                DRAFT KUISIONER
-                ========================================================= */
 
-                .draft-section {
-                    margin-top: 28px;
-                }
-
-                .section-heading {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-end;
-                    gap: 20px;
-                    margin-bottom: 14px;
-                }
-
-                .section-heading h3 {
-                    margin: 0 0 5px;
-                    font-size: 21px;
-                    font-weight: 800;
-                    color: #252A86;
-                }
-
-                .section-heading p {
-                    margin: 0;
-                    color: #68738a;
-                    font-size: 14px;
-                    line-height: 1.5;
-                }
-
-                .section-total {
-                    color: #68738a;
-                    font-size: 14px;
-                    font-weight: 600;
-                    white-space: nowrap;
-                }
-
-
-                /* =========================================================
-                TABLE CARD
-                ========================================================= */
-
-                .draft-table-card {
-                    background: #ffffff;
-                    border: 1px solid #e5e8f0;
-                    border-radius: 16px;
-                    overflow: hidden;
-                    box-shadow: 0 5px 18px rgba(25, 35, 70, 0.05);
-                }
-
-                .table-responsive {
-                    width: 100%;
-                    overflow-x: auto;
-                    -webkit-overflow-scrolling: touch;
-                }
-
-                .draft-table {
-                    width: 100%;
-                    min-width: 1050px;
-                    border-collapse: collapse;
-                }
-
-                .draft-table thead {
-                    background: #f7f8fc;
-                }
-
-                .draft-table th {
-                    padding: 15px 16px;
-                    text-align: left;
-                    font-size: 13px;
-                    font-weight: 800;
-                    color: #39415c;
-                    border-bottom: 1px solid #e5e8f0;
-                    white-space: nowrap;
-                }
-
-                .draft-table td {
-                    padding: 16px;
-                    border-bottom: 1px solid #edf0f5;
-                    color: #3f465a;
-                    font-size: 14px;
-                    vertical-align: middle;
-                }
-
-                .draft-table tbody tr:last-child td {
-                    border-bottom: none;
-                }
-
-                .draft-table tbody tr:hover {
-                    background: #fafbfe;
-                }
-
-
-                /* =========================================================
-                DATA
-                ========================================================= */
-
-                .row-number {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-
-                    width: 32px;
-                    height: 32px;
-
-                    border-radius: 8px;
-
-                    background: #f1f3f8;
-                    color: #4b5368;
-
-                    font-weight: 700;
-                }
-
-                .data-primary {
-                    color: #3f465a;
-                    font-weight: 600;
-                    white-space: nowrap;
-                }
-
-                .family-name {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 3px;
-                }
-
-                .family-name strong {
-                    color: #30384d;
-                    font-size: 14px;
-                    font-weight: 700;
-                }
-
-                .family-name small {
-                    color: #8a92a5;
-                    font-size: 12px;
-                }
-
-
-                /* =========================================================
-                PROGRESS
-                ========================================================= */
-
-                .progress-wrapper {
-                    width: 145px;
-                }
-
-                .progress-label {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    margin-bottom: 6px;
-
-                    color: #596277;
-                    font-size: 12px;
-                }
-
-                .progress-label strong {
-                    color: #252A86;
-                    font-size: 12px;
-                }
-
-                .progress-track {
-                    width: 100%;
-                    height: 7px;
-
-                    background: #e9edf4;
-                    border-radius: 20px;
-                    overflow: hidden;
-                }
-
-                .progress-fill {
-                    height: 100%;
-                    background: #55B5D5;
-                    border-radius: 20px;
-                    transition: width .25s ease;
-                }
-
-
-                /* =========================================================
-                DATE
-                ========================================================= */
-
-                .date-info {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 3px;
-                    white-space: nowrap;
-                }
-
-                .date-info strong {
-                    color: #4a5266;
-                    font-size: 13px;
-                }
-
-                .date-info small {
-                    color: #8b93a5;
-                    font-size: 12px;
-                }
-
-
-                /* =========================================================
-                BUTTON LANJUTKAN
-                ========================================================= */
-
-                .btn-lanjutkan {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 7px;
-
-                    padding: 9px 13px;
-
-                    border-radius: 8px;
-
-                    background: #252A86;
-                    color: #ffffff !important;
-
-                    text-decoration: none;
-
-                    font-size: 13px;
-                    font-weight: 700;
-
-                    transition:
-                        transform .2s ease,
-                        opacity .2s ease,
-                        box-shadow .2s ease;
-                }
-
-                .btn-lanjutkan:hover {
-                    opacity: .92;
-                    transform: translateY(-1px);
-                    box-shadow: 0 5px 12px rgba(37, 42, 134, .18);
-                }
-
-                .btn-icon {
-                    font-size: 15px;
-                }
-
-
-                /* =========================================================
-                PAGINATION
-                ========================================================= */
-
-                .draft-pagination {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 20px;
-
-                    padding: 16px 18px;
-
-                    border-top: 1px solid #edf0f5;
-                }
-
-                .pagination-info {
-                    color: #737c91;
-                    font-size: 13px;
-                }
-
-                .pagination-info strong {
-                    color: #424a5f;
-                }
-
-                .pagination-links {
-                    display: flex;
-                    align-items: center;
-                }
-
-
-                /* =========================================================
-                EMPTY
-                ========================================================= */
-
-                .empty-draft {
-                    background: #ffffff;
-
-                    border: 1px solid #e5e8f0;
-                    border-radius: 16px;
-
-                    padding: 50px 20px;
-
-                    text-align: center;
-
-                    box-shadow: 0 5px 18px rgba(25, 35, 70, 0.04);
-                }
-
-                .empty-draft-icon {
-                    width: 52px;
-                    height: 52px;
-
-                    margin: 0 auto 14px;
-
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-
-                    border-radius: 50%;
-
-                    background: #edf8f1;
-                    color: #299447;
-
-                    font-size: 22px;
-                    font-weight: 800;
-                }
-
-                .empty-draft h4 {
-                    margin: 0 0 7px;
-
-                    color: #39415a;
-
-                    font-size: 17px;
-                    font-weight: 800;
-                }
-
-                .empty-draft p {
-                    margin: 0;
-
-                    color: #7d8598;
-
-                    font-size: 14px;
-                }
-
-
-                /* =========================================================
-                RESPONSIVE
-                ========================================================= */
-
-                @media (max-width: 768px) {
-
-                    .section-heading {
-                        align-items: flex-start;
-                        flex-direction: column;
-                        gap: 8px;
-                    }
-
-                    .section-total {
-                        font-size: 13px;
-                    }
-
-                    .draft-table {
-                        min-width: 1000px;
-                    }
-
-                    .draft-pagination {
-                        align-items: flex-start;
-                        flex-direction: column;
-                    }
-
-                }
-
-                @media (max-width: 480px) {
-
-                    .section-heading h3 {
-                        font-size: 19px;
-                    }
-
-                    .section-heading p {
-                        font-size: 13px;
-                    }
-
-                    .draft-table {
-                        min-width: 950px;
-                    }
-
-                }
-        </style>
-</section>
-
-            </div>
-
-        </div>
-
-
-        {{-- =========================
+        {{-- =====================================================
              MULAI KUISIONER BARU
-        ========================== --}}
+        ====================================================== --}}
+
         <div class="new-kuisioner">
 
             <div class="new-kuisioner-content">
@@ -1444,14 +1207,14 @@
                 </h2>
 
                 <p>
-                    Mulai pendataan keluarga baru dari Part 1.
+                    Mari mulai pendataan keluarga dengan data yang akurat dan lengkap.
                 </p>
 
             </div>
 
 
             <a
-                href="{{ route('kuisioner.part1') }}"
+                href="{{ route('kuisioner.pilih-responden') }}"
                 class="btn-start"
             >
                 Mulai Kuisioner
