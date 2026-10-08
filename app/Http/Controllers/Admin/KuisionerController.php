@@ -132,6 +132,58 @@ class KuisionerController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | PILIH RESPONDEN
+    |--------------------------------------------------------------------------
+    */
+    public function pilihResponden(Request $request)
+    {
+        $search = trim($request->get('search', ''));
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil kode keluarga yang sudah pernah masuk kuisioner
+        | status:
+        | - draft  = sudah mulai mengisi
+        | - selesai = sudah sampai Part 5 / selesai
+        |--------------------------------------------------------------------------
+        */
+
+        $kodeSudahDipakai = KeluargaPart1::query()
+            ->whereIn('status', [
+                'draft',
+                'selesai',
+            ])
+            ->pluck('keluarga_periode_kode')
+            ->toArray();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil responden yang BELUM pernah masuk kuisioner
+        |--------------------------------------------------------------------------
+        */
+
+        $responden = Keluarga::query()
+            ->when(!empty($kodeSudahDipakai), function ($query) use ($kodeSudahDipakai) {
+                $query->whereNotIn('kode', $kodeSudahDipakai);
+            })
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', '%' . $search . '%')
+                        ->orWhere('nik', 'like', '%' . $search . '%')
+                        ->orWhere('no_kk', 'like', '%' . $search . '%');
+                });
+            })
+            ->orderBy('nama_lengkap')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view(
+            'admin.kuisioner.pilih-responden',
+            compact('responden', 'search')
+        );
+    }
+    /*
+    |--------------------------------------------------------------------------
     | PART 1
     |--------------------------------------------------------------------------
     */

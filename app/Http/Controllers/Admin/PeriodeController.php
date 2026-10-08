@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Periode;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\URL;
 
 class PeriodeController extends Controller
 {
@@ -60,7 +60,7 @@ class PeriodeController extends Controller
 
             'tanggal_selesai.after_or_equal' =>
                 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
- 
+
             'status.required' =>
                 'Status wajib dipilih.',
         ]);
@@ -176,6 +176,110 @@ class PeriodeController extends Controller
                 'success',
                 'Periode berhasil diperbarui.'
             );
+    }
+
+
+    /**
+     * Menampilkan halaman pemilihan periode.
+     */
+    public function pilih(Request $request)
+    {
+        $periodes = Periode::query()
+            ->orderByDesc('id')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tujuan menu yang diperbolehkan
+        |--------------------------------------------------------------------------
+        */
+
+        $tujuanYangDiizinkan = [
+            'kuisioner.index',
+            'verifikasi.index',
+            'monitoring.index',
+            'laporan.index',
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil tujuan dari menu yang dipilih
+        |--------------------------------------------------------------------------
+        */
+
+        $tujuan = $request->get(
+            'tujuan',
+            'kuisioner.index'
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pastikan tujuan valid
+        |--------------------------------------------------------------------------
+        */
+
+        if (!in_array($tujuan, $tujuanYangDiizinkan, true)) {
+            $tujuan = 'kuisioner.index';
+        }
+
+        return view(
+            'admin.periode.pilih',
+            compact(
+                'periodes',
+                'tujuan'
+            )
+        );
+    }
+
+
+    /**
+     * Menyimpan periode yang dipilih
+     * ke dalam session.
+     */
+    public function setPeriode(Request $request)
+    {
+        $request->validate([
+            'periode_id' => [
+                'required',
+                'integer',
+                'exists:periodes,id',
+            ],
+
+            'tujuan' => [
+                'required',
+                'string',
+                'in:kuisioner.index,verifikasi.index,monitoring.index,laporan.index',
+            ],
+        ]);
+
+
+        $periode = Periode::findOrFail(
+            $request->periode_id
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Simpan periode aktif
+        |--------------------------------------------------------------------------
+        */
+
+        session([
+            'periode_id'   => $periode->id,
+            'periode_kode' => $periode->kode,
+            'periode_nama' => $periode->nama,
+        ]);
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Redirect sesuai menu yang dipilih
+        |--------------------------------------------------------------------------
+        */
+
+        return redirect()->route(
+            $request->tujuan
+        );
     }
 
 

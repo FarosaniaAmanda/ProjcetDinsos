@@ -4,817 +4,427 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+>
 
 <style>
-    :root {
-        --primary: #292D8F;
-        --primary-dark: #222675;
-        --primary-soft: #F0F1FF;
-        --border: #E2E4EF;
-        --text: #25283A;
-        --muted: #777D91;
-        --background: #F5F6FB;
-        --white: #fff;
-        --danger: #D64545;
-    }
+/* =========================================================
+   DASAR
+========================================================= */
 
-    /* =========================================================
-       DASAR PART 1
-       ========================================================= */
+:root {
+    --primary: #292D8F;
+    --primary-dark: #222675;
+    --primary-soft: #F0F1FF;
+    --border: #E2E4EF;
+    --text: #25283A;
+    --muted: #777D91;
+    --background: #F5F6FB;
+    --white: #FFFFFF;
+    --danger: #D64545;
+}
 
-    .kuisioner-page,
-    .kuisioner-page * {
-        box-sizing: border-box;
-    }
+.kuisioner-page,
+.kuisioner-page * {
+    box-sizing: border-box;
+}
+
+.kuisioner-page {
+    width: 100%;
+    min-height: 100vh;
+    padding: 14px 24px 40px;
+    background: var(--background);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+}
+
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+.alert {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto 16px;
+    padding: 13px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.alert-warning {
+    background: #FFF7E6;
+    color: #946200;
+    border: 1px solid #F3D58A;
+}
+
+.alert-success {
+    background: #EAF8EE;
+    color: #23763A;
+    border: 1px solid #BFE5C9;
+}
+
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
+
+.kuisioner-card {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(35, 39, 80, .05);
+}
+
+
+/* =========================================================
+   HEADER PART
+========================================================= */
+
+.part-header {
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border);
+    background: #FFFFFF;
+}
+
+.part-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary-dark);
+}
+
+.part-header p {
+    margin: 7px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   FORM CONTENT
+========================================================= */
+
+.form-content {
+    padding: 26px;
+}
+
+.question {
+    margin-bottom: 22px;
+}
+
+.question:last-child {
+    margin-bottom: 0;
+}
+
+.question-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.question-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    margin-right: 7px;
+    border-radius: 7px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 800;
+    vertical-align: middle;
+}
+
+.required {
+    color: var(--danger);
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+.form-control {
+    width: 100%;
+    min-height: 43px;
+    padding: 10px 13px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    outline: none;
+    background: #FFFFFF;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    transition: .2s;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(41, 45, 143, .08);
+}
+
+.form-control[readonly] {
+    background: #F7F8FC;
+    color: #555B70;
+    cursor: default;
+}
+
+textarea.form-control {
+    min-height: 95px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   FORM GRID
+========================================================= */
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+
+/* =========================================================
+   RADIO
+========================================================= */
+
+.radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.radio-option {
+    position: relative;
+}
+
+.radio-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.radio-option label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 15px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #FFFFFF;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.radio-option input:checked + label {
+    border-color: var(--primary);
+    background: var(--primary-soft);
+    color: var(--primary);
+}
+
+
+/* =========================================================
+   ALASAN TIDAK SESUAI
+========================================================= */
+
+#alasan-tidak-sesuai-wrapper {
+    display: none;
+    margin-top: 12px;
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+.map-wrapper {
+    margin-top: 14px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #FFFFFF;
+}
+
+.map-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    background: #F8F9FC;
+}
+
+.map-header strong {
+    display: block;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.map-header span {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+#map {
+    width: 100%;
+    height: 340px;
+}
+
+
+/* =========================================================
+   COORDINATE
+========================================================= */
+
+.coordinate-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.field-error {
+    margin-top: 6px;
+    color: var(--danger);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 26px;
+    border-top: 1px solid var(--border);
+    background: #FAFAFD;
+}
+
+.btn-reset,
+.btn-next {
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-reset {
+    border: 1px solid var(--border);
+    background: #FFFFFF;
+    color: #555B70;
+}
+
+.btn-reset:hover {
+    background: #F5F6FA;
+}
+
+.btn-next {
+    border: none;
+    background: var(--primary);
+    color: #FFFFFF;
+}
+
+.btn-next:hover {
+    background: var(--primary-dark);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
 
     .kuisioner-page {
-        width: 100%;
-        min-height: 100vh;
-        padding: 14px 24px 40px;
-        background: var(--background);
-        color: var(--text);
-        font-family: 'Inter', sans-serif;
+        padding: 10px 12px 30px;
     }
-
-    /* =========================================================
-       ALERT
-       ========================================================= */
-
-    .alert {
-        padding: 15px 18px;
-        border-radius: 11px;
-        margin-bottom: 18px;
-        font-size: 15px;
-        font-weight: 600;
-        line-height: 1.5;
-    }
-
-    .alert-warning {
-        background: #FFF8E6;
-        border: 1px solid #F3DF9B;
-        color: #846A16;
-    }
-
-    .alert-success {
-        background: #ECF8F0;
-        border: 1px solid #BFE2C9;
-        color: #267044;
-    }
-
-    /* =========================================================
-       MAIN CARD
-       ========================================================= */
-
-    .kuisioner-card {
-        background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 17px;
-        box-shadow: 0 5px 20px rgba(35, 40, 80, .05);
-        overflow: hidden;
-    }
-
-    /* =========================================================
-       HEADER PART
-       ========================================================= */
 
     .part-header {
-        padding: 24px 26px;
-        border-bottom: 1px solid var(--border);
-        background: #FBFBFE;
+        padding: 18px;
     }
 
     .part-header h2 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 800;
-        color: var(--primary-dark);
-        line-height: 1.4;
-    }
-
-    .part-header p {
-        margin: 7px 0 0;
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.6;
-    }
-
-    /* =========================================================
-       FAMILY PICKER
-       ========================================================= */
-
-    .family-picker {
-        background: #fff;
-    }
-
-    .family-picker-header {
-        padding: 24px 26px 14px;
-    }
-
-    .family-picker-header h3 {
-        margin: 0;
-        font-size: 20px;
-        font-weight: 800;
-        color: var(--primary-dark);
-        line-height: 1.4;
-    }
-
-    .family-picker-header p {
-        margin: 7px 0 0;
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.6;
-    }
-
-    /* =========================================================
-       SEARCH
-       ========================================================= */
-
-    .family-search {
-        padding: 0 26px 18px;
-    }
-
-    .family-search-box {
-        position: relative;
-    }
-
-    .family-search-input {
-        width: 100%;
-        padding: 13px 15px 13px 44px;
-        border: 1px solid #D9DCE8;
-        border-radius: 9px;
-        background: #fff;
-        color: var(--text);
-        font-family: inherit;
-        font-size: 16px;
-        line-height: 1.5;
-        outline: none;
-        transition: .2s ease;
-    }
-
-    .family-search-input:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(41, 45, 143, .08);
-    }
-
-    .family-search-input::placeholder {
-        color: #A2A6B5;
-    }
-
-    .family-search-icon {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #8A8FA2;
-        font-size: 17px;
-        pointer-events: none;
-    }
-
-    .family-search-empty {
-        display: none;
-        text-align: center;
-        padding: 25px;
-        color: var(--muted);
-        font-size: 15px;
-    }
-
-    /* =========================================================
-       FAMILY TABLE
-       ========================================================= */
-
-    .family-table-wrap {
-        padding: 0 26px 26px;
-        overflow-x: auto;
-    }
-
-    .family-table {
-        width: 100%;
-        border-collapse: collapse;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .family-table th {
-        padding: 15px 17px;
-        background: #F7F8FC;
-        border-bottom: 1px solid var(--border);
-        color: #4C5164;
-        font-size: 15px;
-        font-weight: 800;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    .family-table td {
-        padding: 16px 17px;
-        border-bottom: 1px solid #ECEEF5;
-        color: var(--text);
-        font-size: 16px;
-        vertical-align: middle;
-    }
-
-    .family-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-    .family-table tbody tr:hover {
-        background: #FAFAFE;
-    }
-
-    .family-name {
-        font-weight: 700;
-        color: var(--text);
-        line-height: 1.6;
-    }
-
-    .family-address {
-        color: #656A7E;
-        line-height: 1.6;
-        font-size: 15px;
-    }
-
-    .family-code {
-        margin-top: 3px;
-        font-size: 12px;
-        color: var(--muted);
-        font-weight: 500;
-    }
-
-    /* =========================================================
-    STATUS KUESIONER
-    ========================================================= */
-
-    .family-status {
-        margin-top: 6px;
-    }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 4px 9px;
-        border-radius: 6px;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: .3px;
-    }
-
-    /* DRAFT - ABU-ABU */
-
-    .status-draft {
-        background: #EEF0F3;
-        color: #687080;
-        border: 1px solid #D9DDE3;
-    }
-
-    /* DIAJUKAN - KUNING */
-
-    .status-diajukan {
-        background: #FFF3CD;
-        color: #946C00;
-        border: 1px solid #F0D477;
-    }
-
-    /* =========================================================
-       BUTTON MULAI
-       ========================================================= */
-
-    .btn-start {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 82px;
-        padding: 10px 18px;
-        border: 0;
-        border-radius: 8px;
-        background: var(--primary);
-        color: #fff;
-        font-family: inherit;
-        font-size: 15px;
-        font-weight: 700;
-        text-decoration: none !important;
-        cursor: pointer;
-        transition: .2s ease;
-    }
-
-    .btn-start:hover {
-        background: var(--primary-dark);
-        color: #fff !important;
-        transform: translateY(-1px);
-        box-shadow: 0 5px 12px rgba(41, 45, 143, .18);
-    }
-
-    /* =========================================================
-       KELUARGA TERPILIH
-       ========================================================= */
-
-    .family-selected {
-        margin: 0 26px 22px;
-        padding: 15px 17px;
-        border: 1px solid #C7CAEF;
-        border-radius: 10px;
-        background: var(--primary-soft);
-        color: var(--primary-dark);
-        font-size: 15px;
-        font-weight: 600;
-        line-height: 1.5;
-    }
-
-    .family-selected strong {
-        font-weight: 800;
-    }
-
-    /* =========================================================
-       FORM
-       ========================================================= */
-
-    #form-keluarga {
-        display: none;
-    }
-
-    #form-keluarga.show {
-        display: block;
+        font-size: 18px;
     }
 
     .form-content {
-        padding: 28px;
+        padding: 18px;
     }
-
-    .question {
-        padding: 23px 0;
-        border-bottom: 1px solid #ECEEF5;
-    }
-
-    .question:first-child {
-        padding-top: 0;
-    }
-
-    .question:last-child {
-        border-bottom: 0;
-    }
-
-    .question-title {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 15px;
-        font-size: 17px;
-        line-height: 1.6;
-        font-weight: 700;
-        color: var(--text);
-    }
-
-    .question-number {
-        width: 30px;
-        height: 30px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        background: var(--primary-soft);
-        color: var(--primary);
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .form-group {
-        margin-bottom: 18px;
-    }
-
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
-
-    .form-label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 15px;
-        font-weight: 700;
-        color: #4C5164;
-    }
-
-    .required {
-        color: var(--danger);
-    }
-
-    /* =========================================================
-       PAGINATION
-       ========================================================= */
-
-    .family-pagination {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-top: 18px;
-        padding: 14px 4px;
-        flex-wrap: wrap;
-    }
-
-    .pagination-info {
-        font-size: 13px;
-        color: #6b7280;
-    }
-
-    .pagination-links {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .page-btn {
-        min-width: 36px;
-        height: 36px;
-        padding: 0 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid #d9dce8;
-        border-radius: 8px;
-        background: #fff;
-        color: #292D8F;
-        text-decoration: none;
-        font-size: 13px;
-        font-weight: 600;
-        transition: .2s;
-    }
-
-    .page-btn:hover {
-        background: #f0f1ff;
-        border-color: #292D8F;
-    }
-
-    .page-btn.active {
-        background: #292D8F;
-        color: #fff;
-        border-color: #292D8F;
-    }
-
-    .page-btn.disabled {
-        color: #b8bbc7;
-        background: #f5f6fa;
-        cursor: not-allowed;
-    }
-
-    /* =========================================================
-       INPUT
-       ========================================================= */
-
-    .form-input,
-    .form-select,
-    textarea.form-input {
-        width: 100%;
-        padding: 13px 14px;
-        border: 1px solid #D9DCE8;
-        border-radius: 9px;
-        background: #fff;
-        color: var(--text);
-        font-family: inherit;
-        font-size: 16px;
-        line-height: 1.5;
-        outline: none;
-        transition: .2s ease;
-    }
-
-    .form-input:focus,
-    .form-select:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(41, 45, 143, .08);
-    }
-
-    .form-input::placeholder {
-        color: #A2A6B5;
-    }
-
-    .form-select {
-        cursor: pointer;
-    }
-
-    textarea.form-input {
-        min-height: 110px;
-        resize: vertical;
-    }
-
-    /* =========================================================
-       FORM GRID
-       ========================================================= */
 
     .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 18px;
+        grid-template-columns: 1fr;
+        gap: 16px;
     }
 
-    /* =========================================================
-       RADIO
-       ========================================================= */
-
-    .radio-group {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
+    .full-width {
+        grid-column: auto;
     }
 
-    .radio-option {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 16px;
-        color: #505568;
-        cursor: pointer;
+    .coordinate-grid {
+        grid-template-columns: 1fr;
     }
-
-    .radio-option input {
-        width: 17px;
-        height: 17px;
-        accent-color: var(--primary);
-    }
-
-    /* =========================================================
-       MAP
-       ========================================================= */
-
-    .map-wrapper {
-        margin-top: 15px;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        overflow: hidden;
-        background: #F7F8FC;
-    }
-
-    #map {
-        width: 100%;
-        height: 330px;
-    }
-
-    .location-info {
-        padding: 14px 16px;
-        background: #FAFAFD;
-        border-top: 1px solid var(--border);
-    }
-
-    .location-info p {
-        margin: 0;
-        font-size: 14px;
-        line-height: 1.6;
-        color: var(--muted);
-    }
-
-    .coordinate-input {
-        margin-top: 9px;
-    }
-
-    .map-status {
-        margin-top: 9px;
-        font-size: 14px;
-        color: var(--muted);
-    }
-
-    #map .leaflet-control-zoom {
-        display: none !important;
-    }
-
-    #map .leaflet-control-attribution {
-        display: none !important;
-    }
-
-    /* =========================================================
-       FOOTER
-       ========================================================= */
 
     .form-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 22px 28px;
-        border-top: 1px solid var(--border);
-        background: #FBFBFD;
+        padding: 15px 18px;
     }
 
     .btn-reset,
     .btn-next {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 9px;
-        font-family: inherit;
-        font-size: 15px;
-        font-weight: 700;
-        text-decoration: none !important;
-        transition: .2s ease;
+        flex: 1;
     }
 
-    .btn-reset {
-        min-width: 110px;
-        padding: 13px 20px;
-        border: 1px solid #D9DCE8;
-        background: #fff;
-        color: #656A7C;
-        box-shadow: 0 4px 12px rgba(34, 38, 117, .12);
+    #map {
+        height: 280px;
     }
-
-    .btn-reset:hover {
-        background: #F5F6FB;
-        border-color: #C8CBDC;
-        color: var(--primary) !important;
-    }
-
-    .btn-next {
-        gap: 9px;
-        min-width: 150px;
-        padding: 13px 20px;
-        border: 0;
-        background: var(--primary);
-        color: #fff;
-        cursor: pointer;
-    }
-
-    .btn-next:hover {
-        background: var(--primary-dark);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 15px rgba(41, 45, 143, .18);
-    }
-
-    /* =========================================================
-       RESPONSIVE
-       ========================================================= */
-
-    @media (max-width: 900px) {
-        .kuisioner-page {
-            padding: 12px 16px 30px;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 600px) {
-        .part-header {
-            padding: 19px 18px;
-        }
-
-        .part-header h2 {
-            font-size: 19px;
-        }
-
-        .part-header p {
-            font-size: 14px;
-        }
-
-        .family-picker-header {
-            padding: 20px 18px 12px;
-        }
-
-        .family-picker-header h3 {
-            font-size: 18px;
-        }
-
-        .family-picker-header p {
-            font-size: 14px;
-        }
-
-        .family-search {
-            padding-left: 18px;
-            padding-right: 18px;
-        }
-
-        .family-search-input {
-            font-size: 15px;
-            padding: 12px 14px 12px 42px;
-        }
-
-        .family-table-wrap {
-            padding-left: 18px;
-            padding-right: 18px;
-            padding-bottom: 20px;
-        }
-
-        .family-table th {
-            padding: 12px 10px;
-            font-size: 13px;
-        }
-
-        .family-table td {
-            padding: 13px 10px;
-            font-size: 14px;
-        }
-
-        .family-name {
-            line-height: 1.5;
-        }
-
-        .family-code {
-            font-size: 11px;
-        }
-
-        .family-address {
-            font-size: 13px;
-        }
-
-        .btn-start {
-            min-width: 65px;
-            padding: 8px 11px;
-            font-size: 13px;
-        }
-
-        .family-selected {
-            margin-left: 18px;
-            margin-right: 18px;
-            font-size: 14px;
-        }
-
-        .form-content {
-            padding: 20px 18px;
-        }
-
-        .question {
-            padding: 20px 0;
-        }
-
-        .question-title {
-            font-size: 15px;
-        }
-
-        .question-number {
-            width: 28px;
-            height: 28px;
-            font-size: 12px;
-        }
-
-        .form-label {
-            font-size: 14px;
-        }
-
-        .form-input,
-        .form-select,
-        textarea.form-input {
-            font-size: 15px;
-            padding: 12px 13px;
-        }
-
-        .radio-option {
-            font-size: 15px;
-        }
-
-        .location-info p,
-        .map-status {
-            font-size: 13px;
-        }
-
-        .form-footer {
-            flex-direction: column-reverse;
-            align-items: stretch;
-            padding: 18px;
-        }
-
-        .btn-reset,
-        .btn-next {
-            width: 100%;
-            font-size: 14px;
-        }
-
-        .family-pagination {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .pagination-links {
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        #map {
-            height: 280px;
-        }
-    }
+}
 </style>
+
 
 @php
 
-    $kecamatanMap = collect($kecamatans ?? [])
-        ->keyBy(function ($item) {
-            return (string) $item->kecamatan_id;
-        })
-        ->map(function ($item) {
-            return $item->deskripsi;
-        })
-        ->toArray();
-
-    $kelurahanMap = collect($kelurahans ?? [])
-        ->keyBy(function ($item) {
-            return (string) $item->kelurahan_id;
-        })
-        ->map(function ($item) {
-            return [
-                'kecamatan_id' => (string) $item->kecamatan_id,
-                'deskripsi' => $item->deskripsi,
-            ];
-        })
-        ->toArray();
+    /* =========================================================
+       KECAMATAN & KELURAHAN
+    ========================================================= */
 
     $nilaiKecamatan = old(
         'kecamatan',
@@ -830,857 +440,588 @@
             ?? ''
     );
 
+
+    /* =========================================================
+       JUMLAH ANGGOTA
+    ========================================================= */
+
+    $jumlahAnggota = old(
+        'jumlah_anggota',
+        isset($selectedKeluarga)
+            ? ($selectedKeluarga->anggota?->count() ?? 0)
+            : ($data->jumlah_anggota ?? '')
+    );
+
+
+    /* =========================================================
+       RT / RW
+    ========================================================= */
+
+    $nilaiRt = old(
+        'rt',
+        $selectedKeluarga->rt
+            ?? $data->rt
+            ?? ''
+    );
+
+    $nilaiRw = old(
+        'rw',
+        $selectedKeluarga->rw
+            ?? $data->rw
+            ?? ''
+    );
+
+    $nilaiRtRw = '';
+
+    if ($nilaiRt !== '' || $nilaiRw !== '') {
+        $nilaiRtRw = 'RT ' . $nilaiRt . ' / RW ' . $nilaiRw;
+    }
+
 @endphp
-
-@if(session('warning'))
-    <div class="alert alert-warning">
-        {{ session('warning') }}
-    </div>
-@endif
-
-@if(session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
 
 
 {{-- =========================================================
-     PILIH KELUARGA
+     ALERT
 ========================================================= --}}
 
-<div
-    class="kuisioner-card"
-    id="family-picker"
->
+@if(session('warning'))
 
-    <div class="family-picker">
+    <div class="alert alert-warning">
+        {{ session('warning') }}
+    </div>
 
-        <div class="family-picker-header">
+@endif
 
-            <h3>
-                Daftar Keluarga
-            </h3>
+
+@if(session('success'))
+
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+
+@endif
+
+
+<div class="kuisioner-page">
+
+    <div class="kuisioner-card">
+
+        {{-- =====================================================
+             HEADER
+        ====================================================== --}}
+
+        <div class="part-header">
+
+            <h2>
+                Bagian 1 — Data Keluarga
+            </h2>
 
             <p>
-                Pilih salah satu keluarga untuk memulai kuisioner.
+                Data keluarga otomatis diambil dari data responden
+                yang telah dipilih. Periksa kembali sebelum melanjutkan.
             </p>
 
         </div>
 
 
-        <div class="family-search">
-
-            <div class="family-search-box">
-
-                <span class="family-search-icon">⌕</span>
-
-                <input
-                    type="text"
-                    id="family-search"
-                    class="family-search-input"
-                    placeholder="Cari nama kepala keluarga..."
-                    autocomplete="off"
-                >
-
-            </div>
-
-        </div>
-
-
-        <div class="family-table-wrap">
-
-            <table class="family-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            Keluarga
-                        </th>
-
-                        <th>
-                            Alamat
-                        </th>
-
-                        <th>
-                            Aksi
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @forelse($keluargas ?? [] as $keluarga)
-
-                        @php
-                            $statusKuesioner = $keluarga->status_kuesioner;
-
-                            $isDiajukan = $statusKuesioner === 'selesai';
-
-                            $isDraft = $statusKuesioner === 'draft';
-                        @endphp
-
-
-                        <tr class="family-row">
-
-                            <td>
-
-                                <div class="family-name">
-
-                                    {{ $keluarga->nama_lengkap }}
-
-                                    @if($anggotaPertama)
-                                        / {{ $anggotaPertama->nama_lengkap }}
-                                    @endif
-
-                                </div>
-
-
-                                <div class="family-code">
-                                    {{ $keluarga->kode }}
-                                </div>
-
-
-                                {{-- STATUS --}}
-
-                                <div class="family-status">
-
-                                    @if($isDiajukan)
-
-                                        <span class="status-badge status-diajukan">
-                                            DIAJUKAN
-                                        </span>
-
-                                    @elseif($isDraft)
-
-                                        <span class="status-badge status-draft">
-                                            DRAFT
-                                        </span>
-
-                                    @endif
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="family-address">
-                                    {{ $keluarga->alamat_lengkap ?: '-' }}
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <button
-                                    type="button"
-                                    class="btn-start"
-                                    onclick="pilihKeluarga({{ Js::from([
-                                        'id' => $keluarga->id,
-                                        'kode' => $keluarga->kode,
-                                        'nik' => $keluarga->nik,
-                                        'nama_lengkap' => $keluarga->nama_lengkap,
-                                        'status_keluarga' => $keluarga->status_keluarga,
-                                        'no_kk' => $keluarga->no_kk,
-                                        'jumlah' => $keluarga->anggota->count() + 1,
-                                        'kode_pos' => $keluarga->kode_pos,
-                                        'rt' => $keluarga->rt,
-                                        'rw' => $keluarga->rw,
-                                        'alamat_lengkap' => $keluarga->alamat_lengkap,
-                                        'kecamatan_id' => $keluarga->kecamatan_id,
-                                        'kelurahan_id' => $keluarga->kelurahan_id,
-                                        'anggota_pertama' => $anggotaPertama
-                                            ? $anggotaPertama->nama_lengkap
-                                            : null,
-                                    ]) }})"
-                                >
-                                    Mulai
-                                </button>
-
-                            </td>
-
-                        </tr>
-
-
-                    @empty
-
-                        <tr class="family-empty-original">
-
-                            <td
-                                colspan="3"
-                                style="text-align:center;padding:30px;color:#777D91;"
-                            >
-                                Belum ada data keluarga.
-                            </td>
-
-                        </tr>
-
-                    @endforelse
-
-
-                    <tr
-                        id="family-search-empty"
-                        class="family-search-empty"
-                    >
-
-                        <td colspan="3">
-                            Nama kepala keluarga tidak ditemukan.
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-            @if ($keluargas->lastPage() > 1)
-                <div class="family-pagination" id="family-pagination">
-
-                    <div class="pagination-info">
-                        Menampilkan
-                        {{ $keluargas->firstItem() }}
-                        -
-                        {{ $keluargas->lastItem() }}
-                        dari
-                        {{ $keluargas->total() }}
-                        keluarga
-                    </div>
-
-                    <div class="pagination-links">
-
-                        @if ($keluargas->onFirstPage())
-                            <span class="page-btn disabled">‹</span>
-                        @else
-                            <a href="{{ $keluargas->previousPageUrl() }}" class="page-btn">‹</a>
-                        @endif
-
-                        @for ($page = 1; $page <= $keluargas->lastPage(); $page++)
-                            @if ($page == $keluargas->currentPage())
-                                <span class="page-btn active">{{ $page }}</span>
-                            @else
-                                <a href="{{ $keluargas->url($page) }}" class="page-btn">{{ $page }}</a>
-                            @endif
-                        @endfor
-
-                        @if ($keluargas->hasMorePages())
-                            <a href="{{ $keluargas->nextPageUrl() }}" class="page-btn">›</a>
-                        @else
-                            <span class="page-btn disabled">›</span>
-                        @endif
-
-                    </div>
-
-                </div>
-            @endif
-
-        </div>
-
-    </div>
-
-</div>
-
-
-{{-- =========================================================
-     KELUARGA TERPILIH
-========================================================= --}}
-
-<div
-    class="family-selected"
-    id="family-selected"
-    style="display:none;"
->
-
-    Keluarga yang dipilih:
-
-    <strong id="selected-family-name"></strong>
-
-</div>
-
-
-{{-- =========================================================
-     FORM PART 1
-========================================================= --}}
-
-<div
-    class="kuisioner-card"
-    id="form-keluarga"
->
-
-    <div class="part-header">
-
-        <h2>
-            Bagian 1 — Data Keluarga
-        </h2>
-
-        <p>
-            Isi identitas dan alamat keluarga dengan lengkap.
-        </p>
-
-    </div>
-
-
-    <form
-        action="{{ route('kuisioner.part1.store') }}"
-        method="POST"
-    >
-
-        @csrf
-
-        <input
-            type="hidden"
-            name="keluarga_kode"
-            id="keluarga_kode"
-            value="{{ $selectedKeluarga->kode ?? '' }}"
+        {{-- =====================================================
+             FORM
+        ====================================================== --}}
+
+        <form
+            action="{{ route('kuisioner.part1.store') }}"
+            method="POST"
         >
 
+            @csrf
 
-        <div class="form-content">
 
-            {{-- =====================================================
-                 PERTANYAAN 1
-            ====================================================== --}}
+            {{-- KODE KELUARGA --}}
+            <input
+                type="hidden"
+                name="keluarga_kode"
+                value="{{ $selectedKeluarga->kode ?? '' }}"
+            >
 
-            <div class="question">
 
-                <div class="question-title">
-
-                    <span class="question-number">
-                        1
-                    </span>
-
-                    <span>
-                        Nomor Induk Kependudukan (NIK)
-                        <span class="required">*</span>
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        NIK
-                    </label>
-
-                    <input
-                        type="text"
-                        name="nik"
-                        id="nik"
-                        class="form-input"
-                        value="{{ old('nik', $data->nik ?? '') }}"
-                        placeholder="Masukkan NIK"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 2
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        2
-                    </span>
-
-                    <span>
-                        Nama Kepala Keluarga
-                        <span class="required">*</span>
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Nama Lengkap
-                    </label>
-
-                    <input
-                        type="text"
-                        name="nama_kepala_keluarga"
-                        id="nama_kepala_keluarga"
-                        class="form-input"
-                        value="{{ old('nama_kepala_keluarga', $data->nama_kepala_keluarga ?? '') }}"
-                        placeholder="Masukkan nama kepala keluarga"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 3
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        3
-                    </span>
-
-                    <span>
-                        Status dalam keluarga
-                        <span class="required">*</span>
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <select
-                        name="status_keluarga"
-                        id="status_keluarga"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            -- Pilih Status --
-                        </option>
-
-                        @foreach([
-                            'Kepala Keluarga',
-                            'Istri',
-                            'Suami',
-                            'Anak',
-                            'Orang Tua',
-                            'Saudara',
-                            'Lainnya'
-                        ] as $status)
-
-                            <option
-                                value="{{ $status }}"
-                                {{ old('status_keluarga', $data->status_keluarga ?? '') == $status ? 'selected' : '' }}
-                            >
-                                {{ $status }}
-                            </option>
-
-                        @endforeach
-
-                    </select>
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 4
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        4
-                    </span>
-
-                    <span>
-                        Nomor Induk Keluarga
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="nomor_induk_keluarga"
-                        id="nomor_induk_keluarga"
-                        class="form-input"
-                        value="{{ old('nomor_induk_keluarga', $data->nomor_induk_keluarga ?? '') }}"
-                        placeholder="Masukkan nomor induk keluarga"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 5
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        5
-                    </span>
-
-                    <span>
-                        Nomor Kartu Keluarga (KK)
-                        <span class="required">*</span>
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="no_kk"
-                        id="no_kk"
-                        class="form-input"
-                        value="{{ old('no_kk', $data->no_kk ?? '') }}"
-                        placeholder="Masukkan nomor KK"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 6
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        6
-                    </span>
-
-                    <span>
-                        Jumlah anggota keluarga
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="number"
-                        name="jml_keluarga"
-                        id="jml_keluarga"
-                        class="form-input"
-                        min="1"
-                        value="{{ old('jml_keluarga', $data->jml_keluarga ?? '') }}"
-                        placeholder="Masukkan jumlah anggota keluarga"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 7
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        7
-                    </span>
-
-                    <span>
-                        Provinsi
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <select
-                        name="provinsi"
-                        id="provinsi"
-                        class="form-select"
-                    >
-
-                        <option
-                            value="JAWA TIMUR"
-                            {{ old('provinsi', $data->provinsi ?? 'JAWA TIMUR') == 'JAWA TIMUR' ? 'selected' : '' }}
-                        >
-                            JAWA TIMUR
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 8
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        8
-                    </span>
-
-                    <span>
-                        Kabupaten / Kota
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <select
-                        name="daerah"
-                        id="daerah"
-                        class="form-select"
-                    >
-
-                        <option
-                            value="KOTA PASURUAN"
-                            {{ old('daerah', $data->daerah ?? 'KOTA PASURUAN') == 'KOTA PASURUAN' ? 'selected' : '' }}
-                        >
-                            KOTA PASURUAN
-                        </option>
-
-                        <option
-                            value="KABUPATEN PASURUAN"
-                            {{ old('daerah', $data->daerah ?? '') == 'KABUPATEN PASURUAN' ? 'selected' : '' }}
-                        >
-                            KABUPATEN PASURUAN
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 9
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        9
-                    </span>
-
-                    <span>
-                        Kecamatan
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="kecamatan"
-                        id="kecamatan"
-                        class="form-input"
-                        value="{{ $nilaiKecamatan }}"
-                        placeholder="Data kecamatan dari keluarga"
-                        readonly
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 10
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        10
-                    </span>
-
-                    <span>
-                        Kelurahan
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="kelurahan"
-                        id="kelurahan"
-                        class="form-input"
-                        value="{{ $nilaiKelurahan }}"
-                        placeholder="Data kelurahan dari keluarga"
-                        readonly
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 11
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        11
-                    </span>
-
-                    <span>
-                        Kode Pos
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="kode_pos"
-                        id="kode_pos"
-                        class="form-input"
-                        value="{{ old('kode_pos', $data->kode_pos ?? '') }}"
-                        placeholder="Masukkan kode pos"
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 12
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        12
-                    </span>
-
-                    <span>
-                        RT / RW
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <input
-                        type="text"
-                        name="rt_rw"
-                        id="rt_rw"
-                        class="form-input"
-                        value="{{ old('rt_rw', $data->rt_rw ?? (($selectedKeluarga?->rt && $selectedKeluarga?->rw) ? $selectedKeluarga->rt . '/' . $selectedKeluarga->rw : ($selectedKeluarga?->rt ?? $selectedKeluarga?->rw ?? ''))) }}"
-                        placeholder="Contoh: 001/002"
-                        readonly
-                    >
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 13
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        13
-                    </span>
-
-                    <span>
-                        Alamat lengkap
-                    </span>
-
-                </div>
-
-                <div class="form-group">
-
-                    <textarea
-                        name="alamat_lengkap"
-                        id="alamat_lengkap"
-                        class="form-input"
-                        placeholder="Masukkan alamat lengkap"
-                    >{{ old('alamat_lengkap', $data->alamat_lengkap ?? '') }}</textarea>
-
-                </div>
-
-            </div>
-
-
-            {{-- =====================================================
-                 PERTANYAAN 14
-            ====================================================== --}}
-
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        14
-                    </span>
-
-                    <span>
-                        Detail alamat rumah
-                    </span>
-
-                </div>
+            <div class="form-content">
 
                 <div class="form-grid">
 
-                    <div class="form-group">
 
-                        <label class="form-label">
-                            Nama Jalan
+                    {{-- =================================================
+                         1. NIK
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                1
+                            </span>
+
+                            NIK
+
+                            <span class="required">
+                                *
+                            </span>
+
                         </label>
 
                         <input
                             type="text"
-                            name="jalan_rumah"
-                            id="jalan_rumah"
-                            class="form-input"
-                            value="{{ old('jalan_rumah', $data->jalan_rumah ?? '') }}"
-                            placeholder="Nama jalan"
+                            name="nik"
+                            class="form-control"
+                            value="{{ old('nik', $data->nik ?? $selectedKeluarga->nik ?? '') }}"
+                            readonly
+                        >
+
+                        @error('nik')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         2. NAMA KEPALA KELUARGA
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                2
+                            </span>
+
+                            Nama Kepala Keluarga
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="nama_kepala_keluarga"
+                            class="form-control"
+                            value="{{ old('nama_kepala_keluarga', $data->nama_kepala_keluarga ?? $selectedKeluarga->nama_lengkap ?? '') }}"
+                            readonly
+                        >
+
+                        @error('nama_kepala_keluarga')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         3. STATUS DALAM KELUARGA
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                3
+                            </span>
+
+                            Status dalam Keluarga
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="status_dalam_keluarga"
+                            class="form-control"
+                            value="{{ old('status_dalam_keluarga', $data->status_dalam_keluarga ?? $selectedKeluarga->status_keluarga ?? '') }}"
+                            readonly
+                        >
+
+                        @error('status_dalam_keluarga')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         4. NO KK
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                4
+                            </span>
+
+                            Nomor KK
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="no_kk"
+                            class="form-control"
+                            value="{{ old('no_kk', $data->no_kk ?? $selectedKeluarga->no_kk ?? '') }}"
+                            readonly
+                        >
+
+                        @error('no_kk')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         5. JUMLAH ANGGOTA
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                5
+                            </span>
+
+                            Jumlah Anggota Keluarga
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="number"
+                            name="jumlah_anggota"
+                            class="form-control"
+                            value="{{ $jumlahAnggota }}"
+                            readonly
+                        >
+
+                        @error('jumlah_anggota')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         6. PROVINSI
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                6
+                            </span>
+
+                            Provinsi
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="provinsi"
+                            class="form-control"
+                            value="{{ old('provinsi', $data->provinsi ?? $selectedKeluarga->provinsi ?? 'Jawa Timur') }}"
+                            readonly
                         >
 
                     </div>
 
 
-                    <div class="form-group">
+                    {{-- =================================================
+                         7. KABUPATEN / KOTA
+                    ================================================== --}}
 
-                        <label class="form-label">
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                7
+                            </span>
+
+                            Kabupaten / Kota
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="kabupaten_kota"
+                            class="form-control"
+                            value="{{ old('kabupaten_kota', $data->kabupaten_kota ?? $selectedKeluarga->kabupaten_kota ?? 'Kota Pasuruan') }}"
+                            readonly
+                        >
+
+                    </div>
+
+
+                    {{-- =================================================
+                         8. KECAMATAN
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                8
+                            </span>
+
+                            Kecamatan
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="kecamatan"
+                            class="form-control"
+                            value="{{ $nilaiKecamatan }}"
+                            readonly
+                        >
+
+                        @error('kecamatan')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         9. KELURAHAN
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                9
+                            </span>
+
+                            Kelurahan
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="kelurahan"
+                            class="form-control"
+                            value="{{ $nilaiKelurahan }}"
+                            readonly
+                        >
+
+                        @error('kelurahan')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                         10. KODE POS
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                10
+                            </span>
+
+                            Kode Pos
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="kode_pos"
+                            class="form-control"
+                            value="{{ old('kode_pos', $data->kode_pos ?? $selectedKeluarga->kode_pos ?? '') }}"
+                            readonly
+                        >
+
+                    </div>
+
+
+                    {{-- =================================================
+                         11. RT / RW
+                    ================================================== --}}
+
+                    <div class="question">
+
+                        <label class="question-label">
+
+                            <span class="question-number">
+                                11
+                            </span>
+
+                            RT / RW
+
+                            <span class="required">
+                                *
+                            </span>
+
+                        </label>
+
+                        <input
+                            type="text"
+                            name="rt_rw"
+                            class="form-control"
+                            value="{{ old('rt_rw', $data->rt_rw ?? $nilaiRtRw) }}"
+                            readonly
+                        >
+
+                        @error('rt_rw')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                        12. ALAMAT LENGKAP
+                    ================================================== --}}
+                    <div class="question full-width">
+
+                        <label class="question-label">
+                            <span class="question-number">12</span>
+                            Alamat Lengkap
+                            <span class="required">*</span>
+                        </label>
+
+                        <textarea
+                            name="alamat_lengkap"
+                            class="form-control"
+                            readonly
+                        >{{ old(
+                            'alamat_lengkap',
+                            $data->alamat_lengkap
+                                ?? $selectedKeluarga->alamat_lengkap
+                                ?? $selectedKeluarga->alamat
+                                ?? ''
+                        ) }}</textarea>
+
+                        @error('alamat_lengkap')
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                        13. JALAN
+                    ================================================== --}}
+                    <div class="question">
+
+                        <label class="question-label">
+                            <span class="question-number">13</span>
+                            Jalan
+                        </label>
+
+                        <input
+                            type="text"
+                            name="jalan"
+                            id="jalan"
+                            class="form-control"
+                            value="{{ old(
+                                'jalan',
+                                $data->jalan
+                                    ?? $selectedKeluarga->jalan
+                                    ?? ''
+                            ) }}"
+                            placeholder="Masukkan nama jalan"
+                        >
+
+                        @error('jalan')
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+
+                    {{-- =================================================
+                        14. NOMOR RUMAH
+                    ================================================== --}}
+                    <div class="question">
+
+                        <label class="question-label">
+                            <span class="question-number">14</span>
                             Nomor Rumah
                         </label>
 
@@ -1688,149 +1029,95 @@
                             type="text"
                             name="nomor_rumah"
                             id="nomor_rumah"
-                            class="form-input"
-                            value="{{ old('nomor_rumah', $data->nomor_rumah ?? '') }}"
-                            placeholder="Nomor rumah"
+                            class="form-control"
+                            value="{{ old(
+                                'nomor_rumah',
+                                $data->nomor_rumah
+                                    ?? $selectedKeluarga->nomor_rumah
+                                    ?? ''
+                            ) }}"
+                            placeholder="Masukkan nomor rumah"
                         >
+
+                        @error('nomor_rumah')
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+                        @enderror
 
                     </div>
 
-                </div>
 
-            </div>
+                    {{-- =================================================
+                         16. GEOTAGGING
+                    ================================================== --}}
 
+                    <div class="question full-width">
 
-            {{-- =====================================================
-                 PERTANYAAN 15
-            ====================================================== --}}
+                        <label class="question-label">
 
-            <div class="question">
-
-                <div class="question-title">
-
-                    <span class="question-number">
-                        15
-                    </span>
-
-                    <span>
-                        Apakah alamat sesuai dengan tempat tinggal saat ini?
-                    </span>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <div class="radio-group">
-
-                        <label class="radio-option">
-
-                            <input
-                                type="radio"
-                                name="is_alamat_sesuai"
-                                value="1"
-                                {{ old('is_alamat_sesuai', $data->is_alamat_sesuai ?? '') == '1' ? 'checked' : '' }}
-                                onchange="toggleAlasanTidakSesuai()"
-                            >
-
-                            Ya
+                            Lokasi Rumah / Geotagging
 
                         </label>
 
 
-                        <label class="radio-option">
+                        <div class="map-wrapper">
 
-                            <input
-                                type="radio"
-                                name="is_alamat_sesuai"
-                                value="0"
-                                {{ old('is_alamat_sesuai', $data->is_alamat_sesuai ?? '') == '0' ? 'checked' : '' }}
-                                onchange="toggleAlasanTidakSesuai()"
-                            >
+                            <div class="map-header">
 
-                            Tidak
+                                <strong>
+                                    Tandai lokasi tempat tinggal
+                                </strong>
 
-                        </label>
+                                <span>
+                                    Klik pada peta atau gunakan lokasi perangkat.
+                                </span>
 
-                    </div>
-
-                </div>
+                            </div>
 
 
-                <div
-                    class="form-group"
-                    id="alasan-tidak-sesuai-wrapper"
-                    style="display:none;"
-                >
+                            <div id="map"></div>
 
-                    <label class="form-label">
-                        Alasan tidak sesuai
-                    </label>
-
-                    <textarea
-                        name="alasan_tidak_sesuai"
-                        class="form-input"
-                        placeholder="Jelaskan alasan alamat tidak sesuai"
-                    >{{ old('alasan_tidak_sesuai', $data->alasan_tidak_sesuai ?? '') }}</textarea>
-
-                </div>
-
-            </div>
+                        </div>
 
 
-            {{-- =====================================================
-                 GEOTAGGING
-            ====================================================== --}}
+                        <div class="coordinate-grid">
 
-            <div class="question">
+                            <div>
 
-                <div class="question-title">
+                                <label class="question-label">
+                                    Latitude
+                                </label>
 
-                    <span class="question-number">
-                        GPS
-                    </span>
+                                <input
+                                    type="text"
+                                    name="latitude"
+                                    id="latitude"
+                                    class="form-control"
+                                    value="{{ old('latitude', $data->latitude ?? '') }}"
+                                    readonly
+                                >
 
-                    <span>
-                        Geotagging lokasi rumah
-                    </span>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label class="form-label">
-                        Koordinat lokasi
-                    </label>
-
-                    <input
-                        type="text"
-                        name="geotangging"
-                        id="geotangging"
-                        class="form-input coordinate-input"
-                        value="{{ old('geotangging', $data->geotangging ?? '') }}"
-                        placeholder="Klik lokasi pada peta"
-                        readonly
-                    >
-
-                </div>
+                            </div>
 
 
-                <div class="map-wrapper">
+                            <div>
 
-                    <div id="map"></div>
+                                <label class="question-label">
+                                    Longitude
+                                </label>
 
-                    <div class="location-info">
+                                <input
+                                    type="text"
+                                    name="longitude"
+                                    id="longitude"
+                                    class="form-control"
+                                    value="{{ old('longitude', $data->longitude ?? '') }}"
+                                    readonly
+                                >
 
-                        <p>
-                            Klik pada peta atau geser marker untuk menentukan lokasi rumah.
-                        </p>
+                            </div>
 
-                        <div
-                            id="map-status"
-                            class="map-status"
-                        >
-                            Lokasi belum dipilih.
                         </div>
 
                     </div>
@@ -1839,33 +1126,33 @@
 
             </div>
 
-        </div>
+
+            {{-- =====================================================
+                 FOOTER
+            ====================================================== --}}
+
+            <div class="form-footer">
+
+                <a
+                    href="{{ route('kuisioner.pilih-responden') }}"
+                    class="btn-reset"
+                >
+                    Kembali
+                </a>
 
 
-        {{-- =====================================================
-             FOOTER
-        ====================================================== --}}
+                <button
+                    type="submit"
+                    class="btn-next"
+                >
+                    Simpan &amp; Lanjut
+                </button>
 
-        <div class="form-footer">
+            </div>
 
-            <button
-                type="button"
-                class="btn-reset"
-                onclick="kembaliKeDaftar()"
-            >
-                Kembali
-            </button>
+        </form>
 
-            <button
-                type="submit"
-                class="btn-next"
-            >
-                Simpan &amp; Lanjut
-            </button>
-
-        </div>
-
-    </form>
+    </div>
 
 </div>
 
@@ -1873,375 +1160,49 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    /* =========================================================
-       DATA KECAMATAN & KELURAHAN
-    ========================================================= */
-
-    const kecamatanMap = @json($kecamatanMap);
-    const kelurahanMap = @json($kelurahanMap);
-
+document.addEventListener('DOMContentLoaded', function () {
 
     /* =========================================================
-       LIVE SEARCH KEPALA KELUARGA
+       ALASAN ALAMAT TIDAK SESUAI
     ========================================================= */
 
-    const familySearch =
-        document.getElementById('family-search');
+    function toggleAlasanTidakSesuai() {
 
-    let familySearchTimer = null;
-    let familySearchRequest = null;
-
-    if (familySearch) {
-
-        familySearch.addEventListener('input', function () {
-
-            const keyword = this.value.trim();
-
-            clearTimeout(familySearchTimer);
-
-            familySearchTimer = setTimeout(function () {
-
-                const url = new URL(window.location.href);
-
-                url.searchParams.delete('page');
-
-                if (keyword !== '') {
-                    url.searchParams.set('search', keyword);
-                } else {
-                    url.searchParams.delete('search');
-                }
-
-                if (familySearchRequest) {
-                    familySearchRequest.abort();
-                }
-
-                familySearchRequest = new AbortController();
-
-                fetch(url.toString(), {
-                    method: 'GET',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'text/html'
-                    },
-                    signal: familySearchRequest.signal
-                })
-                .then(function (response) {
-                    if (!response.ok) {
-                        throw new Error('Gagal melakukan pencarian.');
-                    }
-                    return response.text();
-                })
-                .then(function (html) {
-
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-
-                    const newTbody =
-                        doc.querySelector('.family-table tbody');
-
-                    const currentTbody =
-                        document.querySelector('.family-table tbody');
-
-                    if (newTbody && currentTbody) {
-                        currentTbody.innerHTML = newTbody.innerHTML;
-                    }
-
-                    const oldPagination =
-                        document.querySelector('#family-pagination');
-
-                    const newPagination =
-                        doc.querySelector('#family-pagination');
-
-                    if (oldPagination) {
-                        if (newPagination) {
-                            oldPagination.outerHTML = newPagination.outerHTML;
-                        } else {
-                            oldPagination.remove();
-                        }
-                    } else if (newPagination) {
-                        const tableWrap =
-                            document.querySelector('.family-table-wrap');
-
-                        if (tableWrap) {
-                            tableWrap.appendChild(newPagination);
-                        }
-                    }
-
-                    window.history.replaceState({}, '', url.toString());
-
-                })
-                .catch(function (error) {
-                    if (error.name !== 'AbortError') {
-                        console.error('Live search error:', error);
-                    }
-                });
-
-            }, 300);
-
-        });
-
-    }
-
-
-    /* =========================================================
-       PILIH KELUARGA
-    ========================================================= */
-
-    function pilihKeluarga(keluarga)
-    {
-
-        document.getElementById('family-picker').style.display = 'none';
-
-        document.getElementById('form-keluarga')
-            .classList.add('show');
-
-
-        const selectedBox =
-            document.getElementById('family-selected');
-
-        const selectedName =
-            document.getElementById('selected-family-name');
-
-
-        selectedBox.style.display = 'block';
-
-
-        selectedName.textContent =
-            keluarga.nama_lengkap +
-            (
-                keluarga.anggota_pertama
-                    ? ' / ' + keluarga.anggota_pertama
-                    : ''
-            );
-
-
-        /* DATA KELUARGA */
-
-        setValue(
-            'nik',
-            keluarga.nik
+        const selected = document.querySelector(
+            'input[name="is_alamat_sesuai"]:checked'
         );
 
-        setValue(
-            'nama_kepala_keluarga',
-            keluarga.nama_lengkap
+        const wrapper = document.getElementById(
+            'alasan-tidak-sesuai-wrapper'
         );
 
-        setValue(
-            'status_keluarga',
-            keluarga.status_keluarga
-        );
-
-
-        /* NOMOR INDUK KELUARGA */
-
-        setValue(
-            'nomor_induk_keluarga',
-            keluarga.nik
-        );
-
-
-        setValue(
-            'no_kk',
-            keluarga.no_kk
-        );
-
-        setValue(
-            'jml_keluarga',
-            keluarga.jumlah
-        );
-
-
-        /* KODE KELUARGA */
-
-        setValue(
-            'keluarga_kode',
-            keluarga.kode
-        );
-
-
-        /* ALAMAT */
-
-        setValue(
-            'kode_pos',
-            keluarga.kode_pos
-        );
-
-        setValue(
-            'rt_rw',
-            (keluarga.rt ?? '') +
-            (
-                keluarga.rt || keluarga.rw
-                    ? '/'
-                    : ''
-            ) +
-            (keluarga.rw ?? '')
-        );
-        
-        setValue(
-            'alamat_lengkap',
-            keluarga.alamat_lengkap
-        );
-
-
-        /* KECAMATAN */
-
-        let namaKecamatan = '';
-
-        if (
-            keluarga.kecamatan_id !== null &&
-            keluarga.kecamatan_id !== undefined
-        ) {
-
-            const kecamatanId =
-                String(keluarga.kecamatan_id);
-
-            namaKecamatan =
-                kecamatanMap[kecamatanId] || '';
-
-        }
-
-
-        setValue(
-            'kecamatan',
-            namaKecamatan
-        );
-
-
-        /* KELURAHAN */
-
-        let namaKelurahan = '';
-
-        if (
-            keluarga.kelurahan_id !== null &&
-            keluarga.kelurahan_id !== undefined
-        ) {
-
-            const kelurahanId =
-                String(keluarga.kelurahan_id);
-
-            if (kelurahanMap[kelurahanId]) {
-
-                namaKelurahan =
-                    kelurahanMap[kelurahanId].deskripsi;
-
-            }
-
-        }
-
-
-        setValue(
-            'kelurahan',
-            namaKelurahan
-        );
-
-
-        /* SCROLL KE FORM */
-
-        setTimeout(function () {
-
-            document.getElementById('form-keluarga')
-                .scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-
-
-            if (typeof map !== 'undefined') {
-
-                setTimeout(function () {
-
-                    map.invalidateSize();
-
-                }, 500);
-
-            }
-
-        }, 100);
-
-    }
-
-
-    /* =========================================================
-       SET VALUE
-    ========================================================= */
-
-    function setValue(id, value)
-    {
-
-        const element =
-            document.getElementById(id);
-
-        if (!element) {
+        if (!wrapper) {
             return;
         }
 
-        element.value =
-            value ?? '';
+        if (!selected || selected.value !== '0') {
 
+            wrapper.style.display = 'none';
+
+            return;
+        }
+
+        wrapper.style.display = 'block';
     }
 
 
-    /* =========================================================
-       KEMBALI KE DAFTAR
-    ========================================================= */
+    document
+        .querySelectorAll(
+            'input[name="is_alamat_sesuai"]'
+        )
+        .forEach(function (radio) {
 
-    function kembaliKeDaftar()
-    {
+            radio.addEventListener(
+                'change',
+                toggleAlasanTidakSesuai
+            );
 
-        document.getElementById('form-keluarga')
-            .classList.remove('show');
-
-        document.getElementById('family-selected')
-            .style.display = 'none';
-
-        document.getElementById('family-picker')
-            .style.display = 'block';
-
-
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
         });
-
-    }
-
-
-    /* =========================================================
-       ALASAN ALAMAT
-    ========================================================= */
-
-    window.toggleAlasanTidakSesuai =
-        function () {
-
-            const selected =
-                document.querySelector(
-                    'input[name="is_alamat_sesuai"]:checked'
-                );
-
-            const wrapper =
-                document.getElementById(
-                    'alasan-tidak-sesuai-wrapper'
-                );
-
-
-            if (
-                !selected ||
-                selected.value !== '0'
-            ) {
-
-                wrapper.style.display =
-                    'none';
-
-                return;
-
-            }
-
-
-            wrapper.style.display =
-                'block';
-
-        };
 
 
     toggleAlasanTidakSesuai();
@@ -2251,90 +1212,62 @@
        MAP
     ========================================================= */
 
-    const defaultLat =
-        -7.6453;
+    const mapElement =
+        document.getElementById('map');
 
-    const defaultLng =
-        112.9068;
+    if (!mapElement) {
+        return;
+    }
 
 
-    const savedCoordinate =
-        @json(
-            old(
-                'geotangging',
-                $data->geotangging ?? ''
-            )
+    const latitudeInput =
+        document.getElementById('latitude');
+
+    const longitudeInput =
+        document.getElementById('longitude');
+
+
+    const defaultLat = -7.6453;
+    const defaultLng = 112.9075;
+
+
+    const savedLat =
+        parseFloat(
+            latitudeInput?.value
+        );
+
+    const savedLng =
+        parseFloat(
+            longitudeInput?.value
         );
 
 
-    let map;
-    let marker;
+    const hasSavedLocation =
+        !isNaN(savedLat) &&
+        !isNaN(savedLng);
 
 
-    if (
-        savedCoordinate &&
-        savedCoordinate.includes(',')
-    ) {
+    const initialLat =
+        hasSavedLocation
+            ? savedLat
+            : defaultLat;
 
-        const parts =
-            savedCoordinate.split(',');
-
-        const lat =
-            parseFloat(parts[0]);
-
-        const lng =
-            parseFloat(parts[1]);
+    const initialLng =
+        hasSavedLocation
+            ? savedLng
+            : defaultLng;
 
 
-        if (
-            !isNaN(lat) &&
-            !isNaN(lng)
-        ) {
-
-            map =
-                L.map('map').setView(
-                    [lat, lng],
-                    16
-                );
-
-
-            marker =
-                L.marker(
-                    [lat, lng],
-                    {
-                        draggable: true
-                    }
-                ).addTo(map);
-
-        }
-
-    }
-
-
-    if (!map) {
-
-        map =
-            L.map('map').setView(
-                [
-                    defaultLat,
-                    defaultLng
-                ],
-                13
-            );
-
-
-        marker =
-            L.marker(
-                [
-                    defaultLat,
-                    defaultLng
-                ],
-                {
-                    draggable: true
-                }
-            ).addTo(map);
-
-    }
+    const map =
+        L.map('map').setView(
+            [
+                initialLat,
+                initialLng
+            ],
+            hasSavedLocation
+                ? 17
+                : 13
+        );
 
 
     L.tileLayer(
@@ -2346,55 +1279,86 @@
     ).addTo(map);
 
 
-    function updateCoordinate(lat, lng)
-    {
-
-        const value =
-            lat.toFixed(6) +
-            ',' +
-            lng.toFixed(6);
+    let marker = null;
 
 
-        document.getElementById(
-            'geotangging'
-        ).value = value;
+    /* =========================================================
+       SET LOCATION
+    ========================================================= */
+
+    function setLocation(lat, lng) {
+
+        if (marker) {
+
+            map.removeLayer(marker);
+
+        }
 
 
-        document.getElementById(
-            'map-status'
-        ).textContent =
-            'Lokasi dipilih: ' + value;
+        marker =
+            L.marker(
+                [lat, lng],
+                {
+                    draggable: true
+                }
+            ).addTo(map);
+
+
+        if (latitudeInput) {
+
+            latitudeInput.value = lat;
+
+        }
+
+
+        if (longitudeInput) {
+
+            longitudeInput.value = lng;
+
+        }
+
+
+        marker.on(
+            'dragend',
+            function (event) {
+
+                const position =
+                    event.target.getLatLng();
+
+                setLocation(
+                    position.lat,
+                    position.lng
+                );
+
+            }
+        );
 
     }
 
 
-    marker.on(
-        'dragend',
-        function (event) {
+    /* =========================================================
+       LOKASI YANG SUDAH TERSIMPAN
+    ========================================================= */
 
-            const position =
-                event.target.getLatLng();
+    if (hasSavedLocation) {
+
+        setLocation(
+            savedLat,
+            savedLng
+        );
+
+    }
 
 
-            updateCoordinate(
-                position.lat,
-                position.lng
-            );
-
-        }
-    );
-
+    /* =========================================================
+       KLIK MAP
+    ========================================================= */
 
     map.on(
         'click',
         function (event) {
 
-            marker.setLatLng(
-                event.latlng
-            );
-
-
-            updateCoordinate(
+            setLocation(
                 event.latlng.lat,
                 event.latlng.lng
             );
@@ -2403,32 +1367,46 @@
     );
 
 
+    /* =========================================================
+       GEOLOCATION PERANGKAT
+    ========================================================= */
+
     if (
-        savedCoordinate &&
-        savedCoordinate.includes(',')
+        !hasSavedLocation &&
+        navigator.geolocation
     ) {
 
-        const parts =
-            savedCoordinate.split(',');
+        navigator.geolocation.getCurrentPosition(
 
-        const lat =
-            parseFloat(parts[0]);
+            function (position) {
 
-        const lng =
-            parseFloat(parts[1]);
+                const lat =
+                    position.coords.latitude;
+
+                const lng =
+                    position.coords.longitude;
 
 
-        if (
-            !isNaN(lat) &&
-            !isNaN(lng)
-        ) {
+                map.setView(
+                    [lat, lng],
+                    17
+                );
 
-            updateCoordinate(
-                lat,
-                lng
-            );
 
-        }
+                setLocation(
+                    lat,
+                    lng
+                );
+
+            },
+
+            function () {
+
+                // Lokasi perangkat tidak tersedia.
+
+            }
+
+        );
 
     }
 
@@ -2437,117 +1415,53 @@
        GEOCODING
     ========================================================= */
 
-    const addressFields = [
+    const jalanInput =
+        document.getElementById('jalan');
 
-        'provinsi',
-        'daerah',
-        'kecamatan',
-        'kelurahan',
-        'kode_pos',
-        'rt_rw',
-        'alamat_lengkap',
-        'jalan_rumah',
-        'nomor_rumah'
-
-    ];
+    const nomorRumahInput =
+        document.getElementById('nomor_rumah');
 
 
-    addressFields.forEach(
-        function (id) {
-
-            const element =
-                document.getElementById(id);
-
-            if (!element) {
-                return;
-            }
+    let geocodeTimer = null;
 
 
-            element.addEventListener(
-                'change',
-                updateMapFromAddress
-            );
-
-        }
-    );
-
-
-    async function updateMapFromAddress()
-    {
-
-        const provinsi =
-            document.getElementById(
-                'provinsi'
-            )?.value || '';
-
-
-        const daerah =
-            document.getElementById(
-                'daerah'
-            )?.value || '';
-
-
-        const kecamatan =
-            document.getElementById(
-                'kecamatan'
-            )?.value || '';
-
-
-        const kelurahan =
-            document.getElementById(
-                'kelurahan'
-            )?.value || '';
-
-
-        const kodePos =
-            document.getElementById(
-                'kode_pos'
-            )?.value || '';
-
-
-        const rtRw =
-            document.getElementById(
-                'rt_rw'
-            )?.value || '';
-
-
-        const alamat =
-            document.getElementById(
-                'alamat_lengkap'
-            )?.value || '';
-
+    function geocodeAlamat() {
 
         const jalan =
-            document.getElementById(
-                'jalan_rumah'
-            )?.value || '';
-
+            jalanInput?.value?.trim() || '';
 
         const nomorRumah =
-            document.getElementById(
-                'nomor_rumah'
-            )?.value || '';
+            nomorRumahInput?.value?.trim() || '';
+
+        const kecamatan =
+            @json($nilaiKecamatan);
+
+        const kelurahan =
+            @json($nilaiKelurahan);
 
 
-        const query = [
+        if (
+            !jalan &&
+            !kelurahan &&
+            !kecamatan
+        ) {
+            return;
+        }
 
-            alamat,
 
-            rtRw,
+        const address = [
 
-            jalan && nomorRumah
-                ? jalan + ' ' + nomorRumah
-                : jalan,
+            jalan,
+
+            nomorRumah,
 
             kelurahan,
 
             kecamatan,
 
-            daerah,
+            'Kota Pasuruan',
 
-            provinsi,
-
-            kodePos,
+            'Jawa Timur',
 
             'Indonesia'
 
@@ -2556,46 +1470,32 @@
         .join(', ');
 
 
-        if (!query) {
-            return;
-        }
-
-
-        try {
-
-            const response =
-                await fetch(
-                    'https://nominatim.openstreetmap.org/search?' +
-                    new URLSearchParams({
-
-                        q: query,
-
-                        format: 'json',
-
-                        limit: '1',
-
-                        countrycodes: 'id',
-
-                        addressdetails: '1'
-
-                    })
-                );
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    'Gagal mengambil data lokasi.'
-                );
-
+        fetch(
+            'https://nominatim.openstreetmap.org/search?' +
+            new URLSearchParams({
+                q: address,
+                format: 'json',
+                limit: 1
+            }),
+            {
+                headers: {
+                    'Accept': 'application/json'
+                }
             }
+        )
 
+        .then(function (response) {
 
-            const results =
-                await response.json();
+            return response.json();
 
+        })
 
-            if (!results.length) {
+        .then(function (results) {
+
+            if (
+                !results ||
+                !results.length
+            ) {
                 return;
             }
 
@@ -2604,7 +1504,6 @@
                 parseFloat(
                     results[0].lat
                 );
-
 
             const lng =
                 parseFloat(
@@ -2620,68 +1519,64 @@
             }
 
 
-            let zoom = 13;
-
-
-            if (kecamatan) {
-                zoom = 14;
-            }
-
-
-            if (kelurahan) {
-                zoom = 16;
-            }
-
-
-            if (rtRw) {
-                zoom = 17;
-            }
-
-
             map.setView(
-                [
-                    lat,
-                    lng
-                ],
-                zoom,
-                {
-                    animate: true
-                }
+                [lat, lng],
+                17
             );
 
 
-            marker.setLatLng(
-                [
-                    lat,
-                    lng
-                ]
-            );
-
-
-            updateCoordinate(
+            setLocation(
                 lat,
                 lng
             );
 
+        })
 
-        } catch (error) {
+        .catch(function () {
 
-            console.error(
-                'Gagal mencari lokasi:',
-                error
-            );
+            // Gagal geocoding tidak mengganggu form.
 
-        }
+        });
 
     }
 
 
-    setTimeout(
-        function () {
-            map.invalidateSize();
-        },
-        300
-    );
+    function scheduleGeocode() {
+
+        clearTimeout(
+            geocodeTimer
+        );
+
+
+        geocodeTimer =
+            setTimeout(
+                geocodeAlamat,
+                1000
+            );
+
+    }
+
+
+    if (jalanInput) {
+
+        jalanInput.addEventListener(
+            'change',
+            scheduleGeocode
+        );
+
+    }
+
+
+    if (nomorRumahInput) {
+
+        nomorRumahInput.addEventListener(
+            'change',
+            scheduleGeocode
+        );
+
+    }
+
+});
 </script>
 
 @endsection

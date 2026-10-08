@@ -309,6 +309,12 @@ Route::post('/profil/ubah-password', function (Request $request) {
 Route::get('/periode', [PeriodeController::class, 'index'])
     ->name('periode.index');
 
+Route::get('/periode/pilih', [PeriodeController::class, 'pilih'])
+    ->name('periode.pilih');
+
+Route::post('/periode/set', [PeriodeController::class, 'setPeriode'])
+    ->name('periode.set');
+
 Route::get('/periode/tambah', [PeriodeController::class, 'create'])
     ->name('periode.create');
 
@@ -363,6 +369,7 @@ Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'g
 */
 
 Route::get('/kuisioner', [KuisionerController::class, 'index'])
+    ->middleware('periode')    
     ->name('kuisioner.index');
 
 Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
@@ -374,6 +381,13 @@ Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
 Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
     ->name('kuisioner.selesai');
 
+// =========================
+// KUISIONER - PILIH RESPONDEN
+// =========================
+
+Route::get('/kuisioner/pilih-responden', [KuisionerController::class, 'pilihResponden'])
+    ->middleware('periode')
+    ->name('kuisioner.pilih-responden');
 
 /*
 |--------------------------------------------------------------------------
@@ -476,6 +490,7 @@ Route::get('/kuisioner/selesai/{id}', [KuisionerController::class, 'detailSelesa
 */
 
 Route::get('/verifikasi', [VerifikasiController::class, 'index'])
+    ->middleware('periode')    
     ->name('verifikasi.index');
 
 Route::get('/verifikasi/{id}', [VerifikasiController::class, 'show'])
@@ -495,6 +510,7 @@ Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])
 */
 
 Route::get('/monitoring', [MonitoringController::class, 'index'])
+    ->middleware('periode')    
     ->name('monitoring.index');
 
 Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
@@ -511,7 +527,8 @@ Route::get('/laporan', function () {
 
     return view('admin.laporan.index');
 
-})->name('laporan.index');
+})->middleware('periode')
+  ->name('laporan.index');
 
 
 Route::get('/laporan/export', function () {
