@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Periode;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
 
 class PeriodeController extends Controller
 {
@@ -23,7 +22,7 @@ class PeriodeController extends Controller
             $query->where(
                 'nama',
                 'like',
-                '%' . $search . '%'
+                '%'.$search.'%'
             );
         }
 
@@ -37,7 +36,6 @@ class PeriodeController extends Controller
         );
     }
 
-
     /**
      * Menyimpan periode baru.
      */
@@ -49,22 +47,16 @@ class PeriodeController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'status' => 'required|string|max:255',
         ], [
-            'nama_periode.required' =>
-                'Nama kegiatan wajib diisi.',
+            'nama_periode.required' => 'Nama kegiatan wajib diisi.',
 
-            'tanggal_mulai.required' =>
-                'Tanggal mulai wajib diisi.',
+            'tanggal_mulai.required' => 'Tanggal mulai wajib diisi.',
 
-            'tanggal_selesai.required' =>
-                'Tanggal selesai wajib diisi.',
+            'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
 
-            'tanggal_selesai.after_or_equal' =>
-                'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
 
-            'status.required' =>
-                'Status wajib dipilih.',
+            'status.required' => 'Status wajib dipilih.',
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -72,13 +64,12 @@ class PeriodeController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $kode = 'PER-' . str_pad(
+        $kode = 'PER-'.str_pad(
             (Periode::max('id') ?? 0) + 1,
             3,
             '0',
             STR_PAD_LEFT
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -86,7 +77,7 @@ class PeriodeController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $periode = new Periode();
+        $periode = new Periode;
 
         $periode->kode =
             $kode;
@@ -111,7 +102,6 @@ class PeriodeController extends Controller
 
         $periode->save();
 
-
         return redirect()
             ->route('periode.index')
             ->with(
@@ -119,7 +109,6 @@ class PeriodeController extends Controller
                 'Periode berhasil ditambahkan.'
             );
     }
-
 
     /**
      * Memperbarui periode.
@@ -132,25 +121,18 @@ class PeriodeController extends Controller
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'status' => 'required|string|max:255',
         ], [
-            'nama_periode.required' =>
-                'Nama kegiatan wajib diisi.',
+            'nama_periode.required' => 'Nama kegiatan wajib diisi.',
 
-            'tanggal_mulai.required' =>
-                'Tanggal mulai wajib diisi.',
+            'tanggal_mulai.required' => 'Tanggal mulai wajib diisi.',
 
-            'tanggal_selesai.required' =>
-                'Tanggal selesai wajib diisi.',
+            'tanggal_selesai.required' => 'Tanggal selesai wajib diisi.',
 
-            'tanggal_selesai.after_or_equal' =>
-                'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
+            'tanggal_selesai.after_or_equal' => 'Tanggal selesai harus setelah atau sama dengan tanggal mulai.',
 
-            'status.required' =>
-                'Status wajib dipilih.',
+            'status.required' => 'Status wajib dipilih.',
         ]);
 
-
         $periode = Periode::findOrFail($id);
-
 
         $periode->nama =
             $request->nama_periode;
@@ -169,7 +151,6 @@ class PeriodeController extends Controller
 
         $periode->save();
 
-
         return redirect()
             ->route('periode.index')
             ->with(
@@ -177,7 +158,6 @@ class PeriodeController extends Controller
                 'Periode berhasil diperbarui.'
             );
     }
-
 
     /**
      * Menampilkan halaman pemilihan periode.
@@ -218,7 +198,7 @@ class PeriodeController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if (!in_array($tujuan, $tujuanYangDiizinkan, true)) {
+        if (! in_array($tujuan, $tujuanYangDiizinkan, true)) {
             $tujuan = 'kuisioner.index';
         }
 
@@ -230,7 +210,6 @@ class PeriodeController extends Controller
             )
         );
     }
-
 
     /**
      * Menyimpan periode yang dipilih
@@ -252,11 +231,9 @@ class PeriodeController extends Controller
             ],
         ]);
 
-
         $periode = Periode::findOrFail(
             $request->periode_id
         );
-
 
         /*
         |--------------------------------------------------------------------------
@@ -265,11 +242,10 @@ class PeriodeController extends Controller
         */
 
         session([
-            'periode_id'   => $periode->id,
+            'periode_id' => $periode->id,
             'periode_kode' => $periode->kode,
             'periode_nama' => $periode->nama,
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -281,7 +257,6 @@ class PeriodeController extends Controller
             $request->tujuan
         );
     }
-
 
     /**
      * Menghapus periode.

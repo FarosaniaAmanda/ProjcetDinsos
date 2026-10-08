@@ -1,22 +1,20 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ForgotPasswordController;
 use App\Http\Controllers\Admin\KuisionerController;
+use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\RespondenController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
-use App\Http\Controllers\Admin\LaporanController;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,7 +30,6 @@ Route::post('/login', [LoginController::class, 'login'])
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +49,6 @@ Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showRes
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
     ->name('password.update');
 
-
 /*
 |--------------------------------------------------------------------------
 | DASHBOARD
@@ -61,7 +57,6 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -75,13 +70,11 @@ Route::get('/profil', function () {
 
 })->name('profil.index');
 
-
 Route::get('/profil/ubah-password', function () {
 
     return view('admin.profil.ubah-password');
 
 })->name('profil.password');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -116,23 +109,17 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
     ], [
 
-        'password_lama.required' =>
-            'Password lama wajib diisi.',
+        'password_lama.required' => 'Password lama wajib diisi.',
 
-        'password_baru.required' =>
-            'Password baru wajib diisi.',
+        'password_baru.required' => 'Password baru wajib diisi.',
 
-        'password_baru.min' =>
-            'Password baru minimal 8 karakter.',
+        'password_baru.min' => 'Password baru minimal 8 karakter.',
 
-        'password_baru_confirmation.required' =>
-            'Konfirmasi password wajib diisi.',
+        'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.',
 
-        'password_baru_confirmation.same' =>
-            'Konfirmasi password tidak sama.',
+        'password_baru_confirmation.same' => 'Konfirmasi password tidak sama.',
 
     ]);
-
 
     /*
     |--------------------------------------------------------------------------
@@ -140,13 +127,12 @@ Route::post('/profil/ubah-password', function (Request $request) {
     |--------------------------------------------------------------------------
     */
 
-    if (!Auth::check()) {
+    if (! Auth::check()) {
 
         return redirect()
             ->route('login');
 
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -160,14 +146,13 @@ Route::post('/profil/ubah-password', function (Request $request) {
         ->where('id', $userId)
         ->first();
 
-
     /*
     |--------------------------------------------------------------------------
     | USER TIDAK DITEMUKAN
     |--------------------------------------------------------------------------
     */
 
-    if (!$user) {
+    if (! $user) {
 
         Auth::logout();
 
@@ -175,7 +160,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
             ->route('login');
 
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -188,7 +172,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
     $passwordLamaInput =
         (string) $request->input('password_lama');
 
-
     /*
     |--------------------------------------------------------------------------
     | CEK PASSWORD LAMA
@@ -196,7 +179,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
     */
 
     $passwordBenar = false;
-
 
     /*
     |--------------------------------------------------------------------------
@@ -218,7 +200,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | JIKA PASSWORD LAMA DI DATABASE TEKS BIASA
@@ -234,55 +215,37 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | PASSWORD LAMA SALAH
     |--------------------------------------------------------------------------
-    |
-    | PENTING:
-    |
-    | Kalau password lama salah,
-    | proses LANGSUNG BERHENTI.
-    |
-    | Password baru TIDAK AKAN DISIMPAN.
-    |
     */
 
-    if (!$passwordBenar) {
+    if (! $passwordBenar) {
 
         return back()
             ->withErrors([
-                'password_lama' =>
-                    'Password lama salah.',
+                'password_lama' => 'Password lama salah.',
             ])
             ->withInput();
 
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | PASSWORD LAMA BENAR
     |--------------------------------------------------------------------------
-    |
-    | Hanya kalau password lama benar,
-    | password baru boleh disimpan.
-    |
     */
 
     DB::table('users')
         ->where('id', $userId)
         ->update([
 
-            'password' =>
-                $request->input('password_baru'),
+            'password' => $request->input('password_baru'),
 
-            'updated_at' =>
-                now(),
+            'updated_at' => now(),
 
         ]);
-
 
     /*
     |--------------------------------------------------------------------------
@@ -299,7 +262,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
 })->name('profil.password.update');
 
-
 /*
 |--------------------------------------------------------------------------
 | PERIODE
@@ -315,6 +277,12 @@ Route::get('/periode/tambah', [PeriodeController::class, 'create'])
 Route::post('/periode', [PeriodeController::class, 'store'])
     ->name('periode.store');
 
+Route::get('/periode/pilih', [PeriodeController::class, 'pilih'])
+    ->name('periode.pilih');
+
+Route::post('/periode/set', [PeriodeController::class, 'setPeriode'])
+    ->name('periode.set');
+
 Route::get('/periode/{id}/edit', [PeriodeController::class, 'edit'])
     ->name('periode.edit');
 
@@ -323,7 +291,6 @@ Route::put('/periode/{id}', [PeriodeController::class, 'update'])
 
 Route::delete('/periode/{id}', [PeriodeController::class, 'destroy'])
     ->name('periode.destroy');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -355,7 +322,6 @@ Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData']
 Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
     ->name('responden.kelurahan');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER
@@ -365,6 +331,9 @@ Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'g
 Route::get('/kuisioner', [KuisionerController::class, 'index'])
     ->name('kuisioner.index');
 
+Route::get('/kuisioner/pilih-responden', [KuisionerController::class, 'pilihResponden'])
+    ->name('kuisioner.pilih-responden');
+
 Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
     ->name('kuisioner.draft');
 
@@ -373,7 +342,6 @@ Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
 
 Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
     ->name('kuisioner.selesai');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -387,7 +355,6 @@ Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
 Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
     ->name('kuisioner.part1.store');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - PART 2
@@ -399,7 +366,6 @@ Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
 
 Route::post('/kuisioner/part2', [KuisionerController::class, 'storePart2'])
     ->name('kuisioner.part2.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -413,7 +379,6 @@ Route::get('/kuisioner/part3', [KuisionerController::class, 'part3'])
 Route::post('/kuisioner/part3', [KuisionerController::class, 'storePart3'])
     ->name('kuisioner.part3.store');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - PART 4
@@ -425,7 +390,6 @@ Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
 
 Route::post('/kuisioner/part4', [KuisionerController::class, 'storePart4'])
     ->name('kuisioner.part4.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -442,7 +406,6 @@ Route::get('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'part
 Route::post('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'storePart5Anggota'])
     ->name('kuisioner.part5.anggota.store');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - PART 5 FOTO RUMAH
@@ -454,7 +417,6 @@ Route::get('/kuisioner/part5/foto', [KuisionerController::class, 'part5Foto'])
 
 Route::post('/kuisioner/part5/foto', [KuisionerController::class, 'storePart5Foto'])
     ->name('kuisioner.part5.foto.store');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -468,7 +430,6 @@ Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner
 Route::get('/kuisioner/selesai/{id}', [KuisionerController::class, 'detailSelesai'])
     ->name('kuisioner.selesai.detail');
 
-
 /*
 |--------------------------------------------------------------------------
 | VERIFIKASI
@@ -478,15 +439,39 @@ Route::get('/kuisioner/selesai/{id}', [KuisionerController::class, 'detailSelesa
 Route::get('/verifikasi', [VerifikasiController::class, 'index'])
     ->name('verifikasi.index');
 
+/*
+|--------------------------------------------------------------------------
+| DETAIL JAWABAN ANGGOTA KELUARGA
+|--------------------------------------------------------------------------
+|
+| Diletakkan sebelum /verifikasi/{id}
+| agar URL detail anggota tidak tertangkap
+| oleh route detail data pendataan.
+|
+*/
+
+Route::get(
+    '/verifikasi/{id}/anggota/{memberCode}',
+    [VerifikasiController::class, 'memberDetail']
+)->name('verifikasi.anggota.detail');
+
+/*
+|--------------------------------------------------------------------------
+| DETAIL DATA PENDATAAN
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/verifikasi/{id}', [VerifikasiController::class, 'show'])
     ->name('verifikasi.show');
 
-Route::get('/verifikasi/{id}/anggota/{memberCode}', [VerifikasiController::class, 'memberDetail'])
-    ->name('verifikasi.anggota.detail');
+/*
+|--------------------------------------------------------------------------
+| UPDATE VERIFIKASI
+|--------------------------------------------------------------------------
+*/
 
 Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])
     ->name('verifikasi.update');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -500,33 +485,23 @@ Route::get('/monitoring', [MonitoringController::class, 'index'])
 Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
     ->name('monitoring.detail');
 
-
 /*
 |--------------------------------------------------------------------------
 | LAPORAN
 |--------------------------------------------------------------------------
 */
 
-
-
 Route::get('/laporan', [LaporanController::class, 'index'])
     ->name('laporan.index');
 
+Route::get('/laporan/{id}/detail', [LaporanController::class, 'showDetail'])
+    ->name('laporan.detail');
 
-Route::get('/laporan/export', function () {
+Route::get('/laporan/{id}/pdf', [LaporanController::class, 'pdf'])
+    ->name('laporan.pdf');
 
-    return response()->streamDownload(function () {
-
-        echo "No. KK,Periode,Tanggal Pendataan,Status\n";
-
-    }, 'laporan-pendataan.csv', [
-
-        'Content-Type' => 'text/csv',
-
-    ]);
-
-})->name('admin.laporan.export');
-
+Route::get('/laporan/export', [LaporanController::class, 'export'])
+    ->name('admin.laporan.export');
 
 /*
 |--------------------------------------------------------------------------
@@ -540,7 +515,6 @@ Route::get('/master', function () {
         ->route('master.pengguna.index');
 
 })->name('master.index');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -565,7 +539,6 @@ Route::post(
 Route::delete('/master/pengguna/{user}', [UserController::class, 'destroy'])
     ->name('master.pengguna.destroy');
 
-
 /*
 |--------------------------------------------------------------------------
 | MASTER - OPERATOR
@@ -578,13 +551,11 @@ Route::get('/master/operator/create', function () {
 
 })->name('master.operator.create');
 
-
 Route::get('/master/operator/{id}/edit', function ($id) {
 
     return view('admin.master.operator.edit');
 
 })->name('master.operator.edit');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -597,7 +568,6 @@ Route::get('/master/verifikator/create', function () {
     return view('admin.master.verifikator.create');
 
 })->name('master.verifikator.create');
-
 
 Route::get('/master/verifikator/{id}/edit', function ($id) {
 

@@ -116,9 +116,9 @@
 @section('content')
 <main class="member-answer-page">
     <article class="member-answer-card">
-        <a class="member-answer-back" href="{{ route('verifikasi.index') }}">
-            &larr; Kembali ke Verifikasi
-        </a>
+        <a class="member-answer-back" href="{{ $backUrl }}">
+    &larr; Kembali ke Hasil Kuisonier
+</a>
 
         <h1 class="member-answer-title">Detail Jawaban Anggota Keluarga</h1>
         <p class="member-answer-subtitle">

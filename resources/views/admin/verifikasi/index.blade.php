@@ -5,6 +5,250 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style> 
+
+
+/* =========================================================
+   FIX DETAIL ANGGOTA KELUARGA
+
+   ========================================================= */
+
+.family-members-section .family-members-inline {
+    position: static !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    bottom: auto !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin-top: 18px !important;
+    padding: 18px !important;
+
+    box-sizing: border-box !important;
+
+    display: block !important;
+
+    background: #ffffff !important;
+    border: 1px solid #e1e5ef !important;
+    border-radius: 14px !important;
+
+    box-shadow: 0 8px 24px rgba(31, 41, 55, 0.06) !important;
+
+    z-index: 1 !important;
+}
+
+/* Header anggota */
+.family-members-section .family-members-inline-header {
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+
+    position: relative !important;
+
+    padding-bottom: 14px !important;
+    margin-bottom: 14px !important;
+
+    border-bottom: 1px solid #edf0f5 !important;
+}
+
+/* Judul */
+.family-members-section .family-members-inline-title {
+    min-width: 0 !important;
+    flex: 1 !important;
+}
+
+.family-members-section .family-members-inline-title h4 {
+    margin: 0 0 5px !important;
+
+    color: #252A86 !important;
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+}
+
+.family-members-section .family-members-inline-title p {
+    margin: 0 !important;
+
+    color: #73798a !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+}
+
+/* Ringkasan kepala keluarga */
+.family-members-section .family-members-inline-summary {
+    position: static !important;
+
+    flex: 0 0 auto !important;
+    min-width: 180px !important;
+
+    padding: 9px 12px !important;
+
+    border: 1px solid #e2e6f4 !important;
+    border-radius: 9px !important;
+
+    background: #f7f8fd !important;
+
+    text-align: right !important;
+}
+
+.family-members-section .family-members-inline-summary span {
+    display: block !important;
+
+    margin-bottom: 3px !important;
+
+    color: #858b99 !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+}
+
+.family-members-section .family-members-inline-summary strong {
+    display: block !important;
+
+    color: #252A86 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+
+    word-break: break-word !important;
+}
+
+/* Tabel */
+.family-members-section .family-members-inline-table-wrapper {
+    width: 100% !important;
+
+    max-height: 320px !important;
+
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+
+    border: 1px solid #e5e7eb !important;
+    border-radius: 10px !important;
+
+    background: #ffffff !important;
+}
+
+.family-members-section .family-members-inline-table {
+    width: 100% !important;
+    min-width: 700px !important;
+
+    border-collapse: collapse !important;
+}
+
+.family-members-section .family-members-inline-table th {
+    padding: 11px 12px !important;
+
+    background: #f4f6fa !important;
+
+    color: #555d70 !important;
+
+    font-size: 11px !important;
+    font-weight: 700 !important;
+
+    text-align: left !important;
+
+    border-bottom: 1px solid #e3e6ed !important;
+
+    white-space: nowrap !important;
+}
+
+.family-members-section .family-members-inline-table td {
+    padding: 12px !important;
+
+    color: #454b59 !important;
+
+    font-size: 12px !important;
+
+    border-bottom: 1px solid #edf0f4 !important;
+
+    vertical-align: middle !important;
+}
+
+.family-members-section .family-members-inline-table tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+.family-members-section .family-members-inline-table tbody tr:hover {
+    background: #fafbfe !important;
+}
+
+.family-members-section .family-member-name {
+    color: #252A86 !important;
+    font-weight: 600 !important;
+}
+
+.family-members-section .family-member-status {
+    display: inline-flex !important;
+    align-items: center !important;
+
+    padding: 4px 8px !important;
+
+    border-radius: 999px !important;
+
+    background: #eef0f7 !important;
+    color: #626978 !important;
+
+    font-size: 10px !important;
+    font-weight: 600 !important;
+}
+
+/* Tampilan kosong */
+.family-members-section .family-members-empty {
+    padding: 25px 15px !important;
+    text-align: center !important;
+}
+
+.family-members-section .family-members-empty strong {
+    display: block !important;
+
+    margin-bottom: 5px !important;
+
+    color: #252A86 !important;
+    font-size: 13px !important;
+}
+
+.family-members-section .family-members-empty span {
+    color: #73798a !important;
+    font-size: 11px !important;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .family-members-section .family-members-inline {
+        position: static !important;
+
+        width: 100% !important;
+        max-width: none !important;
+
+        margin-top: 14px !important;
+        padding: 13px !important;
+    }
+
+    .family-members-section .family-members-inline-header {
+        display: block !important;
+    }
+
+    .family-members-section .family-members-inline-summary {
+        width: 100% !important;
+        min-width: 0 !important;
+
+        margin-top: 12px !important;
+
+        text-align: left !important;
+
+        box-sizing: border-box !important;
+    }
+
+    .family-members-section .family-members-inline-table-wrapper {
+        max-height: 300px !important;
+        overflow-x: auto !important;
+        overflow-y: auto !important;
+    }
+}
     
     /* =====================================================
        VERIFICATION PAGE
@@ -3400,7 +3644,7 @@
                             <th>No. KK</th> 
                             <th>NIK</th> 
                             <th>Nama Kepala Keluarga</th> 
-                            <th>Jumlah Anggota (termasuk KK)</th>
+                            <th>Jumlah Anggota </th>
                             <th>Periode</th>
                             <th>Status</th> 
                             <th>Wilayah Pendataan</th> 
@@ -3989,7 +4233,7 @@
                     <div class="verification-section-heading">
                         <div>
                             <h3>Detail Anggota Keluarga</h3>
-                            <p>Jumlah anggota mencakup kepala keluarga dan seluruh anggota yang terdaftar.</p>
+                            <p>Jumlah anggota tidak mencakup kepala keluarga.</p>
                         </div>
                     </div>
 
@@ -3997,7 +4241,7 @@
                         <div class="family-members-inline-header">
                             <div class="family-members-inline-title">
                                 <h4>Anggota dalam Kartu Keluarga</h4>
-                                <p id="familyMembersCardCount">0 orang (termasuk kepala keluarga)</p>
+                                <p id="familyMembersCardCount">0 orang</p>
                             </div>
                             <div class="family-members-inline-summary">
                                 <span>Kepala Keluarga</span>
@@ -4178,7 +4422,11 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
 <script> 
+
+
 document.addEventListener('DOMContentLoaded', function () { 
  
     /* ===================================================== 
@@ -4838,6 +5086,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const memberDetailRouteTemplate =
         @json(route('verifikasi.anggota.detail', ['id' => '__ID__', 'memberCode' => '__MEMBER__']));
+
+    const returnQuery = new URLSearchParams(window.location.search);
+    returnQuery.delete('detail');
+    returnQuery.delete('part');
+    const returnQueryString = returnQuery.toString();
+
+    function memberDetailUrl(id, memberCode) {
+        const url = memberDetailRouteTemplate
+            .replace('__ID__', encodeURIComponent(id))
+            .replace('__MEMBER__', encodeURIComponent(memberCode));
+
+        return returnQueryString
+            ? `${url}?${returnQueryString}`
+            : url;
+    }
  
  
     /* ===================================================== 
@@ -5388,9 +5651,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         if (member.kode) {
                             const detailLink = document.createElement('a');
                             detailLink.className = 'member-questionnaire-action';
-                            detailLink.href = memberDetailRouteTemplate
-                                .replace('__ID__', encodeURIComponent(currentVerificationRow.dataset.id || ''))
-                                .replace('__MEMBER__', encodeURIComponent(member.kode));
+                            detailLink.href = memberDetailUrl(
+                                currentVerificationRow.dataset.id || '',
+                                member.kode
+                            );
                             detailLink.textContent = 'Detail Jawaban';
                             actionCell.appendChild(detailLink);
                         } else {
@@ -5766,7 +6030,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (familyMembersCardCount) {
-            familyMembersCardCount.textContent = `${jumlah} orang (termasuk kepala keluarga)`;
+            familyMembersCardCount.textContent = `${jumlah} orang`;
         }
  
         if (familyInlineStatus) { 
@@ -5793,9 +6057,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const statusMember = member.status_keluarga ?? member.status ?? '-'; 
             const isHeadOfHousehold = statusMember.trim().toLowerCase() === 'kepala keluarga';
             const action = member.kode && !isHeadOfHousehold
-                ? `<a class="member-questionnaire-action" href="${escapeHtmlValue(memberDetailRouteTemplate
-                    .replace('__ID__', encodeURIComponent(row.dataset.id || ''))
-                    .replace('__MEMBER__', encodeURIComponent(member.kode)))}">Detail Jawaban</a>`
+                ? `<a class="member-questionnaire-action" href="${escapeHtmlValue(memberDetailUrl(
+                    row.dataset.id || '',
+                    member.kode
+                ))}">Detail Jawaban</a>`
                 : '<span aria-label="Tidak ada kuisioner individu">-</span>';
  
             return ` 
@@ -6050,22 +6315,30 @@ document.addEventListener('DOMContentLoaded', function () {
  
         } 
  
-        renderQuestionnaire( 
-            rawQuestionnaire 
-        ); 
+        /* Tampilkan modal lebih dulu agar error render tidak membuat tombol Detail terlihat mati. */
+        verificationModal.classList.add('show');
+        verificationModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
 
-        renderFamilyMembersInline(row);
- 
- 
-        verificationModal.classList.add('show'); 
- 
-        verificationModal.setAttribute( 
-            'aria-hidden', 
-            'false' 
-        ); 
- 
-        document.body.style.overflow = 
-            'hidden'; 
+        try {
+            renderQuestionnaire(rawQuestionnaire);
+        } catch (error) {
+            console.error('Gagal menampilkan kuisioner:', error);
+            if (questionnaireContent) {
+                questionnaireContent.innerHTML = `
+                    <div class="questionnaire-empty">
+                        <strong>Data kuisioner belum dapat ditampilkan.</strong>
+                        <span>Silakan periksa data kuisioner responden.</span>
+                    </div>
+                `;
+            }
+        }
+
+        try {
+            renderFamilyMembersInline(row);
+        } catch (error) {
+            console.error('Gagal menampilkan anggota keluarga:', error);
+        } 
  
     } 
  
@@ -6142,25 +6415,27 @@ document.addEventListener('DOMContentLoaded', function () {
 ====================================================== */ 
  
 document.addEventListener('click', function (event) {
+        const target = event.target;
+        if (!target || typeof target.closest !== 'function') return;
 
-    const button = event.target.closest('.btn-open-detail');
- 
-    if (!button) { 
-        return; 
-    } 
- 
-    event.preventDefault(); 
- 
-    const row = button.closest('.data-row'); 
- 
-    if (!row) { 
-        console.error('Baris data responden tidak ditemukan.'); 
-        return; 
-    } 
- 
-    openVerificationModal(row); 
- 
-}); 
+        const button = target.closest('.btn-open-detail');
+        if (!button) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const row = button.closest('tr.data-row') || button.closest('.data-row');
+        if (!row) {
+            console.error('Baris data responden tidak ditemukan.');
+            return;
+        }
+
+        try {
+            openVerificationModal(row);
+        } catch (error) {
+            console.error('Gagal membuka Detail:', error);
+        }
+    }); 
  
     /* ===================================================== 
        CLOSE BUTTON 
@@ -6217,11 +6492,48 @@ document.addEventListener('click', function (event) {
                 closeModal(); 
  
             } 
- 
+
         } 
     ); 
- 
-}); 
+
+    const queryParams = new URLSearchParams(window.location.search);
+    const detailId = queryParams.get('detail');
+    const partNumber = queryParams.get('part');
+
+    if (detailId && partNumber) {
+        const targetRow = Array.from(
+            document.querySelectorAll('.data-row')
+        ).find(function (row) {
+            return String(row.dataset.id) === detailId;
+        });
+
+        if (targetRow) {
+            openVerificationModal(targetRow);
+
+            const targetPart = Array.from(
+                document.querySelectorAll(
+                    '#verificationQuestionnaireContent .questionnaire-part-header'
+                )
+            ).find(function (header) {
+                const number = header.querySelector(
+                    '.questionnaire-part-number'
+                );
+
+                return number && number.textContent.trim() === partNumber;
+            });
+
+            if (targetPart) {
+                targetPart.click();
+            }
+        } else {
+            console.warn(
+                'Data responden untuk membuka kembali detail tidak ditemukan:',
+                detailId
+            );
+        }
+    }
+
+
  
 </script> 
 @endpush
