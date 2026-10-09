@@ -664,10 +664,10 @@ color: #7652C8;
     .monitoring-modal {
         position: relative;
         width: min(1250px, calc(100vw - 40px));
-        max-height: calc(100vh - 20px);
+        max-height: calc(100vh - 40px);
         background: #ffffff;
-        border-radius: 18px;
-        box-shadow: 0 25px 70px rgba(15, 23, 42, 0.25);
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
         overflow: hidden;
         animation: monitoringModalShow .2s ease;
     }
@@ -684,7 +684,7 @@ color: #7652C8;
     }
 
     .monitoring-modal-header {
-        padding: 20px 26px;
+        padding: 16px 20px;
         border-bottom: 1px solid #e5e7eb;
         display: flex;
         align-items: center;
@@ -695,7 +695,7 @@ color: #7652C8;
 
     .monitoring-modal-header-left h2 {
         margin: 0;
-        font-size: 25px;
+        font-size: 19px;
         line-height: 1.3;
         color: #252A86;
         font-weight: 700;
@@ -729,9 +729,10 @@ color: #7652C8;
 
     .monitoring-modal-body {
         position: relative;
-        padding: 22px 26px 28px;
+        padding: 18px 20px 22px;
         overflow-y: auto;
-        max-height: calc(100vh - 105px);
+        max-height: calc(100vh - 125px);
+        scrollbar-width: thin;
     }
 
     /* =====================================================
@@ -742,13 +743,13 @@ color: #7652C8;
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
-        margin-bottom: 22px;
+        margin-bottom: 16px;
     }
 
     .monitoring-detail-summary-card {
         display: flex;
         min-width: 0;
-        min-height: 76px;
+        min-height: 0;
         flex-direction: column;
         justify-content: center;
         padding: 13px 14px;
@@ -759,8 +760,11 @@ color: #7652C8;
 
     .monitoring-detail-summary-label {
         color: #64748b;
-        font-size: 11px;
-        margin-bottom: 6px;
+        font-size: 10px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: .35px;
     }
 
     .monitoring-detail-summary-value {
@@ -768,6 +772,7 @@ color: #7652C8;
         font-size: 14px;
         font-weight: 700;
         word-break: break-word;
+        margin-top: 4px;
     }
 
     .monitoring-summary-status,
@@ -828,10 +833,11 @@ color: #7652C8;
     ===================================================== */
 
     .monitoring-detail-section {
-        border: 1px solid #e2e6f2;
-        border-radius: 14px;
+        border: 1px solid #e7e9f1;
+        border-radius: 12px;
         overflow: visible;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
+        padding: 16px;
         background: #ffffff;
     }
 
@@ -840,51 +846,87 @@ color: #7652C8;
     }
 
     .monitoring-detail-section-title {
-        padding: 16px 20px 8px;
+        margin: 0 0 13px;
         background: #ffffff;
         color: #252A86;
-        font-size: 18px;
+        font-size: 15px;
         font-weight: 700;
     }
 
     .monitoring-detail-section-subtitle {
-        padding: 0 20px 14px;
+        margin: -8px 0 13px;
         color: #7b7f87;
-        font-size: 13px;
+        font-size: 11px;
         line-height: 1.55;
     }
 
     .monitoring-detail-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 12px;
-        padding: 0 20px 20px;
+        gap: 9px;
     }
 
     .monitoring-detail-item {
         position: relative;
-        padding: 14px 15px;
-        min-height: 84px;
-        border: 1px solid #e5e8ef;
-        border-radius: 11px;
-        background: #fbfcfe;
+        padding: 11px 12px;
+        min-height: 0;
+        border: 1px solid #edf0f5;
+        border-radius: 9px;
+        background: #fafbfc;
         box-sizing: border-box;
     }
 
     .monitoring-detail-label {
         color: #6b7280;
-        font-size: 12px;
+        font-size: 10px;
         line-height: 1.4;
-        margin-bottom: 7px;
+        margin-bottom: 5px;
         font-weight: 600;
     }
 
     .monitoring-detail-value {
         color: #263238;
-        font-size: 14px;
-        line-height: 1.45;
+        font-size: 13px;
+        line-height: 1.4;
         font-weight: 700;
         word-break: break-word;
+    }
+
+    .monitoring-members-section {
+        padding: 16px;
+    }
+
+    .monitoring-members-section .monitoring-members-family-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        min-width: 0;
+        margin-bottom: 14px;
+        padding: 10px 12px;
+        border: 1px solid #e2e6f4;
+        border-radius: 9px;
+        background: #f7f8fd;
+        text-align: left;
+    }
+
+    .monitoring-members-section .monitoring-members-family-summary-label {
+        margin: 0;
+        color: #73798a;
+        font-size: 11px;
+    }
+
+    .monitoring-members-section .monitoring-members-family-summary-name {
+        margin-top: 4px;
+        color: #263238;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .monitoring-members-section .monitoring-members-family-summary-count {
+        flex: 0 0 auto;
+        color: #73798a;
+        font-size: 11px;
     }
 
     /* =====================================================
@@ -1398,6 +1440,25 @@ color: #7652C8;
     .monitoring-image {
         display: block;
         width: 100%;
+    }
+
+    .monitoring-questionnaire-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 13px;
+    }
+
+    .monitoring-questionnaire-total {
+        flex: 0 0 auto;
+        padding: 6px 10px;
+        border: 1px solid #e1e4f3;
+        border-radius: 999px;
+        background: #f4f5ff;
+        color: #252A86;
+        font-size: 11px;
+        font-weight: 800;
     }
 
     .monitoring-image {
@@ -2278,7 +2339,7 @@ color: #7652C8;
 
                 <div class="monitoring-detail-summary-card">
                     <div class="monitoring-detail-summary-label">
-                        Nama Kepala Keluarga
+                        Nama Responden
                     </div>
 
                     <div
@@ -2342,25 +2403,6 @@ color: #7652C8;
 
                     <div class="monitoring-detail-item">
                         <div class="monitoring-detail-label">
-                            Periode
-                        </div>
-
-                        <div
-                            class="monitoring-detail-value"
-                            id="detailPeriode"
-                        >
-                            -
-                        </div>
-
-                        <small
-                            class="monitoring-detail-period-meta"
-                            id="detailPeriodeDetail"
-                        ></small>
-                    </div>
-
-
-                    <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
                             NIK
                         </div>
 
@@ -2394,31 +2436,11 @@ color: #7652C8;
                         </div>
 
                         <span
-                            class="monitoring-detail-value monitoring-member-count"
+                            class="monitoring-detail-value"
                             id="detailJumlahAnggota"
                         >
                             0 Orang
                         </span>
-
-                        <button
-                            type="button"
-                            class="monitoring-member-button"
-                            id="openMonitoringMembers"
-                            aria-expanded="false"
-                        >
-                            <span>Lihat Anggota</span>
-
-                            <svg
-                                width="15"
-                                height="15"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                            >
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
-                        </button>
 
                     </div>
 
@@ -2478,20 +2500,123 @@ color: #7652C8;
                         </div>
                     </div>
 
+                    <div class="monitoring-detail-item">
+                        <div class="monitoring-detail-label">
+                            Periode Pendataan
+                        </div>
+
+                        <div
+                            class="monitoring-detail-value"
+                            id="detailPeriode"
+                        >
+                            -
+                        </div>
+                    </div>
+
+                    <div class="monitoring-detail-item">
+                        <div class="monitoring-detail-label">
+                            Kode Periode
+                        </div>
+
+                        <div
+                            class="monitoring-detail-value"
+                            id="detailPeriodeKode"
+                        >
+                            -
+                        </div>
+                    </div>
+
+                    <div class="monitoring-detail-item">
+                        <div class="monitoring-detail-label">
+                            Tanggal Periode
+                        </div>
+
+                        <div
+                            class="monitoring-detail-value"
+                            id="detailPeriodeTanggal"
+                        >
+                            -
+                        </div>
+                    </div>
+
                 </div>
 
             </section>
 
-
-            {{-- HASIL KUISIONER --}}
-            <section class="monitoring-detail-section">
+            {{-- DETAIL ANGGOTA KELUARGA --}}
+            <section class="monitoring-detail-section monitoring-members-section">
 
                 <div class="monitoring-detail-section-title">
-                    Hasil Kuisioner
+                    Anggota dalam Kartu Keluarga
                 </div>
 
-                <div class="monitoring-detail-section-subtitle">
-                    Pilih bagian kuisioner di sebelah kiri untuk melihat pertanyaan dan jawaban responden.
+                <div class="monitoring-members-family-summary">
+                    <div
+                        class="monitoring-members-family-summary-label"
+                    >
+                        Kepala Keluarga
+                    </div>
+
+                    <div
+                        class="monitoring-members-family-summary-name"
+                        id="membersFamilyHead"
+                    >
+                        -
+                    </div>
+
+                    <div
+                        class="monitoring-members-family-summary-count"
+                        id="membersFamilyCount"
+                    >
+                        0 orang (termasuk kepala keluarga)
+                    </div>
+                </div>
+
+                <div class="monitoring-members-table-wrap">
+                    <table class="monitoring-members-table">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>NIK</th>
+                                <th>Nama Lengkap</th>
+                                <th>Status Keluarga</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="monitoringMembersTableBody">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="monitoring-members-empty">
+                                        <strong>Detail anggota belum tersedia</strong>
+                                        <span>
+                                            Data anggota keluarga untuk KK ini belum ditemukan.
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+            {{-- HASIL KUISIONER --}}
+            <section class="monitoring-detail-section questionnaire-section">
+
+                <div class="monitoring-questionnaire-heading">
+                    <div>
+                        <div class="monitoring-detail-section-title">
+                            Hasil Kuisioner
+                        </div>
+
+                        <div class="monitoring-detail-section-subtitle">
+                            Pilih bagian kuisioner di sebelah kiri untuk melihat pertanyaan dan jawaban responden.
+                        </div>
+                    </div>
+
+                    <div class="monitoring-questionnaire-total" id="monitoringQuestionnaireTotal">
+                        0 Part
+                    </div>
                 </div>
 
                 <div
@@ -2508,98 +2633,6 @@ color: #7652C8;
 
             </section>
 
-
-            {{-- FLOATING ANGGOTA KELUARGA --}}
-            <div
-                class="monitoring-members-popover"
-                id="monitoringMembersPopover"
-                aria-hidden="true"
-            >
-
-                <div class="monitoring-members-popover-header">
-
-                    <div>
-                        <h3 class="monitoring-members-popover-title">
-                            Anggota Keluarga
-                        </h3>
-
-                        <p class="monitoring-members-popover-description">
-                            Daftar anggota keluarga untuk No. KK yang sedang diperiksa.
-                        </p>
-                    </div>
-
-                    <button
-                        type="button"
-                        class="monitoring-members-popover-close"
-                        id="closeMonitoringMembers"
-                        aria-label="Tutup anggota keluarga"
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-
-                    <div class="monitoring-members-family-summary">
-
-                        <div class="monitoring-members-family-summary-label">
-                            Kepala Keluarga
-                        </div>
-
-                        <div
-                            class="monitoring-members-family-summary-name"
-                            id="membersFamilyHead"
-                        >
-                            -
-                        </div>
-
-                        <div
-                            class="monitoring-members-family-summary-count"
-                            id="membersFamilyCount"
-                        >
-                            0 Orang
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                <div class="monitoring-members-popover-body">
-
-                    <div class="monitoring-members-table-wrap">
-
-                        <table class="monitoring-members-table">
-
-                            <thead>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>NIK</th>
-                                    <th>Nama Lengkap</th>
-                                    <th>Status Keluarga</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="monitoringMembersTableBody">
-                                <tr>
-                                    <td colspan="4">
-                                        <div class="monitoring-members-empty">
-                                            <strong>Detail anggota belum tersedia</strong>
-                                            <span>
-                                                Data anggota keluarga untuk KK ini belum ditemukan.
-                                            </span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                </div>
-
-            </div>
 
         </div>
 
@@ -2637,6 +2670,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const questionnaireContent =
         document.getElementById('monitoringQuestionnaireContent');
+
+    const questionnaireTotal =
+        document.getElementById('monitoringQuestionnaireTotal');
 
 
     /* =====================================================
@@ -3390,6 +3426,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
 
+            if (questionnaireTotal) {
+                questionnaireTotal.textContent = '0 Part';
+            }
+
             return;
         }
 
@@ -3414,6 +3454,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
             });
+
+        if (questionnaireTotal) {
+            questionnaireTotal.textContent = sortedParts.length + ' Part';
+        }
 
         /*
          * MASTER DETAIL:
@@ -3792,7 +3836,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (familyCount) {
             familyCount.textContent =
-                (count || members.length || 0) + ' Orang';
+                (count || members.length || 0) +
+                ' orang (termasuk kepala keluarga)';
         }
 
         if (members.length === 0) {
@@ -3816,33 +3861,18 @@ document.addEventListener('DOMContentLoaded', function () {
         tbody.innerHTML =
             members.map(function (member, index) {
 
-                const nik =
-                    getMemberValue(
-                        member,
-                        ['nik', 'NIK', 'no_nik']
-                    );
-
-                const name =
-                    getMemberValue(
-                        member,
-                        [
-                            'nama_lengkap',
-                            'nama',
-                            'nama_anggota',
-                            'name'
-                        ]
-                    );
-
-                const status =
-                    getMemberValue(
-                        member,
-                        [
-                            'status_keluarga',
-                            'status',
-                            'hubungan',
-                            'hubungan_keluarga'
-                        ]
-                    );
+                const nik = getMemberValue(
+                    member,
+                    ['nik', 'NIK', 'no_nik']
+                );
+                const name = getMemberValue(
+                    member,
+                    ['nama_lengkap', 'nama', 'nama_anggota', 'name']
+                );
+                const status = getMemberValue(
+                    member,
+                    ['status_keluarga', 'status', 'hubungan', 'hubungan_keluarga']
+                );
 
                 return `
                     <tr>
@@ -3854,86 +3884,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 `;
 
             }).join('');
-
-    }
-
-
-    function closeMembersPopover() {
-
-        const popover =
-            document.getElementById(
-                'monitoringMembersPopover'
-            );
-
-        const button =
-            document.getElementById(
-                'openMonitoringMembers'
-            );
-
-        if (popover) {
-
-            popover.classList.remove('active');
-
-            popover.setAttribute(
-                'aria-hidden',
-                'true'
-            );
-
-        }
-
-        if (button) {
-
-            button.classList.remove('active');
-
-            button.setAttribute(
-                'aria-expanded',
-                'false'
-            );
-
-        }
-
-    }
-
-
-    function toggleMembersPopover() {
-
-        const popover =
-            document.getElementById(
-                'monitoringMembersPopover'
-            );
-
-        const button =
-            document.getElementById(
-                'openMonitoringMembers'
-            );
-
-        if (!popover || !button) {
-            return;
-        }
-
-        const isOpen =
-            popover.classList.contains('active');
-
-        if (isOpen) {
-
-            closeMembersPopover();
-
-            return;
-        }
-
-        popover.classList.add('active');
-
-        popover.setAttribute(
-            'aria-hidden',
-            'false'
-        );
-
-        button.classList.add('active');
-
-        button.setAttribute(
-            'aria-expanded',
-            'true'
-        );
 
     }
 
@@ -4013,18 +3963,11 @@ document.addEventListener('DOMContentLoaded', function () {
         ).textContent =
             button.dataset.periode || '-';
 
-        const periodDetails = [
-            button.dataset.periodeKode && button.dataset.periodeKode !== '-'
-                ? 'Kode: ' + button.dataset.periodeKode
-                : '',
-            button.dataset.periodeTanggal && button.dataset.periodeTanggal !== '-'
-                ? 'Rentang: ' + button.dataset.periodeTanggal
-                : '',
-        ].filter(Boolean);
+        document.getElementById('detailPeriodeKode').textContent =
+            button.dataset.periodeKode || '-';
 
-        document.getElementById(
-            'detailPeriodeDetail'
-        ).textContent = periodDetails.join(' | ');
+        document.getElementById('detailPeriodeTanggal').textContent =
+            button.dataset.periodeTanggal || '-';
 
 
         document.getElementById(
@@ -4072,9 +4015,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-        /* RESET ANGGOTA */
-        closeMembersPopover();
-
+        /* DETAIL ANGGOTA */
         renderMembers(
             button.dataset.anggotaDetail || '[]',
             button.dataset.nama || '-',
@@ -4127,37 +4068,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
 
-    const membersButton =
-        document.getElementById(
-            'openMonitoringMembers'
-        );
-
-    if (membersButton) {
-
-        membersButton.addEventListener(
-            'click',
-            function (event) {
-
-                event.stopPropagation();
-
-                toggleMembersPopover();
-
-            }
-        );
-
-    }
-
-    const closeMembersButton = document.getElementById('closeMonitoringMembers');
-
-    if (closeMembersButton) {
-        closeMembersButton.addEventListener('click', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            closeMembersPopover();
-        });
-    }
-
-
     /* =====================================================
        CLOSE MODAL
     ===================================================== */
@@ -4174,8 +4084,6 @@ document.addEventListener('DOMContentLoaded', function () {
             'aria-hidden',
             'true'
         );
-
-        closeMembersPopover();
 
         document.body.style.overflow = '';
 
@@ -4218,34 +4126,6 @@ document.addEventListener('DOMContentLoaded', function () {
             closeDetailModal(true);
         }
     });
-
-
-    document.addEventListener(
-        'click',
-        function (event) {
-
-            const popover =
-                document.getElementById(
-                    'monitoringMembersPopover'
-                );
-
-            const button =
-                document.getElementById(
-                    'openMonitoringMembers'
-                );
-
-            if (
-                popover &&
-                popover.classList.contains('active') &&
-                !popover.contains(event.target) &&
-                button &&
-                !button.contains(event.target)
-            ) {
-                closeMembersPopover();
-            }
-
-        }
-    );
 
 
     window.addEventListener('popstate', function () {

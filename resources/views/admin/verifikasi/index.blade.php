@@ -5,250 +5,6 @@
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style> 
-
-
-/* =========================================================
-   FIX DETAIL ANGGOTA KELUARGA
-
-   ========================================================= */
-
-.family-members-section .family-members-inline {
-    position: static !important;
-    top: auto !important;
-    right: auto !important;
-    left: auto !important;
-    bottom: auto !important;
-
-    width: 100% !important;
-    max-width: none !important;
-
-    margin-top: 18px !important;
-    padding: 18px !important;
-
-    box-sizing: border-box !important;
-
-    display: block !important;
-
-    background: #ffffff !important;
-    border: 1px solid #e1e5ef !important;
-    border-radius: 14px !important;
-
-    box-shadow: 0 8px 24px rgba(31, 41, 55, 0.06) !important;
-
-    z-index: 1 !important;
-}
-
-/* Header anggota */
-.family-members-section .family-members-inline-header {
-    display: flex !important;
-    align-items: flex-start !important;
-    justify-content: space-between !important;
-    gap: 16px !important;
-
-    position: relative !important;
-
-    padding-bottom: 14px !important;
-    margin-bottom: 14px !important;
-
-    border-bottom: 1px solid #edf0f5 !important;
-}
-
-/* Judul */
-.family-members-section .family-members-inline-title {
-    min-width: 0 !important;
-    flex: 1 !important;
-}
-
-.family-members-section .family-members-inline-title h4 {
-    margin: 0 0 5px !important;
-
-    color: #252A86 !important;
-    font-size: 17px !important;
-    font-weight: 700 !important;
-    line-height: 1.3 !important;
-}
-
-.family-members-section .family-members-inline-title p {
-    margin: 0 !important;
-
-    color: #73798a !important;
-    font-size: 12px !important;
-    line-height: 1.5 !important;
-}
-
-/* Ringkasan kepala keluarga */
-.family-members-section .family-members-inline-summary {
-    position: static !important;
-
-    flex: 0 0 auto !important;
-    min-width: 180px !important;
-
-    padding: 9px 12px !important;
-
-    border: 1px solid #e2e6f4 !important;
-    border-radius: 9px !important;
-
-    background: #f7f8fd !important;
-
-    text-align: right !important;
-}
-
-.family-members-section .family-members-inline-summary span {
-    display: block !important;
-
-    margin-bottom: 3px !important;
-
-    color: #858b99 !important;
-    font-size: 10px !important;
-    font-weight: 600 !important;
-}
-
-.family-members-section .family-members-inline-summary strong {
-    display: block !important;
-
-    color: #252A86 !important;
-    font-size: 12px !important;
-    font-weight: 700 !important;
-
-    word-break: break-word !important;
-}
-
-/* Tabel */
-.family-members-section .family-members-inline-table-wrapper {
-    width: 100% !important;
-
-    max-height: 320px !important;
-
-    overflow-x: auto !important;
-    overflow-y: auto !important;
-
-    border: 1px solid #e5e7eb !important;
-    border-radius: 10px !important;
-
-    background: #ffffff !important;
-}
-
-.family-members-section .family-members-inline-table {
-    width: 100% !important;
-    min-width: 700px !important;
-
-    border-collapse: collapse !important;
-}
-
-.family-members-section .family-members-inline-table th {
-    padding: 11px 12px !important;
-
-    background: #f4f6fa !important;
-
-    color: #555d70 !important;
-
-    font-size: 11px !important;
-    font-weight: 700 !important;
-
-    text-align: left !important;
-
-    border-bottom: 1px solid #e3e6ed !important;
-
-    white-space: nowrap !important;
-}
-
-.family-members-section .family-members-inline-table td {
-    padding: 12px !important;
-
-    color: #454b59 !important;
-
-    font-size: 12px !important;
-
-    border-bottom: 1px solid #edf0f4 !important;
-
-    vertical-align: middle !important;
-}
-
-.family-members-section .family-members-inline-table tbody tr:last-child td {
-    border-bottom: none !important;
-}
-
-.family-members-section .family-members-inline-table tbody tr:hover {
-    background: #fafbfe !important;
-}
-
-.family-members-section .family-member-name {
-    color: #252A86 !important;
-    font-weight: 600 !important;
-}
-
-.family-members-section .family-member-status {
-    display: inline-flex !important;
-    align-items: center !important;
-
-    padding: 4px 8px !important;
-
-    border-radius: 999px !important;
-
-    background: #eef0f7 !important;
-    color: #626978 !important;
-
-    font-size: 10px !important;
-    font-weight: 600 !important;
-}
-
-/* Tampilan kosong */
-.family-members-section .family-members-empty {
-    padding: 25px 15px !important;
-    text-align: center !important;
-}
-
-.family-members-section .family-members-empty strong {
-    display: block !important;
-
-    margin-bottom: 5px !important;
-
-    color: #252A86 !important;
-    font-size: 13px !important;
-}
-
-.family-members-section .family-members-empty span {
-    color: #73798a !important;
-    font-size: 11px !important;
-}
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 700px) {
-
-    .family-members-section .family-members-inline {
-        position: static !important;
-
-        width: 100% !important;
-        max-width: none !important;
-
-        margin-top: 14px !important;
-        padding: 13px !important;
-    }
-
-    .family-members-section .family-members-inline-header {
-        display: block !important;
-    }
-
-    .family-members-section .family-members-inline-summary {
-        width: 100% !important;
-        min-width: 0 !important;
-
-        margin-top: 12px !important;
-
-        text-align: left !important;
-
-        box-sizing: border-box !important;
-    }
-
-    .family-members-section .family-members-inline-table-wrapper {
-        max-height: 300px !important;
-        overflow-x: auto !important;
-        overflow-y: auto !important;
-    }
-}
     
     /* =====================================================
        VERIFICATION PAGE
@@ -3327,6 +3083,430 @@
     color: #fff;
 }
 
+
+/* =====================================================
+   PART 5 - ANGGOTA KIRI, JAWABAN KANAN
+===================================================== */
+.questionnaire-part5-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 270px) minmax(0, 1fr);
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+}
+
+.questionnaire-part5-members,
+.questionnaire-part5-answer {
+    min-width: 0;
+    border: 1px solid #e4e7ef;
+    border-radius: 12px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.questionnaire-part5-panel-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e8eaf0;
+    background: #fafbfe;
+}
+
+.questionnaire-part5-panel-header strong {
+    display: block;
+    color: #252A86;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.questionnaire-part5-panel-header span {
+    display: block;
+    margin-top: 3px;
+    color: #858b99;
+    font-size: 10.5px;
+    line-height: 1.45;
+}
+
+.questionnaire-part5-member-list {
+    max-height: 560px;
+    overflow-y: auto;
+    padding: 7px;
+}
+
+.questionnaire-part5-member-card {
+    width: 100%;
+    display: block;
+    padding: 9px 10px;
+    margin: 0 0 6px;
+    border: 1px solid #e5e8f0;
+    border-radius: 10px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+    transition: .18s ease;
+    box-sizing: border-box;
+}
+
+.questionnaire-part5-member-card:last-child { margin-bottom: 0; }
+.questionnaire-part5-member-card:hover {
+    border-color: #cfd5f5;
+    background: #fafbff;
+}
+.questionnaire-part5-member-card.is-selected {
+    border-color: #252A86;
+    background: #f2f3ff;
+    box-shadow: 0 0 0 1px rgba(37,42,134,.06);
+}
+
+.questionnaire-part5-member-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.questionnaire-part5-member-avatar {
+    flex: 0 0 30px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #eef0ff;
+    color: #252A86;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.questionnaire-part5-member-main { min-width: 0; flex: 1; }
+.questionnaire-part5-member-name {
+    color: #303545;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.questionnaire-part5-member-relation {
+    margin-top: 2px;
+    color: #7b8190;
+    font-size: 10px;
+}
+.questionnaire-part5-member-nik {
+    margin-top: 5px;
+    color: #858b99;
+    font-size: 9px;
+    word-break: break-all;
+}
+.questionnaire-part5-answer-body {
+    padding: 14px;
+    max-height: 560px;
+    overflow-y: auto;
+}
+
+.questionnaire-part5-answer-empty {
+    min-height: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+    color: #7b8190;
+}
+.questionnaire-part5-answer-empty strong {
+    margin-bottom: 6px;
+    color: #252A86;
+    font-size: 13px;
+}
+.questionnaire-part5-answer-empty span {
+    max-width: 420px;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.questionnaire-part5-answer-member {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 13px;
+    margin-bottom: 13px;
+    border-bottom: 1px solid #e8eaf0;
+}
+.questionnaire-part5-answer-member h4 {
+    margin: 0;
+    color: #252A86;
+    font-size: 16px;
+    line-height: 1.35;
+}
+.questionnaire-part5-answer-member p {
+    margin: 4px 0 0;
+    color: #777e8d;
+    font-size: 10.5px;
+    line-height: 1.5;
+}
+.questionnaire-part5-answer-count {
+    flex: 0 0 auto;
+    padding: 6px 9px;
+    border-radius: 999px;
+    background: #eef0ff;
+    color: #252A86;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.questionnaire-part5-question {
+    padding: 12px 13px;
+    margin-bottom: 9px;
+    border: 1px solid #e7e9f0;
+    border-radius: 10px;
+    background: #fff;
+}
+.questionnaire-part5-question:last-child { margin-bottom: 0; }
+.questionnaire-part5-question-number {
+    color: #7d8391;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+.questionnaire-part5-question-text {
+    margin-top: 4px;
+    color: #303545;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+.questionnaire-part5-answer-label {
+    margin-top: 9px;
+    color: #858b99;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+.questionnaire-part5-answer-value {
+    margin-top: 4px;
+    color: #454b59;
+    font-size: 12px;
+    line-height: 1.55;
+    word-break: break-word;
+}
+.questionnaire-part5-answer-value.is-empty { color: #9aa0ad; }
+.questionnaire-part5-image {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    max-height: 320px;
+    margin-top: 9px;
+    object-fit: contain;
+    border: 1px solid #e3e5eb;
+    border-radius: 9px;
+    background: #f8f9fc;
+}
+.questionnaire-part5-image-link {
+    display: inline-flex;
+    margin-top: 7px;
+    padding: 6px 9px;
+    border-radius: 7px;
+    background: #eef0ff;
+    color: #252A86;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.questionnaire-part5-image-link:hover { background: #252A86; color: #fff; }
+
+@media (max-width: 900px) {
+    .questionnaire-part5-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .questionnaire-part5-member-list {
+        max-height: none;
+        overflow: visible;
+    }
+
+    .questionnaire-part5-answer-body {
+        max-height: 460px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* =====================================================
+   PART 5 - RESPONSIVE DESKTOP + MOBILE
+===================================================== */
+.questionnaire-part5-layout,
+.questionnaire-part5-layout * {
+    box-sizing: border-box;
+}
+
+.questionnaire-part5-member-card {
+    appearance: none;
+    -webkit-appearance: none;
+    font: inherit;
+    color: inherit;
+}
+
+.questionnaire-part5-member-card:focus-visible {
+    outline: 3px solid rgba(37, 42, 134, .18);
+    outline-offset: 2px;
+}
+
+.questionnaire-part5-member-list,
+.questionnaire-part5-answer-body {
+    scrollbar-width: thin;
+    scrollbar-color: #cfd3e5 transparent;
+    -webkit-overflow-scrolling: touch;
+}
+
+.questionnaire-part5-image {
+    height: auto;
+}
+
+@media (min-width: 1200px) {
+    .questionnaire-part5-layout {
+        grid-template-columns: 250px minmax(0, 1fr);
+        gap: 16px;
+    }
+
+    .questionnaire-part5-member-list,
+    .questionnaire-part5-answer-body {
+        max-height: 600px;
+    }
+}
+
+@media (max-width: 900px) {
+    .questionnaire-part5-layout {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .questionnaire-part5-members,
+    .questionnaire-part5-answer {
+        width: 100%;
+    }
+
+    .questionnaire-part5-member-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 7px;
+    }
+
+    .questionnaire-part5-member-card,
+    .questionnaire-part5-member-card:last-child {
+        margin: 0;
+    }
+
+    .questionnaire-part5-answer-body {
+        max-height: 480px;
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .questionnaire-part5-panel-header {
+        padding: 11px 12px;
+    }
+
+    .questionnaire-part5-panel-header strong {
+        font-size: 12px;
+    }
+
+    .questionnaire-part5-panel-header span {
+        font-size: 10px;
+    }
+
+    .questionnaire-part5-member-list {
+        grid-template-columns: 1fr;
+        max-height: 280px;
+    }
+
+    .questionnaire-part5-member-card {
+        padding: 8px 9px;
+        border-radius: 9px;
+    }
+
+    .questionnaire-part5-member-top {
+        gap: 7px;
+    }
+
+    .questionnaire-part5-member-avatar {
+        flex-basis: 28px;
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        font-size: 10px;
+    }
+
+    .questionnaire-part5-member-name {
+        font-size: 11.5px;
+    }
+
+    .questionnaire-part5-member-relation {
+        font-size: 9.5px;
+    }
+
+    .questionnaire-part5-member-nik {
+        margin-top: 4px;
+        font-size: 8.5px;
+    }
+
+    .questionnaire-part5-answer-body {
+        padding: 10px;
+        max-height: 500px;
+    }
+
+    .questionnaire-part5-answer-empty {
+        min-height: 190px;
+        padding: 22px 14px;
+    }
+
+    .questionnaire-part5-answer-member {
+        flex-direction: column;
+        gap: 7px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+
+    .questionnaire-part5-answer-member h4 {
+        font-size: 14px;
+    }
+
+    .questionnaire-part5-answer-count {
+        align-self: flex-start;
+    }
+
+    .questionnaire-part5-question {
+        padding: 10px;
+        margin-bottom: 7px;
+    }
+
+    .questionnaire-part5-question-text,
+    .questionnaire-part5-answer-value {
+        font-size: 11.5px;
+    }
+
+    .questionnaire-part5-image {
+        max-height: 240px;
+    }
+}
+
+@media (max-width: 380px) {
+    .questionnaire-part5-member-list {
+        max-height: 250px;
+    }
+
+    .questionnaire-part5-answer-body {
+        max-height: 460px;
+    }
+}
+
 .questionnaire-member-table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -3360,7 +3540,198 @@
 
 
 
+/* =========================================================
+   DETAIL ANGGOTA KELUARGA - TAMPIL SEBAGAI SECTION BIASA
+   ========================================================= */
 
+.family-members-section {
+    position: relative;
+    overflow: visible !important;
+}
+
+.family-members-section > .family-members-inline {
+    position: static !important;
+
+    display: block !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    padding: 0 !important;
+
+    margin: 0 !important;
+
+    background: transparent !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    animation: none !important;
+
+    z-index: auto !important;
+}
+
+/* Header daftar anggota */
+
+.family-members-section
+.family-members-inline
+.family-members-inline-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    padding: 16px 18px;
+
+    margin: 0 0 14px;
+
+    background: #f8f9fc;
+
+    border: 1px solid #e5e8ef;
+
+    border-radius: 12px;
+}
+
+/* Tabel */
+
+.family-members-section
+.family-members-inline-table-wrapper {
+    display: block !important;
+
+    width: 100%;
+
+    max-height: 360px;
+
+    overflow-x: auto;
+    overflow-y: auto;
+
+    background: #fff;
+
+    border: 1px solid #e5e8ef;
+
+    border-radius: 12px;
+}
+
+.family-members-section
+.family-members-inline-table {
+    width: 100%;
+
+    min-width: 700px;
+
+    border-collapse: collapse;
+}
+
+.family-members-section
+.family-members-inline-table th {
+    background: #f4f6fa;
+
+    color: #555d70;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    padding: 12px;
+
+    text-align: left;
+
+    border-bottom: 1px solid #e3e6ed;
+
+    white-space: nowrap;
+}
+
+.family-members-section
+.family-members-inline-table td {
+    padding: 12px;
+
+    color: #454b59;
+
+    font-size: 12px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    vertical-align: middle;
+}
+
+.family-members-section
+.family-members-inline-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.family-members-section
+.family-members-inline-table tbody tr:hover {
+    background: #fafbfe;
+}
+
+.family-members-section .family-member-name {
+    color: #252a86 !important;
+
+    font-weight: 600;
+}
+
+.family-members-section .family-members-empty {
+    padding: 30px 20px;
+
+    text-align: center;
+
+    color: #73798a;
+}
+
+.family-members-section .family-members-empty strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #454b59;
+
+    font-size: 13px;
+}
+
+.family-members-section .family-members-empty span {
+    display: block;
+
+    font-size: 12px;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .family-members-section
+    .family-members-inline-header {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+        padding: 14px;
+    }
+
+    .family-members-section
+    .family-members-inline-summary {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        text-align: left;
+    }
+
+    .family-members-section
+    .family-members-inline-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .family-members-section
+    .family-members-inline-table {
+        min-width: 650px;
+    }
+}
 
 
 
@@ -3392,11 +3763,6 @@
             </p> 
         </div> 
 
-        <div class="active-period-label">
-            Periode Aktif: {{ $periodeAktif->nama ?? 'Tidak ada periode aktif' }}
-        </div>
- 
- 
         {{-- ================================================= 
              SUCCESS ALERT 
         ================================================== --}} 
@@ -3644,7 +4010,7 @@
                             <th>No. KK</th> 
                             <th>NIK</th> 
                             <th>Nama Kepala Keluarga</th> 
-                            <th>Jumlah Anggota </th>
+                            <th>Jumlah Anggota (termasuk KK)</th>
                             <th>Periode</th>
                             <th>Status</th> 
                             <th>Wilayah Pendataan</th> 
@@ -4230,18 +4596,12 @@
  
                 {{-- DETAIL ANGGOTA KELUARGA --}}
                 <section class="verification-detail-section family-members-section">
-                    <div class="verification-section-heading">
-                        <div>
-                            <h3>Detail Anggota Keluarga</h3>
-                            <p>Jumlah anggota tidak mencakup kepala keluarga.</p>
-                        </div>
-                    </div>
-
+                    
                     <div class="family-members-inline">
                         <div class="family-members-inline-header">
                             <div class="family-members-inline-title">
                                 <h4>Anggota dalam Kartu Keluarga</h4>
-                                <p id="familyMembersCardCount">0 orang</p>
+                                <p id="familyMembersCardCount">0 orang (termasuk kepala keluarga)</p>
                             </div>
                             <div class="family-members-inline-summary">
                                 <span>Kepala Keluarga</span>
@@ -4251,15 +4611,15 @@
 
                         <div class="family-members-inline-table-wrapper">
                             <table class="family-members-inline-table">
-                                <thead>
+                               <thead>
                                     <tr>
                                         <th>No.</th>
                                         <th>NIK</th>
                                         <th>Nama Lengkap</th>
                                         <th>Status Keluarga</th>
-                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
+                                
                                 <tbody id="familyMembersCardTableBody">
                                     <tr>
                                         <td colspan="5">
@@ -4422,11 +4782,7 @@
 
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
 <script> 
-
-
 document.addEventListener('DOMContentLoaded', function () { 
  
     /* ===================================================== 
@@ -5084,25 +5440,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const updateRouteTemplate =
         @json(route('verifikasi.update', '__ID__'));
 
-    const memberDetailRouteTemplate =
-        @json(route('verifikasi.anggota.detail', ['id' => '__ID__', 'memberCode' => '__MEMBER__']));
-
-    const returnQuery = new URLSearchParams(window.location.search);
-    returnQuery.delete('detail');
-    returnQuery.delete('part');
-    const returnQueryString = returnQuery.toString();
-
-    function memberDetailUrl(id, memberCode) {
-        const url = memberDetailRouteTemplate
-            .replace('__ID__', encodeURIComponent(id))
-            .replace('__MEMBER__', encodeURIComponent(memberCode));
-
-        return returnQueryString
-            ? `${url}?${returnQueryString}`
-            : url;
-    }
- 
- 
     /* ===================================================== 
        HELPER 
     ====================================================== */ 
@@ -5604,71 +5941,191 @@ document.addEventListener('DOMContentLoaded', function () {
                 contentCount.textContent = `${members.length} anggota keluarga`;
                 contentBody.innerHTML = '';
 
+                const layout = document.createElement('div');
+                layout.className = 'questionnaire-part5-layout';
+
+                const membersPanel = document.createElement('div');
+                membersPanel.className = 'questionnaire-part5-members';
+
+                membersPanel.innerHTML = `
+                    <div class="questionnaire-part5-panel-header">
+                        <strong>Anggota Keluarga</strong>
+                        <span>Pilih anggota untuk melihat hasil jawaban di sebelah kanan.</span>
+                    </div>
+                    <div class="questionnaire-part5-member-list"></div>
+                `;
+
+                const memberList = membersPanel.querySelector('.questionnaire-part5-member-list');
+
+                const answerPanel = document.createElement('div');
+                answerPanel.className = 'questionnaire-part5-answer';
+                answerPanel.innerHTML = `
+                    <div class="questionnaire-part5-panel-header">
+                        <strong>Hasil Jawaban Anggota</strong>
+                        <span>Detail jawaban tampil di halaman yang sama.</span>
+                    </div>
+                    <div class="questionnaire-part5-answer-body">
+                        <div class="questionnaire-part5-answer-empty">
+                            <strong>Pilih Anggota</strong>
+                            <span>Klik salah satu anggota di sebelah kiri untuk menampilkan seluruh jawaban.</span>
+                        </div>
+                    </div>
+                `;
+
+                const answerBody = answerPanel.querySelector('.questionnaire-part5-answer-body');
+
+                function renderMemberAnswers(member, selectedButton) {
+                    memberList.querySelectorAll('.questionnaire-part5-member-card').forEach(function (button) {
+                        button.classList.remove('is-selected');
+                    });
+                    if (selectedButton) selectedButton.classList.add('is-selected');
+
+                    const name = String(member.nama || member.nama_lengkap || '-');
+                    const nik = String(member.nik || '-');
+                    const relation = String(member.status_keluarga || member.status || '-');
+                    const questions = Array.isArray(member.questions) ? member.questions : [];
+                    const usableQuestions = questions.filter(function (question) {
+                        return String(question.text || '').trim() !== 'Data Part 5';
+                    });
+
+                    answerBody.innerHTML = '';
+
+                    const head = document.createElement('div');
+                    head.className = 'questionnaire-part5-answer-member';
+                    head.innerHTML = `
+                        <div>
+                            <h4>${escapeHtmlValue(name)}</h4>
+                            <p>NIK: ${escapeHtmlValue(nik)} &nbsp;•&nbsp; ${escapeHtmlValue(relation)}</p>
+                        </div>
+                        <span class="questionnaire-part5-answer-count">${usableQuestions.length} jawaban</span>
+                    `;
+                    answerBody.appendChild(head);
+
+                    if (!usableQuestions.length) {
+                        const empty = document.createElement('div');
+                        empty.className = 'questionnaire-part5-answer-empty';
+                        empty.innerHTML = `
+                            <strong>Jawaban Belum Tersedia</strong>
+                            <span>Belum ada pertanyaan atau jawaban yang tersimpan untuk anggota ini.</span>
+                        `;
+                        answerBody.appendChild(empty);
+                        return;
+                    }
+
+                    usableQuestions.forEach(function (question, questionIndex) {
+                        const box = document.createElement('div');
+                        box.className = 'questionnaire-part5-question';
+
+                        const number = document.createElement('div');
+                        number.className = 'questionnaire-part5-question-number';
+                        number.textContent = `Pertanyaan ${String(question.number ?? questionIndex + 1)}`;
+
+                        const text = document.createElement('div');
+                        text.className = 'questionnaire-part5-question-text';
+                        text.textContent = String(question.text || `Pertanyaan ${questionIndex + 1}`);
+
+                        const label = document.createElement('div');
+                        label.className = 'questionnaire-part5-answer-label';
+                        label.textContent = 'Jawaban';
+
+                        const value = document.createElement('div');
+                        value.className = 'questionnaire-part5-answer-value';
+
+                        const answer = String(question.answer ?? '').trim();
+                        const type = String(question.type || '').toLowerCase();
+                        const imageUrl = String(question.imageUrl || '').trim();
+
+                        box.appendChild(number);
+                        box.appendChild(text);
+                        box.appendChild(label);
+
+                        if ((type === 'image' || imageUrl !== '') && imageUrl) {
+                            if (answer) {
+                                value.textContent = answer;
+                                box.appendChild(value);
+                            }
+
+                            const image = document.createElement('img');
+                            image.className = 'questionnaire-part5-image';
+                            image.src = imageUrl;
+                            image.alt = String(question.imageName || question.text || 'Foto jawaban');
+                            image.loading = 'lazy';
+                            image.addEventListener('error', function () {
+                                image.remove();
+                                const error = document.createElement('div');
+                                error.className = 'questionnaire-part5-answer-value is-empty';
+                                error.textContent = 'Gambar tidak dapat ditampilkan.';
+                                box.appendChild(error);
+                            });
+                            box.appendChild(image);
+
+                            if (question.imageName) {
+                                const caption = document.createElement('div');
+                                caption.className = 'questionnaire-image-caption';
+                                caption.textContent = String(question.imageName);
+                                box.appendChild(caption);
+                            }
+
+                            if (question.imageUrl) {
+                                const link = document.createElement('a');
+                                link.className = 'questionnaire-part5-image-link';
+                                link.href = imageUrl;
+                                link.target = '_blank';
+                                link.rel = 'noopener noreferrer';
+                                link.textContent = 'Buka Foto';
+                                box.appendChild(link);
+                            }
+                        } else {
+                            value.textContent = answer || 'Belum diisi';
+                            if (!answer) value.classList.add('is-empty');
+                            box.appendChild(value);
+                        }
+
+                        answerBody.appendChild(box);
+                    });
+                }
+
                 if (members.length === 0) {
-                    contentBody.innerHTML = `
-                        <div class="questionnaire-empty">
+                    memberList.innerHTML = `
+                        <div class="questionnaire-part5-answer-empty">
                             <strong>Belum Ada Anggota Keluarga</strong>
                             <span>Data jawaban anggota keluarga belum tersedia.</span>
                         </div>
                     `;
                 } else {
-                    const wrapper = document.createElement('div');
-                    wrapper.className = 'questionnaire-member-table-wrapper';
-
-                    const table = document.createElement('table');
-                    table.className = 'questionnaire-member-table';
-
-                    const thead = document.createElement('thead');
-                    const heading = document.createElement('tr');
-                    ['No.', 'NIK', 'Nama Anggota', 'Hubungan', 'Status Jawaban', 'Aksi'].forEach(function (label) {
-                        const cell = document.createElement('th');
-                        cell.textContent = label;
-                        heading.appendChild(cell);
-                    });
-                    thead.appendChild(heading);
-                    table.appendChild(thead);
-
-                    const tbody = document.createElement('tbody');
                     members.forEach(function (member, index) {
-                        const row = document.createElement('tr');
-                        const isAnswered = !(member.questions || []).some(function (question) {
-                            return question.text === 'Data Part 5';
+                        const button = document.createElement('button');
+                        button.type = 'button';
+                        button.className = 'questionnaire-part5-member-card';
+
+                        const name = String(member.nama || member.nama_lengkap || '-');
+                        const relation = String(member.status_keluarga || member.status || '-');
+                        const nik = String(member.nik || '-');
+                        const initial = name.trim() ? name.trim().charAt(0).toUpperCase() : '?';
+
+                        button.innerHTML = `
+                            <div class="questionnaire-part5-member-top">
+                                <span class="questionnaire-part5-member-avatar">${escapeHtmlValue(initial)}</span>
+                                <span class="questionnaire-part5-member-main">
+                                    <span class="questionnaire-part5-member-name">${escapeHtmlValue(name)}</span>
+                                    <span class="questionnaire-part5-member-relation">${escapeHtmlValue(relation)}</span>
+                                </span>
+                            </div>
+                            <div class="questionnaire-part5-member-nik">NIK: ${escapeHtmlValue(nik)}</div>
+                        `;
+
+                        button.addEventListener('click', function () {
+                            renderMemberAnswers(member, button);
                         });
 
-                        [
-                            String(index + 1),
-                            String(member.nik || '-'),
-                            String(member.nama || '-'),
-                            String(member.status_keluarga || '-'),
-                            isAnswered ? 'Tersedia' : 'Belum diisi'
-                        ].forEach(function (value) {
-                            const cell = document.createElement('td');
-                            cell.textContent = value;
-                            row.appendChild(cell);
-                        });
+                        memberList.appendChild(button);
 
-                        const actionCell = document.createElement('td');
-                        if (member.kode) {
-                            const detailLink = document.createElement('a');
-                            detailLink.className = 'member-questionnaire-action';
-                            detailLink.href = memberDetailUrl(
-                                currentVerificationRow.dataset.id || '',
-                                member.kode
-                            );
-                            detailLink.textContent = 'Detail Jawaban';
-                            actionCell.appendChild(detailLink);
-                        } else {
-                            actionCell.textContent = 'Tidak tersedia';
-                        }
-
-                        row.appendChild(actionCell);
-                        tbody.appendChild(row);
                     });
-
-                    table.appendChild(tbody);
-                    wrapper.appendChild(table);
-                    contentBody.appendChild(wrapper);
                 }
+
+                layout.appendChild(membersPanel);
+                layout.appendChild(answerPanel);
+                contentBody.appendChild(layout);
 
                 activePartElement = partElement;
                 return;
@@ -6030,7 +6487,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (familyMembersCardCount) {
-            familyMembersCardCount.textContent = `${jumlah} orang`;
+            familyMembersCardCount.textContent = `${jumlah} orang (termasuk kepala keluarga)`;
         }
  
         if (familyInlineStatus) { 
@@ -6056,28 +6513,16 @@ document.addEventListener('DOMContentLoaded', function () {
             const namaMember = member.nama_lengkap ?? member.nama ?? '-'; 
             const statusMember = member.status_keluarga ?? member.status ?? '-'; 
             const isHeadOfHousehold = statusMember.trim().toLowerCase() === 'kepala keluarga';
-            const action = member.kode && !isHeadOfHousehold
-                ? `<a class="member-questionnaire-action" href="${escapeHtmlValue(memberDetailUrl(
-                    row.dataset.id || '',
-                    member.kode
-                ))}">Detail Jawaban</a>`
-                : '<span aria-label="Tidak ada kuisioner individu">-</span>';
+            const action = '';
  
-            return ` 
-                <tr> 
-                    <td>${index + 1}</td> 
-                    <td>${escapeHtmlValue(nik)}</td> 
-                    <td class="family-member-name">${escapeHtmlValue(namaMember)}</td> 
-                    <td> 
-                        <span class="family-member-status"> 
-                            ${escapeHtmlValue(statusMember)} 
-                        </span> 
-                    </td> 
-                    <td>
-                        ${action}
-                    </td>
-                </tr> 
-            `; 
+          return `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${escapeHtmlValue(member.nik || '-')}</td>
+                    <td>${escapeHtmlValue(member.nama_lengkap || member.nama || '-')}</td>
+                    <td>${escapeHtmlValue(member.status_keluarga || '-')}</td>
+                </tr>
+            `;
         }).join(''); 
     } 
  
@@ -6315,30 +6760,22 @@ document.addEventListener('DOMContentLoaded', function () {
  
         } 
  
-        /* Tampilkan modal lebih dulu agar error render tidak membuat tombol Detail terlihat mati. */
-        verificationModal.classList.add('show');
-        verificationModal.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
+        renderQuestionnaire( 
+            rawQuestionnaire 
+        ); 
 
-        try {
-            renderQuestionnaire(rawQuestionnaire);
-        } catch (error) {
-            console.error('Gagal menampilkan kuisioner:', error);
-            if (questionnaireContent) {
-                questionnaireContent.innerHTML = `
-                    <div class="questionnaire-empty">
-                        <strong>Data kuisioner belum dapat ditampilkan.</strong>
-                        <span>Silakan periksa data kuisioner responden.</span>
-                    </div>
-                `;
-            }
-        }
-
-        try {
-            renderFamilyMembersInline(row);
-        } catch (error) {
-            console.error('Gagal menampilkan anggota keluarga:', error);
-        } 
+        renderFamilyMembersInline(row);
+ 
+ 
+        verificationModal.classList.add('show'); 
+ 
+        verificationModal.setAttribute( 
+            'aria-hidden', 
+            'false' 
+        ); 
+ 
+        document.body.style.overflow = 
+            'hidden'; 
  
     } 
  
@@ -6415,27 +6852,25 @@ document.addEventListener('DOMContentLoaded', function () {
 ====================================================== */ 
  
 document.addEventListener('click', function (event) {
-        const target = event.target;
-        if (!target || typeof target.closest !== 'function') return;
 
-        const button = target.closest('.btn-open-detail');
-        if (!button) return;
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        const row = button.closest('tr.data-row') || button.closest('.data-row');
-        if (!row) {
-            console.error('Baris data responden tidak ditemukan.');
-            return;
-        }
-
-        try {
-            openVerificationModal(row);
-        } catch (error) {
-            console.error('Gagal membuka Detail:', error);
-        }
-    }); 
+    const button = event.target.closest('.btn-open-detail');
+ 
+    if (!button) { 
+        return; 
+    } 
+ 
+    event.preventDefault(); 
+ 
+    const row = button.closest('.data-row'); 
+ 
+    if (!row) { 
+        console.error('Baris data responden tidak ditemukan.'); 
+        return; 
+    } 
+ 
+    openVerificationModal(row); 
+ 
+}); 
  
     /* ===================================================== 
        CLOSE BUTTON 
@@ -6492,48 +6927,11 @@ document.addEventListener('click', function (event) {
                 closeModal(); 
  
             } 
-
+ 
         } 
     ); 
-
-    const queryParams = new URLSearchParams(window.location.search);
-    const detailId = queryParams.get('detail');
-    const partNumber = queryParams.get('part');
-
-    if (detailId && partNumber) {
-        const targetRow = Array.from(
-            document.querySelectorAll('.data-row')
-        ).find(function (row) {
-            return String(row.dataset.id) === detailId;
-        });
-
-        if (targetRow) {
-            openVerificationModal(targetRow);
-
-            const targetPart = Array.from(
-                document.querySelectorAll(
-                    '#verificationQuestionnaireContent .questionnaire-part-header'
-                )
-            ).find(function (header) {
-                const number = header.querySelector(
-                    '.questionnaire-part-number'
-                );
-
-                return number && number.textContent.trim() === partNumber;
-            });
-
-            if (targetPart) {
-                targetPart.click();
-            }
-        } else {
-            console.warn(
-                'Data responden untuk membuka kembali detail tidak ditemukan:',
-                detailId
-            );
-        }
-    }
-
-
+ 
+}); 
  
 </script> 
 @endpush

@@ -1266,11 +1266,28 @@ class RespondenController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        return mb_substr(
-            $hasil,
-            0,
-            255
-        );
+        if (mb_strlen($hasil) > 255) {
+
+            $panjangGeotag =
+                mb_strlen($tambahan);
+
+            $maksAlamat =
+                255 - $panjangGeotag - 1;
+
+            $alamat =
+                mb_substr(
+                    $alamat,
+                    0,
+                    max(0, $maksAlamat)
+                );
+
+            $hasil =
+                trim($alamat) .
+                "\n" .
+                $tambahan;
+        }
+
+        return $hasil;
     }
 
     /**
@@ -1327,7 +1344,7 @@ class RespondenController extends Controller
 
         if (
             preg_match(
-                '/Koordinat:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i',
+                '/(?:Koordinat:\s*)?(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i',
                 $alamat,
                 $matches
             )

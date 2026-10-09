@@ -266,79 +266,75 @@ class VerifikasiController extends Controller
                 }
 
                 /*
-                |--------------------------------------------------------------------------
-                | ANGGOTA KELUARGA
-                |--------------------------------------------------------------------------
-                */
+|--------------------------------------------------------------------------
+| ANGGOTA KELUARGA
+|--------------------------------------------------------------------------
+|
+|
+*/
 
-                $anggota = collect();
+$anggota = collect();
 
-                if ($keluarga) {
-                    $anggota = $keluarga
-                        ->anggota()
-                        ->orderBy('id')
-                        ->get();
-                }
+if ($keluarga) {
+    $anggota = $keluarga
+        ->anggota()
+        ->orderBy('id')
+        ->get();
+}
 
-                /*
-                |--------------------------------------------------------------------------
-                | CEK APAKAH ADA DATA ANGGOTA
-                |--------------------------------------------------------------------------
-                */
+/*
+|--------------------------------------------------------------------------
+| DETAIL ANGGOTA KELUARGA
+|--------------------------------------------------------------------------
+*/
 
-                $hasMemberRecords = $anggota->isNotEmpty();
+$anggotaDetail = $anggota
+    ->map(function ($member) {
 
-                /*
-                |--------------------------------------------------------------------------
-                | AMBIL KODE ANGGOTA DARI PART 5
-                |--------------------------------------------------------------------------
-                */
+        return [
+            'kode' => $member->kode ?? null,
 
-                $part5MemberCodes = collect();
+            'nik' => $member->nik
+                ?? $member->NIK
+                ?? '-',
 
-                if ($item->keluarga_periode_kode) {
-                    $part5MemberCodes = KeluargaPart5::query()
-                        ->where(
-                            'keluarga_periode_kode',
-                            $item->keluarga_periode_kode
-                        )
-                        ->pluck('keluarga_anggota_kode')
-                        ->filter()
-                        ->map(function ($value) {
-                            return (string) $value;
-                        })
-                        ->unique()
-                        ->values();
-                }
+            'nama_lengkap' => $member->nama_lengkap
+                ?? $member->nama
+                ?? $member->nama_anggota
+                ?? '-',
 
-                /*
-                |--------------------------------------------------------------------------
-                | COCOKKAN ANGGOTA DENGAN PART 5
-                |--------------------------------------------------------------------------
-                */
+            'nama' => $member->nama_lengkap
+                ?? $member->nama
+                ?? $member->nama_anggota
+                ?? '-',
 
-                if ($part5MemberCodes->isNotEmpty()) {
+            'status_keluarga' => $member->status_keluarga
+                ?? $member->status
+                ?? $member->hubungan
+                ?? '-',
+        ];
+    })
+    ->filter(function ($member) {
 
-                    $matchedAnggota = collect();
+        return
+            ($member['nik'] ?? '-') !== '-'
+            ||
+            ($member['nama_lengkap'] ?? '-') !== '-';
+    })
+    ->values()
+    ->all();
 
-                    foreach ($anggota as $member) {
+$jumlahAnggota = count($anggotaDetail);
 
-                        $memberCode = (string) (
-                            $member->kode ?? ''
-                        );
-
-                        if (
-                            $memberCode !== '' &&
-                            $part5MemberCodes->contains($memberCode)
-                        ) {
-                            $matchedAnggota->push($member);
-                        }
-                    }
-
-                    if ($matchedAnggota->isNotEmpty()) {
-                        $anggota = $matchedAnggota;
-                    }
-                }
+if (
+    $jumlahAnggota === 0
+    &&
+    $item->jml_keluarga !== null
+    &&
+    $item->jml_keluarga !== ''
+) {
+    $jumlahAnggota = (int) $item->jml_keluarga;
+}
 
                 /*
                 |--------------------------------------------------------------------------
@@ -346,10 +342,11 @@ class VerifikasiController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $status = $this->determineVerificationStatus(
-                    $item,
-                    $keluarga
-                );
+                $status =
+                    $this->determineVerificationStatus(
+                        $item,
+                        $keluarga
+                    );
 
                 /*
                 |--------------------------------------------------------------------------
@@ -357,75 +354,10 @@ class VerifikasiController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $progress = $this->getProgress(
-                    $item,
-                    $keluarga
-                );
-
-                /*
-                |--------------------------------------------------------------------------
-                | DETAIL ANGGOTA KELUARGA
-                |--------------------------------------------------------------------------
-                */
-
-                $anggotaDetail = $anggota
-                    ->map(function ($member) {
-
-                        return [
-                            'kode' => $member->kode ?? null,
-
-                            'nik' => $member->nik
-                                ?? $member->NIK
-                                ?? '-',
-
-                            'nama_lengkap' => $member->nama_lengkap
-                                ?? $member->nama
-                                ?? $member->nama_anggota
-                                ?? '-',
-
-                            'nama' => $member->nama_lengkap
-                                ?? $member->nama
-                                ?? $member->nama_anggota
-                                ?? '-',
-
-                            'status_keluarga' => $member->status_keluarga
-                                ?? $member->status
-                                ?? $member->hubungan
-                                ?? '-',
-                        ];
-                    })
-                    ->filter(function ($member) {
-                        $statusKeluarga = strtolower(
-                            trim(
-                                (string) (
-                                    $member['status_keluarga'] ?? ''
-                                )
-                            )
-                        );
-
-                        return
-                            $statusKeluarga !== 'kepala keluarga'
-                            && (
-                                ($member['nik'] ?? '-') !== '-'
-                                || ($member['nama_lengkap'] ?? '-') !== '-'
-                            );
-                    })
-                    ->values()
-                    ->all();
-
-                /*
-                |--------------------------------------------------------------------------
-                | JUMLAH ANGGOTA
-                |--------------------------------------------------------------------------
-                */
-
-                $jumlahAnggota = $hasMemberRecords
-                    ? count($anggotaDetail)
-                    : max(
-                        count($anggotaDetail),
-                        (int) (
-                            $item->jml_keluarga ?? 0
-                        )
+                $progress =
+                    $this->getProgress(
+                        $item,
+                        $keluarga
                     );
 
                 /*
@@ -438,7 +370,9 @@ class VerifikasiController extends Controller
 
                 $periode = $createdAt
                     ? $periodRecords->first(
-                        function (Periode $candidate) use ($createdAt): bool {
+                        function (
+                            Periode $candidate
+                        ) use ($createdAt): bool {
 
                             if (
                                 ! $candidate->tgl_awal ||
@@ -503,27 +437,35 @@ class VerifikasiController extends Controller
                     | JUMLAH ANGGOTA
                     */
 
-                    'jumlah_anggota' => $jumlahAnggota,
+                    'jumlah_anggota' =>
+                        $jumlahAnggota,
 
-                    'anggota' => $jumlahAnggota,
+                    'anggota' =>
+                        $jumlahAnggota,
 
-                    'anggota_detail' => $anggotaDetail,
+                    'anggota_detail' =>
+                        $anggotaDetail,
 
                     /*
                     | PERIODE
                     */
 
-                   'periode' => $periode
-    ? (string) ($periode->nama ?: $periode->kode)
-    : '-',
-                    'periode_kode' => $periode?->kode ?? '-',
+                    'periode' => $periode
+                        ? (string) (
+                            $periode->nama
+                            ?: $periode->kode
+                        )
+                        : '-',
+
+                    'periode_kode' =>
+                        $periode?->kode ?? '-',
 
                     'periode_tanggal' => $periode
                         ? Carbon::parse(
                             $periode->tgl_awal
                         )->format('d-m-Y')
-                        .' - '
-                        .Carbon::parse(
+                        . ' - '
+                        . Carbon::parse(
                             $periode->tgl_akhir
                         )->format('d-m-Y')
                         : '-',
@@ -534,9 +476,10 @@ class VerifikasiController extends Controller
 
                     'status' => $status,
 
-                    'status_label' => $this->getStatusLabel(
-                        $status
-                    ),
+                    'status_label' =>
+                        $this->getStatusLabel(
+                            $status
+                        ),
 
                     /*
                     | PROGRESS
@@ -544,98 +487,120 @@ class VerifikasiController extends Controller
 
                     'progress' => $progress,
 
-                    'progress_completed' => $progress['completed'],
+                    'progress_completed' =>
+                        $progress['completed'],
 
-                    'progress_total' => $progress['total'],
+                    'progress_total' =>
+                        $progress['total'],
 
-                    'progress_percent' => $progress['percent'],
+                    'progress_percent' =>
+                        $progress['percent'],
 
-                    'progress_detail' => $progress['parts'],
+                    'progress_detail' =>
+                        $progress['parts'],
 
                     /*
                     | WILAYAH
                     */
 
-                    'wilayah' => $this->buildWilayah(
-                        $item,
-                        $keluarga
-                    ),
+                    'wilayah' =>
+                        $this->buildWilayah(
+                            $item,
+                            $keluarga
+                        ),
 
                     /*
                     | PETUGAS
                     */
 
-                    'petugas' => $item->updated_by
+                    'petugas' =>
+                        $item->updated_by
                         ?? $item->created_by
                         ?? '-',
 
                     'tanggal' => $tanggal
-                        ? $tanggal->format('d-m-Y H:i')
+                        ? $tanggal->format(
+                            'd-m-Y H:i'
+                        )
                         : '-',
 
                     /*
                     | ALAMAT
                     */
 
-                    'provinsi' => $item->provinsi
+                    'provinsi' =>
+                        $item->provinsi
                         ?? (
                             $keluarga->provinsi ?? '-'
                         ),
 
-                    'daerah' => $item->daerah
+                    'daerah' =>
+                        $item->daerah
                         ?? (
                             $keluarga->daerah ?? '-'
                         ),
 
-                    'kecamatan' => $item->kecamatan
+                    'kecamatan' =>
+                        $item->kecamatan
                         ?? (
                             $keluarga->kecamatan ?? '-'
                         ),
 
-                    'kelurahan' => $item->kelurahan
+                    'kelurahan' =>
+                        $item->kelurahan
                         ?? (
                             $keluarga->kelurahan ?? '-'
                         ),
 
-                    'kode_pos' => $item->kode_pos
+                    'kode_pos' =>
+                        $item->kode_pos
                         ?? (
                             $keluarga->kode_pos ?? '-'
                         ),
 
-                    'rt_rw' => $item->rt_rw
+                    'rt_rw' =>
+                        $item->rt_rw
                         ?? (
                             $keluarga->rt_rw ?? '-'
                         ),
 
-                    'alamat_lengkap' => $item->alamat_lengkap
+                    'alamat_lengkap' =>
+                        $item->alamat_lengkap
                         ?? (
-                            $keluarga->alamat_lengkap ?? '-'
+                            $keluarga->alamat_lengkap
+                            ?? '-'
                         ),
 
-                    'jalan_rumah' => $item->jalan_rumah
+                    'jalan_rumah' =>
+                        $item->jalan_rumah
                         ?? '-',
 
-                    'is_alamat_sesuai' => $item->is_alamat_sesuai,
+                    'is_alamat_sesuai' =>
+                        $item->is_alamat_sesuai,
 
                     /*
                     | GEOTAGGING
                     */
 
-                    'geotangging' => $item->geotangging
+                    'geotangging' =>
+                        $item->geotangging
                         ?? '-',
 
                     /*
                     | PART
                     */
 
-                    'current_part' => (int) (
-                        $item->current_part ?? 1
-                    ),
+                    'current_part' =>
+                        (int) (
+                            $item->current_part
+                            ?? 1
+                        ),
 
                     'keluarga_periode_kode' =>
                         $item->keluarga_periode_kode,
 
-                    'created_at' => $item->created_at
+                    'created_at' =>
+                        $item->created_at
                         ? $item->created_at->format(
                             'd-m-Y H:i'
                         )
@@ -645,10 +610,11 @@ class VerifikasiController extends Controller
                     | KUISIONER
                     */
 
-                    'kuisioner' => $this->buildQuestionnaire(
-                        $item,
-                        $keluarga
-                    ),
+                    'kuisioner' =>
+                        $this->buildQuestionnaire(
+                            $item,
+                            $keluarga
+                        ),
                 ];
             })
             ->values()
@@ -720,7 +686,9 @@ class VerifikasiController extends Controller
                 $validated['kelurahan'] ?? ''
             ),
 
-          'status' => (string) ($validated['status'] ?? 'all') ?: 'all',
+            'status' => (string) (
+                $validated['status'] ?? 'all'
+            ) ?: 'all',
         ];
     }
 
@@ -740,8 +708,11 @@ class VerifikasiController extends Controller
             ])
             ->map(
                 fn (object $row): array => [
-                    'id' => (string) $row->kecamatan_id,
-                    'name' => (string) $row->deskripsi,
+                    'id' => (string)
+                        $row->kecamatan_id,
+
+                    'name' => (string)
+                        $row->deskripsi,
                 ]
             )
             ->all();
@@ -772,8 +743,11 @@ class VerifikasiController extends Controller
             ])
             ->map(
                 fn (object $row): array => [
-                    'id' => (string) $row->kelurahan_id,
-                    'name' => (string) $row->deskripsi,
+                    'id' => (string)
+                        $row->kelurahan_id,
+
+                    'name' => (string)
+                        $row->deskripsi,
                 ]
             )
             ->all();
@@ -792,15 +766,20 @@ class VerifikasiController extends Controller
         $query = KeluargaPart1::query();
 
         /*
+        |--------------------------------------------------------------------------
         | SEARCH
+        |--------------------------------------------------------------------------
         */
 
         if ($filters['search'] !== '') {
 
-            $search = '%' . $filters['search'] . '%';
+            $search =
+                '%' . $filters['search'] . '%';
 
             $query->where(
-                function (Builder $query) use ($search): void {
+                function (
+                    Builder $query
+                ) use ($search): void {
 
                     $query
                         ->where(
@@ -808,16 +787,19 @@ class VerifikasiController extends Controller
                             'like',
                             $search
                         )
+
                         ->orWhere(
                             'part1_keluarga.nik',
                             'like',
                             $search
                         )
+
                         ->orWhere(
                             'part1_keluarga.nama_kepala_keluarga',
                             'like',
                             $search
                         )
+
                         ->orWhereExists(
                             function (
                                 QueryBuilder $familyQuery
@@ -828,6 +810,7 @@ class VerifikasiController extends Controller
                                     ->from(
                                         'keluargas as search_family'
                                     )
+
                                     ->where(
                                         function (
                                             QueryBuilder $familyMatch
@@ -838,12 +821,14 @@ class VerifikasiController extends Controller
                                                     'search_family.kode',
                                                     'part1_keluarga.keluarga_periode_kode'
                                                 )
+
                                                 ->orWhereColumn(
                                                     'search_family.no_kk',
                                                     'part1_keluarga.no_kk'
                                                 );
                                         }
                                     )
+
                                     ->where(
                                         'search_family.nama_lengkap',
                                         'like',
@@ -856,28 +841,32 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | WILAYAH
+        |--------------------------------------------------------------------------
         */
 
         if ($filters['kecamatan'] !== '') {
 
-            $kecamatanNama = (string) DB::table(
-                'kecamatans'
-            )
-                ->where(
-                    'kecamatan_id',
-                    $filters['kecamatan']
+            $kecamatanNama =
+                (string) DB::table(
+                    'kecamatans'
                 )
-                ->value('deskripsi');
+                    ->where(
+                        'kecamatan_id',
+                        $filters['kecamatan']
+                    )
+                    ->value('deskripsi');
 
-            $kelurahanIdsInKecamatan = DB::table(
-                'kelurahans'
-            )
-                ->where(
-                    'kecamatan_id',
-                    $filters['kecamatan']
+            $kelurahanIdsInKecamatan =
+                DB::table(
+                    'kelurahans'
                 )
-                ->select('kelurahan_id');
+                    ->where(
+                        'kecamatan_id',
+                        $filters['kecamatan']
+                    )
+                    ->select('kelurahan_id');
 
             $query->where(
                 function (
@@ -902,6 +891,7 @@ class VerifikasiController extends Controller
                                     ->from(
                                         'keluargas as region_family'
                                     )
+
                                     ->where(
                                         function (
                                             QueryBuilder $familyMatch
@@ -912,12 +902,14 @@ class VerifikasiController extends Controller
                                                     'region_family.kode',
                                                     'part1_keluarga.keluarga_periode_kode'
                                                 )
+
                                                 ->orWhereColumn(
                                                     'region_family.no_kk',
                                                     'part1_keluarga.no_kk'
                                                 );
                                         }
                                     )
+
                                     ->where(
                                         function (
                                             QueryBuilder $districtQuery
@@ -931,6 +923,7 @@ class VerifikasiController extends Controller
                                                     'region_family.kecamatan_id',
                                                     $filters['kecamatan']
                                                 )
+
                                                 ->orWhereIn(
                                                     'region_family.kelurahan_id',
                                                     $kelurahanIdsInKecamatan
@@ -948,6 +941,7 @@ class VerifikasiController extends Controller
                                 }
                             }
                         )
+
                         ->orWhere(
                             function (
                                 Builder $legacyQuery
@@ -972,14 +966,17 @@ class VerifikasiController extends Controller
                                     $filters['kelurahan'] !== ''
                                 ) {
 
-                                    $kelurahanNama = (string) DB::table(
-                                        'kelurahans'
-                                    )
-                                        ->where(
-                                            'kelurahan_id',
-                                            $filters['kelurahan']
+                                    $kelurahanNama =
+                                        (string) DB::table(
+                                            'kelurahans'
                                         )
-                                        ->value('deskripsi');
+                                            ->where(
+                                                'kelurahan_id',
+                                                $filters['kelurahan']
+                                            )
+                                            ->value(
+                                                'deskripsi'
+                                            );
 
                                     $legacyQuery->whereIn(
                                         'part1_keluarga.kelurahan',
@@ -1000,7 +997,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | STATUS
+        |--------------------------------------------------------------------------
         */
 
         if (
@@ -1075,16 +1074,21 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | STATUS BELUM APPROVED / REJECTED
+        |--------------------------------------------------------------------------
         */
 
         $query->where(
-            function (Builder $query): void {
+            function (
+                Builder $query
+            ): void {
 
                 $query
                     ->whereNull(
                         'part1_keluarga.status'
                     )
+
                     ->orWhereNotIn(
                         'part1_keluarga.status',
                         [
@@ -1104,7 +1108,9 @@ class VerifikasiController extends Controller
         );
 
         /*
+        |--------------------------------------------------------------------------
         | PENDING
+        |--------------------------------------------------------------------------
         */
 
         if ($status === 'pending') {
@@ -1117,7 +1123,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | DRAFT
+        |--------------------------------------------------------------------------
         */
 
         $query->where(
@@ -1152,6 +1160,7 @@ class VerifikasiController extends Controller
                                 ->from(
                                     'part2_kondisi_rumahs'
                                 )
+
                                 ->whereColumn(
                                     'part2_kondisi_rumahs.keluarga_periode_kode',
                                     'part1_keluarga.keluarga_periode_kode'
@@ -1175,6 +1184,7 @@ class VerifikasiController extends Controller
                                 ->from(
                                     'part3_keuangan_keluargas'
                                 )
+
                                 ->whereColumn(
                                     'part3_keuangan_keluargas.keluarga_periode_kode',
                                     'part1_keluarga.keluarga_periode_kode'
@@ -1198,6 +1208,7 @@ class VerifikasiController extends Controller
                                 ->from(
                                     'part4_aset_keluargas'
                                 )
+
                                 ->whereColumn(
                                     'part4_aset_keluargas.keluarga_periode_kode',
                                     'part1_keluarga.keluarga_periode_kode'
@@ -1226,6 +1237,7 @@ class VerifikasiController extends Controller
                                 ->from(
                                     'part5_foto_rumahs'
                                 )
+
                                 ->whereColumn(
                                     'part5_foto_rumahs.keluarga_periode_kode',
                                     'part1_keluarga.keluarga_periode_kode'
@@ -1269,6 +1281,7 @@ class VerifikasiController extends Controller
                         ->from(
                             'part2_kondisi_rumahs'
                         )
+
                         ->whereColumn(
                             'part2_kondisi_rumahs.keluarga_periode_kode',
                             'part1_keluarga.keluarga_periode_kode'
@@ -1292,6 +1305,7 @@ class VerifikasiController extends Controller
                         ->from(
                             'part3_keuangan_keluargas'
                         )
+
                         ->whereColumn(
                             'part3_keuangan_keluargas.keluarga_periode_kode',
                             'part1_keluarga.keluarga_periode_kode'
@@ -1315,6 +1329,7 @@ class VerifikasiController extends Controller
                         ->from(
                             'part4_aset_keluargas'
                         )
+
                         ->whereColumn(
                             'part4_aset_keluargas.keluarga_periode_kode',
                             'part1_keluarga.keluarga_periode_kode'
@@ -1343,6 +1358,7 @@ class VerifikasiController extends Controller
                         ->from(
                             'part5_foto_rumahs'
                         )
+
                         ->whereColumn(
                             'part5_foto_rumahs.keluarga_periode_kode',
                             'part1_keluarga.keluarga_periode_kode'
@@ -1366,6 +1382,7 @@ class VerifikasiController extends Controller
             ->from(
                 'keluargas as complete_family'
             )
+
             ->where(
                 function (
                     QueryBuilder $familyMatch
@@ -1376,6 +1393,7 @@ class VerifikasiController extends Controller
                             'complete_family.kode',
                             'part1_keluarga.keluarga_periode_kode'
                         )
+
                         ->orWhereColumn(
                             'complete_family.no_kk',
                             'part1_keluarga.no_kk'
@@ -1393,6 +1411,7 @@ class VerifikasiController extends Controller
                         ->from(
                             'keluarga_anggotas as complete_member'
                         )
+
                         ->whereColumn(
                             'complete_member.keluarga_kode',
                             'complete_family.kode'
@@ -1410,10 +1429,12 @@ class VerifikasiController extends Controller
                         ->from(
                             'keluarga_anggotas as missing_member'
                         )
+
                         ->whereColumn(
                             'missing_member.keluarga_kode',
                             'complete_family.kode'
                         )
+
                         ->whereNotExists(
                             function (
                                 QueryBuilder $part5Query
@@ -1424,10 +1445,12 @@ class VerifikasiController extends Controller
                                     ->from(
                                         'part5_anggota_keluargas as complete_part5'
                                     )
+
                                     ->whereColumn(
                                         'complete_part5.keluarga_anggota_kode',
                                         'missing_member.kode'
                                     )
+
                                     ->whereColumn(
                                         'complete_part5.keluarga_periode_kode',
                                         'part1_keluarga.keluarga_periode_kode'
@@ -1456,7 +1479,9 @@ class VerifikasiController extends Controller
         );
 
         /*
+        |--------------------------------------------------------------------------
         | APPROVED
+        |--------------------------------------------------------------------------
         */
 
         if (
@@ -1473,7 +1498,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | REJECTED
+        |--------------------------------------------------------------------------
         */
 
         if (
@@ -1491,7 +1518,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | NOT PROCESSED
+        |--------------------------------------------------------------------------
         */
 
         if (
@@ -1511,7 +1540,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | PROGRESS
+        |--------------------------------------------------------------------------
         */
 
         $progress = $this->getProgress(
@@ -1520,7 +1551,9 @@ class VerifikasiController extends Controller
         );
 
         /*
+        |--------------------------------------------------------------------------
         | PENDING
+        |--------------------------------------------------------------------------
         */
 
         if (
@@ -1531,7 +1564,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | DRAFT
+        |--------------------------------------------------------------------------
         */
 
         return 'draft';
@@ -1548,20 +1583,26 @@ class VerifikasiController extends Controller
         ?Keluarga $keluarga
     ): array {
 
-        $kode = $item->keluarga_periode_kode;
+        $kode =
+            $item->keluarga_periode_kode;
 
         $currentPart = (int) (
             $item->current_part ?? 1
         );
 
         /*
+        |--------------------------------------------------------------------------
         | PART 1
+        |--------------------------------------------------------------------------
         */
 
-        $part1 = $currentPart >= 2;
+        $part1 =
+            $currentPart >= 2;
 
         /*
+        |--------------------------------------------------------------------------
         | PART 2
+        |--------------------------------------------------------------------------
         */
 
         $part2 = false;
@@ -1577,7 +1618,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | PART 3
+        |--------------------------------------------------------------------------
         */
 
         $part3 = false;
@@ -1593,7 +1636,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | PART 4
+        |--------------------------------------------------------------------------
         */
 
         $part4 = false;
@@ -1609,30 +1654,38 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | PART 5
+        |--------------------------------------------------------------------------
         */
 
-        $part5 = $this->isPart5Complete(
-            $item,
-            $keluarga
-        );
+        $part5 =
+            $this->isPart5Complete(
+                $item,
+                $keluarga
+            );
 
         /*
+        |--------------------------------------------------------------------------
         | PART 6 FOTO RUMAH
+        |--------------------------------------------------------------------------
         */
 
         $part6 = false;
 
         if ($kode) {
 
-            $part6 = KeluargaFotoRumah::where(
-                'keluarga_periode_kode',
-                $kode
-            )->exists();
+            $part6 =
+                KeluargaFotoRumah::where(
+                    'keluarga_periode_kode',
+                    $kode
+                )->exists();
         }
 
         /*
+        |--------------------------------------------------------------------------
         | DETAIL PART
+        |--------------------------------------------------------------------------
         */
 
         $parts = [
@@ -1657,7 +1710,8 @@ class VerifikasiController extends Controller
 
             [
                 'number' => 3,
-                'title' => 'Pengeluaran & Pendapatan',
+                'title' =>
+                    'Pengeluaran & Pendapatan',
                 'completed' => $part3,
                 'status' => $part3
                     ? 'Selesai'
@@ -1675,7 +1729,8 @@ class VerifikasiController extends Controller
 
             [
                 'number' => 5,
-                'title' => 'Data Anggota Keluarga',
+                'title' =>
+                    'Data Anggota Keluarga',
                 'completed' => $part5,
                 'status' => $part5
                     ? 'Selesai'
@@ -1693,11 +1748,16 @@ class VerifikasiController extends Controller
         ];
 
         /*
+        |--------------------------------------------------------------------------
         | HITUNG
+        |--------------------------------------------------------------------------
         */
 
         $completed = collect($parts)
-            ->where('completed', true)
+            ->where(
+                'completed',
+                true
+            )
             ->count();
 
         $total = 6;
@@ -1734,7 +1794,9 @@ class VerifikasiController extends Controller
     ): bool {
 
         /*
+        |--------------------------------------------------------------------------
         | CURRENT PART
+        |--------------------------------------------------------------------------
         */
 
         if (
@@ -1746,55 +1808,78 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | KELUARGA HARUS ADA
+        |--------------------------------------------------------------------------
         */
 
-        $kode = $item->keluarga_periode_kode;
+        $kode =
+            $item->keluarga_periode_kode;
 
         if (
             ! $kode ||
-            ! $keluarga
+            ! $keluarga ||
+            ! $keluarga->kode
         ) {
             return false;
         }
 
         /*
+        |--------------------------------------------------------------------------
         | SEMUA KODE ANGGOTA
+        |--------------------------------------------------------------------------
+        |
+        | DIUBAH:
+        | Ambil langsung dari keluarga_anggotas.
+        |
         */
 
-        $memberCodes = $keluarga
-            ->anggota()
-            ->pluck('kode')
-            ->filter()
-            ->map(
-                fn ($value) => (string) $value
-            )
-            ->values();
+        $memberCodes =
+            KeluargaAnggota::query()
+                ->where(
+                    'keluarga_kode',
+                    $keluarga->kode
+                )
+                ->pluck('kode')
+                ->filter()
+                ->map(
+                    fn ($value) =>
+                        (string) $value
+                )
+                ->values();
 
-        if ($memberCodes->isEmpty()) {
+        if (
+            $memberCodes->isEmpty()
+        ) {
             return false;
         }
 
         /*
+        |--------------------------------------------------------------------------
         | KODE PART 5
+        |--------------------------------------------------------------------------
         */
 
-        $part5Codes = KeluargaPart5::where(
-            'keluarga_periode_kode',
-            $kode
-        )
-            ->pluck(
-                'keluarga_anggota_kode'
+        $part5Codes =
+            KeluargaPart5::where(
+                'keluarga_periode_kode',
+                $kode
             )
-            ->filter()
-            ->map(
-                fn ($value) => (string) $value
-            )
-            ->unique()
-            ->values();
+                ->pluck(
+                    'keluarga_anggota_kode'
+                )
+                ->filter()
+                ->map(
+                    fn ($value) =>
+                        (string) $value
+                )
+                ->unique()
+                ->values();
 
         /*
+        |--------------------------------------------------------------------------
         | SEMUA ANGGOTA HARUS ADA
+        |--------------------------------------------------------------------------
         */
 
         return $memberCodes
@@ -1814,15 +1899,20 @@ class VerifikasiController extends Controller
 
         return match ($status) {
 
-            'approved' => 'Disetujui',
+            'approved' =>
+                'Disetujui',
 
-            'rejected' => 'Ditolak',
+            'rejected' =>
+                'Ditolak',
 
-            'pending' => 'Menunggu Verifikasi',
+            'pending' =>
+                'Menunggu Verifikasi',
 
-            'not_processed' => 'Belum Didata',
+            'not_processed' =>
+                'Belum Didata',
 
-            default => 'Draft',
+            default =>
+                'Draft',
         };
     }
 
@@ -1854,14 +1944,16 @@ class VerifikasiController extends Controller
             $kelurahan,
         ])
             ->filter(
-                fn ($value) => trim(
-                    (string) $value
-                ) !== ''
+                fn ($value) =>
+                    trim(
+                        (string) $value
+                    ) !== ''
             )
             ->map(
-                fn ($value) => trim(
-                    (string) $value
-                )
+                fn ($value) =>
+                    trim(
+                        (string) $value
+                    )
             )
             ->unique()
             ->values()
@@ -1880,7 +1972,8 @@ class VerifikasiController extends Controller
         ?Keluarga $keluarga
     ): array {
 
-        $kode = $item->keluarga_periode_kode;
+        $kode =
+            $item->keluarga_periode_kode;
 
         /*
         |--------------------------------------------------------------------------
@@ -1911,8 +2004,11 @@ class VerifikasiController extends Controller
                 $item->jml_keluarga
                     ?? (
                         $keluarga
-                            ? $keluarga
-                                ->anggota()
+                            ? KeluargaAnggota::query()
+                                ->where(
+                                    'keluarga_kode',
+                                    $keluarga->kode
+                                )
                                 ->count()
                             : '-'
                     )
@@ -1972,11 +2068,14 @@ class VerifikasiController extends Controller
             [
                 'number' => 0,
 
-                'text' => 'Titik Lokasi (Geotagging)',
+                'text' =>
+                    'Titik Lokasi (Geotagging)',
 
-                'question' => 'Titik Lokasi (Geotagging)',
+                'question' =>
+                    'Titik Lokasi (Geotagging)',
 
-                'answer' => $item->geotangging
+                'answer' =>
+                    $item->geotangging
                     ?? '-',
 
                 'type' => 'map',
@@ -1995,10 +2094,11 @@ class VerifikasiController extends Controller
 
         if ($kode) {
 
-            $part2 = KeluargaPart2::where(
-                'keluarga_periode_kode',
-                $kode
-            )->first();
+            $part2 =
+                KeluargaPart2::where(
+                    'keluarga_periode_kode',
+                    $kode
+                )->first();
         }
 
         if ($part2) {
@@ -2126,10 +2226,11 @@ class VerifikasiController extends Controller
 
         if ($kode) {
 
-            $part3 = KeluargaPart3::where(
-                'keluarga_periode_kode',
-                $kode
-            )->first();
+            $part3 =
+                KeluargaPart3::where(
+                    'keluarga_periode_kode',
+                    $kode
+                )->first();
         }
 
         if ($part3) {
@@ -2193,12 +2294,13 @@ class VerifikasiController extends Controller
 
         if ($kode) {
 
-            $part4 = KeluargaPart4::where(
-                'keluarga_periode_kode',
-                $kode
-            )
-                ->orderBy('id')
-                ->get();
+            $part4 =
+                KeluargaPart4::where(
+                    'keluarga_periode_kode',
+                    $kode
+                )
+                    ->orderBy('id')
+                    ->get();
 
             foreach ($part4 as $asset) {
 
@@ -2232,21 +2334,34 @@ class VerifikasiController extends Controller
 
         if (
             $kode &&
-            $keluarga
+            $keluarga &&
+            $keluarga->kode
         ) {
 
-            $members = $keluarga
-                ->anggota()
-                ->orderBy('id')
-                ->get();
-
             /*
-            | KEPALA KELUARGA TIDAK DITAMPILKAN
-            | SEBAGAI DETAIL PART 5
+            |--------------------------------------------------------------------------
+            | AMBIL ANGGOTA LANGSUNG DARI DATABASE
+            |--------------------------------------------------------------------------
             */
 
-            $members = $members
-                ->reject(
+            $members =
+                KeluargaAnggota::query()
+                    ->where(
+                        'keluarga_kode',
+                        $keluarga->kode
+                    )
+                    ->orderBy('id')
+                    ->get();
+
+            /*
+            |--------------------------------------------------------------------------
+            | KEPALA KELUARGA TIDAK DITAMPILKAN
+            | SEBAGAI DETAIL PART 5
+            |--------------------------------------------------------------------------
+            */
+
+            $members =
+                $members->reject(
                     function ($member) {
 
                         return strtolower(
@@ -2261,27 +2376,35 @@ class VerifikasiController extends Controller
                 );
 
             /*
+            |--------------------------------------------------------------------------
             | DATA PART 5
+            |--------------------------------------------------------------------------
             */
 
-            $part5Data = KeluargaPart5::where(
-                'keluarga_periode_kode',
-                $kode
-            )
-                ->get()
-                ->keyBy(
-                    'keluarga_anggota_kode'
-                );
+            $part5Data =
+                KeluargaPart5::where(
+                    'keluarga_periode_kode',
+                    $kode
+                )
+                    ->get()
+                    ->keyBy(
+                        'keluarga_anggota_kode'
+                    );
 
             /*
+            |--------------------------------------------------------------------------
             | BUILD SETIAP ANGGOTA
+            |--------------------------------------------------------------------------
             */
 
-            foreach ($members as $member) {
+            foreach (
+                $members as $member
+            ) {
 
-                $memberCode = (string) (
-                    $member->kode ?? ''
-                );
+                $memberCode =
+                    (string) (
+                        $member->kode ?? ''
+                    );
 
                 $part5Members[] =
                     $this->buildFamilyMemberQuestionnaire(
@@ -2303,13 +2426,15 @@ class VerifikasiController extends Controller
 
         if ($kode) {
 
-            $fotoRumah = KeluargaFotoRumah::where(
-                'keluarga_periode_kode',
-                $kode
-            )
-                ->get();
+            $fotoRumah =
+                KeluargaFotoRumah::where(
+                    'keluarga_periode_kode',
+                    $kode
+                )->get();
 
-            foreach ($fotoRumah as $foto) {
+            foreach (
+                $fotoRumah as $foto
+            ) {
 
                 $path = ltrim(
                     preg_replace(
@@ -2325,16 +2450,16 @@ class VerifikasiController extends Controller
                 );
 
                 $url = $path
-                    ? Storage::disk('public')->url(
-                        $path
-                    )
+                    ? Storage::disk(
+                        'public'
+                    )->url($path)
                     : '';
 
                 $jenis = str_replace(
                     '_',
                     ' ',
                     $foto->jenis_foto
-                        ?? 'Foto Rumah'
+                    ?? 'Foto Rumah'
                 );
 
                 $part6Questions[] = [
@@ -2376,41 +2501,51 @@ class VerifikasiController extends Controller
             [
                 'part' => 1,
 
-                'title' => 'Data Keluarga',
+                'title' =>
+                    'Data Keluarga',
 
-                'questions' => $part1Questions,
+                'questions' =>
+                    $part1Questions,
             ],
 
             [
                 'part' => 2,
 
-                'title' => 'Kondisi Rumah',
+                'title' =>
+                    'Kondisi Rumah',
 
-                'questions' => $part2Questions,
+                'questions' =>
+                    $part2Questions,
             ],
 
             [
                 'part' => 3,
 
-                'title' => 'Pengeluaran & Pendapatan',
+                'title' =>
+                    'Pengeluaran & Pendapatan',
 
-                'questions' => $part3Questions,
+                'questions' =>
+                    $part3Questions,
             ],
 
             [
                 'part' => 4,
 
-                'title' => 'Aset Keluarga',
+                'title' =>
+                    'Aset Keluarga',
 
-                'questions' => $part4Questions,
+                'questions' =>
+                    $part4Questions,
             ],
 
             [
                 'part' => 5,
 
-                'title' => 'Data Anggota Keluarga',
+                'title' =>
+                    'Data Anggota Keluarga',
 
-                'members' => $part5Members,
+                'members' =>
+                    $part5Members,
 
                 'questions' => [],
             ],
@@ -2418,9 +2553,11 @@ class VerifikasiController extends Controller
             [
                 'part' => 6,
 
-                'title' => 'Foto Rumah',
+                'title' =>
+                    'Foto Rumah',
 
-                'questions' => $part6Questions,
+                'questions' =>
+                    $part6Questions,
             ],
         ];
     }
@@ -2440,13 +2577,16 @@ class VerifikasiController extends Controller
 
             'number' => 0,
 
-            'text' => $question,
+            'text' =>
+                $question,
 
-            'question' => $question,
+            'question' =>
+                $question,
 
-            'answer' => $this->formatAnswer(
-                $answer
-            ),
+            'answer' =>
+                $this->formatAnswer(
+                    $answer
+                ),
 
             'type' => 'text',
         ];
@@ -2657,19 +2797,22 @@ class VerifikasiController extends Controller
             if (
                 isset($value->label)
             ) {
-                return (string) $value->label;
+                return (string)
+                    $value->label;
             }
 
             if (
                 isset($value->nama)
             ) {
-                return (string) $value->nama;
+                return (string)
+                    $value->nama;
             }
 
             if (
                 isset($value->value)
             ) {
-                return (string) $value->value;
+                return (string)
+                    $value->value;
             }
 
             return json_encode(
@@ -2756,7 +2899,8 @@ class VerifikasiController extends Controller
             'verifikasi.index',
             [
                 'detail' => $id,
-                'part' => request('part'),
+                'part' =>
+                    request('part'),
             ]
         );
     }
@@ -2767,91 +2911,173 @@ class VerifikasiController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function memberDetail(int $id, string $memberCode): View
-{
-    $item = KeluargaPart1::findOrFail($id);
+    public function memberDetail(
+        int $id,
+        string $memberCode
+    ): View {
 
-    $keluarga = $item->keluarga_periode_kode
-        ? Keluarga::where(
-            'kode',
+        $item =
+            KeluargaPart1::findOrFail(
+                $id
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | CARI KELUARGA
+        |--------------------------------------------------------------------------
+        */
+
+        $keluarga =
             $item->keluarga_periode_kode
-        )->first()
-        : null;
+            ? Keluarga::where(
+                'kode',
+                $item->keluarga_periode_kode
+            )->first()
+            : null;
 
-    if (! $keluarga && $item->no_kk) {
-        $keluarga = Keluarga::where(
-            'no_kk',
+        if (
+            ! $keluarga &&
             $item->no_kk
-        )->first();
-    }
+        ) {
 
-    abort_if(! $keluarga, 404);
+            $keluarga =
+                Keluarga::where(
+                    'no_kk',
+                    $item->no_kk
+                )->first();
+        }
 
-    $member = $keluarga
-        ->anggota()
-        ->where('kode', $memberCode)
-        ->firstOrFail();
-
-    abort_if(
-        strtolower(
-            trim(
-                (string) $member->status_keluarga
-            )
-        ) === 'kepala keluarga',
-        404
-    );
-
-    $part5 = KeluargaPart5::query()
-        ->where(
-            'keluarga_periode_kode',
-            $item->keluarga_periode_kode
-        )
-        ->where(
-            'keluarga_anggota_kode',
-            $member->kode
-        )
-        ->first();
-
-    $memberData =
-        $this->buildFamilyMemberQuestionnaire(
-            $member,
-            $part5
+        abort_if(
+            ! $keluarga,
+            404
         );
 
-    $backUrl = route(
-        'verifikasi.index',
-        array_merge(
-            request()->query(),
+        /*
+        |--------------------------------------------------------------------------
+        | CARI ANGGOTA
+        |--------------------------------------------------------------------------
+        |
+        | DIUBAH:
+        | Ambil langsung berdasarkan keluarga_kode.
+        |
+        */
+
+        $member =
+            KeluargaAnggota::query()
+                ->where(
+                    'keluarga_kode',
+                    $keluarga->kode
+                )
+                ->where(
+                    'kode',
+                    $memberCode
+                )
+                ->firstOrFail();
+
+        /*
+        |--------------------------------------------------------------------------
+        | KEPALA KELUARGA TIDAK BOLEH MASUK DETAIL PART 5
+        |--------------------------------------------------------------------------
+        */
+
+        abort_if(
+            strtolower(
+                trim(
+                    (string) (
+                        $member->status_keluarga
+                        ?? ''
+                    )
+                )
+            ) === 'kepala keluarga',
+            404
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA PART 5 ANGGOTA
+        |--------------------------------------------------------------------------
+        */
+
+        $part5 =
+            KeluargaPart5::query()
+                ->where(
+                    'keluarga_periode_kode',
+                    $item->keluarga_periode_kode
+                )
+                ->where(
+                    'keluarga_anggota_kode',
+                    $member->kode
+                )
+                ->first();
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUILD DATA DETAIL
+        |--------------------------------------------------------------------------
+        */
+
+        $memberData =
+            $this->buildFamilyMemberQuestionnaire(
+                $member,
+                $part5
+            );
+
+        /*
+        |--------------------------------------------------------------------------
+        | URL KEMBALI
+        |--------------------------------------------------------------------------
+        |
+        | Tetap kembali ke halaman hasil kuisioner Part 5.
+        |
+        */
+
+        $backUrl = route(
+            'verifikasi.index',
+            array_merge(
+                request()->query(),
+                [
+                    'detail' =>
+                        $item->id,
+
+                    'part' => 5,
+                ]
+            )
+        );
+
+        /*
+        
+        |--------------------------------------------------------------------------
+        | VIEW
+        |--------------------------------------------------------------------------
+        */
+
+        return view(
+            'admin.verifikasi.anggota',
             [
-                'detail' => $item->id,
-                'part' => 5,
+                'responden' => [
+
+                    'id' =>
+                        $item->id,
+
+                    'no_kk' =>
+                        $item->no_kk
+                        ?? $keluarga->no_kk
+                        ?? '-',
+
+                    'nama' =>
+                        $keluarga->nama_lengkap
+                        ?? $item->nama_kepala_keluarga
+                        ?? '-',
+                ],
+
+                'member' =>
+                    $memberData,
+
+                'backUrl' =>
+                    $backUrl,
             ]
-        )
-    );
-
-    return view(
-        'admin.verifikasi.anggota',
-        [
-            'responden' => [
-                'id' => $item->id,
-
-                'no_kk' =>
-                    $item->no_kk
-                    ?? $keluarga->no_kk
-                    ?? '-',
-
-                'nama' =>
-                    $keluarga->nama_lengkap
-                    ?? $item->nama_kepala_keluarga
-                    ?? '-',
-            ],
-
-            'member' => $memberData,
-
-            'backUrl' => $backUrl,
-        ]
-    );
-}
+        );
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -2864,22 +3090,26 @@ class VerifikasiController extends Controller
         $id
     ): RedirectResponse {
 
-        $validated = $request->validate(
-            [
-                'status' => [
-                    'required',
-                    'in:approved,rejected',
-                ],
-            ]
-        );
+        $validated =
+            $request->validate(
+                [
+                    'status' => [
+                        'required',
+                        'in:approved,rejected',
+                    ],
+                ]
+            );
 
         /*
+        |--------------------------------------------------------------------------
         | CARI PART 1
+        |--------------------------------------------------------------------------
         */
 
-        $item = KeluargaPart1::find(
-            $id
-        );
+        $item =
+            KeluargaPart1::find(
+                $id
+            );
 
         if (! $item) {
 
@@ -2894,7 +3124,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | CARI KELUARGA
+        |--------------------------------------------------------------------------
         */
 
         $keluarga = null;
@@ -2923,7 +3155,9 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | STATUS SEBENARNYA
+        |--------------------------------------------------------------------------
         */
 
         $actualStatus =
@@ -2933,7 +3167,9 @@ class VerifikasiController extends Controller
             );
 
         /*
+        |--------------------------------------------------------------------------
         | DRAFT TIDAK BOLEH DIVERIFIKASI
+        |--------------------------------------------------------------------------
         */
 
         if (
@@ -2951,13 +3187,16 @@ class VerifikasiController extends Controller
         }
 
         /*
+        |--------------------------------------------------------------------------
         | SIMPAN STATUS
+        |--------------------------------------------------------------------------
         */
 
         $item->status =
             $validated['status'];
 
-        $user = $request->user();
+        $user =
+            $request->user();
 
         $item->updated_by =
             $user?->name
@@ -2968,7 +3207,9 @@ class VerifikasiController extends Controller
         $item->save();
 
         /*
+        |--------------------------------------------------------------------------
         | PESAN
+        |--------------------------------------------------------------------------
         */
 
         $message =

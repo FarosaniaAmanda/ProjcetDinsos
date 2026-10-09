@@ -780,6 +780,7 @@
 .responden-modal-body {
     padding: 20px;
     overflow-y: auto;
+    overflow-anchor: none;
     flex: 1;
     min-height: 0;
 }
@@ -1341,12 +1342,28 @@ textarea.responden-form-control {
 
                         @php
                             $jumlahAnggota = (int) ($keluarga->jml_keluarga ?? $keluarga->anggota->count());
+                            $alamatSumber = $keluarga->alamat_tampil ?? $keluarga->alamat_lengkap ?? '';
+                            $koordinatKeluarga = $keluarga->geotangging ?? null;
+                            if (!$koordinatKeluarga && preg_match(
+                                '/Koordinat:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i',
+                                $alamatSumber,
+                                $koordinatMatches
+                            )) {
+                                $koordinatKeluarga = $koordinatMatches[1] . ', ' . $koordinatMatches[2];
+                            }
+                            $alamatKeluarga = preg_replace(
+                                '/\s*Koordinat:\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/i',
+                                '',
+                                $alamatSumber
+                            );
+                            $alamatKeluarga = trim($alamatKeluarga);
                         @endphp
 
                         {{-- BARIS UTAMA KEPALA KELUARGA --}}
                         <tr
                             class="responden-row responden-family-main"
                             id="keluarga-row-{{ $keluarga->id }}"
+                            data-geotagging="{{ $keluarga->geotangging ?? $keluarga->alamat_lengkap }}"
                         >
 
                             <td class="responden-number">
@@ -1398,26 +1415,26 @@ textarea.responden-form-control {
 
                             <td>
                                 <div>
-                                    {{ $keluarga->kelurahan ?? '-' }}
-                                </div>
-                                <div style="font-size:11px;color:#777;margin-top:3px;">
                                     {{ $keluarga->kecamatan ?? '-' }}
                                 </div>
                                 <div style="font-size:11px;color:#777;margin-top:3px;">
+                                    {{ $keluarga->kelurahan ?? '-' }}
+                                </div>
+                                <div style="font-size:11px;color:#777;margin-top:3px;">
                                     <div>
-                                        {{ $keluarga->alamat_tampil ?? $keluarga->alamat_lengkap ?? '-' }}
+                                        {{ $alamatKeluarga !== '' ? $alamatKeluarga : '-' }}
                                     </div>
                                     @if($keluarga->rt || $keluarga->rw)
                                         <div style="font-size:11px;color:#777;margin-top:3px;">
                                             RT {{ $keluarga->rt ?? '-' }}/RW {{ $keluarga->rw ?? '-' }}
                                         </div>
                                     @endif
-                                    @if($keluarga->geotangging)
-                                        <div style="font-size:11px;color:#777;margin-top:3px;">
-                                            Koordinat: {{ $keluarga->geotangging }}
-                                        </div>
-                                    @endif
                                 </div>
+                                @if($koordinatKeluarga)
+                                    <div style="font-size:11px;color:#777;margin-top:6px;">
+                                        Koordinat: {{ $koordinatKeluarga }}
+                                    </div>
+                                @endif
                             </td>
 
                             <td>
@@ -1478,25 +1495,25 @@ textarea.responden-form-control {
                                     </span>
                                 </td>
                                 <td>
-                                    <div>{{ $keluarga->kelurahan ?? '-' }}</div>
+                                    <div>{{ $keluarga->kecamatan ?? '-' }}</div>
                                     <div style="font-size:11px;color:#777;margin-top:3px;">
-                                        {{ $keluarga->kecamatan ?? '-' }}
+                                        {{ $keluarga->kelurahan ?? '-' }}
                                     </div>
                                     <div style="font-size:11px;color:#777;margin-top:3px;">
                                         <div>
-                                            {{ $keluarga->alamat_tampil ?? $keluarga->alamat_lengkap ?? '-' }}
+                                            {{ $alamatKeluarga !== '' ? $alamatKeluarga : '-' }}
                                         </div>
                                         @if($keluarga->rt || $keluarga->rw)
                                             <div style="font-size:11px;color:#777;margin-top:3px;">
                                                 RT {{ $keluarga->rt ?? '-' }}/RW {{ $keluarga->rw ?? '-' }}
                                             </div>
                                         @endif
-                                        @if($keluarga->geotangging)
-                                            <div style="font-size:11px;color:#777;margin-top:3px;">
-                                                Koordinat: {{ $keluarga->geotangging }}
-                                            </div>
-                                        @endif
                                     </div>
+                                    @if($koordinatKeluarga)
+                                        <div style="font-size:11px;color:#777;margin-top:6px;">
+                                            Koordinat: {{ $koordinatKeluarga }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td>
                                     <span style="font-size:10px;color:#aaa;">—</span>
@@ -3457,6 +3474,7 @@ function tutupModalDetail() {
     if (window.detailRespondenMap) {
         window.detailRespondenMap.remove();
         window.detailRespondenMap = null;
+        window.detailRespondenMapCoordinates = null;
     }
 
     if (modal) {
@@ -3464,6 +3482,45 @@ function tutupModalDetail() {
     }
 
     document.body.style.overflow = '';
+}
+
+function tampilkanPetaDetailResponden(element, geo, koordinat) {
+    window.detailRespondenMap = L.map(element, {
+        zoomControl: true
+    }).setView(
+        [geo.lat, geo.lng],
+        17
+    );
+
+    window.detailRespondenMapCoordinates = geo;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(window.detailRespondenMap);
+
+    L.marker([geo.lat, geo.lng])
+        .addTo(window.detailRespondenMap)
+        .bindPopup(
+            '<strong>Lokasi Rumah</strong><br>' +
+            escapeHtml(koordinat ?? '')
+        )
+        .openPopup();
+
+    requestAnimationFrame(function () {
+        window.detailRespondenMap.invalidateSize();
+    });
+}
+
+function bersihkanAlamatDetail(alamat) {
+    const alamatBersih = String(alamat ?? '')
+        .replace(
+            /\s*Koordinat:\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/gi,
+            ''
+        )
+        .trim();
+
+    return alamatBersih || '-';
 }
 
 
@@ -3480,6 +3537,13 @@ window.detailResponden = function (id) {
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    body.scrollTop = 0;
+
+    if (window.detailRespondenMap) {
+        window.detailRespondenMap.remove();
+        window.detailRespondenMap = null;
+        window.detailRespondenMapCoordinates = null;
+    }
 
     body.innerHTML = `
         <div class="responden-section">
@@ -3488,6 +3552,7 @@ window.detailResponden = function (id) {
             </div>
         </div>
     `;
+    body.scrollTop = 0;
 
     fetch(detailUrl.replace('__ID__', id), {
         method: 'GET',
@@ -3511,21 +3576,21 @@ window.detailResponden = function (id) {
 
             const rt = data.rt ?? '-';
             const rw = data.rw ?? '-';
+            const detailGeo = parseGeotangging(data.geotangging);
 
             body.innerHTML = `
-                <div class="responden-detail-summary">
-                    <div class="responden-detail-summary-item">
-                        <div class="responden-detail-summary-label">Nomor KK</div>
-                        <div class="responden-detail-summary-value">${escapeHtml(data.no_kk ?? '-')}</div>
-                    </div>
-                    <div class="responden-detail-summary-item">
-                        <div class="responden-detail-summary-label">Kepala Keluarga</div>
-                        <div class="responden-detail-summary-value">${escapeHtml(data.nama_kepala_keluarga ?? data.nama_lengkap ?? '-')}</div>
-                    </div>
-                </div>
-
                 <div class="responden-section">
                     <div class="responden-detail-section-title">Identitas Keluarga</div>
+                    <div class="responden-detail-summary">
+                        <div class="responden-detail-summary-item">
+                            <div class="responden-detail-summary-label">Nomor KK</div>
+                            <div class="responden-detail-summary-value">${escapeHtml(data.no_kk ?? '-')}</div>
+                        </div>
+                        <div class="responden-detail-summary-item">
+                            <div class="responden-detail-summary-label">Kepala Keluarga</div>
+                            <div class="responden-detail-summary-value">${escapeHtml(data.nama_kepala_keluarga ?? data.nama_lengkap ?? '-')}</div>
+                        </div>
+                    </div>
                     <div class="responden-detail-grid">
                         <div class="responden-detail-item">
                             <div class="responden-detail-label">NIK Kepala Keluarga</div>
@@ -3539,8 +3604,16 @@ window.detailResponden = function (id) {
                 </div>
 
                 <div class="responden-section">
-                    <div class="responden-detail-section-title">Wilayah dan Alamat</div>
+                    <div class="responden-detail-section-title">Wilayah / Alamat Keluarga</div>
                     <div class="responden-detail-grid">
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">Provinsi</div>
+                            <div class="responden-detail-value">${escapeHtml(data.provinsi ?? '-')}</div>
+                        </div>
+                        <div class="responden-detail-item">
+                            <div class="responden-detail-label">Daerah/Kota</div>
+                            <div class="responden-detail-value">${escapeHtml(data.daerah ?? '-')}</div>
+                        </div>
                         <div class="responden-detail-item">
                             <div class="responden-detail-label">Kecamatan</div>
                             <div class="responden-detail-value">${escapeHtml(data.kecamatan ?? '-')}</div>
@@ -3563,12 +3636,13 @@ window.detailResponden = function (id) {
                         </div>
                         <div class="responden-detail-item full">
                             <div class="responden-detail-label">Alamat Lengkap</div>
-                            <div class="responden-detail-value">${escapeHtml(data.alamat_lengkap ?? '-').replace(/\n/g, '<br>')}</div>
+                            <div class="responden-detail-value">${escapeHtml(bersihkanAlamatDetail(data.alamat_lengkap)).replace(/\n/g, '<br>')}</div>
                         </div>
                         <div class="responden-detail-item full">
                             <div class="responden-detail-label">Titik Koordinat</div>
                             <div class="responden-detail-value" id="detailKoordinatText">${escapeHtml(data.geotangging ?? '-')}</div>
-
+                        </div>
+                        <div class="responden-detail-item full">
                             <div class="responden-detail-map-wrapper">
                                 <div class="responden-detail-label">Peta Lokasi Rumah</div>
                                 <div id="detailRespondenMap" class="responden-detail-map"></div>
@@ -3595,42 +3669,20 @@ window.detailResponden = function (id) {
                     }
                 </div>
             `;
+            body.scrollTop = 0;
+            requestAnimationFrame(function () {
+                body.scrollTop = 0;
+            });
 
             // Tampilkan peta berdasarkan koordinat geotangging yang tersimpan.
             const detailMapElement = document.getElementById('detailRespondenMap');
-            const detailGeo = parseGeotangging(data.geotangging);
 
             if (detailMapElement && detailGeo) {
-                setTimeout(function () {
-                    if (window.detailRespondenMap) {
-                        window.detailRespondenMap.remove();
-                        window.detailRespondenMap = null;
-                    }
-
-                    window.detailRespondenMap = L.map('detailRespondenMap', {
-                        zoomControl: true
-                    }).setView(
-                        [detailGeo.lat, detailGeo.lng],
-                        17
-                    );
-
-                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                        maxZoom: 19,
-                        attribution: '&copy; OpenStreetMap contributors'
-                    }).addTo(window.detailRespondenMap);
-
-                    L.marker([detailGeo.lat, detailGeo.lng])
-                        .addTo(window.detailRespondenMap)
-                        .bindPopup(
-                            '<strong>Lokasi Rumah</strong><br>' +
-                            escapeHtml(data.geotangging ?? '')
-                        )
-                        .openPopup();
-
-                    setTimeout(function () {
-                        window.detailRespondenMap.invalidateSize();
-                    }, 100);
-                }, 100);
+                tampilkanPetaDetailResponden(
+                    detailMapElement,
+                    detailGeo,
+                    data.geotangging
+                );
             } else if (detailMapElement) {
                 detailMapElement.innerHTML = `
                     <div class="responden-detail-map-empty">
@@ -3758,15 +3810,17 @@ window.editResponden = function (id) {
 
             tampilkanKonfirmasiLokasi('edit', false);
 
-            setTimeout(function () {
-                initMapEdit(
-                    geo ? geo.lat : null,
-                    geo ? geo.lng : null
-                );
-            }, 200);
-
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    initMapEdit(
+                        geo ? geo.lat : null,
+                        geo ? geo.lng : null
+                    );
+                });
+            });
         })
         .catch(function (error) {
             console.error(error);
@@ -4148,18 +4202,16 @@ function parseGeotangging(value) {
         return null;
     }
 
-    const parts = String(value)
-        .split(',')
-        .map(function (item) {
-            return item.trim();
-        });
+    const match = String(value).match(
+        /(?:Koordinat:\s*|^\s*)(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/im
+    );
 
-    if (parts.length < 2) {
+    if (!match) {
         return null;
     }
 
-    const lat = parseFloat(parts[0]);
-    const lng = parseFloat(parts[1]);
+    const lat = Number(match[1]);
+    const lng = Number(match[2]);
 
     if (Number.isNaN(lat) || Number.isNaN(lng)) {
         return null;
