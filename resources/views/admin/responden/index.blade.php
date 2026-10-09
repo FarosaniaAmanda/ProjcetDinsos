@@ -2694,6 +2694,60 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () { n.remove(); }, 4000);
     }
 
+    // Pencarian otomatis saat mengetik, sekaligus menjaga fokus dan posisi kursor.
+    const searchInput = document.getElementById('searchResponden');
+    const searchForm = document.getElementById('searchRespondenForm');
+    let searchTimer = null;
+
+    if (searchInput && searchForm) {
+        const currentSearch = searchInput.value.trim();
+
+        // Setelah hasil pencarian dimuat, kembalikan fokus dan posisi kursor.
+        try {
+            const savedCursor = sessionStorage.getItem('respondenSearchCursor');
+            if (savedCursor !== null) {
+                sessionStorage.removeItem('respondenSearchCursor');
+                const cursorPosition = Math.min(
+                    parseInt(savedCursor, 10) || 0,
+                    searchInput.value.length
+                );
+                searchInput.focus();
+                searchInput.setSelectionRange(cursorPosition, cursorPosition);
+            }
+        } catch (error) {
+            // Pencarian tetap berjalan jika penyimpanan sesi tidak tersedia.
+        }
+
+        searchInput.addEventListener('input', function () {
+            clearTimeout(searchTimer);
+
+            searchTimer = setTimeout(function () {
+                const keyword = searchInput.value.trim();
+
+                // Hindari reload jika kata kunci tidak berubah.
+                if (keyword === currentSearch) {
+                    return;
+                }
+
+                // Simpan posisi kursor agar tidak hilang setelah hasil dimuat.
+                try {
+                    sessionStorage.setItem(
+                        'respondenSearchCursor',
+                        String(searchInput.selectionStart ?? searchInput.value.length)
+                    );
+                } catch (error) {
+                    // Tetap lanjutkan pencarian jika penyimpanan sesi tidak tersedia.
+                }
+
+                if (typeof searchForm.requestSubmit === 'function') {
+                    searchForm.requestSubmit();
+                } else {
+                    searchForm.submit();
+                }
+            }, 600);
+        });
+    }
+
     const m = document.getElementById('modalDetailResponden');
     if (m) {
         m.addEventListener('click', function (e) {
