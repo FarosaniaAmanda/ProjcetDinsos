@@ -131,13 +131,7 @@ class VerifikasiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $periodeAktif = Periode::query()
-            ->where('status_periode', 'Aktif')
-            ->orderByDesc('id')
-            ->first([
-                'nama',
-                'kode',
-            ]);
+        $periodeAktif = $this->getSelectedPeriode();
 
         /*
         |--------------------------------------------------------------------------
@@ -191,6 +185,23 @@ class VerifikasiController extends Controller
     |--------------------------------------------------------------------------
     */
 
+    protected function getSelectedPeriode(): ?Periode
+    {
+        $periodeTerpilih = Periode::query()->find(session('periode_id'));
+
+        if (
+            $periodeTerpilih &&
+            strtolower(trim((string) $periodeTerpilih->status_periode)) === 'aktif'
+        ) {
+            return $periodeTerpilih;
+        }
+
+        return Periode::query()
+            ->whereRaw('LOWER(TRIM(status_periode)) = ?', ['aktif'])
+            ->orderByDesc('id')
+            ->first();
+    }
+
     protected function getData(?Builder $query = null)
     {
         $items = ($query ?? KeluargaPart1::query())
@@ -210,20 +221,7 @@ class VerifikasiController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | DATA PERIODE
-        |--------------------------------------------------------------------------
-        */
-
-        $periodRecords = Periode::query()
-            ->orderBy('tgl_awal')
-            ->get([
-                'kode',
-                'nama',
-                'tgl_awal',
-                'tgl_akhir',
-            ]);
+        $periodeTerpilih = $this->getSelectedPeriode();
 
         /*
         |--------------------------------------------------------------------------
@@ -232,7 +230,7 @@ class VerifikasiController extends Controller
         */
 
         return $items
-            ->map(function ($item) use ($periodRecords) {
+            ->map(function ($item) use ($periodeTerpilih) {
 
                 /*
                 |--------------------------------------------------------------------------
@@ -273,68 +271,68 @@ class VerifikasiController extends Controller
 |
 */
 
-$anggota = collect();
+                $anggota = collect();
 
-if ($keluarga) {
-    $anggota = $keluarga
-        ->anggota()
-        ->orderBy('id')
-        ->get();
-}
+                if ($keluarga) {
+                    $anggota = $keluarga
+                        ->anggota()
+                        ->orderBy('id')
+                        ->get();
+                }
 
-/*
-|--------------------------------------------------------------------------
-| DETAIL ANGGOTA KELUARGA
-|--------------------------------------------------------------------------
-*/
+                /*
+                |--------------------------------------------------------------------------
+                | DETAIL ANGGOTA KELUARGA
+                |--------------------------------------------------------------------------
+                */
 
-$anggotaDetail = $anggota
-    ->map(function ($member) {
+                $anggotaDetail = $anggota
+                    ->map(function ($member) {
 
-        return [
-            'kode' => $member->kode ?? null,
+                        return [
+                            'kode' => $member->kode ?? null,
 
-            'nik' => $member->nik
-                ?? $member->NIK
-                ?? '-',
+                            'nik' => $member->nik
+                                ?? $member->NIK
+                                ?? '-',
 
-            'nama_lengkap' => $member->nama_lengkap
-                ?? $member->nama
-                ?? $member->nama_anggota
-                ?? '-',
+                            'nama_lengkap' => $member->nama_lengkap
+                                ?? $member->nama
+                                ?? $member->nama_anggota
+                                ?? '-',
 
-            'nama' => $member->nama_lengkap
-                ?? $member->nama
-                ?? $member->nama_anggota
-                ?? '-',
+                            'nama' => $member->nama_lengkap
+                                ?? $member->nama
+                                ?? $member->nama_anggota
+                                ?? '-',
 
-            'status_keluarga' => $member->status_keluarga
-                ?? $member->status
-                ?? $member->hubungan
-                ?? '-',
-        ];
-    })
-    ->filter(function ($member) {
+                            'status_keluarga' => $member->status_keluarga
+                                ?? $member->status
+                                ?? $member->hubungan
+                                ?? '-',
+                        ];
+                    })
+                    ->filter(function ($member) {
 
-        return
-            ($member['nik'] ?? '-') !== '-'
-            ||
-            ($member['nama_lengkap'] ?? '-') !== '-';
-    })
-    ->values()
-    ->all();
+                        return
+                            ($member['nik'] ?? '-') !== '-'
+                            ||
+                            ($member['nama_lengkap'] ?? '-') !== '-';
+                    })
+                    ->values()
+                    ->all();
 
-$jumlahAnggota = count($anggotaDetail);
+                $jumlahAnggota = count($anggotaDetail);
 
-if (
-    $jumlahAnggota === 0
-    &&
-    $item->jml_keluarga !== null
-    &&
-    $item->jml_keluarga !== ''
-) {
-    $jumlahAnggota = (int) $item->jml_keluarga;
-}
+                if (
+                    $jumlahAnggota === 0
+                    &&
+                    $item->jml_keluarga !== null
+                    &&
+                    $item->jml_keluarga !== ''
+                ) {
+                    $jumlahAnggota = (int) $item->jml_keluarga;
+                }
 
                 /*
                 |--------------------------------------------------------------------------
@@ -366,33 +364,7 @@ if (
                 |--------------------------------------------------------------------------
                 */
 
-                $createdAt = $item->created_at;
-
-                $periode = $createdAt
-                    ? $periodRecords->first(
-                        function (
-                            Periode $candidate
-                        ) use ($createdAt): bool {
-
-                            if (
-                                ! $candidate->tgl_awal ||
-                                ! $candidate->tgl_akhir
-                            ) {
-                                return false;
-                            }
-
-                            return $createdAt->betweenIncluded(
-                                Carbon::parse(
-                                    $candidate->tgl_awal
-                                )->startOfDay(),
-
-                                Carbon::parse(
-                                    $candidate->tgl_akhir
-                                )->endOfDay()
-                            );
-                        }
-                    )
-                    : null;
+                $periode = $periodeTerpilih;
 
                 /*
                 |--------------------------------------------------------------------------
@@ -437,14 +409,11 @@ if (
                     | JUMLAH ANGGOTA
                     */
 
-                    'jumlah_anggota' =>
-                        $jumlahAnggota,
+                    'jumlah_anggota' => $jumlahAnggota,
 
-                    'anggota' =>
-                        $jumlahAnggota,
+                    'anggota' => $jumlahAnggota,
 
-                    'anggota_detail' =>
-                        $anggotaDetail,
+                    'anggota_detail' => $anggotaDetail,
 
                     /*
                     | PERIODE
@@ -457,15 +426,14 @@ if (
                         )
                         : '-',
 
-                    'periode_kode' =>
-                        $periode?->kode ?? '-',
+                    'periode_kode' => $periode?->kode ?? '-',
 
                     'periode_tanggal' => $periode
                         ? Carbon::parse(
                             $periode->tgl_awal
                         )->format('d-m-Y')
-                        . ' - '
-                        . Carbon::parse(
+                        .' - '
+                        .Carbon::parse(
                             $periode->tgl_akhir
                         )->format('d-m-Y')
                         : '-',
@@ -476,10 +444,9 @@ if (
 
                     'status' => $status,
 
-                    'status_label' =>
-                        $this->getStatusLabel(
-                            $status
-                        ),
+                    'status_label' => $this->getStatusLabel(
+                        $status
+                    ),
 
                     /*
                     | PROGRESS
@@ -487,34 +454,28 @@ if (
 
                     'progress' => $progress,
 
-                    'progress_completed' =>
-                        $progress['completed'],
+                    'progress_completed' => $progress['completed'],
 
-                    'progress_total' =>
-                        $progress['total'],
+                    'progress_total' => $progress['total'],
 
-                    'progress_percent' =>
-                        $progress['percent'],
+                    'progress_percent' => $progress['percent'],
 
-                    'progress_detail' =>
-                        $progress['parts'],
+                    'progress_detail' => $progress['parts'],
 
                     /*
                     | WILAYAH
                     */
 
-                    'wilayah' =>
-                        $this->buildWilayah(
-                            $item,
-                            $keluarga
-                        ),
+                    'wilayah' => $this->buildWilayah(
+                        $item,
+                        $keluarga
+                    ),
 
                     /*
                     | PETUGAS
                     */
 
-                    'petugas' =>
-                        $item->updated_by
+                    'petugas' => $item->updated_by
                         ?? $item->created_by
                         ?? '-',
 
@@ -528,79 +489,66 @@ if (
                     | ALAMAT
                     */
 
-                    'provinsi' =>
-                        $item->provinsi
+                    'provinsi' => $item->provinsi
                         ?? (
                             $keluarga->provinsi ?? '-'
                         ),
 
-                    'daerah' =>
-                        $item->daerah
+                    'daerah' => $item->daerah
                         ?? (
                             $keluarga->daerah ?? '-'
                         ),
 
-                    'kecamatan' =>
-                        $item->kecamatan
+                    'kecamatan' => $item->kecamatan
                         ?? (
                             $keluarga->kecamatan ?? '-'
                         ),
 
-                    'kelurahan' =>
-                        $item->kelurahan
+                    'kelurahan' => $item->kelurahan
                         ?? (
                             $keluarga->kelurahan ?? '-'
                         ),
 
-                    'kode_pos' =>
-                        $item->kode_pos
+                    'kode_pos' => $item->kode_pos
                         ?? (
                             $keluarga->kode_pos ?? '-'
                         ),
 
-                    'rt_rw' =>
-                        $item->rt_rw
+                    'rt_rw' => $item->rt_rw
                         ?? (
                             $keluarga->rt_rw ?? '-'
                         ),
 
-                    'alamat_lengkap' =>
-                        $item->alamat_lengkap
+                    'alamat_lengkap' => $item->alamat_lengkap
                         ?? (
                             $keluarga->alamat_lengkap
                             ?? '-'
                         ),
 
-                    'jalan_rumah' =>
-                        $item->jalan_rumah
+                    'jalan_rumah' => $item->jalan_rumah
                         ?? '-',
 
-                    'is_alamat_sesuai' =>
-                        $item->is_alamat_sesuai,
+                    'is_alamat_sesuai' => $item->is_alamat_sesuai,
 
                     /*
                     | GEOTAGGING
                     */
 
-                    'geotangging' =>
-                        $item->geotangging
+                    'geotangging' => $item->geotangging
                         ?? '-',
 
                     /*
                     | PART
                     */
 
-                    'current_part' =>
-                        (int) (
-                            $item->current_part
-                            ?? 1
-                        ),
+                    'current_part' => (int) (
+                        $item->current_part
+                        ?? 1
+                    ),
 
-                    'keluarga_periode_kode' =>
-                        $item->keluarga_periode_kode,
+                    'keluarga_periode_kode' => $item->keluarga_periode_kode,
 
-                    'created_at' =>
-                        $item->created_at
+                    'created_at' => $item->created_at
                         ? $item->created_at->format(
                             'd-m-Y H:i'
                         )
@@ -610,11 +558,10 @@ if (
                     | KUISIONER
                     */
 
-                    'kuisioner' =>
-                        $this->buildQuestionnaire(
-                            $item,
-                            $keluarga
-                        ),
+                    'kuisioner' => $this->buildQuestionnaire(
+                        $item,
+                        $keluarga
+                    ),
                 ];
             })
             ->values()
@@ -774,7 +721,7 @@ if (
         if ($filters['search'] !== '') {
 
             $search =
-                '%' . $filters['search'] . '%';
+                '%'.$filters['search'].'%';
 
             $query->where(
                 function (
@@ -1710,8 +1657,7 @@ if (
 
             [
                 'number' => 3,
-                'title' =>
-                    'Pengeluaran & Pendapatan',
+                'title' => 'Pengeluaran & Pendapatan',
                 'completed' => $part3,
                 'status' => $part3
                     ? 'Selesai'
@@ -1729,8 +1675,7 @@ if (
 
             [
                 'number' => 5,
-                'title' =>
-                    'Data Anggota Keluarga',
+                'title' => 'Data Anggota Keluarga',
                 'completed' => $part5,
                 'status' => $part5
                     ? 'Selesai'
@@ -1843,8 +1788,7 @@ if (
                 ->pluck('kode')
                 ->filter()
                 ->map(
-                    fn ($value) =>
-                        (string) $value
+                    fn ($value) => (string) $value
                 )
                 ->values();
 
@@ -1870,8 +1814,7 @@ if (
                 )
                 ->filter()
                 ->map(
-                    fn ($value) =>
-                        (string) $value
+                    fn ($value) => (string) $value
                 )
                 ->unique()
                 ->values();
@@ -1899,20 +1842,15 @@ if (
 
         return match ($status) {
 
-            'approved' =>
-                'Disetujui',
+            'approved' => 'Disetujui',
 
-            'rejected' =>
-                'Ditolak',
+            'rejected' => 'Ditolak',
 
-            'pending' =>
-                'Menunggu Verifikasi',
+            'pending' => 'Menunggu Verifikasi',
 
-            'not_processed' =>
-                'Belum Didata',
+            'not_processed' => 'Belum Didata',
 
-            default =>
-                'Draft',
+            default => 'Draft',
         };
     }
 
@@ -1944,16 +1882,14 @@ if (
             $kelurahan,
         ])
             ->filter(
-                fn ($value) =>
-                    trim(
-                        (string) $value
-                    ) !== ''
+                fn ($value) => trim(
+                    (string) $value
+                ) !== ''
             )
             ->map(
-                fn ($value) =>
-                    trim(
-                        (string) $value
-                    )
+                fn ($value) => trim(
+                    (string) $value
+                )
             )
             ->unique()
             ->values()
@@ -2068,14 +2004,11 @@ if (
             [
                 'number' => 0,
 
-                'text' =>
-                    'Titik Lokasi (Geotagging)',
+                'text' => 'Titik Lokasi (Geotagging)',
 
-                'question' =>
-                    'Titik Lokasi (Geotagging)',
+                'question' => 'Titik Lokasi (Geotagging)',
 
-                'answer' =>
-                    $item->geotangging
+                'answer' => $item->geotangging
                     ?? '-',
 
                 'type' => 'map',
@@ -2310,7 +2243,7 @@ if (
 
                 $part4Questions[] =
                     $this->question(
-                        $namaAset . ' - Memiliki',
+                        $namaAset.' - Memiliki',
                         $this->formatBoolean(
                             $asset->is_punya_aset
                         )
@@ -2318,7 +2251,7 @@ if (
 
                 $part4Questions[] =
                     $this->question(
-                        $namaAset . ' - Jumlah',
+                        $namaAset.' - Jumlah',
                         $asset->jml_aset
                     );
             }
@@ -2464,25 +2397,21 @@ if (
 
                 $part6Questions[] = [
 
-                    'number' =>
-                        count(
-                            $part6Questions
-                        ) + 1,
+                    'number' => count(
+                        $part6Questions
+                    ) + 1,
 
-                    'question' =>
-                        'Foto ' .
+                    'question' => 'Foto '.
                         ucwords($jenis),
 
-                    'text' =>
-                        'Foto ' .
+                    'text' => 'Foto '.
                         ucwords($jenis),
 
                     'answer' => $url,
 
                     'imageUrl' => $url,
 
-                    'imageName' =>
-                        $foto->nama_file
+                    'imageName' => $foto->nama_file
                         ?? basename($path),
 
                     'type' => 'image',
@@ -2501,51 +2430,41 @@ if (
             [
                 'part' => 1,
 
-                'title' =>
-                    'Data Keluarga',
+                'title' => 'Data Keluarga',
 
-                'questions' =>
-                    $part1Questions,
+                'questions' => $part1Questions,
             ],
 
             [
                 'part' => 2,
 
-                'title' =>
-                    'Kondisi Rumah',
+                'title' => 'Kondisi Rumah',
 
-                'questions' =>
-                    $part2Questions,
+                'questions' => $part2Questions,
             ],
 
             [
                 'part' => 3,
 
-                'title' =>
-                    'Pengeluaran & Pendapatan',
+                'title' => 'Pengeluaran & Pendapatan',
 
-                'questions' =>
-                    $part3Questions,
+                'questions' => $part3Questions,
             ],
 
             [
                 'part' => 4,
 
-                'title' =>
-                    'Aset Keluarga',
+                'title' => 'Aset Keluarga',
 
-                'questions' =>
-                    $part4Questions,
+                'questions' => $part4Questions,
             ],
 
             [
                 'part' => 5,
 
-                'title' =>
-                    'Data Anggota Keluarga',
+                'title' => 'Data Anggota Keluarga',
 
-                'members' =>
-                    $part5Members,
+                'members' => $part5Members,
 
                 'questions' => [],
             ],
@@ -2553,11 +2472,9 @@ if (
             [
                 'part' => 6,
 
-                'title' =>
-                    'Foto Rumah',
+                'title' => 'Foto Rumah',
 
-                'questions' =>
-                    $part6Questions,
+                'questions' => $part6Questions,
             ],
         ];
     }
@@ -2577,16 +2494,13 @@ if (
 
             'number' => 0,
 
-            'text' =>
-                $question,
+            'text' => $question,
 
-            'question' =>
-                $question,
+            'question' => $question,
 
-            'answer' =>
-                $this->formatAnswer(
-                    $answer
-                ),
+            'answer' => $this->formatAnswer(
+                $answer
+            ),
 
             'type' => 'text',
         ];
@@ -2734,23 +2648,18 @@ if (
 
         return [
 
-            'kode' =>
-                $member->kode,
+            'kode' => $member->kode,
 
-            'nik' =>
-                $member->nik
+            'nik' => $member->nik
                 ?? '-',
 
-            'nama' =>
-                $member->nama_lengkap
+            'nama' => $member->nama_lengkap
                 ?? '-',
 
-            'status_keluarga' =>
-                $member->status_keluarga
+            'status_keluarga' => $member->status_keluarga
                 ?? '-',
 
-            'questions' =>
-                $questions,
+            'questions' => $questions,
         ];
     }
 
@@ -2783,10 +2692,9 @@ if (
             return implode(
                 ', ',
                 array_map(
-                    fn ($item) =>
-                        $this->formatAnswer(
-                            $item
-                        ),
+                    fn ($item) => $this->formatAnswer(
+                        $item
+                    ),
                     $value
                 )
             );
@@ -2899,8 +2807,7 @@ if (
             'verifikasi.index',
             [
                 'detail' => $id,
-                'part' =>
-                    request('part'),
+                'part' => request('part'),
             ]
         );
     }
@@ -3036,8 +2943,7 @@ if (
             array_merge(
                 request()->query(),
                 [
-                    'detail' =>
-                        $item->id,
+                    'detail' => $item->id,
 
                     'part' => 5,
                 ]
@@ -3045,7 +2951,7 @@ if (
         );
 
         /*
-        
+
         |--------------------------------------------------------------------------
         | VIEW
         |--------------------------------------------------------------------------
@@ -3056,25 +2962,20 @@ if (
             [
                 'responden' => [
 
-                    'id' =>
-                        $item->id,
+                    'id' => $item->id,
 
-                    'no_kk' =>
-                        $item->no_kk
+                    'no_kk' => $item->no_kk
                         ?? $keluarga->no_kk
                         ?? '-',
 
-                    'nama' =>
-                        $keluarga->nama_lengkap
+                    'nama' => $keluarga->nama_lengkap
                         ?? $item->nama_kepala_keluarga
                         ?? '-',
                 ],
 
-                'member' =>
-                    $memberData,
+                'member' => $memberData,
 
-                'backUrl' =>
-                    $backUrl,
+                'backUrl' => $backUrl,
             ]
         );
     }

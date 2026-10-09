@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Periode;
-use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,11 +23,7 @@ class LaporanController extends MonitoringController
             ['not_processed', 'draft', 'pending', 'approved', 'rejected']
         );
 
-        $periodRecords = Periode::query()
-            ->orderBy('tgl_awal')
-            ->get(['kode', 'nama', 'tgl_awal', 'tgl_akhir']);
-
-        $laporanRows = $this->eligibleRows($periodRecords, $filters);
+        $laporanRows = $this->eligibleRows($filters);
 
         $totalResponden = $laporanRows->count();
         $kuisionerSelesai = $laporanRows
@@ -184,10 +178,7 @@ class LaporanController extends MonitoringController
             ['not_processed', 'draft', 'pending', 'approved', 'rejected']
         );
 
-        $periodRecords = Periode::query()
-            ->orderBy('tgl_awal')
-            ->get(['kode', 'nama', 'tgl_awal', 'tgl_akhir']);
-        $rows = $this->eligibleRows($periodRecords, $filters);
+        $rows = $this->eligibleRows($filters);
 
         return response()->streamDownload(
             function () use ($rows): void {
@@ -240,7 +231,6 @@ class LaporanController extends MonitoringController
      * Read the same approved/rejected records exposed by Monitoring.
      */
     private function eligibleRows(
-        ?Collection $periodRecords = null,
         ?array $filters = null
     ): Collection {
         $filters ??= [
@@ -250,9 +240,7 @@ class LaporanController extends MonitoringController
             'status' => 'all',
         ];
 
-        $periodRecords ??= Periode::query()
-            ->orderBy('tgl_awal')
-            ->get(['kode', 'nama', 'tgl_awal', 'tgl_akhir']);
+        $periodeTerpilih = $this->getSelectedPeriode();
 
         $query = $this->buildFilteredPart1Query(
             $filters,
@@ -260,26 +248,10 @@ class LaporanController extends MonitoringController
         );
 
         return $this->filterRows(collect($this->getData($query))
-            ->map(function (array $item) use ($periodRecords): array {
-                $createdAt = $this->parseMonitoringDate(
-                    data_get($item, 'created_at')
-                );
-                $period = $createdAt
-                    ? $periodRecords->first(function (Periode $candidate) use ($createdAt): bool {
-                        if (! $candidate->tgl_awal || ! $candidate->tgl_akhir) {
-                            return false;
-                        }
-
-                        return $createdAt->betweenIncluded(
-                            Carbon::parse($candidate->tgl_awal)->startOfDay(),
-                            Carbon::parse($candidate->tgl_akhir)->endOfDay(),
-                        );
-                    })
-                    : null;
-
-                $item['periode_kode'] = $period?->kode;
-                $item['periode'] = $period
-                    ? (string) ($period->nama ?: $period->kode)
+            ->map(function (array $item) use ($periodeTerpilih): array {
+                $item['periode_kode'] = $periodeTerpilih?->kode;
+                $item['periode'] = $periodeTerpilih
+                    ? (string) ($periodeTerpilih->nama ?: $periodeTerpilih->kode)
                     : '-';
                 $item['tanggal_pendataan'] = data_get($item, 'tanggal', '-');
                 $item['status_label'] = data_get($item, 'status_label', '-');
@@ -296,6 +268,12 @@ class LaporanController extends MonitoringController
     {
         return $rows
             ->groupBy(function (array $item): string {
+                $keluargaPeriodeKode = trim((string) data_get($item, 'keluarga_periode_kode', ''));
+
+                if ($keluargaPeriodeKode !== '') {
+                    return 'keluarga-periode:'.$keluargaPeriodeKode;
+                }
+
                 $noKk = trim((string) data_get($item, 'no_kk', ''));
 
                 return $noKk !== ''
@@ -304,20 +282,5 @@ class LaporanController extends MonitoringController
             })
             ->map(fn (Collection $items): array => $items->first())
             ->values();
-    }
-
-    private function parseMonitoringDate(mixed $value): ?Carbon
-    {
-        if (! is_string($value) || trim($value) === '' || $value === '-') {
-            return null;
-        }
-
-        try {
-            $date = Carbon::createFromFormat('d-m-Y H:i', $value);
-
-            return $date instanceof Carbon ? $date : null;
-        } catch (\InvalidArgumentException) {
-            return null;
-        }
     }
 }

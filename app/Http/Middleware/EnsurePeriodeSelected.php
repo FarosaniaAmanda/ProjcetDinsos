@@ -2,10 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Periode;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\Periode;
 
 class EnsurePeriodeSelected
 {
@@ -13,15 +13,7 @@ class EnsurePeriodeSelected
         Request $request,
         Closure $next
     ): Response {
-
-        /*
-        |--------------------------------------------------------------------------
-        | CEK APAKAH PERIODE SUDAH DIPILIH
-        |--------------------------------------------------------------------------
-        */
-
-        if (!session()->has('periode_id')) {
-
+        if (! session()->has('periode_id')) {
             $routeName = $request->route()?->getName();
 
             return redirect()->route('periode.pilih', [
@@ -29,23 +21,14 @@ class EnsurePeriodeSelected
             ]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL PERIODE DARI SESSION
-        |--------------------------------------------------------------------------
-        */
-
         $periode = Periode::find(session('periode_id'));
 
-        /*
-        |--------------------------------------------------------------------------
-        | JIKA PERIODE SUDAH TIDAK ADA DI DATABASE
-        |--------------------------------------------------------------------------
-        */
-
-        if (!$periode) {
-
-            session()->forget('periode_id');
+        if (! $periode) {
+            session()->forget([
+                'periode_id',
+                'periode_kode',
+                'periode_nama',
+            ]);
 
             $routeName = $request->route()?->getName();
 
@@ -57,52 +40,41 @@ class EnsurePeriodeSelected
             );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CEK STATUS PERIODE
-        |--------------------------------------------------------------------------
-        |
-        | Hanya periode dengan status "aktif" yang boleh digunakan.
-        |
-        */
-
-        $status = strtolower(trim($periode->status ?? ''));
+        $status = strtolower(trim(
+            $periode->status_periode ?? $periode->status ?? ''
+        ));
 
         if ($status !== 'aktif') {
-
-            session()->forget('periode_id');
+            session()->forget([
+                'periode_id',
+                'periode_kode',
+                'periode_nama',
+            ]);
 
             $routeName = $request->route()?->getName();
 
             if ($status === 'akan datang') {
-
                 $pesan = 'Periode tersebut belum aktif. Silakan pilih periode yang aktif.';
-
             } elseif ($status === 'selesai') {
-
                 $pesan = 'Periode tersebut sudah selesai. Silakan pilih periode yang aktif.';
-
             } else {
-
                 $pesan = 'Periode tersebut tidak dapat digunakan. Silakan pilih periode yang aktif.';
             }
 
             return redirect()->route('periode.pilih', [
                 'tujuan' => $routeName,
-            ])->with(
-                'error',
-                $pesan
-            );
+            ])->with('error', $pesan);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PERIODE AKTIF
-        |--------------------------------------------------------------------------
-        |
-        | Jika status periode adalah aktif, request dilanjutkan.
-        |
-        */
+        // Sinkronkan informasi periode dengan pilihan terbaru.
+        session([
+            'periode_id' => $periode->id,
+            'periode_kode' => $periode->kode,
+            'periode_nama' => $periode->nama,
+        ]);
+
+        // Sediakan data periode terpilih untuk view.
+        view()->share('periodeTerpilih', $periode);
 
         return $next($request);
     }
