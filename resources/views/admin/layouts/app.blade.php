@@ -1345,15 +1345,20 @@
                         fill="none"
                         stroke="currentColor"
                         stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
                     >
 
-                        <polyline
-                            points="3 3 3 21 21 21"
-                        ></polyline>
+                        <rect x="2.5" y="3" width="15" height="11" rx="1.5"></rect>
 
-                        <polyline
-                            points="7 16 11 12 14 15 21 8"
-                        ></polyline>
+                        <path d="M7 18h6"></path>
+
+                        <path d="M10 14v4"></path>
+
+                        <circle cx="17" cy="16" r="3.5"></circle>
+
+                        <path d="m19.5 18.5 2 2"></path>
 
                     </svg>
 

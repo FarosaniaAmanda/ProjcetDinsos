@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -38,6 +39,7 @@ class LaporanController extends MonitoringController
 
         $perPage = 10;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
+
         $laporan = new LengthAwarePaginator(
             $laporanRows
                 ->slice(($currentPage - 1) * $perPage, $perPage)
@@ -83,7 +85,9 @@ class LaporanController extends MonitoringController
 
         abort_if($item === null, 404);
 
-        $item['foto_rumah'] = $this->preparePdfPhotos($item['foto_rumah'] ?? []);
+        $item['foto_rumah'] = $this->preparePdfPhotos(
+            $item['foto_rumah'] ?? []
+        );
 
         $dompdf = new Dompdf([
             'defaultFont' => 'Helvetica',
@@ -92,13 +96,16 @@ class LaporanController extends MonitoringController
         ]);
 
         $html = view('admin.laporan.pdf', ['item' => $item])->render();
+
         $dompdf->loadHtml($html, 'UTF-8');
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
         $pdfOutput = $dompdf->output();
 
-        $fileName = 'laporan-'.Str::slug((string) $item['no_kk']).'.pdf';
+        $fileName = 'laporan-'.Str::slug(
+            (string) $item['no_kk']
+        ).'.pdf';
 
         return response($pdfOutput, 200, [
             'Content-Type' => 'application/pdf',
@@ -116,7 +123,14 @@ class LaporanController extends MonitoringController
     {
         return collect($photos)
             ->map(function (array $photo): array {
-                $path = trim(str_replace('\\', '/', (string) data_get($photo, 'path_file', '')));
+                $path = trim(
+                    str_replace(
+                        '\\',
+                        '/',
+                        (string) data_get($photo, 'path_file', '')
+                    )
+                );
+
                 $path = ltrim($path, '/');
                 $position = strpos(strtolower($path), 'kuisioner/');
 
@@ -130,7 +144,9 @@ class LaporanController extends MonitoringController
                     );
                 }
 
-                $photo['label'] = match (strtolower((string) data_get($photo, 'jenis_foto', ''))) {
+                $photo['label'] = match (
+                    strtolower((string) data_get($photo, 'jenis_foto', ''))
+                ) {
                     'tampak_depan' => 'Foto Tampak Depan Rumah',
                     'tampak_belakang' => 'Foto Tampak Belakang Rumah',
                     'ruang_tamu' => 'Foto Ruang Tamu',
@@ -138,7 +154,9 @@ class LaporanController extends MonitoringController
                     'dapur' => 'Foto Dapur',
                     'kamar_tidur' => 'Foto Kamar Tidur',
                     'ruang_keluarga' => 'Foto Ruang Keluarga',
-                    default => (string) (data_get($photo, 'nama_file') ?: 'Foto Rumah'),
+                    default => (string) (
+                        data_get($photo, 'nama_file') ?: 'Foto Rumah'
+                    ),
                 };
 
                 $photo['image_data'] = null;
@@ -159,11 +177,15 @@ class LaporanController extends MonitoringController
 
                 $mimeType = $disk->mimeType($path);
 
-                if (! is_string($mimeType) || ! str_starts_with($mimeType, 'image/')) {
+                if (
+                    ! is_string($mimeType)
+                    || ! str_starts_with($mimeType, 'image/')
+                ) {
                     return $photo;
                 }
 
-                $photo['image_data'] = 'data:'.$mimeType.';base64,'.base64_encode($disk->get($path));
+                $photo['image_data'] = 'data:'.$mimeType.';base64,'.
+                    base64_encode($disk->get($path));
 
                 return $photo;
             })
@@ -171,6 +193,10 @@ class LaporanController extends MonitoringController
             ->all();
     }
 
+    /**
+     * Export laporan pendataan ke Excel.
+     * Nama anggota ditampilkan per baris dalam satu sel.
+     */
     public function export(Request $request): StreamedResponse
     {
         $filters = $this->validateTableFilters(
@@ -182,47 +208,154 @@ class LaporanController extends MonitoringController
 
         return response()->streamDownload(
             function () use ($rows): void {
-                $spreadsheet = new Spreadsheet;
+                $spreadsheet = new Spreadsheet();
                 $sheet = $spreadsheet->getActiveSheet();
+
                 $sheet->setTitle('Laporan Pendataan');
 
                 $headers = [
+                    'No',
                     'No. KK',
+                    'Nama Kepala Keluarga',
+                    'Jumlah Anggota',
+                    'Nama Anggota',
+                    'Wilayah',
                     'Periode',
                     'Tanggal Pendataan',
                     'Status',
                 ];
 
                 foreach ($headers as $column => $header) {
-                    $cell = $sheet->getCell([$column + 1, 1]);
-                    $cell->setValueExplicit($header, DataType::TYPE_STRING);
+                    $sheet->getCell([$column + 1, 1])
+                        ->setValueExplicit(
+                            $header,
+                            DataType::TYPE_STRING
+                        );
                 }
 
                 foreach ($rows->values() as $index => $item) {
+                    $rowNumber = $index + 2;
+
+                    // Ambil data anggota keluarga.
+                    $semuaAnggota = collect(
+                        data_get($item, 'anggota_detail', [])
+                    );
+
+                    // Keluarkan Kepala Keluarga dari daftar anggota.
+                    $anggota = $semuaAnggota->filter(
+                        function ($anggotaItem): bool {
+                            $statusKeluarga = strtolower(trim((string) (
+                                data_get(
+                                    $anggotaItem,
+                                    'status_keluarga',
+                                    data_get(
+                                        $anggotaItem,
+                                        'status',
+                                        data_get($anggotaItem, 'hubungan', '')
+                                    )
+                                )
+                            )));
+
+                            return $statusKeluarga !== 'kepala keluarga';
+                        }
+                    );
+
+                    // Setiap nama anggota berada pada baris berbeda
+                    // tetapi tetap di dalam satu sel Excel.
+                    $namaAnggota = $anggota
+                        ->map(function ($anggotaItem): string {
+                            $nama = data_get($anggotaItem, 'nama_lengkap')
+                                ?: data_get($anggotaItem, 'nama_anggota')
+                                ?: data_get($anggotaItem, 'nama');
+
+                            return trim((string) ($nama ?? ''));
+                        })
+                        ->filter(
+                            fn (string $nama): bool =>
+                                $nama !== '' && $nama !== '-'
+                        )
+                        ->implode("\n");
+
+                    // Pada data Verifikasi, field "nama" berisi
+                    // nama Kepala Keluarga.
+                    $namaKepalaKeluarga = data_get($item, 'nama')
+                        ?: data_get($item, 'nama_kepala_keluarga')
+                        ?: data_get($item, 'nama_kk')
+                        ?: '-';
+
                     $values = [
-                        $item['no_kk'],
-                        $item['periode'],
-                        $item['tanggal_pendataan'],
-                        $item['status_label'],
+                        $index + 1,
+                        data_get($item, 'no_kk', '-'),
+                        $namaKepalaKeluarga,
+                        $anggota->count(),
+                        $namaAnggota !== '' ? $namaAnggota : '-',
+                        data_get($item, 'wilayah', '-'),
+                        data_get($item, 'periode', '-'),
+                        data_get($item, 'tanggal_pendataan', '-'),
+                        data_get($item, 'status_label', '-'),
                     ];
 
                     foreach ($values as $column => $value) {
-                        $cell = $sheet->getCell([$column + 1, $index + 2]);
-                        $cell->setValueExplicit((string) $value, DataType::TYPE_STRING);
+                        $sheet->getCell([
+                            $column + 1,
+                            $rowNumber,
+                        ])->setValueExplicit(
+                            (string) $value,
+                            DataType::TYPE_STRING
+                        );
                     }
+
+                    // Tampilkan isi sel dari bagian atas.
+                    $sheet->getStyle("A{$rowNumber}:I{$rowNumber}")
+                        ->getAlignment()
+                        ->setVertical(Alignment::VERTICAL_TOP);
+
+                    // Aktifkan wrap text pada kolom Nama Anggota.
+                    $sheet->getStyle("E{$rowNumber}")
+                        ->getAlignment()
+                        ->setWrapText(true);
                 }
 
-                foreach (range('A', 'D') as $column) {
-                    $sheet->getColumnDimension($column)->setAutoSize(true);
+                $lastRow = max(1, $rows->count() + 1);
+
+                // Atur lebar kolom secara otomatis, kecuali Nama Anggota.
+                foreach (['A', 'B', 'C', 'D', 'F', 'G', 'H', 'I'] as $column) {
+                    $sheet->getColumnDimension($column)
+                        ->setAutoSize(true);
                 }
 
-                $sheet->getStyle('A1:D1')->getFont()->setBold(true);
+                // Beri lebar tetap agar nama anggota tidak melebar ke samping.
+                $sheet->getColumnDimension('E')->setAutoSize(false);
+                $sheet->getColumnDimension('E')->setWidth(35);
+
+                // Tebalkan dan rapikan judul kolom.
+                $sheet->getStyle('A1:I1')
+                    ->getFont()
+                    ->setBold(true);
+
+                $sheet->getStyle('A1:I1')
+                    ->getAlignment()
+                    ->setWrapText(true)
+                    ->setVertical(Alignment::VERTICAL_CENTER);
+
+                $sheet->getRowDimension(1)->setRowHeight(30);
+
+                // Pastikan seluruh sel Nama Anggota memakai wrap text.
+                if ($lastRow >= 2) {
+                    $sheet->getStyle("E2:E{$lastRow}")
+                        ->getAlignment()
+                        ->setWrapText(true)
+                        ->setVertical(Alignment::VERTICAL_TOP);
+                }
+
                 (new Xlsx($spreadsheet))->save('php://output');
+
                 $spreadsheet->disconnectWorksheets();
             },
             'laporan-pendataan.xlsx',
             [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Type' =>
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             ],
         );
     }
@@ -247,34 +380,66 @@ class LaporanController extends MonitoringController
             ['not_processed', 'draft', 'pending', 'approved', 'rejected']
         );
 
-        return $this->filterRows(collect($this->getData($query))
-            ->map(function (array $item) use ($periodeTerpilih): array {
-                $item['periode_kode'] = $periodeTerpilih?->kode;
-                $item['periode'] = $periodeTerpilih
-                    ? (string) ($periodeTerpilih->nama ?: $periodeTerpilih->kode)
-                    : '-';
-                $item['tanggal_pendataan'] = data_get($item, 'tanggal', '-');
-                $item['status_label'] = data_get($item, 'status_label', '-');
-                $item['is_complete'] = (int) data_get($item, 'progress_completed', 0) === 5;
-                $item['wilayah'] = trim((string) data_get($item, 'wilayah', '')) ?: '-';
+        return $this->filterRows(
+            collect($this->getData($query))
+                ->map(function (array $item) use ($periodeTerpilih): array {
+                    $item['periode_kode'] = $periodeTerpilih?->kode;
 
-                return $item;
-            })
-            ->sortByDesc('id')
-            ->values());
+                    $item['periode'] = $periodeTerpilih
+                        ? (string) (
+                            $periodeTerpilih->nama
+                            ?: $periodeTerpilih->kode
+                        )
+                        : '-';
+
+                    $item['tanggal_pendataan'] = data_get(
+                        $item,
+                        'tanggal',
+                        '-'
+                    );
+
+                    $item['status_label'] = data_get(
+                        $item,
+                        'status_label',
+                        '-'
+                    );
+
+                    $item['is_complete'] = (int) data_get(
+                        $item,
+                        'progress_completed',
+                        0
+                    ) === 5;
+
+                    $item['wilayah'] = trim(
+                        (string) data_get($item, 'wilayah', '')
+                    ) ?: '-';
+
+                    return $item;
+                })
+                ->sortByDesc('id')
+                ->values()
+        );
     }
 
     private function filterRows(Collection $rows): Collection
     {
         return $rows
             ->groupBy(function (array $item): string {
-                $keluargaPeriodeKode = trim((string) data_get($item, 'keluarga_periode_kode', ''));
+                $keluargaPeriodeKode = trim(
+                    (string) data_get(
+                        $item,
+                        'keluarga_periode_kode',
+                        ''
+                    )
+                );
 
                 if ($keluargaPeriodeKode !== '') {
                     return 'keluarga-periode:'.$keluargaPeriodeKode;
                 }
 
-                $noKk = trim((string) data_get($item, 'no_kk', ''));
+                $noKk = trim(
+                    (string) data_get($item, 'no_kk', '')
+                );
 
                 return $noKk !== ''
                     ? 'kk:'.$noKk
@@ -284,3 +449,4 @@ class LaporanController extends MonitoringController
             ->values();
     }
 }
+
