@@ -194,15 +194,12 @@
 .search-section {
     width: 100%;
     max-width: 100%;
-
-    padding-left: 28px;
-    padding-right: 28px;
-    padding-bottom: 24px;
-
+    padding: 0 28px 10px;
     margin: 0 auto;
-
     box-sizing: border-box;
     overflow: visible;
+    position: relative;
+    z-index: 5;
 }
 
 .search-title {
@@ -487,29 +484,24 @@
     box-sizing: border-box;
 }
  
-    /* ===================================================== 
-       SEARCH SUGGESTIONS 
-    ====================================================== */ 
- 
-    .search-suggestions { 
-        position: absolute; 
-        left: 0; 
-        right: 0; 
-        top: calc(100% + 5px); 
-        background: #ffffff; 
-        border: 1px solid #e1e3eb; 
-        border-radius: 9px; 
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); 
-        overflow: hidden; 
-        z-index: 100; 
-        display: none; 
-        max-height: 250px; 
-        overflow-y: auto; 
-    } 
- 
-    .search-suggestions.show { 
-        display: block; 
-    } 
+   .search-suggestions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 5px);
+    display: none;
+    max-height: 250px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #e1e3eb;
+    border-radius: 9px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+}
+
+.search-suggestions.show {
+    display: block;
+}
  
     .suggestion-item { 
         display: flex; 
@@ -577,7 +569,7 @@
     } 
  
     .search-result { 
-        margin-top: 7px; 
+        margin-top: 4px; 
         padding-left: 2px; 
         font-size: 11px; 
         color: #777; 
@@ -594,7 +586,10 @@
     ====================================================== */ 
  
     .monitoring-section { 
-        border-top: 1px solid #e8e9ef; 
+        border-top: 1px solid #e8e9ef;
+        margin-top: 0;
+        position: relative;
+        z-index: 1;
     } 
  
     .monitoring-header { 
@@ -5050,16 +5045,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 .trim(); 
  
  
-        if (keyword.length < 2) { 
- 
-            searchSuggestions.classList.remove( 
-                'show' 
-            ); 
- 
-            searchSuggestions.innerHTML = 
-                ''; 
- 
-            return; 
+        if (keyword.length < 1) {
+
+            searchSuggestions.classList.remove('show');
+            searchSuggestions.innerHTML = '';
+            return;
         } 
  
  
@@ -5207,16 +5197,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     'click', 
                     function () { 
  
-                        searchInput.value = 
-                            item.nama || 
-                            item.noKK || 
-                            item.nik; 
- 
-                        searchInput.form?.requestSubmit();
- 
-                        searchSuggestions.classList.remove( 
-                            'show' 
-                        ); 
+                        searchInput.value = item.nama || item.noKK || item.nik;
+
+                        // Terapkan pencarian langsung tanpa reload halaman.
+                        filterTable(searchInput.value);
+                        searchSuggestions.classList.remove('show'); 
  
                     } 
                 ); 
@@ -5240,51 +5225,36 @@ document.addEventListener('DOMContentLoaded', function () {
        INPUT SEARCH 
     ====================================================== */ 
  
-    if (searchInput) { 
- 
-        searchInput.addEventListener( 
-            'input', 
-            function () { 
- 
-                const keyword = 
-                    this.value.trim(); 
- 
-                showSuggestions(keyword); 
- 
-            } 
-        ); 
- 
- 
-        searchInput.addEventListener( 
-            'focus', 
-            function () { 
- 
-                const keyword = 
-                    this.value.trim(); 
- 
-                if (keyword.length >= 2) { 
-                    showSuggestions(keyword); 
-                } 
- 
-            } 
-        ); 
- 
- 
-        searchInput.addEventListener( 
-            'keydown', 
-            function (event) { 
- 
-                if (event.key === 'Escape') { 
- 
-                    searchSuggestions.classList.remove( 
-                        'show' 
-                    ); 
- 
-                } 
- 
-            } 
-        ); 
-    } 
+   
+if (searchInput) {
+
+    searchInput.addEventListener('input', function () {
+        const keyword = this.value.trim();
+
+       filterTable(keyword);
+
+if (searchSuggestions) {
+    searchSuggestions.classList.remove('show');
+    searchSuggestions.innerHTML = '';
+}
+    });
+
+    searchInput.addEventListener('focus', function () {
+        const keyword = this.value.trim();
+
+        if (keyword.length > 0) {
+            showSuggestions(keyword);
+        }
+    });
+
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && searchSuggestions) {
+            searchSuggestions.classList.remove('show');
+            searchSuggestions.innerHTML = '';
+        }
+    });
+
+}
  
  
     /* ===================================================== 
@@ -6018,7 +5988,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         const number = document.createElement('div');
                         number.className = 'questionnaire-part5-question-number';
-                        number.textContent = `Pertanyaan ${String(question.number ?? questionIndex + 1)}`;
+                        number.textContent = `Pertanyaan ${questionIndex + 1}`;
 
                         const text = document.createElement('div');
                         text.className = 'questionnaire-part5-question-text';

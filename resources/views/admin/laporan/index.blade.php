@@ -564,6 +564,19 @@
     pointer-events: none;
 }
 
+/* Keterangan jumlah hasil pencarian */
+.laporan-search-result {
+    margin: 4px 0 0 3px;
+    padding: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.laporan-search-result strong {
+    color: #252A86;
+    font-weight: 600;
+}
+
 
 /* ============================================================
    RESET
@@ -1774,7 +1787,14 @@
                             </svg> 
                         </span> 
  
-                    </div> 
+                    </div>
+
+                    <div
+                        class="laporan-search-result"
+                        id="laporanSearchResult"
+                        aria-live="polite"
+                        style="display: none;"
+                    ></div> 
  
                 </div> 
  
@@ -2367,132 +2387,75 @@ document.addEventListener('DOMContentLoaded', function () {
     const statusFilter = document.getElementById('filterStatus');
     const tableBody = document.getElementById('laporanTableBody'); 
  
-    /* ===================================================== 
-       REALTIME SEARCH + FILTER 
-    ===================================================== */ 
- 
-    function filterLaporanTable() { 
- 
-        if (!tableBody) return; 
- 
-        const rows = tableBody.querySelectorAll('tr[data-search]'); 
- 
-        const searchValue = searchInput 
-            ? searchInput.value.trim().toLowerCase() 
-            : ''; 
- 
-        const periodeValue = periodeFilter 
-            ? periodeFilter.value.trim().toLowerCase() 
-            : ''; 
- 
-        const wilayahValue = wilayahFilter 
-            ? wilayahFilter.value.trim().toLowerCase() 
-            : ''; 
- 
-        let visibleCount = 0; 
- 
-        rows.forEach(function (row) { 
- 
-            const searchData = ( 
-                row.dataset.search || '' 
-            ).toLowerCase(); 
- 
-            const rowPeriode = ( 
-                row.dataset.periodeKode || '' 
-            ).toLowerCase(); 
- 
-            const rowWilayah = ( 
-                row.dataset.wilayah || '' 
-            ).toLowerCase(); 
- 
-            const cocokSearch = 
-                searchValue === '' || 
-                searchData.includes(searchValue); 
- 
-            const cocokPeriode = 
-                periodeValue === '' || 
-                rowPeriode === periodeValue; 
- 
-            const cocokWilayah = 
-                wilayahValue === '' || 
-                rowWilayah === wilayahValue; 
- 
-            const cocok = 
-                cocokSearch && 
-                cocokPeriode && 
-                cocokWilayah; 
- 
-            if (cocok) { 
-                row.style.display = ''; 
-                visibleCount++; 
-            } else { 
-                row.style.display = 'none'; 
-            } 
-        }); 
- 
-        let emptyRow = document.getElementById( 
-            'laporanRealtimeEmpty' 
-        ); 
- 
-        if (visibleCount === 0 && rows.length > 0) { 
- 
-            if (!emptyRow) { 
- 
-                emptyRow = document.createElement('tr'); 
- 
-                emptyRow.id = 'laporanRealtimeEmpty'; 
- 
-                emptyRow.innerHTML = ` 
-                    <td colspan="10"> 
-                        <div class="laporan-empty"> 
- 
-                            <div class="laporan-empty-icon"> 
-                                <svg 
-                                    width="25" 
-                                    height="25" 
-                                    viewBox="0 0 24 24" 
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    stroke-width="1.8" 
-                                > 
-                                    <circle 
-                                        cx="11" 
-                                        cy="11" 
-                                        r="7" 
-                                    ></circle> 
- 
-                                    <line 
-                                        x1="16.5" 
-                                        y1="16.5" 
-                                        x2="21" 
-                                        y2="21" 
-                                    ></line> 
-                                </svg> 
-                            </div> 
- 
-                            <div class="laporan-empty-title"> 
-                                Data Tidak Ditemukan 
-                            </div> 
- 
-                            <div class="laporan-empty-text"> 
-                                Tidak ada data yang sesuai dengan pencarian atau filter. 
-                            </div> 
- 
-                        </div> 
-                    </td> 
-                `; 
- 
-                tableBody.appendChild(emptyRow); 
-            } 
- 
-            emptyRow.style.display = ''; 
- 
-        } else if (emptyRow) { 
- 
-            emptyRow.style.display = 'none'; 
-        } 
-    } 
- 
+    /* =====================================================
+       REALTIME SEARCH - MENYARING TABEL LANGSUNG
+    ===================================================== */
+
+    const searchResult = document.getElementById('laporanSearchResult');
+
+    function filterLaporanTable() {
+        if (!tableBody) return 0;
+
+        const rows = Array.from(tableBody.querySelectorAll('tr[data-search]'));
+        const originalKeyword = searchInput ? searchInput.value.trim() : '';
+        const searchValue = originalKeyword.toLowerCase();
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+            const searchData = (row.dataset.search || '').toLowerCase();
+            const matches = searchValue === '' || searchData.includes(searchValue);
+            row.style.display = matches ? '' : 'none';
+            if (matches) visibleCount++;
+        });
+
+        let emptyRow = document.getElementById('laporanRealtimeEmpty');
+        if (searchValue !== '' && visibleCount === 0 && rows.length > 0) {
+            if (!emptyRow) {
+                emptyRow = document.createElement('tr');
+                emptyRow.id = 'laporanRealtimeEmpty';
+                emptyRow.innerHTML = `
+                    <td colspan="10">
+                        <div class="laporan-empty">
+                            <div class="laporan-empty-icon">
+                                <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                    <circle cx="11" cy="11" r="7"></circle>
+                                    <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+                                </svg>
+                            </div>
+                            <div class="laporan-empty-title">Data Tidak Ditemukan</div>
+                            <div class="laporan-empty-text">Tidak ada data yang sesuai dengan pencarian.</div>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(emptyRow);
+            }
+            emptyRow.style.display = '';
+        } else if (emptyRow) {
+            emptyRow.style.display = 'none';
+        }
+
+        if (searchResult) {
+            if (searchValue === '') {
+                searchResult.style.display = 'none';
+                searchResult.replaceChildren();
+            } else {
+                searchResult.style.display = 'block';
+                const count = document.createElement('strong');
+                count.textContent = String(visibleCount);
+                const keyword = document.createElement('strong');
+                keyword.textContent = '"' + originalKeyword + '"';
+                searchResult.replaceChildren(
+                    document.createTextNode('Menampilkan '),
+                    count,
+                    document.createTextNode(' data yang cocok dengan '),
+                    keyword
+                );
+            }
+        }
+
+        return visibleCount;
+    }
+
     function syncExportLink() { 
  
         const exportLink = 
@@ -2527,38 +2490,26 @@ document.addEventListener('DOMContentLoaded', function () {
             (query !== '' ? '?' + query : ''); 
     } 
  
-    let searchSubmitTimer; 
- 
-    function submitReportFilters() { 
- 
-        if (laporanFilterForm) { 
-            laporanFilterForm.requestSubmit(); 
-        } 
-    } 
- 
-    /* ===================================================== 
-       SEARCH REALTIME 
-    ===================================================== */ 
- 
-    if (searchInput) { 
- 
-        searchInput.addEventListener( 
-            'input', 
-            function () { 
- 
-                syncExportLink(); 
- 
-                window.clearTimeout(searchSubmitTimer); 
- 
-                searchSubmitTimer = window.setTimeout( 
-                    submitReportFilters, 
-                    450 
-                ); 
- 
-            } 
-        ); 
-    } 
- 
+    function submitReportFilters() {
+        if (laporanFilterForm) {
+            laporanFilterForm.requestSubmit();
+        }
+    }
+
+    /* =====================================================
+       PENCARIAN LANGSUNG TANPA RELOAD
+    ===================================================== */
+
+    if (searchInput) {
+        searchInput.addEventListener('input', function () {
+            filterLaporanTable();
+            syncExportLink();
+        });
+
+        // Tampilkan hasil sesuai kata kunci awal jika halaman dibuka dengan filter.
+        filterLaporanTable();
+    }
+
     if (kecamatanFilter) {
         kecamatanFilter.addEventListener('change', function () {
             if (kelurahanFilter) {
@@ -2597,6 +2548,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (searchInput) { 
                     searchInput.value = ''; 
                 } 
+
+                filterLaporanTable();
  
                 if (kecamatanFilter) {
                     kecamatanFilter.value = '';

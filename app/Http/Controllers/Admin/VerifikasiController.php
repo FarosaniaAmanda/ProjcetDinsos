@@ -44,7 +44,11 @@ class VerifikasiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $allData = collect($this->getData());
+        $allData = collect($this->getData())
+            ->reject(
+                fn (array $item): bool => ($item['status'] ?? null) === 'draft'
+            )
+            ->values();
 
         /*
         |--------------------------------------------------------------------------
@@ -80,6 +84,8 @@ class VerifikasiController extends Controller
             $filters,
             ['pending', 'approved', 'rejected']
         );
+
+        $this->whereQuestionnaireComplete($filteredQuery);
 
         $filteredData = collect(
             $this->getData($filteredQuery)
@@ -3083,7 +3089,7 @@ class VerifikasiController extends Controller
                 )
                 ->with(
                     'error',
-                    'Data belum dapat diverifikasi karena kuisioner belum selesai sampai Part 6.'
+                    'Data belum dapat diverifikasi karena kuisioner belum selesai sampai Part 5.'
                 );
         }
 

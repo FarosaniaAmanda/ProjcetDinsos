@@ -189,14 +189,60 @@
        TABLE SECTION
     ===================================================== */
 
-    .monitoring-table-header {
-        padding: 22px 26px 20px;
-        border-bottom: 1px solid #e8ebf3;
+    
+.monitoring-table-header {
+    padding: 20px 26px 16px;
+    border-bottom: 1px solid #e8ebf3;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
 
-        /* Search berada di atas judul */
-        display: flex;
-        flex-direction: column;
-    }
+/* Form pencarian dan filter */
+.monitoring-filter-form {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1.8fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: end;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+/* Informasi hasil pencarian */
+.monitoring-search-info {
+    margin: 6px 0 0;
+    padding: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.monitoring-search-info strong {
+    color: #252A86;
+    font-weight: 700;
+}
+
+/* Judul tabel tidak memiliki jarak kosong tambahan */
+.monitoring-table-title {
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.4;
+    font-weight: 700;
+    color: #252A86;
+}
+
+.monitoring-table-description {
+    margin: 7px 0 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
 
     /* =====================================================
    SEARCH MONITORING
@@ -372,10 +418,14 @@
 }
 
     .monitoring-suggestion-item {
+        display: block;
+        width: 100%;
         padding: 12px 15px;
-
+        border: 0;
+        background: #ffffff;
+        text-align: left;
+        font: inherit;
         cursor: pointer;
-
         border-bottom: 1px solid #eef1f6;
     }
 
@@ -1337,6 +1387,115 @@ color: #7652C8;
         margin-bottom: 0;
     }
 
+    .monitoring-questionnaire-members-layout {
+        display: grid;
+        grid-template-columns: minmax(210px, .8fr) minmax(0, 1.5fr);
+        gap: 14px;
+    }
+
+    .monitoring-questionnaire-members-panel,
+    .monitoring-questionnaire-member-answers {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid #e7eaf0;
+        border-radius: 11px;
+        background: #fff;
+    }
+
+    .monitoring-questionnaire-members-heading {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 13px 15px;
+        border-bottom: 1px solid #e7eaf0;
+    }
+
+    .monitoring-questionnaire-members-heading strong {
+        color: #374151;
+        font-size: 13px;
+    }
+
+    .monitoring-questionnaire-members-heading span {
+        color: #7b8190;
+        font-size: 11px;
+        line-height: 1.45;
+    }
+
+    .monitoring-questionnaire-members-list {
+        display: grid;
+        gap: 8px;
+        max-height: 390px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .monitoring-questionnaire-member-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #e7eaf0;
+        border-radius: 9px;
+        background: #fff;
+        color: #374151;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .monitoring-questionnaire-member-card:hover,
+    .monitoring-questionnaire-member-card.is-selected {
+        border-color: #252A86;
+        background: #f4f5ff;
+    }
+
+    .monitoring-questionnaire-member-avatar {
+        display: grid;
+        flex: 0 0 34px;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 50%;
+        background: #e9eaff;
+        color: #252A86;
+        font-weight: 700;
+    }
+
+    .monitoring-questionnaire-member-info {
+        display: grid;
+        min-width: 0;
+        gap: 3px;
+    }
+
+    .monitoring-questionnaire-member-info strong {
+        overflow: hidden;
+        font-size: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .monitoring-questionnaire-member-info span,
+    .monitoring-questionnaire-member-info small {
+        color: #7b8190;
+        font-size: 10px;
+    }
+
+    .monitoring-questionnaire-member-answers-body {
+        max-height: 390px;
+        overflow-y: auto;
+        padding: 10px;
+    }
+
+    .monitoring-questionnaire-member-summary {
+        margin-bottom: 10px;
+        padding: 11px 12px;
+        border-radius: 8px;
+        background: #f4f5ff;
+        color: #252A86;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
     .monitoring-question-number {
         display: inline-flex;
         align-items: center;
@@ -1570,6 +1729,18 @@ color: #7652C8;
             max-height: 420px;
         }
 
+        .monitoring-questionnaire-members-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .monitoring-questionnaire-members-list {
+            max-height: 220px;
+        }
+
+        .monitoring-questionnaire-member-answers-body {
+            max-height: 360px;
+        }
+
         .monitoring-members-popover {
             position: fixed;
             top: 50%;
@@ -1665,9 +1836,9 @@ color: #7652C8;
             grid-column: 1 / -1;
         }
 
-        .monitoring-table-header {
-            padding: 17px;
-        }
+       .monitoring-table-header {
+    padding: 16px 17px 14px;
+}
 
         .monitoring-table-wrapper {
             padding: 0 17px 18px;
@@ -1997,6 +2168,19 @@ color: #7652C8;
 
             <button type="submit" class="monitoring-filter-submit">Terapkan</button>
             <a href="{{ route('monitoring.index') }}" class="monitoring-filter-reset">Reset Filter</a>
+              
+        
+<div
+    class="monitoring-search-info"
+    id="monitoringSearchInfo"
+    aria-live="polite"
+    style="display: none;"
+>
+    Menampilkan <strong id="monitoringSearchCount">0</strong>
+    data yang cocok dengan
+    "<strong id="monitoringSearchKeyword"></strong>"
+</div>
+        
         </form>
 
 
@@ -2690,43 +2874,58 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-
-    function filterTable(keyword) {
-
-        const search =
-            String(keyword || '').trim().toLowerCase();
-
-        const rows =
-            getMonitoringRows();
-
-        let visibleCount = 0;
-
-        rows.forEach(function (row) {
-
-            const text =
-                row.getAttribute('data-search') || '';
-
-            const match =
-                text.includes(search);
-
-            row.style.display =
-                match ? '' : 'none';
-
-            if (match) {
-                visibleCount++;
-            }
-
+    const monitoringSearchData =
+        getMonitoringRows().map(function (row) {
+            return {
+                row: row,
+                noKK: row.dataset.noKk || '',
+                nik: row.dataset.nik || '',
+                nama: row.dataset.nama || ''
+            };
         });
 
-        if (searchEmpty) {
 
-            searchEmpty.style.display =
-                rows.length > 0 && visibleCount === 0
-                    ? ''
-                    : 'none';
+    
 
+function filterTable(keyword) {
+    const search = String(keyword || '').trim().toLowerCase();
+    let visibleCount = 0;
+
+    monitoringSearchData.forEach(function (item) {
+        const noKK = String(item.noKK || '').toLowerCase();
+        const nik = String(item.nik || '').toLowerCase();
+        const nama = String(item.nama || '').toLowerCase();
+
+        const matches =
+            search === '' ||
+            noKK.includes(search) ||
+            nik.includes(search) ||
+            nama.includes(search);
+
+        item.row.style.display = matches ? '' : 'none';
+
+        if (matches) {
+            visibleCount++;
         }
+    });
+
+    const searchInfo = document.getElementById('monitoringSearchInfo');
+    const searchCount = document.getElementById('monitoringSearchCount');
+    const searchKeyword = document.getElementById('monitoringSearchKeyword');
+
+    if (searchInfo && searchCount && searchKeyword) {
+        searchInfo.style.display = search ? 'block' : 'none';
+        searchCount.textContent = visibleCount;
+        searchKeyword.textContent = search;
     }
+
+    if (searchEmpty) {
+        searchEmpty.style.display =
+            search !== '' && visibleCount === 0
+                ? 'table-row'
+                : 'none';
+    }
+}
 
 
     function escapeHtml(value) {
@@ -2758,70 +2957,55 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const rows =
-            getMonitoringRows();
+        const matches =
+            monitoringSearchData
+                .filter(function (item) {
+                    return (
+                        item.nama.toLowerCase().includes(search) ||
+                        item.noKK.toLowerCase().includes(search) ||
+                        item.nik.toLowerCase().includes(search)
+                    );
+                })
+                .slice(0, 5);
 
-        const matchedRows =
-            rows.filter(function (row) {
 
-                return (
-                    row.getAttribute('data-search') || ''
-                ).includes(search);
-
-            }).slice(0, 6);
-
-
-        if (matchedRows.length === 0) {
-
-            suggestionsBox.classList.remove('show');
-
+        if (matches.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'monitoring-suggestion-item';
+            empty.textContent = 'Tidak ada data yang cocok.';
+            suggestionsBox.appendChild(empty);
+            suggestionsBox.classList.add('show');
             return;
         }
 
 
-        matchedRows.forEach(function (row) {
+        matches.forEach(function (item) {
 
-            const nama =
-                row.getAttribute('data-nama') || '-';
-
-            const noKk =
-                row.getAttribute('data-no-kk') || '-';
-
-            const nik =
-                row.getAttribute('data-nik') || '-';
-
-
-            const suggestion =
-                document.createElement('div');
+            const suggestion = document.createElement('button');
+            suggestion.type = 'button';
 
             suggestion.className =
                 'monitoring-suggestion-item';
 
             suggestion.innerHTML = `
                 <div class="monitoring-suggestion-name">
-                    ${escapeHtml(nama)}
+                    ${escapeHtml(item.nama || '-')}
                 </div>
 
                 <div class="monitoring-suggestion-detail">
-                    No. KK: ${escapeHtml(noKk)}
+                    No. KK: ${escapeHtml(item.noKK || '-')}
                     &nbsp; | &nbsp;
-                    NIK: ${escapeHtml(nik)}
+                    NIK: ${escapeHtml(item.nik || '-')}
                 </div>
             `;
 
-
             suggestion.addEventListener('click', function () {
-
-                searchInput.value = nama;
-
+                searchInput.value = item.nama || item.noKK || item.nik;
+                filterTable(searchInput.value);
                 suggestionsBox.classList.remove('show');
-                searchInput.form?.requestSubmit();
-
             });
 
-
             suggestionsBox.appendChild(suggestion);
-
         });
 
 
@@ -2829,15 +3013,38 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    if (searchInput) {
+if (searchInput) {
+    searchInput.addEventListener('input', function () {
+        const keyword = this.value.trim();
 
-        searchInput.addEventListener('input', function () {
+        // Perbarui isi tabel dan jumlah hasil.
+        filterTable(keyword);
 
-            showSuggestions(this.value);
+        // Perbarui saran setiap kali pengguna mengetik.
+        if (keyword) {
+            showSuggestions(keyword);
+        } else if (suggestionsBox) {
+            suggestionsBox.classList.remove('show');
+            suggestionsBox.innerHTML = '';
+        }
+    });
 
-        });
+    searchInput.addEventListener('focus', function () {
+        const keyword = this.value.trim();
 
-    }
+        if (keyword) {
+            showSuggestions(keyword);
+        }
+    });
+
+    searchInput.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && suggestionsBox) {
+            suggestionsBox.classList.remove('show');
+            suggestionsBox.innerHTML = '';
+        }
+    });
+}
+
 
 
     document.addEventListener('click', function (event) {
@@ -3132,12 +3339,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (Array.isArray(nested)) {
 
-                const partName =
+                const rawPart =
+                    item.part ??
+                    item.number ??
+                    item.bagian ??
+                    item.section ??
+                    (index + 1);
+                const partMatch =
+                    String(rawPart).match(/(?:part|bagian)?\s*(\d+)/i);
+                const partNumber =
+                    partMatch
+                        ? parseInt(partMatch[1], 10)
+                        : index + 1;
+                const partTitle =
                     item.title ||
-                    item.part ||
-                    item.bagian ||
-                    item.section ||
-                    ('Part ' + (index + 1));
+                    (partMatch
+                        ? String(rawPart).replace(/^(?:part|bagian)?\s*\d+\s*[-:–]?\s*/i, '').trim()
+                        : '');
+                const partName =
+                    `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
+
+                if (Array.isArray(item.members)) {
+                    result.push({
+                        part: partName,
+                        question: '',
+                        answer: '',
+                        members: item.members
+                    });
+                }
 
 
                 nested.forEach(function (question, qIndex) {
@@ -3406,6 +3635,133 @@ document.addEventListener('DOMContentLoaded', function () {
             : fallbackIndex + 1;
     }
 
+    function renderPart5Members(members, contentBody) {
+
+        const layout = document.createElement('div');
+        layout.className = 'monitoring-questionnaire-members-layout';
+
+        const membersPanel = document.createElement('div');
+        membersPanel.className = 'monitoring-questionnaire-members-panel';
+        membersPanel.innerHTML = `
+            <div class="monitoring-questionnaire-members-heading">
+                <strong>Anggota Keluarga</strong>
+                <span>Pilih anggota untuk melihat detail jawaban.</span>
+            </div>
+            <div class="monitoring-questionnaire-members-list"></div>
+        `;
+
+        const memberList =
+            membersPanel.querySelector('.monitoring-questionnaire-members-list');
+
+        const answersPanel = document.createElement('div');
+        answersPanel.className = 'monitoring-questionnaire-member-answers';
+        answersPanel.innerHTML = `
+            <div class="monitoring-questionnaire-members-heading">
+                <strong>Hasil Jawaban Anggota</strong>
+                <span>Jawaban kuisioner Part 5.</span>
+            </div>
+            <div class="monitoring-questionnaire-member-answers-body">
+                <div class="monitoring-questionnaire-placeholder">
+                    <strong>Pilih Anggota</strong>
+                    <span>Pilih anggota keluarga untuk melihat pertanyaan dan jawabannya.</span>
+                </div>
+            </div>
+        `;
+
+        const answersBody =
+            answersPanel.querySelector('.monitoring-questionnaire-member-answers-body');
+
+        members.forEach(function (member) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'monitoring-questionnaire-member-card';
+
+            const name = String(member.nama || member.nama_lengkap || '-');
+            const relation = String(member.status_keluarga || member.status || '-');
+            const nik = String(member.nik || '-');
+            const initial = name.trim() ? name.trim().charAt(0).toUpperCase() : '?';
+
+            button.innerHTML = `
+                <span class="monitoring-questionnaire-member-avatar">${escapeHtml(initial)}</span>
+                <span class="monitoring-questionnaire-member-info">
+                    <strong>${escapeHtml(name)}</strong>
+                    <span>${escapeHtml(relation)}</span>
+                    <small>NIK: ${escapeHtml(nik)}</small>
+                </span>
+            `;
+
+            button.addEventListener('click', function () {
+                memberList.querySelectorAll('.monitoring-questionnaire-member-card')
+                    .forEach(function (otherButton) {
+                        otherButton.classList.remove('is-selected');
+                    });
+                button.classList.add('is-selected');
+
+                const questions = Array.isArray(member.questions)
+                    ? member.questions
+                    : [];
+
+                answersBody.innerHTML = '';
+
+                const memberHeading = document.createElement('div');
+                memberHeading.className = 'monitoring-questionnaire-member-summary';
+                memberHeading.textContent = `${name} · NIK: ${nik} · ${relation}`;
+                answersBody.appendChild(memberHeading);
+
+                if (questions.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'monitoring-questionnaire-placeholder';
+                    empty.innerHTML = '<strong>Jawaban Belum Tersedia</strong><span>Belum ada jawaban kuisioner untuk anggota ini.</span>';
+                    answersBody.appendChild(empty);
+                    return;
+                }
+
+                questions.forEach(function (question, questionIndex) {
+                    const questionItem = normalizeQuestion(
+                        question,
+                        'Part 5',
+                        questionIndex
+                    );
+                    const questionCard = document.createElement('div');
+                    questionCard.className = 'monitoring-question-item';
+
+                    const number = document.createElement('div');
+                    number.className = 'monitoring-question-number';
+                   number.textContent = `Pertanyaan ${questionIndex + 1}`;
+
+                    const text = document.createElement('div');
+                    text.className = 'monitoring-question-text';
+                    text.textContent = questionItem.question;
+
+                    const label = document.createElement('div');
+                    label.className = 'monitoring-answer-label';
+                    label.textContent = 'Jawaban';
+
+                    const answer = document.createElement('div');
+                    answer.className = 'monitoring-answer-value';
+
+                    questionCard.append(number, text, label, answer);
+                    answersBody.appendChild(questionCard);
+                    renderQuestionAnswer(questionItem, answer);
+                });
+            });
+
+            memberList.appendChild(button);
+        });
+
+        if (members.length === 0) {
+            memberList.innerHTML = `
+                <div class="monitoring-questionnaire-placeholder">
+                    <strong>Belum Ada Anggota Keluarga</strong>
+                    <span>Data jawaban anggota keluarga belum tersedia.</span>
+                </div>
+            `;
+        }
+
+        layout.append(membersPanel, answersPanel);
+        contentBody.appendChild(layout);
+    }
+
 
     function renderQuestionnaire(raw) {
 
@@ -3478,6 +3834,10 @@ document.addEventListener('DOMContentLoaded', function () {
                         sortedParts.map(function (partName, partIndex) {
 
                             const items = grouped[partName];
+                            const memberPart =
+                                items.find(function (item) {
+                                    return Array.isArray(item.members);
+                                });
 
                             const answered =
                                 items.filter(function (item) {
@@ -3526,7 +3886,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                                 </div>
 
                                                 <div class="monitoring-questionnaire-part-meta">
-                                                    ${items.length} pertanyaan
+                                                    ${memberPart
+                                                        ? memberPart.members.length + ' anggota keluarga'
+                                                        : items.length + ' pertanyaan'}
                                                 </div>
                                             </div>
 
@@ -3667,6 +4029,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const items =
                     grouped[partName];
+                const memberPart =
+                    items.find(function (item) {
+                        return Array.isArray(item.members);
+                    });
 
                 const partNumber =
                     getPartNumber(partName, index);
@@ -3692,6 +4058,13 @@ document.addEventListener('DOMContentLoaded', function () {
                           ' — ' +
                           cleanTitle
                         : 'Part ' + partNumber;
+
+                if (memberPart) {
+                    selectedBody.innerHTML = '';
+                    renderPart5Members(memberPart.members, selectedBody);
+                    selectedBody.scrollTop = 0;
+                    return;
+                }
 
                 selectedBody.innerHTML =
                     items.map(function (item, qIndex) {

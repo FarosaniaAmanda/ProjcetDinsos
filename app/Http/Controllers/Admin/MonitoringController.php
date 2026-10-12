@@ -690,11 +690,11 @@ class MonitoringController extends VerifikasiController
 
             /*
             |--------------------------------------------------------------------------
-            | CARI PART 5
+            | CARI PART 6
             |--------------------------------------------------------------------------
             */
 
-            $part5Index =
+            $part6Index =
                 collect(
                     $kuisioner
                 )->search(function ($part) {
@@ -709,30 +709,30 @@ class MonitoringController extends VerifikasiController
                                 0
                             )
                         )
-                    ) === 5;
+                    ) === 6;
 
                 });
 
             /*
             |--------------------------------------------------------------------------
-            | JIKA PART 5 BELUM ADA
+            | JIKA PART 6 BELUM ADA
             |--------------------------------------------------------------------------
             */
 
             if (
-                $part5Index === false
+                $part6Index === false
             ) {
 
                 $kuisioner[] = [
 
-                    'part' => 5,
+                    'part' => 6,
 
-                    'title' => 'Data Anggota Keluarga',
+                    'title' => 'Foto Rumah',
 
                     'questions' => [],
                 ];
 
-                $part5Index =
+                $part6Index =
                     count(
                         $kuisioner
                     ) - 1;
@@ -740,20 +740,20 @@ class MonitoringController extends VerifikasiController
 
             /*
             |--------------------------------------------------------------------------
-            | PASTIKAN QUESTIONS PART 5 ADA
+            | PASTIKAN QUESTIONS PART 6 ADA
             |--------------------------------------------------------------------------
             */
 
             if (
                 ! isset(
                     $kuisioner[
-                        $part5Index
+                        $part6Index
                     ]['questions']
                 )
             ) {
 
                 $kuisioner[
-                    $part5Index
+                    $part6Index
                 ]['questions'] = [];
             }
 
@@ -862,7 +862,7 @@ class MonitoringController extends VerifikasiController
                 $sudahAda =
                     collect(
                         $kuisioner[
-                            $part5Index
+                            $part6Index
                         ]['questions']
                     )
                         ->contains(
@@ -950,12 +950,12 @@ class MonitoringController extends VerifikasiController
 
                 /*
                 |--------------------------------------------------------------------------
-                | TAMBAHKAN FOTO KE PART 5
+                | TAMBAHKAN FOTO KE PART 6
                 |--------------------------------------------------------------------------
                 */
 
                 $kuisioner[
-                    $part5Index
+                    $part6Index
                 ]['questions'][] = [
 
                     'number' => 0,
