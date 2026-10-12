@@ -1996,6 +1996,75 @@ color: #7652C8;
     }
 }
 
+.monitoring-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 26px;
+    border-top: 1px solid #E2E4EF;
+    background: #FBFBFD;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    color: #6B7280;
+    font-size: 13px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    min-width: 35px;
+    height: 35px;
+    padding: 0 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #D9DCE8;
+    border-radius: 8px;
+    background: #fff;
+    color: #252A86;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .2s ease;
+}
+
+.page-btn:hover {
+    background: #EEF1FF;
+    border-color: #252A86;
+}
+
+.page-btn.active {
+    background: #252A86;
+    border-color: #252A86;
+    color: #fff;
+}
+
+.page-btn.disabled {
+    color: #B8BBC7;
+    background: #F5F6FA;
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .monitoring-pagination {
+        padding: 16px 18px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pagination {
+        justify-content: center;
+    }
+}
+
 </style>
 
 
@@ -2451,7 +2520,49 @@ color: #7652C8;
 
             @if ($data->hasPages())
                 <div class="monitoring-pagination">
-                    {{ $data->onEachSide(1)->links() }}
+                    <div class="pagination-info">
+                        Menampilkan
+                        <strong>{{ $data->firstItem() }}</strong>
+                        sampai
+                        <strong>{{ $data->lastItem() }}</strong>
+                        dari
+                        <strong>{{ $data->total() }}</strong>
+                        data
+                    </div>
+
+                    <div class="pagination">
+                        @if($data->onFirstPage())
+                            <span class="page-btn disabled">
+                                ‹
+                            </span>
+                        @else
+                            <a href="{{ $data->previousPageUrl() }}" class="page-btn">
+                                ‹
+                            </a>
+                        @endif
+
+                        @for($page = 1; $page <= $data->lastPage(); $page++)
+                            @if($page == $data->currentPage())
+                                <span class="page-btn active">
+                                    {{ $page }}
+                                </span>
+                            @else
+                                <a href="{{ $data->url($page) }}" class="page-btn">
+                                    {{ $page }}
+                                </a>
+                            @endif
+                        @endfor
+
+                        @if($data->hasMorePages())
+                            <a href="{{ $data->nextPageUrl() }}" class="page-btn">
+                                ›
+                            </a>
+                        @else
+                            <span class="page-btn disabled">
+                                ›
+                            </span>
+                        @endif
+                    </div>
                 </div>
             @endif
 

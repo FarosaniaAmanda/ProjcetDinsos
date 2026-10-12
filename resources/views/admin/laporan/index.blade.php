@@ -736,31 +736,22 @@
 .laporan-status.selesai,
 .laporan-status.disetujui {
     background: #E8F7EE;
-
-    color: #299447;
+    color: #237D43;
 }
-
 
 .laporan-status.belum {
     background: #F0F0F0;
-
     color: #6B7280;
 }
 
-
 .laporan-status.diproses {
-    background: #FFF7D6;
-
-    color: #B88600;
+    background: #FFF3D6;
+    color: #A87500;
 }
-
 
 .laporan-status.ditolak {
     background: #FDECEC;
-
-    color: #D9364F;
-
-    border: 1px solid #f5b8b5;
+    color: #C33333;
 }
 
 
@@ -1621,6 +1612,74 @@
         height: 90px;
     }
 }
+.laporan-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 26px;
+    border-top: 1px solid #E2E4EF;
+    background: #FBFBFD;
+    flex-wrap: wrap;
+}
+
+.pagination-info {
+    color: #6B7280;
+    font-size: 13px;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    min-width: 35px;
+    height: 35px;
+    padding: 0 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #D9DCE8;
+    border-radius: 8px;
+    background: #fff;
+    color: #252A86;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: .2s ease;
+}
+
+.page-btn:hover {
+    background: #EEF1FF;
+    border-color: #252A86;
+}
+
+.page-btn.active {
+    background: #252A86;
+    border-color: #252A86;
+    color: #fff;
+}
+
+.page-btn.disabled {
+    color: #B8BBC7;
+    background: #F5F6FA;
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .laporan-pagination {
+        padding: 16px 18px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pagination {
+        justify-content: center;
+    }
+}
 </style>
 
 <div class="laporan-page"> 
@@ -1963,9 +2022,10 @@
  
                             $statusValue = strtolower((string) data_get($item, 'status', ''));
                             $status = data_get($item, 'status_label') ?? match ($statusValue) {
-                                'approved', 'disetujui' => 'Disetujui',
+                                'approved', 'disetujui', 'selesai' => 'Disetujui',
+                                'pending', 'menunggu', 'diproses', 'waiting_verification' => 'Menunggu Verifikasi',
                                 'rejected', 'reject', 'ditolak' => 'Ditolak',
-                                default => $statusValue !== '' ? $statusValue : 'Belum Selesai',
+                                default => $statusValue !== '' ? ucfirst($statusValue) : 'Belum Selesai',
                             };
  
                             $isComplete = data_get( 
@@ -1991,7 +2051,7 @@
  
                                 in_array( 
                                     $statusLower, 
-                                    ['diproses', 'menunggu', 'pending'] 
+                                    ['diproses', 'menunggu', 'pending', 'menunggu verifikasi', 'waiting_verification'] 
                                 ) 
                                     => 'diproses', 
  
@@ -2135,8 +2195,50 @@
         </div> 
 
         @if ($laporan->hasPages())
-            <div class="monitoring-pagination">
-                {{ $laporan->onEachSide(1)->links() }}
+            <div class="laporan-pagination">
+                <div class="pagination-info">
+                    Menampilkan
+                    <strong>{{ $laporan->firstItem() }}</strong>
+                    sampai
+                    <strong>{{ $laporan->lastItem() }}</strong>
+                    dari
+                    <strong>{{ $laporan->total() }}</strong>
+                    data
+                </div>
+
+                <div class="pagination">
+                    @if($laporan->onFirstPage())
+                        <span class="page-btn disabled">
+                            ‹
+                        </span>
+                    @else
+                        <a href="{{ $laporan->previousPageUrl() }}" class="page-btn">
+                            ‹
+                        </a>
+                    @endif
+
+                    @for($page = 1; $page <= $laporan->lastPage(); $page++)
+                        @if($page == $laporan->currentPage())
+                            <span class="page-btn active">
+                                {{ $page }}
+                            </span>
+                        @else
+                            <a href="{{ $laporan->url($page) }}" class="page-btn">
+                                {{ $page }}
+                            </a>
+                        @endif
+                    @endfor
+
+                    @if($laporan->hasMorePages())
+                        <a href="{{ $laporan->nextPageUrl() }}" class="page-btn">
+                            ›
+                        </a>
+                    @else
+                        <span class="page-btn disabled">
+                            ›
+                        </span>
+                    @endif
+                </div>
             </div>
         @endif
 
