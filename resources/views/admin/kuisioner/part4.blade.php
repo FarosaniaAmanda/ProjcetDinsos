@@ -2,6 +2,38 @@
 
 @section('kuisioner-content')
 
+@php
+    $dataPart4Map = $dataPart4Map ?? collect();
+
+    $getAset = function ($namaAset) use ($dataPart4Map) {
+        $asetKey = md5($namaAset);
+        $data = $dataPart4Map->get($namaAset);
+
+        return [
+            'key' => $asetKey,
+            'punya' => (string) old(
+                "aset.$asetKey.punya",
+                $data ? $data->is_punya_aset : ''
+            ),
+            'jumlah' => old(
+                "aset.$asetKey.jumlah",
+                $data?->jml_aset ?? ''
+            ),
+        ];
+    };
+
+    $gas3kg = $getAset('Tabung Gas 3 KG');
+    $gas55 = $getAset('Tabung Gas 5,5 KG atau Lebih');
+    $kulkas = $getAset('Lemari Es/Kulkas');
+    $ac = $getAset('AC (Air Conditioner)');
+    $emas = $getAset('Emas/Perhiasan');
+    $komputer = $getAset('Komputer/Laptop/Tablet');
+    $motor = $getAset('Sepeda Motor');
+    $mobil = $getAset('Mobil');
+    $rumah = $getAset('Rumah/Bangunan (selain yang ditempati)');
+    $lahan = $getAset('Lahan Lainnya');
+@endphp
+
 <style>
 .part4-card {
     width: 100%;
@@ -201,7 +233,14 @@
     background: #FBFBFD;
 }
 
+.part4-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .part4-back,
+.part4-draft,
 .part4-next {
     display: inline-flex;
     align-items: center;
@@ -223,6 +262,20 @@
 }
 
 .part4-back:hover {
+    background: #F5F6FB;
+    border-color: #C8CBF7;
+    color: #292D8F;
+}
+
+.part4-draft {
+    padding: 0 18px;
+    border: 1px solid #D9DCE8;
+    background: #FFFFFF;
+    color: #656A7C;
+    cursor: pointer;
+}
+
+.part4-draft:hover {
     background: #F5F6FB;
     border-color: #C8CBF7;
     color: #292D8F;
@@ -292,6 +345,15 @@
     }
 
     .part4-back,
+    .part4-footer-actions {
+        width: 100%;
+    }
+
+    .part4-footer-actions {
+        flex-direction: column;
+    }
+
+    .part4-draft,
     .part4-next {
         width: 100%;
     }
@@ -301,7 +363,6 @@
 @if ($errors->any())
     <div class="part4-error">
         <strong>Terjadi kesalahan:</strong>
-
         <ul>
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -320,817 +381,599 @@
 
     <div class="part4-card-header">
         <h2>Part 4 — Kepemilikan Aset Keluarga</h2>
-
-        <p>
-            Lengkapi data kepemilikan aset bergerak dan tidak bergerak keluarga.
-        </p>
+        <p>Lengkapi data kepemilikan aset bergerak dan tidak bergerak keluarga.</p>
     </div>
 
-
-    {{-- ASET BERGERAK --}}
-
     <div class="part4-section">
-
-        <h3 class="part4-section-title">
-            Kepemilikan Aset Bergerak Keluarga
-        </h3>
-
+        <h3 class="part4-section-title">Kepemilikan Aset Bergerak Keluarga</h3>
         <p class="part4-section-guide">
             <strong>Petunjuk:</strong>
             Pilih <strong>Ya</strong> dan isikan jumlahnya jika memiliki,
             atau pilih <strong>Tidak</strong> jika tidak memiliki.
         </p>
-
     </div>
 
-
-    <form
-        action="{{ route('kuisioner.part4.store') }}"
-        method="POST"
-    >
-
+    
+    <form action="{{ route('kuisioner.part4.store') }}" method="POST">
         @csrf
+
+        <input type="hidden" name="draft_id" value="{{ $draft->id }}">
+        <input type="hidden" name="keluarga_periode_kode" value="{{ $draft->keluarga_periode_kode }}">
+
 
         <div class="part4-form">
 
-
-            {{-- 43 --}}
-
+            {{-- 43: Tabung Gas 3 KG --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">43</div>
-
-                    <div>
-                        Tabung Gas 3 KG
-                    </div>
+                    <div>Tabung Gas 3 KG</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Tabung Gas 3 KG') }}][punya]"
+                                name="aset[{{ $gas3kg['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Tabung Gas 3 KG') }}', true)"
-                                {{ old('aset.'.md5('Tabung Gas 3 KG').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $gas3kg['key'] }}', true)"
+                                {{ $gas3kg['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Tabung Gas 3 KG') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Tabung Gas 3 KG').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $gas3kg['key'] }}"
+                            class="part4-quantity {{ $gas3kg['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Tabung Gas 3 KG') }}][jumlah]"
+                                name="aset[{{ $gas3kg['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Tabung Gas 3 KG').'.jumlah', '') }}"
+                                value="{{ $gas3kg['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Tabung Gas 3 KG') }}][punya]"
+                                name="aset[{{ $gas3kg['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Tabung Gas 3 KG') }}', false)"
-                                {{ old('aset.'.md5('Tabung Gas 3 KG').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $gas3kg['key'] }}', false)"
+                                {{ $gas3kg['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- 44 --}}
-
+            {{-- 44: Tabung Gas 5,5 KG atau Lebih --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">44</div>
-
-                    <div>
-                        Tabung Gas 5,5 KG atau Lebih
-                    </div>
+                    <div>Tabung Gas 5,5 KG atau Lebih</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Tabung Gas 5,5 KG atau Lebih') }}][punya]"
+                                name="aset[{{ $gas55['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Tabung Gas 5,5 KG atau Lebih') }}', true)"
-                                {{ old('aset.'.md5('Tabung Gas 5,5 KG atau Lebih').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $gas55['key'] }}', true)"
+                                {{ $gas55['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Tabung Gas 5,5 KG atau Lebih') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Tabung Gas 5,5 KG atau Lebih').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $gas55['key'] }}"
+                            class="part4-quantity {{ $gas55['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Tabung Gas 5,5 KG atau Lebih') }}][jumlah]"
+                                name="aset[{{ $gas55['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Tabung Gas 5,5 KG atau Lebih').'.jumlah', '') }}"
+                                value="{{ $gas55['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Tabung Gas 5,5 KG atau Lebih') }}][punya]"
+                                name="aset[{{ $gas55['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Tabung Gas 5,5 KG atau Lebih') }}', false)"
-                                {{ old('aset.'.md5('Tabung Gas 5,5 KG atau Lebih').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $gas55['key'] }}', false)"
+                                {{ $gas55['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- 45 --}}
-
+            {{-- 45: Lemari Es/Kulkas --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">45</div>
-
-                    <div>
-                        Lemari Es/Kulkas
-                    </div>
+                    <div>Lemari Es/Kulkas</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Lemari Es/Kulkas') }}][punya]"
+                                name="aset[{{ $kulkas['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Lemari Es/Kulkas') }}', true)"
-                                {{ old('aset.'.md5('Lemari Es/Kulkas').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $kulkas['key'] }}', true)"
+                                {{ $kulkas['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Lemari Es/Kulkas') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Lemari Es/Kulkas').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $kulkas['key'] }}"
+                            class="part4-quantity {{ $kulkas['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Lemari Es/Kulkas') }}][jumlah]"
+                                name="aset[{{ $kulkas['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Lemari Es/Kulkas').'.jumlah', '') }}"
+                                value="{{ $kulkas['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Lemari Es/Kulkas') }}][punya]"
+                                name="aset[{{ $kulkas['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Lemari Es/Kulkas') }}', false)"
-                                {{ old('aset.'.md5('Lemari Es/Kulkas').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $kulkas['key'] }}', false)"
+                                {{ $kulkas['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- 46 --}}
-
+            {{-- 46: AC --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">46</div>
-
-                    <div>
-                        AC (Air Conditioner)
-                    </div>
+                    <div>AC (Air Conditioner)</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('AC (Air Conditioner)') }}][punya]"
+                                name="aset[{{ $ac['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('AC (Air Conditioner)') }}', true)"
-                                {{ old('aset.'.md5('AC (Air Conditioner)').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $ac['key'] }}', true)"
+                                {{ $ac['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('AC (Air Conditioner)') }}"
-                            class="part4-quantity {{ old('aset.'.md5('AC (Air Conditioner)').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $ac['key'] }}"
+                            class="part4-quantity {{ $ac['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('AC (Air Conditioner)') }}][jumlah]"
+                                name="aset[{{ $ac['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('AC (Air Conditioner)').'.jumlah', '') }}"
+                                value="{{ $ac['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('AC (Air Conditioner)') }}][punya]"
+                                name="aset[{{ $ac['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('AC (Air Conditioner)') }}', false)"
-                                {{ old('aset.'.md5('AC (Air Conditioner)').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $ac['key'] }}', false)"
+                                {{ $ac['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- 47 --}}
-
+            {{-- 47: Emas/Perhiasan --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">47</div>
-
-                    <div>
-                        Emas/Perhiasan
-                    </div>
+                    <div>Emas/Perhiasan</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Emas/Perhiasan') }}][punya]"
+                                name="aset[{{ $emas['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Emas/Perhiasan') }}', true)"
-                                {{ old('aset.'.md5('Emas/Perhiasan').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $emas['key'] }}', true)"
+                                {{ $emas['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Emas/Perhiasan') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Emas/Perhiasan').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $emas['key'] }}"
+                            class="part4-quantity {{ $emas['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Emas/Perhiasan') }}][jumlah]"
+                                name="aset[{{ $emas['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Emas/Perhiasan').'.jumlah', '') }}"
+                                value="{{ $emas['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Emas/Perhiasan') }}][punya]"
+                                name="aset[{{ $emas['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Emas/Perhiasan') }}', false)"
-                                {{ old('aset.'.md5('Emas/Perhiasan').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $emas['key'] }}', false)"
+                                {{ $emas['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- 48 --}}
-
+            {{-- 48: Komputer/Laptop/Tablet --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">48</div>
-
-                    <div>
-                        Komputer/Laptop/Tablet
-                    </div>
+                    <div>Komputer/Laptop/Tablet</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Komputer/Laptop/Tablet') }}][punya]"
+                                name="aset[{{ $komputer['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Komputer/Laptop/Tablet') }}', true)"
-                                {{ old('aset.'.md5('Komputer/Laptop/Tablet').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $komputer['key'] }}', true)"
+                                {{ $komputer['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Komputer/Laptop/Tablet') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Komputer/Laptop/Tablet').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $komputer['key'] }}"
+                            class="part4-quantity {{ $komputer['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Komputer/Laptop/Tablet') }}][jumlah]"
+                                name="aset[{{ $komputer['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Komputer/Laptop/Tablet').'.jumlah', '') }}"
+                                value="{{ $komputer['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Komputer/Laptop/Tablet') }}][punya]"
+                                name="aset[{{ $komputer['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Komputer/Laptop/Tablet') }}', false)"
-                                {{ old('aset.'.md5('Komputer/Laptop/Tablet').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $komputer['key'] }}', false)"
+                                {{ $komputer['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- 49 --}}
-
+            {{-- 49: Sepeda Motor --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">49</div>
-
-                    <div>
-                        Sepeda Motor
-                    </div>
+                    <div>Sepeda Motor</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Sepeda Motor') }}][punya]"
+                                name="aset[{{ $motor['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Sepeda Motor') }}', true)"
-                                {{ old('aset.'.md5('Sepeda Motor').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $motor['key'] }}', true)"
+                                {{ $motor['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Sepeda Motor') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Sepeda Motor').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $motor['key'] }}"
+                            class="part4-quantity {{ $motor['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Sepeda Motor') }}][jumlah]"
+                                name="aset[{{ $motor['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Sepeda Motor').'.jumlah', '') }}"
+                                value="{{ $motor['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Sepeda Motor') }}][punya]"
+                                name="aset[{{ $motor['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Sepeda Motor') }}', false)"
-                                {{ old('aset.'.md5('Sepeda Motor').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $motor['key'] }}', false)"
+                                {{ $motor['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- 50 --}}
-
+            {{-- 50: Mobil --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">50</div>
-
-                    <div>
-                        Mobil
-                    </div>
+                    <div>Mobil</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Mobil') }}][punya]"
+                                name="aset[{{ $mobil['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Mobil') }}', true)"
-                                {{ old('aset.'.md5('Mobil').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $mobil['key'] }}', true)"
+                                {{ $mobil['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Mobil') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Mobil').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $mobil['key'] }}"
+                            class="part4-quantity {{ $mobil['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Mobil') }}][jumlah]"
+                                name="aset[{{ $mobil['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Mobil').'.jumlah', '') }}"
+                                value="{{ $mobil['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Mobil') }}][punya]"
+                                name="aset[{{ $mobil['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Mobil') }}', false)"
-                                {{ old('aset.'.md5('Mobil').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $mobil['key'] }}', false)"
+                                {{ $mobil['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
             {{-- ASET TIDAK BERGERAK --}}
-
             <div class="part4-section">
-
-                <h3 class="part4-section-title">
-                    Kepemilikan Aset Tidak Bergerak Keluarga
-                </h3>
-
+                <h3 class="part4-section-title">Kepemilikan Aset Tidak Bergerak Keluarga</h3>
                 <p class="part4-section-guide">
                     <strong>Petunjuk:</strong>
                     Pilih <strong>Ya</strong> dan isikan jumlahnya jika memiliki,
                     atau pilih <strong>Tidak</strong> jika tidak memiliki.
                 </p>
-
             </div>
 
-
-            {{-- 51 Rumah --}}
-
+            {{-- 51: Rumah/Bangunan --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
                     <div class="part4-number">51</div>
-
-                    <div>
-                        Rumah/Bangunan (selain yang ditempati)
-                    </div>
+                    <div>Rumah/Bangunan (selain yang ditempati)</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Rumah/Bangunan (selain yang ditempati)') }}][punya]"
+                                name="aset[{{ $rumah['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Rumah/Bangunan (selain yang ditempati)') }}', true)"
-                                {{ old('aset.'.md5('Rumah/Bangunan (selain yang ditempati)').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $rumah['key'] }}', true)"
+                                {{ $rumah['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Rumah/Bangunan (selain yang ditempati)') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Rumah/Bangunan (selain yang ditempati)').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $rumah['key'] }}"
+                            class="part4-quantity {{ $rumah['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Rumah/Bangunan (selain yang ditempati)') }}][jumlah]"
+                                name="aset[{{ $rumah['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Rumah/Bangunan (selain yang ditempati)').'.jumlah', '') }}"
+                                value="{{ $rumah['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Rumah/Bangunan (selain yang ditempati)') }}][punya]"
+                                name="aset[{{ $rumah['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Rumah/Bangunan (selain yang ditempati)') }}', false)"
-                                {{ old('aset.'.md5('Rumah/Bangunan (selain yang ditempati)').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $rumah['key'] }}', false)"
+                                {{ $rumah['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
-
-            {{-- Lahan --}}
-
+            {{-- Lahan Lainnya --}}
             <div class="part4-question">
-
                 <div class="part4-question-title">
-
                     <div class="part4-number">—</div>
-
-                    <div>
-                        Lahan Lainnya
-                    </div>
-
+                    <div>Lahan Lainnya</div>
                 </div>
 
                 <div class="part4-content">
-
                     <div class="part4-radio-group">
-
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Lahan Lainnya') }}][punya]"
+                                name="aset[{{ $lahan['key'] }}][punya]"
                                 value="1"
-                                onchange="toggleJumlah('{{ md5('Lahan Lainnya') }}', true)"
-                                {{ old('aset.'.md5('Lahan Lainnya').'.punya') === '1' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $lahan['key'] }}', true)"
+                                {{ $lahan['punya'] === '1' ? 'checked' : '' }}
                             >
-
                             Ya
-
                         </label>
 
                         <div
-                            id="jumlah-{{ md5('Lahan Lainnya') }}"
-                            class="part4-quantity {{ old('aset.'.md5('Lahan Lainnya').'.punya') === '1' ? 'show' : '' }}"
+                            id="jumlah-{{ $lahan['key'] }}"
+                            class="part4-quantity {{ $lahan['punya'] === '1' ? 'show' : '' }}"
                         >
-
-                            <span class="part4-quantity-label">
-                                Jumlah:
-                            </span>
-
+                            <span class="part4-quantity-label">Jumlah:</span>
                             <input
                                 type="number"
                                 min="1"
-                                name="aset[{{ md5('Lahan Lainnya') }}][jumlah]"
+                                name="aset[{{ $lahan['key'] }}][jumlah]"
                                 class="part4-input"
-                                value="{{ old('aset.'.md5('Lahan Lainnya').'.jumlah', '') }}"
+                                value="{{ $lahan['jumlah'] }}"
                                 placeholder="Jumlah"
                             >
-
                         </div>
 
                         <label class="part4-radio">
-
                             <input
                                 type="radio"
-                                name="aset[{{ md5('Lahan Lainnya') }}][punya]"
+                                name="aset[{{ $lahan['key'] }}][punya]"
                                 value="0"
-                                onchange="toggleJumlah('{{ md5('Lahan Lainnya') }}', false)"
-                                {{ old('aset.'.md5('Lahan Lainnya').'.punya') === '0' ? 'checked' : '' }}
+                                onchange="toggleJumlah('{{ $lahan['key'] }}', false)"
+                                {{ $lahan['punya'] === '0' ? 'checked' : '' }}
                             >
-
                             Tidak
-
                         </label>
-
                     </div>
-
                 </div>
-
             </div>
 
         </div>
 
-
         <div class="part4-footer">
-
-            <a
-                href="{{ route('kuisioner.part3') }}"
-                class="part4-back"
-            >
+            <a href="{{ route('kuisioner.part3') }}" class="part4-back">
                 ← Kembali
             </a>
 
-            <button
-                type="submit"
-                class="part4-next"
-            >
-                Lanjut ke Part 5 →
-            </button>
+            <div class="part4-footer-actions">
+                <button
+                    type="submit"
+                    name="action"
+                    value="draft"
+                    class="part4-draft"
+                >
+                    Simpan Draft
+                </button>
 
+                <button
+                    type="submit"
+                    name="action"
+                    value="next"
+                    class="part4-next"
+                >
+                    Lanjut ke Part 5 →
+                </button>
+            </div>
         </div>
-
     </form>
-
 </div>
-
 
 <script>
 
-function toggleJumlah(key, show)
-{
+function toggleJumlah(key, show) {
     const box = document.getElementById('jumlah-' + key);
 
     if (!box) {
         return;
     }
 
+    const input = box.querySelector('input');
+
     if (show) {
         box.classList.add('show');
+
+        if (input) {
+            input.disabled = false;
+        }
     } else {
         box.classList.remove('show');
 
-        const input = box.querySelector('input');
-
         if (input) {
             input.value = '';
+            input.disabled = true;
         }
     }
 }
 
+// Menyesuaikan status input ketika halaman pertama kali dibuka
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.part4-quantity').forEach(function (box) {
+        const input = box.querySelector('input');
+
+        if (!input) {
+            return;
+        }
+
+        const terlihat = box.classList.contains('show');
+
+        input.disabled = !terlihat;
+    });
+});
 </script>
 
 @endsection

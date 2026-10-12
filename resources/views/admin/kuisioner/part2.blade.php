@@ -4,7 +4,7 @@
 
 <style>
     /* =========================================================
-       PART 2 CONTENT
+       PART 2
        ========================================================= */
 
     .part2-card {
@@ -147,6 +147,7 @@
         font-size: 14px;
         outline: none;
         transition: 0.2s ease;
+        box-sizing: border-box;
     }
 
     .part2-input:focus {
@@ -199,22 +200,31 @@
         background: #FBFBFD;
     }
 
+    .part2-footer-left,
+    .part2-footer-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
     .part2-back,
+    .part2-draft,
     .part2-next {
         display: inline-flex;
         align-items: center;
         justify-content: center;
         min-height: 48px;
+        padding: 0 19px;
         border-radius: 9px;
         font-family: inherit;
         font-size: 13px;
         font-weight: 700;
         text-decoration: none;
         transition: 0.2s ease;
+        box-sizing: border-box;
     }
 
     .part2-back {
-        padding: 0 19px;
         border: 1px solid #D9DCE8;
         background: #FFFFFF;
         color: #656A7C;
@@ -224,6 +234,18 @@
         background: #F5F6FB;
         border-color: #C8CBF7;
         color: #292D8F;
+    }
+
+    .part2-draft {
+        border: 1px solid #D9DCE8;
+        background: #FFFFFF;
+        color: #292D8F;
+        cursor: pointer;
+    }
+
+    .part2-draft:hover {
+        background: #F5F6FB;
+        border-color: #292D8F;
     }
 
     .part2-next {
@@ -272,6 +294,30 @@
     .part2-error ul {
         margin: 6px 0 0 18px;
         padding: 0;
+    }
+
+    /* =========================================================
+       SUCCESS / ERROR SESSION
+       ========================================================= */
+
+    .part2-alert {
+        margin-bottom: 18px;
+        padding: 13px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .part2-alert-success {
+        border: 1px solid #B7E3C3;
+        background: #F0FFF4;
+        color: #217A38;
+    }
+
+    .part2-alert-error {
+        border: 1px solid #F2C2C2;
+        background: #FFF5F5;
+        color: #B42318;
     }
 
     /* =========================================================
@@ -369,11 +415,30 @@
 
         .part2-footer {
             flex-direction: column;
+            align-items: stretch;
+        }
+
+        .part2-footer-left,
+        .part2-footer-right {
+            width: 100%;
+        }
+
+        .part2-footer-left {
+            justify-content: flex-start;
+        }
+
+        .part2-footer-right {
+            justify-content: stretch;
+        }
+
+        .part2-draft,
+        .part2-next {
+            flex: 1;
         }
 
         .part2-back,
+        .part2-draft,
         .part2-next {
-            width: 100%;
             min-height: 46px;
             font-size: 13px;
         }
@@ -391,12 +456,23 @@
      WARNING
      ========================================================= --}}
 
-<div
-    id="warningBox"
-    class="part2-warning"
->
-    Silakan lengkapi data Part 2 terlebih dahulu sebelum melanjutkan.
-</div>
+@if(session('warning'))
+    <div class="part2-alert part2-alert-error">
+        {{ session('warning') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="part2-alert part2-alert-error">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if(session('success'))
+    <div class="part2-alert part2-alert-success">
+        {{ session('success') }}
+    </div>
+@endif
 
 
 {{-- =========================================================
@@ -640,7 +716,6 @@
 
                 </div>
 
-
                 <div class="part2-radio-group">
 
                     @foreach([
@@ -703,11 +778,17 @@
                                 >
 
                                 @if($option === 'Sertifikat selain SHM')
+
                                     Sertifikat selain SHM (SHGB, SHSRS)
+
                                 @elseif($option === 'Surat bukti lainnya')
+
                                     Surat bukti lainnya (Girik, Letter C, dll)
+
                                 @else
+
                                     {{ $option }}
+
                                 @endif
 
                             </label>
@@ -780,7 +861,7 @@
                         type="text"
                         name="status_kepemilikan_lainnya"
                         class="part2-input"
-                        value="{{ old('status_kepemilikan_lainnya') }}"
+                        value="{{ old('status_kepemilikan_lainnya', '') }}"
                         placeholder="Masukkan status kepemilikan"
                     >
 
@@ -1097,13 +1178,22 @@
                                 type="radio"
                                 name="kondisi_atap"
                                 value="{{ $option }}"
-                                {{ old('kondisi_atap', isset($dataPart2) ? match((int) $dataPart2->kondisi_atap) {
-                                    1 => 'Baik',
-                                    2 => 'Rusak Ringan',
-                                    3 => 'Rusak Sedang',
-                                    4 => 'Rusak Berat',
-                                    default => ''
-                                } : '') == $option ? 'checked' : '' }}
+
+                                @php
+                                    $kondisiAtapValue = '';
+
+                                    if (isset($dataPart2)) {
+                                        $kondisiAtapValue = match((int) $dataPart2->kondisi_atap) {
+                                            1 => 'Baik',
+                                            2 => 'Rusak Ringan',
+                                            3 => 'Rusak Sedang',
+                                            4 => 'Rusak Berat',
+                                            default => ''
+                                        };
+                                    }
+                                @endphp
+
+                                {{ old('kondisi_atap', $kondisiAtapValue) == $option ? 'checked' : '' }}
                             >
 
                             {{ $option }}
@@ -1333,7 +1423,7 @@
                         '900 watt',
                         '1300 watt',
                         '2200 watt',
-                        '2200 watt'
+                        'Lebih dari 2200 watt'
                     ] as $option)
 
                         <label class="part2-radio">
@@ -1432,21 +1522,42 @@
 
         <div class="part2-footer">
 
-            <a
-                href="{{ route('kuisioner.part1') }}"
-                class="part2-back"
-            >
-                ← Kembali
-            </a>
+            <div class="part2-footer-left">
 
-            <button
-                type="submit"
-                class="part2-next"
-            >
-                Lanjut ke Part 3 →
-            </button>
+                <a
+                    href="{{ route('kuisioner.part1') }}"
+                    class="part2-back"
+                >
+                    ← Kembali ke Part 1
+                </a>
+
+            </div>
+
+
+            <div class="part2-footer-right">
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="draft"
+                    class="part2-draft"
+                >
+                    Draft
+                </button>
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="next"
+                    class="part2-next"
+                >
+                    Lanjut ke Part 3 →
+                </button>
+
+            </div>
 
         </div>
+
 
     </form>
 
@@ -1494,17 +1605,14 @@
         const lainnya =
             document.getElementById('kepemilikanLainnyaBox');
 
-
         if (!bukti || !kontrak || !bebasSewa || !lainnya) {
             return;
         }
-
 
         bukti.classList.remove('show');
         kontrak.classList.remove('show');
         bebasSewa.classList.remove('show');
         lainnya.classList.remove('show');
-
 
         if (value === 'Milik Sendiri') {
             bukti.classList.add('show');
@@ -1536,9 +1644,11 @@
             );
 
         if (keluarga) {
+
             toggleKeluargaLain(
                 keluarga.value === 'Ya'
             );
+
         }
 
 
@@ -1548,9 +1658,11 @@
             );
 
         if (kepemilikan) {
+
             toggleKepemilikan(
                 kepemilikan.value
             );
+
         }
 
     });

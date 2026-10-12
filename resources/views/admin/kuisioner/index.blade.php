@@ -730,6 +730,169 @@
         }
 
     }
+
+    /* =========================
+    SEARCH DRAFT
+    ========================= */
+    .draft-search-form {
+        display: flex;
+        align-items: center;
+        width: 320px;
+        max-width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        gap: 8px;
+        border: 1px solid #E2E4EF;
+        border-radius: 10px;
+        background: #fff;
+        box-sizing: border-box;
+    }
+
+    .draft-search-form:focus-within {
+        border-color: #5f606c;
+        box-shadow: 0 0 0 3px rgba(41, 45, 143, 0.08);
+    }
+
+    .draft-search-input {
+        flex: 1;
+        min-width: 0;
+        width: 100%;
+        padding: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #5f606c;
+        font-size: 13px;
+    }
+
+    .draft-search-input::placeholder {
+        color: #9AA0B2;
+    }
+
+    .draft-search-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #5f606c;
+        cursor: pointer;
+    }
+
+    .draft-search-icon:hover {
+        color: #5f606c;
+    }
+
+    @media (max-width: 768px) {
+        .draft-search-form {
+            width: 100%;
+        }
+    }
+
+
+    /* =========================
+    PAGINATION DRAFT
+    ========================= */
+    .draft-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        padding: 18px 22px;
+        border-top: 1px solid #E8EAF2;
+        margin-top: 0;
+    }
+
+    .pagination-info {
+        color: #7A8195;
+        font-size: 12px;
+    }
+
+    .pagination-info strong {
+        color: #292D8F;
+        font-weight: 600;
+    }
+
+    .pagination-links {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    /* Hilangkan bagian informasi bawaan Laravel */
+    .pagination-links nav p {
+        display: none !important;
+    }
+
+    /* Rapikan navigasi pagination */
+    .pagination-links nav {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Sembunyikan Previous dan Next versi teks */
+    .pagination-links nav > div:first-child {
+        display: none !important;
+    }
+
+    /* Atur nomor halaman dan panah */
+    .pagination-links nav > div:last-child {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .pagination-links a,
+    .pagination-links span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+
+    .pagination-links a {
+        color: #292D8F;
+        background: #F5F6FB;
+        transition: background 0.2s ease;
+    }
+
+    .pagination-links a:hover {
+        background: #E8EAFB;
+    }
+
+    .pagination-links span[aria-current="page"] {
+        color: #fff;
+        background: #292D8F;
+    }
+
+    .pagination-links svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    @media (max-width: 768px) {
+        .draft-pagination {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 16px;
+        }
+
+        .pagination-links {
+            justify-content: flex-start;
+        }
+    }
+
 </style>
 
 
@@ -799,7 +962,10 @@
 
 
             {{-- BELUM DIDATA --}}
-            <div class="status-card belum-card">
+            <a
+                href="{{ route('kuisioner.pilih-responden', ['status' => 'belum_didata']) }}"
+                class="status-card belum-card"
+            >
                 <div>
 
                     <h2 class="status-title">
@@ -811,7 +977,7 @@
                     </div>
 
                 </div>
-            </div>
+            </a>
 
 
             {{-- DRAFT --}}
@@ -895,21 +1061,39 @@
 
         <div class="draft-section">
 
-            <div class="draft-heading">
-
-                <div>
-
-                    <h2>
-                        Draft Kuisioner
-                    </h2>
-
-                    <p>
-                        Data keluarga yang sudah mulai didata tetapi belum menyelesaikan seluruh kuisioner.
-                    </p>
-
-                </div>
-
+        <div class="draft-heading">
+            <div>
+                <h3>Draft Kuisioner</h3>
+                <p>Kelola dan lanjutkan pengisian kuisioner yang masih berupa draft.</p>
             </div>
+
+            <form action="{{ route('kuisioner.index') }}" method="GET" class="draft-search-form">
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Cari No. KK, NIK, atau nama..."
+                    class="draft-search-input"
+                >
+
+                <button type="submit" class="draft-search-icon" aria-label="Cari">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                    </svg>
+                </button>
+            </form>
+        </div>
 
 
             @if(isset($drafts) && $drafts->count() > 0)
@@ -944,10 +1128,6 @@
                                         Progress
                                     </th>
 
-                                    <th>
-                                        Terakhir Diperbarui
-                                    </th>
-
                                     <th width="150">
                                         Aksi
                                     </th>
@@ -961,24 +1141,16 @@
 
                                 @foreach($drafts as $index => $item)
 
-                                    @php
-
-                                        $currentPart = (int) (
-                                            $item->current_part ?? 1
-                                        );
+                             
+                                @php
+                                        $completedPart = (int) ($item->current_part ?? 1);
 
                                         $completedPart = max(
-                                            0,
-                                            min(
-                                                5,
-                                                $currentPart - 1
-                                            )
+                                            1,
+                                            min(5, $completedPart)
                                         );
 
-                                        $progressPercent = (
-                                            $completedPart / 5
-                                        ) * 100;
-
+                                        $progressPercent = ($completedPart / 5) * 100;
                                     @endphp
 
 
@@ -1064,32 +1236,6 @@
                                         </td>
 
 
-                                        {{-- TERAKHIR DIPERBARUI --}}
-                                        <td>
-
-                                            @if($item->updated_at)
-
-                                                <div class="date-info">
-
-                                                    <strong>
-                                                        {{ $item->updated_at->format('d/m/Y') }}
-                                                    </strong>
-
-                                                    <small>
-                                                        {{ $item->updated_at->format('H:i') }}
-                                                    </small>
-
-                                                </div>
-
-                                            @else
-
-                                                -
-
-                                            @endif
-
-                                        </td>
-
-
                                         {{-- AKSI --}}
                                         <td>
 
@@ -1097,10 +1243,6 @@
                                                 href="{{ route('kuisioner.draft.resume', $item->id) }}"
                                                 class="btn-lanjutkan"
                                             >
-
-                                                <span class="btn-icon">
-                                                    ↻
-                                                </span>
 
                                                 <span>
                                                     Lanjutkan
@@ -1156,7 +1298,7 @@
 
                             <div class="pagination-links">
 
-                                {{ $drafts->onEachSide(1)->links() }}
+                                {{ $drafts->onEachSide(1)->links('pagination::tailwind', ['elements' => []]) }}
 
                             </div>
 
@@ -1174,10 +1316,6 @@
                 ================================================== --}}
 
                 <div class="empty-draft">
-
-                    <div class="empty-draft-icon">
-                        ✓
-                    </div>
 
                     <h4>
                         Belum ada draft kuisioner

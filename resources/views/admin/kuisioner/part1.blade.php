@@ -333,6 +333,7 @@ textarea.form-control {
 }
 
 .btn-reset,
+.btn-draft,
 .btn-next {
     min-height: 42px;
     padding: 0 18px;
@@ -356,6 +357,22 @@ textarea.form-control {
 
 .btn-reset:hover {
     background: #F5F6FA;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-draft {
+    border: 1px solid var(--primary);
+    background: #FFFFFF;
+    color: var(--primary);
+}
+
+.btn-draft:hover {
+    background: var(--primary-soft);
 }
 
 .btn-next {
@@ -409,6 +426,7 @@ textarea.form-control {
     }
 
     .btn-reset,
+    .btn-draft,
     .btn-next {
         flex: 1;
     }
@@ -982,37 +1000,38 @@ textarea.form-control {
                     </div>
 
 
-                    {{-- =================================================
-                        13. JALAN
-                    ================================================== --}}
-                    <div class="question">
+                {{-- =================================================
+                    13. JALAN
+                ================================================== --}}
+                <div class="question">
 
-                        <label class="question-label">
-                            <span class="question-number">13</span>
-                            Jalan
-                        </label>
+                    <label class="question-label">
+                        <span class="question-number">13</span>
+                        Jalan
+                    </label>
 
-                        <input
-                            type="text"
-                            name="jalan"
-                            id="jalan"
-                            class="form-control"
-                            value="{{ old(
-                                'jalan',
-                                $data->jalan
-                                    ?? $selectedKeluarga->jalan
-                                    ?? ''
-                            ) }}"
-                            placeholder="Masukkan nama jalan"
-                        >
+                    <input
+                        type="text"
+                        name="jalan_rumah"
+                        id="jalan"
+                        class="form-control"
+                        value="{{ old(
+                            'jalan_rumah',
+                            $data->jalan_rumah
+                                ?? $selectedKeluarga->jalan_rumah
+                                ?? $selectedKeluarga->jalan
+                                ?? ''
+                        ) }}"
+                        placeholder="Masukkan nama jalan"
+                    >
 
-                        @error('jalan')
-                            <div class="field-error">
-                                {{ $message }}
-                            </div>
-                        @enderror
+                    @error('jalan_rumah')
+                        <div class="field-error">
+                            {{ $message }}
+                        </div>
+                    @enderror
 
-                    </div>
+                </div>
 
 
                     {{-- =================================================
@@ -1133,19 +1152,32 @@ textarea.form-control {
 
             <div class="form-footer">
 
-                <a
-                    href="{{ route('kuisioner.pilih-responden') }}"
+                <button
+                    type="button"
                     class="btn-reset"
+                    onclick="window.history.back()"
                 >
-                    Kembali
-                </a>
+                    Batal
+                </button>
 
+                <div class="form-actions">
 
                 <button
                     type="submit"
+                    name="action"
+                    value="draft"
+                    class="btn btn-draft"
+                >
+                    Draft
+                </button>
+
+                <button
+                    type="submit"
+                    name="action"
+                    value="next"
                     class="btn-next"
                 >
-                    Simpan &amp; Lanjut
+                    Lanjut ke Part 2
                 </button>
 
             </div>

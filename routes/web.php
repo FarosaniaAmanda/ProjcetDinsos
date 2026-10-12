@@ -65,15 +65,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 */
 
 Route::get('/profil', function () {
-
     return view('admin.profil.index');
-
 })->name('profil.index');
 
 Route::get('/profil/ubah-password', function () {
-
     return view('admin.profil.ubah-password');
-
 })->name('profil.password');
 
 /*
@@ -84,61 +80,26 @@ Route::get('/profil/ubah-password', function () {
 
 Route::post('/profil/ubah-password', function (Request $request) {
 
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDASI
-    |--------------------------------------------------------------------------
-    */
-
     $request->validate([
-
-        'password_lama' => [
-            'required',
-        ],
-
-        'password_baru' => [
-            'required',
-            'string',
-            'min:8',
-        ],
-
+        'password_lama' => ['required'],
+        'password_baru' => ['required', 'string', 'min:8'],
         'password_baru_confirmation' => [
             'required',
             'same:password_baru',
         ],
-
     ], [
-
         'password_lama.required' => 'Password lama wajib diisi.',
-
         'password_baru.required' => 'Password baru wajib diisi.',
-
         'password_baru.min' => 'Password baru minimal 8 karakter.',
-
-        'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.',
-
-        'password_baru_confirmation.same' => 'Konfirmasi password tidak sama.',
-
+        'password_baru_confirmation.required' =>
+            'Konfirmasi password wajib diisi.',
+        'password_baru_confirmation.same' =>
+            'Konfirmasi password tidak sama.',
     ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | CEK LOGIN
-    |--------------------------------------------------------------------------
-    */
-
-    if (! Auth::check()) {
-
-        return redirect()
-            ->route('login');
-
+    if (!Auth::check()) {
+        return redirect()->route('login');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | AMBIL USER YANG SEDANG LOGIN
-    |--------------------------------------------------------------------------
-    */
 
     $userId = Auth::id();
 
@@ -146,119 +107,45 @@ Route::post('/profil/ubah-password', function (Request $request) {
         ->where('id', $userId)
         ->first();
 
-    /*
-    |--------------------------------------------------------------------------
-    | USER TIDAK DITEMUKAN
-    |--------------------------------------------------------------------------
-    */
-
-    if (! $user) {
-
+    if (!$user) {
         Auth::logout();
 
-        return redirect()
-            ->route('login');
-
+        return redirect()->route('login');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PASSWORD DARI DATABASE
-    |--------------------------------------------------------------------------
-    */
-
     $passwordDatabase = (string) $user->password;
+    $passwordLamaInput = (string) $request->input('password_lama');
 
-    $passwordLamaInput =
-        (string) $request->input('password_lama');
-
-    /*
-    |--------------------------------------------------------------------------
-    | CEK PASSWORD LAMA
-    |--------------------------------------------------------------------------
-    */
-
-    $passwordBenar = false;
-
-    /*
-    |--------------------------------------------------------------------------
-    | JIKA PASSWORD LAMA DI DATABASE BCRYPT
-    |--------------------------------------------------------------------------
-    */
-
-    if (
-        str_starts_with(
-            $passwordDatabase,
-            '$2y$'
-        )
-    ) {
-
+    if (str_starts_with($passwordDatabase, '$2y$')) {
         $passwordBenar = Hash::check(
             $passwordLamaInput,
             $passwordDatabase
         );
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | JIKA PASSWORD LAMA DI DATABASE TEKS BIASA
-    |--------------------------------------------------------------------------
-    */
-
-    else {
-
+    } else {
         $passwordBenar = hash_equals(
             $passwordDatabase,
             $passwordLamaInput
         );
-
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PASSWORD LAMA SALAH
-    |--------------------------------------------------------------------------
-    */
-
-    if (! $passwordBenar) {
-
+    if (!$passwordBenar) {
         return back()
             ->withErrors([
                 'password_lama' => 'Password lama salah.',
             ])
             ->withInput();
-
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | PASSWORD LAMA BENAR
-    |--------------------------------------------------------------------------
-    */
 
     DB::table('users')
         ->where('id', $userId)
         ->update([
-
             'password' => $request->input('password_baru'),
-
             'updated_at' => now(),
-
         ]);
-
-    /*
-    |--------------------------------------------------------------------------
-    | BERHASIL
-    |--------------------------------------------------------------------------
-    */
 
     return redirect()
         ->route('profil.index')
-        ->with(
-            'success',
-            'Password berhasil diubah.'
-        );
+        ->with('success', 'Password berhasil diubah.');
 
 })->name('profil.password.update');
 
@@ -324,7 +211,7 @@ Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'g
 
 /*
 |--------------------------------------------------------------------------
-| KUISIONER
+| KUISIONER - MENU UTAMA
 |--------------------------------------------------------------------------
 */
 
@@ -406,9 +293,12 @@ Route::get('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'part
 Route::post('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'storePart5Anggota'])
     ->name('kuisioner.part5.anggota.store');
 
+Route::post('/kuisioner/part5/draft', [KuisionerController::class, 'simpanDraftPart5'])
+    ->name('kuisioner.part5.draft');
+
 /*
 |--------------------------------------------------------------------------
-| KUISIONER - PART 5 FOTO RUMAH
+| KUISIONER - FOTO RUMAH
 |--------------------------------------------------------------------------
 */
 
@@ -443,11 +333,6 @@ Route::get('/verifikasi', [VerifikasiController::class, 'index'])
 |--------------------------------------------------------------------------
 | DETAIL JAWABAN ANGGOTA KELUARGA
 |--------------------------------------------------------------------------
-|
-| Diletakkan sebelum /verifikasi/{id}
-| agar URL detail anggota tidak tertangkap
-| oleh route detail data pendataan.
-|
 */
 
 Route::get(
@@ -510,10 +395,7 @@ Route::get('/laporan/export', [LaporanController::class, 'export'])
 */
 
 Route::get('/master', function () {
-
-    return redirect()
-        ->route('master.pengguna.index');
-
+    return redirect()->route('master.pengguna.index');
 })->name('master.index');
 
 /*
@@ -546,15 +428,11 @@ Route::delete('/master/pengguna/{user}', [UserController::class, 'destroy'])
 */
 
 Route::get('/master/operator/create', function () {
-
     return view('admin.master.operator.create');
-
 })->name('master.operator.create');
 
 Route::get('/master/operator/{id}/edit', function ($id) {
-
     return view('admin.master.operator.edit');
-
 })->name('master.operator.edit');
 
 /*
@@ -564,13 +442,9 @@ Route::get('/master/operator/{id}/edit', function ($id) {
 */
 
 Route::get('/master/verifikator/create', function () {
-
     return view('admin.master.verifikator.create');
-
 })->name('master.verifikator.create');
 
 Route::get('/master/verifikator/{id}/edit', function ($id) {
-
     return view('admin.master.verifikator.edit');
-
 })->name('master.verifikator.edit');

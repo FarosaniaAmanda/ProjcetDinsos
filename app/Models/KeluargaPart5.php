@@ -20,6 +20,7 @@ class KeluargaPart5 extends Model
         'status_perkawinan',
         'status_sekolah',
         'ijazah_tertinggi',
+        'ijazah_lainnya',
         'pekerjaan_utama',
         'status_pekerjaan',
         'kepemilikan_rekening',

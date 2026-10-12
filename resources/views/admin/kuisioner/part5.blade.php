@@ -155,70 +155,139 @@
         font-size: 13px !important;
     }
 
+    /* Footer navigasi */
     .part5-footer {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 10px;
-        margin-top: 20px;
+        gap: 12px;
+        margin-top: 14px;
+        padding: 10px 14px;
+        background: #fff;
+        border: 1px solid #e2e4ef;
+        border-radius: 10px;
+        box-sizing: border-box;
     }
 
+    .part5-footer > a,
+    .part5-footer > div {
+        min-width: 0;
+    }
+
+    .part5-footer > div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    /* Ukuran semua tombol */
     .part5-back-btn,
+    .part5-draft-btn,
     .part5-next-btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 8px 15px;
-        border-radius: 6px;
+        min-height: 36px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: 8px;
+        font-family: inherit;
         font-size: 13px;
         font-weight: 600;
-        text-decoration: none;
-        border: none;
+        line-height: 1.2;
+        text-decoration: none !important;
+        white-space: nowrap;
+        box-sizing: border-box;
         cursor: pointer;
+        transition: background-color .2s ease, border-color .2s ease;
     }
 
+    /* Tombol kembali */
     .part5-back-btn {
-        background: #eeeeee;
-        color: #444;
+        background: #fff;
+        color: #5b6478 !important;
+        border-color: #d7dced;
     }
 
     .part5-back-btn:hover {
-        background: #e2e2e2;
-        color: #333;
+        background: #f7f8fc;
+        border-color: #c5cbe0;
+        color: #252A86 !important;
     }
 
+    /* Tombol simpan draft */
+    .part5-draft-btn {
+        background: #e8eaff;
+        color: #252A86 !important;
+        border-color: #e8eaff;
+    }
+
+    .part5-draft-btn:hover {
+        background: #d9ddff;
+        border-color: #d9ddff;
+        color: #1d216d !important;
+    }
+
+    /* Tombol lanjut */
     .part5-next-btn {
         background: #252A86;
-        color: #fff;
+        color: #fff !important;
+        border-color: #252A86;
     }
 
-    .part5-next-btn:hover {
+    .part5-next-btn:hover:not(:disabled) {
         background: #1d216d;
-        color: #fff;
+        border-color: #1d216d;
+        color: #fff !important;
+    }
+
+    .part5-next-btn:disabled {
+        opacity: .5;
+        cursor: not-allowed;
     }
 
     .part5-warning {
-        margin-top: 10px;
-        font-size: 11px;
-        color: #a35b00;
-        text-align: right;
+        margin-top: 12px;
+        padding: 12px 16px;
+        border: 1px solid #f1d9a8;
+        border-radius: 8px;
+        background: #fff8e9;
+        color: #946200;
+        font-size: 13px;
+        line-height: 1.5;
     }
 
     @media (max-width: 768px) {
-        .part5-progress {
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 4px;
-        }
-
         .part5-footer {
             flex-direction: column;
             align-items: stretch;
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .part5-footer > a {
+            width: 100%;
+        }
+
+        .part5-footer > div {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .part5-footer form {
+            width: 100%;
         }
 
         .part5-back-btn,
+        .part5-draft-btn,
         .part5-next-btn {
             width: 100%;
+            min-height: 36px;
         }
     }
 </style>
@@ -266,9 +335,69 @@
 
                 @forelse ($anggota as $index => $item)
 
-                    @php
-                        $sudahDiisi = $dataPart5->has($item->kode);
-                    @endphp
+                    
+                
+                @php
+                    $dataAnggota = $dataPart5->get($item->kode);
+                    $sudahDiisi = false;
+                    $alasanBelumLengkap = [];
+
+                    if (!$dataAnggota) {
+                        $alasanBelumLengkap[] = 'Data anggota belum tersimpan.';
+                    } else {
+                        $kolomWajib = [
+                            'keberadaan',
+                            'jenis_kelamin',
+                            'status_perkawinan',
+                            'status_sekolah',
+                            'ijazah_tertinggi',
+                            'pekerjaan_utama',
+                            'kepemilikan_rekening',
+                            'is_disabilitas_fisik',
+                            'is_disabilitas_mental',
+                            'is_disabilitas_intelektual',
+                            'is_disabilitas_netra',
+                            'is_disabilitas_rungu',
+                            'is_disabilitas_wicara',
+                        ];
+
+                        foreach ($kolomWajib as $kolom) {
+                            if (
+                                !isset($dataAnggota->{$kolom}) ||
+                                trim((string) $dataAnggota->{$kolom}) === ''
+                            ) {
+                                $alasanBelumLengkap[] = $kolom;
+                            }
+                        }
+
+                        if (
+                            $dataAnggota->ijazah_tertinggi === 'Lainnya' &&
+                            trim((string) $dataAnggota->ijazah_lainnya) === ''
+                        ) {
+                            $alasanBelumLengkap[] = 'ijazah_lainnya';
+                        }
+
+                        if (
+                            $dataAnggota->pekerjaan_utama !== 'Tidak Bekerja' &&
+                            trim((string) $dataAnggota->status_pekerjaan) === ''
+                        ) {
+                            $alasanBelumLengkap[] = 'status_pekerjaan';
+                        }
+
+                        $keluhan = $dataAnggota->keluhan_kesehatan;
+
+                        if (is_string($keluhan)) {
+                            $keluhan = json_decode($keluhan, true);
+                        }
+
+                        if (!is_array($keluhan) || count($keluhan) < 1) {
+                            $alasanBelumLengkap[] = 'keluhan_kesehatan';
+                        }
+
+                        $sudahDiisi = count($alasanBelumLengkap) === 0;
+                    }
+                @endphp
+
 
                     <tr>
                         <td class="part5-number">
@@ -296,6 +425,11 @@
                                 <span class="part5-status part5-status-belum">
                                     Belum Diisi
                                 </span>
+
+                                <div style="margin-top: 6px; font-size: 11px; color: #a35b00;">
+                                    Belum lengkap:
+                                    {{ implode(', ', $alasanBelumLengkap) }}
+                                </div>
                             @endif
                         </td>
 
@@ -323,6 +457,7 @@
         </table>
     </div>
 
+
     {{-- FOOTER --}}
     <div class="part5-footer">
 
@@ -333,8 +468,25 @@
             ← Kembali ke Part 4
         </a>
 
-        @if ($semuaAnggotaSelesai)
+        <div class="part5-footer-actions">
 
+            {{-- SIMPAN DRAFT --}}
+            <form
+                action="{{ route('kuisioner.part5.draft') }}"
+                method="POST"
+                style="margin: 0;"
+            >
+                @csrf
+
+                <button
+                    type="submit"
+                    class="part5-draft-btn"
+                >
+                    Simpan Draft
+                </button>
+            </form>
+
+            {{-- LANJUT KE FOTO RUMAH --}}
             <a
                 href="{{ route('kuisioner.part5.foto') }}"
                 class="part5-next-btn"
@@ -342,27 +494,16 @@
                 Lanjut →
             </a>
 
-        @else
-
-            <button
-                type="button"
-                class="part5-next-btn"
-                disabled
-                style="opacity: .5; cursor: not-allowed;"
-            >
-                Lanjut →
-            </button>
-
-        @endif
-
+        </div>
     </div>
 
-    @if (!$semuaAnggotaSelesai && $jumlahAnggota > 0)
+    {{-- INFORMASI: DATA ANGGOTA MASIH BELUM LENGKAP --}}
+    @if ($jumlahAnggota > 0 && $jumlahSelesai < $jumlahAnggota)
         <div class="part5-warning">
-            Semua anggota keluarga harus selesai diisi sebelum melanjutkan.
+            Masih ada anggota keluarga yang belum diisi.
+            Kamu tetap bisa melanjutkan ke tahap foto rumah.
+            Pastikan seluruh data anggota dilengkapi sebelum menyelesaikan kuesioner.
         </div>
     @endif
-
-</div>
 
 @endsection

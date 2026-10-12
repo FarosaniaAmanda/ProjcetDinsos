@@ -1091,68 +1091,88 @@
         </div>
 
 
+        
         {{-- ========================================================= --}}
         {{-- 68. KELUHAN KESEHATAN --}}
         {{-- ========================================================= --}}
 
+        @php
+            $kesehatanOptions = [
+                'Tidak ada',
+                'Hipertensi (tekanan darah tinggi)',
+                'Rematik',
+                'Asma',
+                'Masalah jantung',
+                'Diabetes (kencing manis)',
+                'Tuberculosis (TBC)',
+                'Stroke',
+                'Kanker atau tumor ganas',
+                'Gagal ginjal',
+                'Haemophilia',
+                'HIV/Aids',
+                'Kolestrol',
+                'Sirosis Hati',
+                'Thalasemia',
+                'Leukimia',
+                'Alzheimer',
+                'Lainnya',
+            ];
+
+            $keluhanTersimpan = old(
+                'keluhan_kesehatan',
+                $dataPart5->keluhan_kesehatan ?? []
+            );
+
+            // Mendukung data lama yang tersimpan sebagai satu jawaban
+            // dan data baru yang tersimpan dalam format JSON.
+            if (is_string($keluhanTersimpan)) {
+                $hasilDecode = json_decode($keluhanTersimpan, true);
+
+                $keluhanTerpilih = is_array($hasilDecode)
+                    ? $hasilDecode
+                    : ($keluhanTersimpan !== '' ? [$keluhanTersimpan] : []);
+            } else {
+                $keluhanTerpilih = is_array($keluhanTersimpan)
+                    ? $keluhanTersimpan
+                    : [];
+            }
+        @endphp
+
         <div class="part5-question">
 
             <div class="part5-question-title">
-
                 <span class="part5-question-number">68.</span>
-
-                <span>
-                    Keluhan kesehatan kronis
-                </span>
-
+                <span>Keluhan kesehatan kronis</span>
             </div>
 
-            @php
-                $kesehatanOptions = [
-                    'Tidak ada',
-                    'Hipertensi (tekanan darah tinggi)',
-                    'Rematik',
-                    'Asma',
-                    'Masalah jantung',
-                    'Diabetes (kencing manis)',
-                    'Tuberculosis (TBC)',
-                    'Stroke',
-                    'Kanker atau tumor ganas',
-                    'Gagal ginjal',
-                    'Haemophilia',
-                    'HIV/Aids',
-                    'Kolestrol',
-                    'Sirosis Hati',
-                    'Thalasemia',
-                    'Leukimia',
-                    'Alzheimer',
-                    'Lainnya',
-                ];
-            @endphp
+            <div class="part5-note">
+                Kamu dapat memilih lebih dari satu jawaban.
+            </div>
 
             @foreach ($kesehatanOptions as $option)
-
                 <label class="part5-option">
-
                     <input
-                        type="radio"
-                        name="keluhan_kesehatan"
+                        type="checkbox"
+                        name="keluhan_kesehatan[]"
                         value="{{ $option }}"
-                        {{ old('keluhan_kesehatan', $dataPart5->keluhan_kesehatan ?? '') === $option ? 'checked' : '' }}
-                        required
+                        style="width:14px;height:14px;margin-top:2px;flex-shrink:0;accent-color:#252A86;"
+                        {{ in_array($option, $keluhanTerpilih, true) ? 'checked' : '' }}
                     >
 
                     <span>{{ $option }}</span>
-
                 </label>
-
             @endforeach
 
             @error('keluhan_kesehatan')
                 <div class="part5-error">{{ $message }}</div>
             @enderror
 
+            @error('keluhan_kesehatan.*')
+                <div class="part5-error">{{ $message }}</div>
+            @enderror
+
         </div>
+
 
 
         {{-- ========================================================= --}}

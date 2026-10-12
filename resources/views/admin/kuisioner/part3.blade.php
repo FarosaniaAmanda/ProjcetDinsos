@@ -298,7 +298,14 @@
     background: #FBFBFD;
 }
 
+.part3-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .part3-back,
+.part3-draft,
 .part3-next {
     display: inline-flex;
     align-items: center;
@@ -330,6 +337,22 @@
     background: #F5F6FB;
     border-color: #C8CBF7;
     color: #292D8F;
+}
+
+.part3-draft {
+    padding: 0 19px;
+
+    border: 1px solid #D9DCE8;
+
+    background: #FFFFFF;
+    color: #292D8F;
+
+    cursor: pointer;
+}
+
+.part3-draft:hover {
+    background: #F5F6FB;
+    border-color: #C8CBF7;
 }
 
 .part3-next {
@@ -406,7 +429,13 @@
         flex-direction: column;
     }
 
+    .part3-footer-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
     .part3-back,
+    .part3-draft,
     .part3-next {
         width: 100%;
     }
@@ -516,7 +545,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="pengeluaran_listrik_bulanan"
                             class="part3-input part3-money-input"
                             min="0"
@@ -558,7 +588,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="pengeluaran_pulsa_bulanan"
                             class="part3-input part3-money-input"
                             min="0"
@@ -600,7 +631,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="pengeluaran_internet_bulanan"
                             class="part3-input part3-money-input"
                             min="0"
@@ -642,7 +674,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="pengeluaran_makan_mingguan"
                             class="part3-input part3-money-input"
                             min="0"
@@ -684,7 +717,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="pengeluaran_nonmakan_bulanan"
                             class="part3-input part3-money-input"
                             min="0"
@@ -726,7 +760,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="pengeluaran_nonmakan_tahunan"
                             class="part3-input part3-money-input"
                             min="0"
@@ -768,7 +803,7 @@
                             type="radio"
                             name="pendapatan_pekerjaan"
                             value="Ada"
-                            {{ old('pendapatan_pekerjaan', ($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'checked' : '' }}
+                            {{ old('pendapatan_pekerjaan', $dataPart3->pendapatan_pekerjaan ?? (($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '')) === 'Ada' ? 'checked' : '' }}
                             onchange="togglePendapatanPekerjaan(true)"
                         >
 
@@ -783,7 +818,7 @@
                             type="radio"
                             name="pendapatan_pekerjaan"
                             value="Tidak"
-                            {{ old('pendapatan_pekerjaan', ($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '') === 'Tidak' ? 'checked' : '' }}
+                            {{ old('pendapatan_pekerjaan', $dataPart3->pendapatan_pekerjaan ?? (($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '')) === 'Tidak' ? 'checked' : '' }}
                             onchange="togglePendapatanPekerjaan(false)"
                         >
 
@@ -796,8 +831,8 @@
 
                 <div
                     id="pendapatanPekerjaanBox"
-                    class="part3-conditional
-                    {{ old('pendapatan_pekerjaan', ($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'show' : '' }}"
+                    class="part3-conditional 
+                    {{ old('pendapatan_pekerjaan', $dataPart3->pendapatan_pekerjaan ?? (($dataPart3->total_pendapatan_kerja ?? null) !== null ? 'Ada' : '')) === 'Ada' ? 'show' : '' }}"
                 >
 
                     <div class="part3-conditional-title">
@@ -811,7 +846,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="total_pendapatan_kerja"
                             class="part3-input part3-money-input"
                             min="0"
@@ -854,7 +890,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="total_pendapatan_usaha"
                             class="part3-input part3-money-input"
                             min="0"
@@ -896,7 +933,7 @@
                             type="radio"
                             name="pendapatan_lainnya"
                             value="Ada"
-                            {{ old('pendapatan_lainnya', ($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'checked' : '' }}
+                            {{ old('pendapatan_lainnya', $dataPart3->pendapatan_lainnya ?? (($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '')) === 'Ada' ? 'checked' : '' }}
                             onchange="togglePendapatanLainnya(true)"
                         >
 
@@ -911,7 +948,7 @@
                             type="radio"
                             name="pendapatan_lainnya"
                             value="Tidak"
-                            {{ old('pendapatan_lainnya', ($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '') === 'Tidak' ? 'checked' : '' }}
+                            {{ old('pendapatan_lainnya', $dataPart3->pendapatan_lainnya ?? (($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '')) === 'Tidak' ? 'checked' : '' }}
                             onchange="togglePendapatanLainnya(false)"
                         >
 
@@ -924,8 +961,8 @@
 
                 <div
                     id="pendapatanLainnyaBox"
-                    class="part3-conditional
-                    {{ old('pendapatan_lainnya', ($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '') === 'Ada' ? 'show' : '' }}"
+                    class="part3-conditional 
+                    {{ old('pendapatan_lainnya', $dataPart3->pendapatan_lainnya ?? (($dataPart3->total_pendapatan_lainnya ?? null) !== null ? 'Ada' : '')) === 'Ada' ? 'show' : '' }}"
                 >
 
                     <div class="part3-conditional-title">
@@ -939,7 +976,8 @@
                         </span>
 
                         <input
-                            type="number"
+                            type="text"
+                            inputmode="numeric"
                             name="total_pendapatan_lainnya"
                             class="part3-input part3-money-input"
                             min="0"
@@ -963,6 +1001,7 @@
 
         <div class="part3-footer">
 
+            {{-- KEMBALI PART 2 --}}
             <a
                 href="{{ route('kuisioner.part2') }}"
                 class="part3-back"
@@ -971,12 +1010,30 @@
             </a>
 
 
-            <button
-                type="submit"
-                class="part3-next"
-            >
-                Lanjut ke Part 4 →
-            </button>
+            <div class="part3-footer-actions">
+
+                {{-- SIMPAN DRAFT --}}
+                <button
+                    type="submit"
+                    name="action"
+                    value="draft"
+                    class="part3-draft"
+                >
+                    Simpan Draft
+                </button>
+
+
+                {{-- LANJUT PART 4 --}}
+                <button
+                    type="submit"
+                    name="action"
+                    value="next"
+                    class="part3-next"
+                >
+                    Lanjut ke Part 4 →
+                </button>
+
+            </div>
 
         </div>
 
@@ -1034,6 +1091,51 @@ function togglePendapatanLainnya(show)
    ========================================================= */
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    // Format nominal dengan pemisah ribuan titik.
+    const form = document.querySelector('.part3-card form');
+
+    if (form) {
+        const moneyInputs = form.querySelectorAll('.part3-money-input');
+
+        function formatNominal(value) {
+            const digits = String(value).replace(/\D/g, '');
+            return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        moneyInputs.forEach(function (input) {
+            input.type = 'text';
+            input.inputMode = 'numeric';
+            input.value = formatNominal(input.value);
+
+            input.addEventListener('input', function () {
+                const oldValue = input.value;
+                const oldPosition = input.selectionStart ?? oldValue.length;
+
+                const digitsBeforeCursor = oldValue
+                    .slice(0, oldPosition)
+                    .replace(/\D/g, '').length;
+
+                input.value = formatNominal(oldValue);
+
+                let newPosition = 0;
+                let digitsCount = 0;
+
+                while (
+                    newPosition < input.value.length &&
+                    digitsCount < digitsBeforeCursor
+                ) {
+                    if (/\d/.test(input.value[newPosition])) {
+                        digitsCount++;
+                    }
+
+                    newPosition++;
+                }
+
+                input.setSelectionRange(newPosition, newPosition);
+            });
+        });
+    }
 
     const pekerjaan =
         document.querySelector(
