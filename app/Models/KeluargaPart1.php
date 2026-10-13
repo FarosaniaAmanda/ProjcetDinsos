@@ -28,6 +28,7 @@ class KeluargaPart1 extends Model
         'nomor_rumah',
 
         'is_alamat_sesuai',
+        'alasan_tidak_sesuai',
         'geotangging',
 
         'status',

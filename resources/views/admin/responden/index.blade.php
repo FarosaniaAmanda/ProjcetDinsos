@@ -1343,7 +1343,7 @@ textarea.responden-form-control {
                         @php
                             $jumlahAnggota = (int) ($keluarga->jml_keluarga ?? $keluarga->anggota->count());
                             $alamatSumber = $keluarga->alamat_tampil ?? $keluarga->alamat_lengkap ?? '';
-                            $koordinatKeluarga = $keluarga->geotangging ?? null;
+                            $koordinatKeluarga = $keluarga->geotagging ?? null;
                             if (!$koordinatKeluarga && preg_match(
                                 '/Koordinat:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i',
                                 $alamatSumber,
@@ -1363,7 +1363,7 @@ textarea.responden-form-control {
                         <tr
                             class="responden-row responden-family-main"
                             id="keluarga-row-{{ $keluarga->id }}"
-                            data-geotagging="{{ $keluarga->geotangging ?? $keluarga->alamat_lengkap }}"
+                            data-geotagging="{{ $keluarga->geotagging ?? $keluarga->alamat_lengkap }}"
                         >
 
                             <td class="responden-number">
@@ -1430,11 +1430,6 @@ textarea.responden-form-control {
                                         </div>
                                     @endif
                                 </div>
-                                @if($koordinatKeluarga)
-                                    <div style="font-size:11px;color:#777;margin-top:6px;">
-                                        Koordinat: {{ $koordinatKeluarga }}
-                                    </div>
-                                @endif
                             </td>
 
                             <td>
@@ -1509,11 +1504,6 @@ textarea.responden-form-control {
                                             </div>
                                         @endif
                                     </div>
-                                    @if($koordinatKeluarga)
-                                        <div style="font-size:11px;color:#777;margin-top:6px;">
-                                            Koordinat: {{ $koordinatKeluarga }}
-                                        </div>
-                                    @endif
                                 </td>
                                 <td>
                                     <span style="font-size:10px;color:#aaa;">—</span>

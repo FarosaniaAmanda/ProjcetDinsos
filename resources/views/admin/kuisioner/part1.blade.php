@@ -256,17 +256,17 @@ textarea.form-control {
     margin-top: 12px;
 }
 
-
 /* =========================================================
    MAP
 ========================================================= */
 
 .map-wrapper {
-    margin-top: 14px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 0 10px 10px;
+    box-sizing: border-box;
     overflow: hidden;
-    background: #FFFFFF;
 }
 
 .map-header {
@@ -288,21 +288,55 @@ textarea.form-control {
     color: var(--muted);
 }
 
+/* PETA */
 #map {
+    display: block;
     width: 100%;
-    height: 340px;
+    max-width: 100%;
+    height: 350px;
+    margin: 0;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    box-sizing: border-box;
+    z-index: 1;
 }
 
-
 /* =========================================================
-   COORDINATE
+   KOORDINAT DI ATAS PETA
 ========================================================= */
 
-.coordinate-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    margin-top: 14px;
+.koordinat-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 62px;
+    padding: 12px 20px;
+    margin: 10px 0 0;
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 0 0;
+    background: #FFFFFF;
+    color: var(--text);
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.koordinat-info strong {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+#koordinatText {
+    color: #777D91;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+/* Input koordinat tetap tersembunyi */
+input[type="hidden"][name="latitude"],
+input[type="hidden"][name="longitude"] {
+    display: none;
 }
 
 
@@ -318,38 +352,63 @@ textarea.form-control {
 }
 
 
+
+
 /* =========================================================
-   FOOTER
+   FOOTER DAN TOMBOL - FINAL
 ========================================================= */
 
 .form-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 18px 26px;
-    border-top: 1px solid var(--border);
+    gap: 16px;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 24px;
+    padding: 20px 32px;
+
+    box-sizing: border-box;
     background: #FAFAFD;
+    border-top: 1px solid #E5E7F0;
+    border-radius: 0 0 16px 16px;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+
+    min-width: 0;
+    margin-left: auto;
 }
 
 .btn-reset,
 .btn-draft,
+
 .btn-next {
-    min-height: 42px;
-    padding: 0 18px;
-    border-radius: 9px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 9px;
+    box-sizing: border-box;
     font-family: 'Inter', sans-serif;
     font-size: 13px;
     font-weight: 700;
+    line-height: 1.4;
+    text-decoration: none;
+    white-space: nowrap;
     cursor: pointer;
-    transition: .2s;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .btn-reset {
+    flex-shrink: 0;
     border: 1px solid var(--border);
     background: #FFFFFF;
     color: #555B70;
@@ -357,12 +416,6 @@ textarea.form-control {
 
 .btn-reset:hover {
     background: #F5F6FA;
-}
-
-.form-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
 }
 
 .btn-draft {
@@ -376,13 +429,61 @@ textarea.form-control {
 }
 
 .btn-next {
-    border: none;
+    border: 1px solid var(--primary);
     background: var(--primary);
     color: #FFFFFF;
 }
 
 .btn-next:hover {
     background: var(--primary-dark);
+}
+
+/* TABLET */
+@media (max-width: 768px) {
+    .form-footer {
+        gap: 12px;
+        padding: 16px 20px;
+    }
+
+    .form-actions {
+        gap: 8px;
+    }
+
+    .btn-reset,
+    .btn-draft,
+    .btn-next {
+        min-height: 46px;
+        padding: 0 14px;
+        font-size: 13px;
+    }
+}
+
+/* HP */
+@media (max-width: 576px) {
+    .form-footer {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .form-footer > .btn-reset {
+        align-self: flex-start;
+    }
+
+    .form-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .form-actions .btn-draft,
+    .form-actions .btn-next {
+        flex: 1;
+        min-width: 0;
+        padding: 0 10px;
+        white-space: normal;
+        text-align: center;
+    }
 }
 
 
@@ -432,9 +533,10 @@ textarea.form-control {
     }
 
     #map {
-        height: 280px;
+    height: 280px;
     }
 }
+
 </style>
 
 
@@ -1066,121 +1168,176 @@ textarea.form-control {
 
                     </div>
 
-
+                    
                     {{-- =================================================
-                         16. GEOTAGGING
+                        15. ALAMAT SESUAI KK
                     ================================================== --}}
-
                     <div class="question full-width">
 
                         <label class="question-label">
-
-                            Lokasi Rumah / Geotagging
-
+                            <span class="question-number">15</span>
+                            Apakah alamat tempat tinggal saat ini sesuai dengan KK?
+                            <span class="required">*</span>
                         </label>
 
+                        <div class="radio-group">
 
-                        <div class="map-wrapper">
-
-                            <div class="map-header">
-
-                                <strong>
-                                    Tandai lokasi tempat tinggal
-                                </strong>
-
-                                <span>
-                                    Klik pada peta atau gunakan lokasi perangkat.
-                                </span>
-
+                            <div class="radio-option">
+                                <input
+                                    type="radio"
+                                    name="is_alamat_sesuai"
+                                    id="alamat_sesuai_ya"
+                                    value="1"
+                                    {{ (string) old('is_alamat_sesuai', $data->is_alamat_sesuai ?? '') === '1' ? 'checked' : '' }}
+                                    required
+                                >
+                                <label for="alamat_sesuai_ya">Ya</label>
                             </div>
 
-
-                            <div id="map"></div>
+                            <div class="radio-option">
+                                <input
+                                    type="radio"
+                                    name="is_alamat_sesuai"
+                                    id="alamat_sesuai_tidak"
+                                    value="0"
+                                    {{ (string) old('is_alamat_sesuai', $data->is_alamat_sesuai ?? '') === '0' ? 'checked' : '' }}
+                                    required
+                                >
+                                <label for="alamat_sesuai_tidak">Tidak</label>
+                            </div>
 
                         </div>
 
+                        @error('is_alamat_sesuai')
+                            <div class="field-error">{{ $message }}</div>
+                        @enderror
 
-                        <div class="coordinate-grid">
+                        <div id="alasan-tidak-sesuai-wrapper">
 
-                            <div>
+                            <label class="question-label" for="alasan_tidak_sesuai">
+                                Jika tidak, jelaskan alasannya
+                                <span class="required">*</span>
+                            </label>
 
-                                <label class="question-label">
-                                    Latitude
-                                </label>
+                            <textarea
+                                name="alasan_tidak_sesuai"
+                                id="alasan_tidak_sesuai"
+                                class="form-control"
+                                placeholder="Masukkan alasan alamat tidak sesuai dengan KK"
+                            >{{ old('alasan_tidak_sesuai', $data->alasan_tidak_sesuai ?? '') }}</textarea>
 
-                                <input
-                                    type="text"
-                                    name="latitude"
-                                    id="latitude"
-                                    class="form-control"
-                                    value="{{ old('latitude', $data->latitude ?? '') }}"
-                                    readonly
-                                >
-
-                            </div>
-
-
-                            <div>
-
-                                <label class="question-label">
-                                    Longitude
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="longitude"
-                                    id="longitude"
-                                    class="form-control"
-                                    value="{{ old('longitude', $data->longitude ?? '') }}"
-                                    readonly
-                                >
-
-                            </div>
+                            @error('alasan_tidak_sesuai')
+                                <div class="field-error">{{ $message }}</div>
+                            @enderror
 
                         </div>
 
                     </div>
 
-                </div>
+                    
+                    {{-- =================================================
+                        16. GEOTAGGING
+                    ================================================== --}}
 
-            </div>
+                    @php
+                        $geotaggingAwal = $selectedKeluarga->geotagging ?? '';
+
+                        $koordinat = array_map(
+                            'trim',
+                            explode(',', $geotaggingAwal)
+                        );
+
+                        $latitudeDefault = count($koordinat) >= 2
+                            && is_numeric($koordinat[0])
+                            ? $koordinat[0]
+                            : '-7.6466338';
+
+                        $longitudeDefault = count($koordinat) >= 2
+                            && is_numeric($koordinat[1])
+                            ? $koordinat[1]
+                            : '112.9079133';
+
+                        $latitudeAwal = old('latitude', $latitudeDefault);
+                        $longitudeAwal = old('longitude', $longitudeDefault);
+                    @endphp
+
+                    <div class="question full-width">
+
+                        <label class="question-label">
+                            Lokasi Rumah / Geotagging
+                        </label>
+
+                        <div class="map-wrapper">
+
+                            <div class="koordinat-info">
+                                <strong>Koordinat Lokasi:</strong>
+                                <span id="koordinatText">
+                                    {{ $latitudeAwal }},{{ $longitudeAwal }}
+                                </span>
+                            </div>
+
+                            <div id="map"></div>
+
+                        </div>
+
+                        <input
+                            type="hidden"
+                            name="latitude"
+                            id="latitude"
+                            value="{{ $latitudeAwal }}"
+                        >
+
+                        <input
+                            type="hidden"
+                            name="longitude"
+                            id="longitude"
+                            value="{{ $longitudeAwal }}"
+                        >
+
+                    </div>
 
 
             {{-- =====================================================
                  FOOTER
             ====================================================== --}}
 
-            <div class="form-footer">
+            
+                    {{-- PENUTUP FORM GRID DAN FORM CONTENT --}}
+                    </div>
+                </div>
 
-                <button
-                    type="button"
-                    class="btn-reset"
-                    onclick="window.history.back()"
-                >
-                    Batal
-                </button>
+                {{-- =====================================================
+                     FOOTER
+                ====================================================== --}}
+                <div class="form-footer">
+                    <button
+                        type="button"
+                        class="btn-reset"
+                        onclick="window.history.back()"
+                    >
+                        Batal
+                    </button>
 
-                <div class="form-actions">
+                    <div class="form-actions">
+                        <button
+                            type="submit"
+                            class="btn-draft"
+                            name="action"
+                            value="draft"
+                        >
+                            Draft
+                        </button>
 
-                <button
-                    type="submit"
-                    name="action"
-                    value="draft"
-                    class="btn btn-draft"
-                >
-                    Draft
-                </button>
-
-                <button
-                    type="submit"
-                    name="action"
-                    value="next"
-                    class="btn-next"
-                >
-                    Lanjut ke Part 2
-                </button>
-
-            </div>
+                        <button
+                            type="submit"
+                            class="btn-next"
+                            name="action"
+                            value="next"
+                        >
+                            Lanjut ke Part 2 →
+                        </button>
+                    </div>
+                </div>
 
         </form>
 
@@ -1193,421 +1350,125 @@ textarea.form-control {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // =========================================
+    // 1. ALASAN ALAMAT TIDAK SESUAI
+    // =========================================
+    const radiosAlamat = document.querySelectorAll(
+        'input[name="is_alamat_sesuai"]'
+    );
 
-    /* =========================================================
-       ALASAN ALAMAT TIDAK SESUAI
-    ========================================================= */
+    const alasanWrapper = document.getElementById(
+        'alasan-tidak-sesuai-wrapper'
+    );
 
-    function toggleAlasanTidakSesuai() {
+    const alasanInput = document.getElementById(
+        'alasan_tidak_sesuai'
+    );
 
+    function toggleAlasan() {
         const selected = document.querySelector(
             'input[name="is_alamat_sesuai"]:checked'
         );
 
-        const wrapper = document.getElementById(
-            'alasan-tidak-sesuai-wrapper'
-        );
+        const tidakSesuai = selected && selected.value === '0';
 
-        if (!wrapper) {
-            return;
+        if (alasanWrapper) {
+            alasanWrapper.style.display = tidakSesuai ? 'block' : 'none';
         }
 
-        if (!selected || selected.value !== '0') {
-
-            wrapper.style.display = 'none';
-
-            return;
+        if (alasanInput) {
+            alasanInput.required = !!tidakSesuai;
         }
-
-        wrapper.style.display = 'block';
     }
 
+    radiosAlamat.forEach(function (radio) {
+        radio.addEventListener('change', toggleAlasan);
+    });
 
-    document
-        .querySelectorAll(
-            'input[name="is_alamat_sesuai"]'
-        )
-        .forEach(function (radio) {
+    toggleAlasan();
 
-            radio.addEventListener(
-                'change',
-                toggleAlasanTidakSesuai
-            );
+    // =========================================
+    // 2. PETA GEOTAGGING
+    // =========================================
+    const mapElement = document.getElementById('map');
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const koordinatText = document.getElementById('koordinatText');
 
-        });
-
-
-    toggleAlasanTidakSesuai();
-
-
-    /* =========================================================
-       MAP
-    ========================================================= */
-
-    const mapElement =
-        document.getElementById('map');
-
-    if (!mapElement) {
+    if (!mapElement || !latInput || !lngInput || typeof L === 'undefined') {
         return;
     }
-
-
-    const latitudeInput =
-        document.getElementById('latitude');
-
-    const longitudeInput =
-        document.getElementById('longitude');
-
 
     const defaultLat = -7.6453;
     const defaultLng = 112.9075;
 
+    let lat = parseFloat(latInput.value);
+    let lng = parseFloat(lngInput.value);
 
-    const savedLat =
-        parseFloat(
-            latitudeInput?.value
-        );
+    const lokasiValid =
+        Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        lat >= -90 && lat <= 90 &&
+        lng >= -180 && lng <= 180;
 
-    const savedLng =
-        parseFloat(
-            longitudeInput?.value
-        );
-
-
-    const hasSavedLocation =
-        !isNaN(savedLat) &&
-        !isNaN(savedLng);
-
-
-    const initialLat =
-        hasSavedLocation
-            ? savedLat
-            : defaultLat;
-
-    const initialLng =
-        hasSavedLocation
-            ? savedLng
-            : defaultLng;
-
-
-    const map =
-        L.map('map').setView(
-            [
-                initialLat,
-                initialLng
-            ],
-            hasSavedLocation
-                ? 17
-                : 13
-        );
-
-
-    L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }
-    ).addTo(map);
-
-
-    let marker = null;
-
-
-    /* =========================================================
-       SET LOCATION
-    ========================================================= */
-
-    function setLocation(lat, lng) {
-
-        if (marker) {
-
-            map.removeLayer(marker);
-
-        }
-
-
-        marker =
-            L.marker(
-                [lat, lng],
-                {
-                    draggable: true
-                }
-            ).addTo(map);
-
-
-        if (latitudeInput) {
-
-            latitudeInput.value = lat;
-
-        }
-
-
-        if (longitudeInput) {
-
-            longitudeInput.value = lng;
-
-        }
-
-
-        marker.on(
-            'dragend',
-            function (event) {
-
-                const position =
-                    event.target.getLatLng();
-
-                setLocation(
-                    position.lat,
-                    position.lng
-                );
-
-            }
-        );
-
+    if (!lokasiValid) {
+        lat = defaultLat;
+        lng = defaultLng;
     }
 
+    const map = L.map('map').setView([lat, lng], 16);
 
-    /* =========================================================
-       LOKASI YANG SUDAH TERSIMPAN
-    ========================================================= */
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-    if (hasSavedLocation) {
+    const marker = L.marker([lat, lng], {
+        draggable: true
+    }).addTo(map);
 
-        setLocation(
-            savedLat,
-            savedLng
-        );
+    function updateKoordinat(latitude, longitude) {
+        latInput.value = Number(latitude).toFixed(7);
+        lngInput.value = Number(longitude).toFixed(7);
 
+        if (koordinatText) {
+            koordinatText.textContent =
+                latInput.value + ', ' + lngInput.value;
+        }
     }
 
+    updateKoordinat(lat, lng);
 
-    /* =========================================================
-       KLIK MAP
-    ========================================================= */
+    marker.on('dragend', function () {
+        const posisi = marker.getLatLng();
+        updateKoordinat(posisi.lat, posisi.lng);
+    });
 
-    map.on(
-        'click',
-        function (event) {
+    map.on('click', function (event) {
+        marker.setLatLng(event.latlng);
+        updateKoordinat(event.latlng.lat, event.latlng.lng);
+    });
 
-            setLocation(
-                event.latlng.lat,
-                event.latlng.lng
-            );
+    setTimeout(function () {
+        map.invalidateSize();
+    }, 200);
 
-        }
-    );
-
-
-    /* =========================================================
-       GEOLOCATION PERANGKAT
-    ========================================================= */
-
-    if (
-        !hasSavedLocation &&
-        navigator.geolocation
-    ) {
-
+    // Gunakan lokasi perangkat hanya jika koordinat awal belum valid
+    if (!lokasiValid && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-
             function (position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
 
-                const lat =
-                    position.coords.latitude;
+                map.setView([latitude, longitude], 17);
+                marker.setLatLng([latitude, longitude]);
 
-                const lng =
-                    position.coords.longitude;
-
-
-                map.setView(
-                    [lat, lng],
-                    17
-                );
-
-
-                setLocation(
-                    lat,
-                    lng
-                );
-
+                updateKoordinat(latitude, longitude);
             },
-
             function () {
-
-                // Lokasi perangkat tidak tersedia.
-
+                // Jika izin lokasi ditolak, gunakan koordinat default.
             }
-
         );
-
     }
-
-
-    /* =========================================================
-       GEOCODING
-    ========================================================= */
-
-    const jalanInput =
-        document.getElementById('jalan');
-
-    const nomorRumahInput =
-        document.getElementById('nomor_rumah');
-
-
-    let geocodeTimer = null;
-
-
-    function geocodeAlamat() {
-
-        const jalan =
-            jalanInput?.value?.trim() || '';
-
-        const nomorRumah =
-            nomorRumahInput?.value?.trim() || '';
-
-        const kecamatan =
-            @json($nilaiKecamatan);
-
-        const kelurahan =
-            @json($nilaiKelurahan);
-
-
-        if (
-            !jalan &&
-            !kelurahan &&
-            !kecamatan
-        ) {
-            return;
-        }
-
-
-        const address = [
-
-            jalan,
-
-            nomorRumah,
-
-            kelurahan,
-
-            kecamatan,
-
-            'Kota Pasuruan',
-
-            'Jawa Timur',
-
-            'Indonesia'
-
-        ]
-        .filter(Boolean)
-        .join(', ');
-
-
-        fetch(
-            'https://nominatim.openstreetmap.org/search?' +
-            new URLSearchParams({
-                q: address,
-                format: 'json',
-                limit: 1
-            }),
-            {
-                headers: {
-                    'Accept': 'application/json'
-                }
-            }
-        )
-
-        .then(function (response) {
-
-            return response.json();
-
-        })
-
-        .then(function (results) {
-
-            if (
-                !results ||
-                !results.length
-            ) {
-                return;
-            }
-
-
-            const lat =
-                parseFloat(
-                    results[0].lat
-                );
-
-            const lng =
-                parseFloat(
-                    results[0].lon
-                );
-
-
-            if (
-                isNaN(lat) ||
-                isNaN(lng)
-            ) {
-                return;
-            }
-
-
-            map.setView(
-                [lat, lng],
-                17
-            );
-
-
-            setLocation(
-                lat,
-                lng
-            );
-
-        })
-
-        .catch(function () {
-
-            // Gagal geocoding tidak mengganggu form.
-
-        });
-
-    }
-
-
-    function scheduleGeocode() {
-
-        clearTimeout(
-            geocodeTimer
-        );
-
-
-        geocodeTimer =
-            setTimeout(
-                geocodeAlamat,
-                1000
-            );
-
-    }
-
-
-    if (jalanInput) {
-
-        jalanInput.addEventListener(
-            'change',
-            scheduleGeocode
-        );
-
-    }
-
-
-    if (nomorRumahInput) {
-
-        nomorRumahInput.addEventListener(
-            'change',
-            scheduleGeocode
-        );
-
-    }
-
 });
 </script>
 
