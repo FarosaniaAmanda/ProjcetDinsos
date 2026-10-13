@@ -5689,64 +5689,159 @@ if (searchSuggestions) {
     } 
  
  
-    function normalizeQuestion(question, index) {
-
-        if (question === null || question === undefined) {
-            return { number: index + 1, text: '', answer: '', type: 'text', imageUrl: '' };
-        }
-
-        if (typeof question !== 'object') {
-            return { number: index + 1, text: String(question), answer: '', type: 'text', imageUrl: '' };
-        }
-
-        const text = getFirstValue(question, [
-            'pertanyaan', 'question', 'question_text', 'nama_pertanyaan', 'text', 'judul', 'label'
-        ], `Pertanyaan ${index + 1}`);
-
-        const answer = getFirstValue(question, [
-            'jawaban', 'answer', 'response', 'nilai', 'value', 'hasil'
-        ], '');
-
-        const explicitType = String(getFirstValue(question, [
-            'type', 'tipe', 'answer_type', 'jenis'
-        ], '')).toLowerCase();
-
-        const imageUrl = getFirstValue(question, [
-            'image_url', 'image', 'url', 'foto_url', 'path_url'
-        ], '');
-
-        let finalType = explicitType;
-        if (!finalType && (imageUrl || question.path_file || question.nama_file || question.jenis_foto)) {
-            finalType = 'image';
-        }
-        if (finalType === 'foto' || finalType === 'photo' || finalType === 'gambar') {
-            finalType = 'image';
-        }
-
-        let finalImageUrl = String(imageUrl || '');
-        if (!finalImageUrl && question.path_file) {
-            finalImageUrl = String(question.path_file);
-        }
-        if (finalType === 'image' && !finalImageUrl && typeof answer === 'string') {
-            finalImageUrl = answer;
-        }
-
-        /*
-         * NOMOR PERTANYAAN SELALU BERDASARKAN URUTAN DI DALAM PART.
-         * Jangan gunakan number/nomor/no/urutan dari database karena
-         * beberapa data lama menyimpan nilai 0 sehingga tampil "Pertanyaan 0".
-         */
+   
+function normalizeQuestion(question, index) {
+    if (question === null || question === undefined) {
         return {
             number: index + 1,
-            text: normalizeQuestionAnswer(text),
-            answer: normalizeQuestionAnswer(answer),
-            type: finalType || 'text',
-            imageUrl: finalImageUrl,
-            imageName: normalizeQuestionAnswer(getFirstValue(question, [
-                'nama_file', 'filename', 'file_name', 'jenis_foto'
-            ], ''))
+            text: '',
+            answer: '',
+            type: 'text',
+            imageUrl: '',
+            imageName: ''
         };
     }
+
+    if (typeof question !== 'object') {
+        return {
+            number: index + 1,
+            text: String(question),
+            answer: '',
+            type: 'text',
+            imageUrl: '',
+            imageName: ''
+        };
+    }
+
+    const text = getFirstValue(question, [
+        'pertanyaan',
+        'question',
+        'question_text',
+        'nama_pertanyaan',
+        'text',
+        'judul',
+        'label'
+    ], `Pertanyaan ${index + 1}`);
+
+    const answer = getFirstValue(question, [
+        'jawaban',
+        'answer',
+        'response',
+        'nilai',
+        'value',
+        'hasil'
+    ], '');
+
+    const questionText = normalizeQuestionAnswer(text).trim();
+    const answerText = normalizeQuestionAnswer(answer).trim();
+
+    const explicitType = String(getFirstValue(question, [
+        'type',
+        'tipe',
+        'answer_type',
+        'jenis'
+    ], '')).toLowerCase().trim();
+
+    let imageUrl = getFirstValue(question, [
+        'image_url',
+        'foto_url',
+        'path_url',
+        'url',
+        'image',
+        'path_file',
+        'file_path',
+        'foto',
+        'gambar',
+        'file'
+    ], '');
+
+    const imageName = normalizeQuestionAnswer(getFirstValue(question, [
+        'nama_file',
+        'filename',
+        'file_name',
+        'jenis_foto'
+    ], ''));
+
+    let finalType = explicitType;
+
+    if (['foto', 'photo', 'gambar'].includes(finalType)) {
+        finalType = 'image';
+    }
+
+    // Kenali pertanyaan geotagging sebagai peta.
+    const textLower = questionText.toLowerCase();
+
+    if (
+        !finalType &&
+        (
+            textLower.includes('geotagging') ||
+            textLower.includes('koordinat lokasi') ||
+            textLower.includes('titik lokasi') ||
+            textLower.includes('latitude') ||
+            textLower.includes('longitude')
+        )
+    ) {
+        finalType = 'map';
+    }
+
+    // Kenali data foto dari field yang tersedia.
+    if (
+        !finalType &&
+        (
+            imageUrl ||
+            question.path_file ||
+            question.file_path ||
+            question.nama_file ||
+            question.jenis_foto
+        )
+    ) {
+        finalType = 'image';
+    }
+
+    // Gunakan jawaban sebagai sumber gambar hanya jika memang berupa foto.
+    if (
+        finalType === 'image' &&
+        !imageUrl &&
+        answerText
+    ) {
+        imageUrl = answerText;
+    }
+
+    imageUrl = String(imageUrl || '').trim().replace(/\\/g, '/');
+
+    // Normalisasi URL/path foto dari beberapa format penyimpanan Laravel.
+    // URL absolut dan data URL tidak diubah.
+    if (imageUrl && !/^(https?:\/\/|data:image\/|blob:)/i.test(imageUrl)) {
+        let normalizedPath = imageUrl.replace(/^\.\/+/, '').replace(/^\/+/, '');
+
+        // Path yang tersimpan sebagai storage/app/public/... atau app/public/...
+        normalizedPath = normalizedPath.replace(/^storage\/app\/public\//i, '');
+        normalizedPath = normalizedPath.replace(/^app\/public\//i, '');
+        normalizedPath = normalizedPath.replace(/^public\//i, '');
+
+        // Jika sudah berupa storage/path, gunakan URL publik Laravel.
+        normalizedPath = normalizedPath.replace(/^storage\//i, '');
+
+        // Asset publik non-upload (misalnya images/logo.png) tetap dari root.
+        if (/^(images|assets|build)\//i.test(normalizedPath)) {
+            imageUrl = '/' + normalizedPath;
+        } else if (normalizedPath) {
+            imageUrl = '/storage/' + normalizedPath;
+        } else {
+            imageUrl = '';
+        }
+    }
+
+    return {
+        number: index + 1,
+        text: questionText,
+        answer: answerText,
+        type: finalType || 'text',
+        imageUrl: imageUrl,
+        imageName: imageName
+    };
+}
+
 
 
     function normalizeParts(raw) { 
@@ -6116,6 +6211,15 @@ if (searchSuggestions) {
                         const type = String(question.type || '').toLowerCase();
                         const imageUrl = String(question.imageUrl || '').trim();
 
+                        if ((type === 'image' || imageUrl !== '') && imageUrl) {
+                            const image = document.createElement('img');
+                            image.className = 'questionnaire-part5-image';
+                            image.src = imageUrl;
+                            image.alt = String(question.imageName || question.text || 'Foto jawaban');
+                            image.loading = 'lazy';
+                            
+                        }
+
                         box.appendChild(number);
                         box.appendChild(text);
                         box.appendChild(label);
@@ -6346,18 +6450,28 @@ if (searchSuggestions) {
                     coordinateStrong.textContent = 'Koordinat lokasi:';
 
                     const coordinateValue = document.createElement('span');
-                    coordinateValue.textContent = rawCoordinates || 'Belum tersedia';
+                    coordinateValue.textContent =
+                        (!rawCoordinates || rawCoordinates === '-' || rawCoordinates.toLowerCase() === 'null')
+                            ? 'Belum tersedia'
+                            : rawCoordinates;
 
                     coordinateLabel.appendChild(coordinateStrong);
                     coordinateLabel.appendChild(coordinateValue);
                     answerElement.appendChild(coordinateLabel);
 
-                    const coordinateParts = rawCoordinates.split(',').map(function (value) {
-                        return value.trim();
-                    });
+                    // Koordinat harus berupa latitude,longitude. Nilai kosong,
+                    // '-', atau 'null' tidak boleh dipaksa menjadi koordinat 0,0.
+                    const hasCoordinateValue =
+                        !!rawCoordinates &&
+                        rawCoordinates !== '-' &&
+                        rawCoordinates.toLowerCase() !== 'null';
 
-                    const latitude = Number(coordinateParts[0]);
-                    const longitude = Number(coordinateParts[1]);
+                    const coordinateParts = hasCoordinateValue
+                        ? rawCoordinates.split(',').map(function (value) { return value.trim(); })
+                        : [];
+
+                    const latitude = coordinateParts.length ? Number(coordinateParts[0]) : NaN;
+                    const longitude = coordinateParts.length > 1 ? Number(coordinateParts[1]) : NaN;
 
                     const validCoordinates =
                         coordinateParts.length >= 2 &&

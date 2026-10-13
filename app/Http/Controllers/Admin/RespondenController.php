@@ -310,7 +310,6 @@ class RespondenController extends Controller
                 ->update([
                     'rt' => $request->input('rt'),
                     'rw' => $request->input('rw'),
-                    'geotagging' => $request->input('geotagging', $request->input('geotangging')),
                     'updated_at' => now(),
                 ]);
 

@@ -520,28 +520,30 @@ class VerifikasiController extends Controller
                             $keluarga->kode_pos ?? '-'
                         ),
 
-                    'rt_rw' => $item->rt_rw
-                        ?? (
-                            $keluarga->rt_rw ?? '-'
-                        ),
+                    // Normalisasi alamat: beberapa versi form lama menyimpan
+                    // RT/RW dan koordinat sekaligus di kolom alamat_lengkap.
+                    'rt_rw' => $this->resolveRtRw(
+                        $item->rt_rw ?? ($keluarga->rt_rw ?? null),
+                        $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+                    ),
 
-                    'alamat_lengkap' => $item->alamat_lengkap
-                        ?? (
-                            $keluarga->alamat_lengkap
-                            ?? '-'
-                        ),
+                    'alamat_lengkap' => $this->cleanFullAddress(
+                        $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+                    ),
 
                     'jalan_rumah' => $item->jalan_rumah
                         ?? '-',
 
-                    'is_alamat_sesuai' => $item->is_alamat_sesuai,
+                    'is_alamat_sesuai' => $this->resolveAddressMatch($item, $keluarga),
 
                     /*
                     | GEOTAGGING
                     */
 
-                    'geotangging' => $item->geotangging
-                        ?? '-',
+                    'geotangging' => $this->resolveGeotag(
+                        $item->geotangging ?? null,
+                        $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+                    ),
 
                     /*
                     | PART
@@ -1905,6 +1907,127 @@ class VerifikasiController extends Controller
 
     /*
     |--------------------------------------------------------------------------
+    | NORMALISASI ALAMAT PART 1
+    |--------------------------------------------------------------------------
+    | Data lama kadang menyimpan RT/RW dan koordinat di dalam alamat_lengkap.
+    | Helper ini memisahkan nilai tersebut hanya untuk tampilan, tanpa mengubah DB.
+    */
+
+    protected function resolveRtRw($rtRw, $alamat): string
+    {
+        $rtRw = trim((string) ($rtRw ?? ''));
+
+        if ($rtRw !== '' && $rtRw !== '-') {
+            if (preg_match('/RT\s*0*(\d{1,3})\s*\/?\s*RW\s*0*(\d{1,3})/i', $rtRw, $m)) {
+                return sprintf('RT %03d / RW %03d', (int) $m[1], (int) $m[2]);
+            }
+
+            return $rtRw;
+        }
+
+        $alamat = (string) ($alamat ?? '');
+        if (preg_match('/RT\s*0*(\d{1,3})\s*\/?\s*RW\s*0*(\d{1,3})/i', $alamat, $m)) {
+            return sprintf('RT %03d / RW %03d', (int) $m[1], (int) $m[2]);
+        }
+
+        return '-';
+    }
+
+    protected function resolveGeotag($geotag, $alamat): string
+    {
+        $geotag = trim((string) ($geotag ?? ''));
+
+        if ($geotag !== '' && $geotag !== '-') {
+            if (preg_match('/-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/', $geotag, $m)) {
+                return preg_replace('/\s+/', '', $m[0]);
+            }
+
+            return $geotag;
+        }
+
+        if (preg_match(
+            '/(?:Koordinat\s*:\s*)?(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i',
+            (string) ($alamat ?? ''),
+            $m
+        )) {
+            return $m[1] . ', ' . $m[2];
+        }
+
+        return '-';
+    }
+
+    protected function cleanFullAddress($alamat): string
+    {
+        $alamat = trim((string) ($alamat ?? ''));
+
+        if ($alamat === '' || $alamat === '-') {
+            return '-';
+        }
+
+        // Hilangkan label koordinat beserta pasangan lintang/bujur.
+        $alamat = preg_replace(
+            '/[,;\s]*Koordinat\s*:\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/i',
+            '',
+            $alamat
+        );
+
+        // Hilangkan koordinat telanjang jika format lama tidak memiliki label.
+        $alamat = preg_replace(
+            '/[,;\s]*-?\d{1,2}\.\d{4,}\s*,\s*-?\d{2,3}\.\d{4,}/',
+            '',
+            $alamat
+        );
+
+        // RT/RW adalah field tersendiri, jadi buang semua pengulangan dari alamat.
+        $alamat = preg_replace(
+            '/(?:^|[,;]\s*)RT\s*0*\d{1,3}\s*\/?\s*RW\s*0*\d{1,3}\s*(?=[,;]|$)/i',
+            ' ',
+            $alamat
+        );
+
+        // Rapikan pemisah dan whitespace akibat penghapusan bagian di atas.
+        $alamat = preg_replace('/\s*[,;]\s*[,;]\s*/', ', ', $alamat);
+        $alamat = preg_replace('/^[\s,;]+|[\s,;]+$/', '', $alamat);
+        $alamat = preg_replace('/\s{2,}/', ' ', $alamat);
+        $alamat = trim($alamat, " \t\n\r\0\x0B,;");
+
+        return $alamat !== '' ? $alamat : '-';
+    }
+
+    protected function resolveAddressMatch($item, $keluarga = null)
+    {
+        // Baca nama kolom yang umum dipakai oleh beberapa versi form.
+        foreach ([
+            'is_alamat_sesuai',
+            'alamat_sesuai',
+            'is_alamat_sesuai_ktp',
+            'alamat_sesuai_ktp',
+        ] as $attribute) {
+            $value = $item->getAttribute($attribute);
+            if ($value !== null && $value !== '') {
+                return $value;
+            }
+        }
+
+        if ($keluarga) {
+            foreach ([
+                'is_alamat_sesuai',
+                'alamat_sesuai',
+                'is_alamat_sesuai_ktp',
+                'alamat_sesuai_ktp',
+            ] as $attribute) {
+                $value = $keluarga->getAttribute($attribute);
+                if ($value !== null && $value !== '') {
+                    return $value;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | BUILD KUISIONER
     |--------------------------------------------------------------------------
     */
@@ -1923,103 +2046,110 @@ class VerifikasiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $part1Questions = [
+        
+$part1Questions = [
 
-            $this->question(
-                'Nomor KK',
-                $item->no_kk
-                    ?? (
-                        $keluarga->no_kk ?? '-'
-                    )
-            ),
+    $this->question(
+        'Nomor KK',
+        $item->no_kk
+            ?? ($keluarga->no_kk ?? '-')
+    ),
 
-            $this->question(
-                'NIK',
-                $item->nik
-                    ?? (
-                        $keluarga->nik ?? '-'
-                    )
-            ),
+    $this->question(
+        'NIK',
+        $item->nik
+            ?? ($keluarga->nik ?? '-')
+    ),
 
-            $this->question(
-                'Jumlah Anggota Keluarga',
-                $item->jml_keluarga
-                    ?? (
-                        $keluarga
-                            ? KeluargaAnggota::query()
-                                ->where(
-                                    'keluarga_kode',
-                                    $keluarga->kode
-                                )
-                                ->count()
-                            : '-'
-                    )
-            ),
+    $this->question(
+        'Jumlah Anggota Keluarga',
+        $item->jml_keluarga
+            ?? (
+                $keluarga
+                    ? KeluargaAnggota::query()
+                        ->where(
+                            'keluarga_kode',
+                            $keluarga->kode
+                        )
+                        ->count()
+                    : '-'
+            )
+    ),
 
-            $this->question(
-                'Provinsi',
-                $item->provinsi
-            ),
+    $this->question(
+        'Provinsi',
+        $item->provinsi
+            ?? ($keluarga->provinsi ?? '-')
+    ),
 
-            $this->question(
-                'Daerah',
-                $item->daerah
-            ),
+    $this->question(
+        'Daerah',
+        filled($item->daerah)
+            ? $item->daerah
+            : (
+                filled($keluarga->daerah ?? null)
+                    ? $keluarga->daerah
+                    : 'KOTA PASURUAN'
+            )
+    ),
 
-            $this->question(
-                'Kecamatan',
-                $item->kecamatan
-            ),
+    $this->question(
+        'Kecamatan',
+        $item->kecamatan
+            ?? ($keluarga->kecamatan ?? '-')
+    ),
 
-            $this->question(
-                'Kelurahan',
-                $item->kelurahan
-            ),
+    $this->question(
+        'Kelurahan',
+        $item->kelurahan
+            ?? ($keluarga->kelurahan ?? '-')
+    ),
 
-            $this->question(
-                'Kode Pos',
-                $item->kode_pos
-            ),
+    $this->question(
+        'Kode Pos',
+        $item->kode_pos
+            ?? ($keluarga->kode_pos ?? '-')
+    ),
 
-            $this->question(
-                'RT / RW',
-                $item->rt_rw
-            ),
+    $this->question(
+        'RT / RW',
+        $this->resolveRtRw(
+            $item->rt_rw ?? ($keluarga->rt_rw ?? null),
+            $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+        )
+    ),
 
-            $this->question(
-                'Alamat Lengkap',
-                $item->alamat_lengkap
-            ),
+    $this->question(
+        'Alamat Lengkap',
+        $this->cleanFullAddress(
+            $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+        )
+    ),
 
-            $this->question(
-                'Jalan / Rumah',
-                $item->jalan_rumah
-            ),
+    $this->question(
+        'Jalan / Rumah',
+        $item->jalan_rumah ?? '-'
+    ),
 
-            $this->question(
-                'Alamat Sesuai',
-                $this->formatBoolean(
-                    $item->is_alamat_sesuai
-                )
-            ),
+    $this->question(
+        'Alamat Sesuai',
+        $this->formatBoolean(
+            $this->resolveAddressMatch($item, $keluarga)
+        )
+    ),
 
-            /*
-            | GEOTAGGING
-            */
+    [
+        'number' => 0,
+        'text' => 'Titik Lokasi (Geotagging)',
+        'question' => 'Titik Lokasi (Geotagging)',
+        'answer' => $this->resolveGeotag(
+            $item->geotangging ?? null,
+            $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+        ),
+        'type' => 'map',
+    ],
+];
 
-            [
-                'number' => 0,
-
-                'text' => 'Titik Lokasi (Geotagging)',
-
-                'question' => 'Titik Lokasi (Geotagging)',
-
-                'answer' => $item->geotangging
-                    ?? '-',
-
-                'type' => 'map',
-            ],
-        ];
 
         /*
         |--------------------------------------------------------------------------
@@ -2375,24 +2505,29 @@ class VerifikasiController extends Controller
                 $fotoRumah as $foto
             ) {
 
-                $path = ltrim(
-                    preg_replace(
-                        '#^(public/|storage/)#i',
-                        '',
-                        str_replace(
-                            '\\',
-                            '/',
-                            $foto->path_file
-                        )
-                    ),
-                    '/'
-                );
+               
+$rawPath = trim(
+    str_replace('\\', '/', (string) $foto->path_file)
+);
 
-                $url = $path
-                    ? Storage::disk(
-                        'public'
-                    )->url($path)
-                    : '';
+if (
+    $rawPath !== ''
+    && preg_match('/^https?:\/\//i', $rawPath)
+) {
+    // File sudah memiliki URL lengkap.
+    $url = $rawPath;
+} else {
+    // Hilangkan prefix penyimpanan yang mungkin sudah tersimpan.
+    $path = preg_replace(
+        '#^(?:public/|storage/|app/public/)#i',
+        '',
+        ltrim($rawPath, '/')
+    );
+
+    $url = $path !== ''
+        ? Storage::disk('public')->url($path)
+        : '';
+}
 
                 $jenis = str_replace(
                     '_',
