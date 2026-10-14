@@ -223,6 +223,7 @@ class LaporanController extends MonitoringController
                     'Periode',
                     'Tanggal Pendataan',
                     'Status',
+                    'Alasan Penolakan',
                 ];
 
                 foreach ($headers as $column => $header) {
@@ -293,6 +294,7 @@ class LaporanController extends MonitoringController
                         data_get($item, 'periode', '-'),
                         data_get($item, 'tanggal_pendataan', '-'),
                         data_get($item, 'status_label', '-'),
+                        data_get($item, 'alasan_penolakan') ?: '-',
                     ];
 
                     foreach ($values as $column => $value) {
@@ -306,7 +308,7 @@ class LaporanController extends MonitoringController
                     }
 
                     // Tampilkan isi sel dari bagian atas.
-                    $sheet->getStyle("A{$rowNumber}:I{$rowNumber}")
+                    $sheet->getStyle("A{$rowNumber}:J{$rowNumber}")
                         ->getAlignment()
                         ->setVertical(Alignment::VERTICAL_TOP);
 
@@ -327,13 +329,15 @@ class LaporanController extends MonitoringController
                 // Beri lebar tetap agar nama anggota tidak melebar ke samping.
                 $sheet->getColumnDimension('E')->setAutoSize(false);
                 $sheet->getColumnDimension('E')->setWidth(35);
+                $sheet->getColumnDimension('J')->setAutoSize(false);
+                $sheet->getColumnDimension('J')->setWidth(45);
 
                 // Tebalkan dan rapikan judul kolom.
-                $sheet->getStyle('A1:I1')
+                $sheet->getStyle('A1:J1')
                     ->getFont()
                     ->setBold(true);
 
-                $sheet->getStyle('A1:I1')
+                $sheet->getStyle('A1:J1')
                     ->getAlignment()
                     ->setWrapText(true)
                     ->setVertical(Alignment::VERTICAL_CENTER);
@@ -343,6 +347,11 @@ class LaporanController extends MonitoringController
                 // Pastikan seluruh sel Nama Anggota memakai wrap text.
                 if ($lastRow >= 2) {
                     $sheet->getStyle("E2:E{$lastRow}")
+                        ->getAlignment()
+                        ->setWrapText(true)
+                        ->setVertical(Alignment::VERTICAL_TOP);
+
+                    $sheet->getStyle("J2:J{$lastRow}")
                         ->getAlignment()
                         ->setWrapText(true)
                         ->setVertical(Alignment::VERTICAL_TOP);

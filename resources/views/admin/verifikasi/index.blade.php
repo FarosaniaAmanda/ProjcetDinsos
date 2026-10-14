@@ -4136,7 +4136,8 @@
                                 data-wilayah="{{ $item['wilayah'] ?? '' }}" 
                                 data-petugas="{{ $item['petugas'] ?? '' }}" 
                                 data-status="{{ $item['status'] ?? '' }}" 
-                                data-status-label="{{ $statusLabel }}" 
+                                data-status-label="{{ $statusLabel }}"
+                                data-alasan-penolakan="{{ $item['alasan_penolakan'] ?? '' }}"
                                 data-anggota="{{ $item['jumlah_anggota'] ?? 0 }}"
                                 data-periode="{{ $item['periode'] ?? '-' }}"
                                 data-periode-kode="{{ $item['periode_kode'] ?? '-' }}"
@@ -4851,6 +4852,25 @@
                             </div> 
                         </div> 
  
+                        <div class="verification-form-group" id="rejectionReasonGroup" style="display: none; margin-top: 16px;">
+                            <label for="modalAlasanPenolakan">Alasan Penolakan <span style="color:#d9364f;">*</span></label>
+                            <textarea
+                                id="modalAlasanPenolakan"
+                                name="alasan_penolakan"
+                                rows="4"
+                                maxlength="2000"
+                                placeholder="Jelaskan alasan data ditolak secara jelas dan profesional..."
+                                style="width:100%; box-sizing:border-box; resize:vertical; border:1px solid #d7dce5; border-radius:10px; padding:12px 14px; font:inherit; line-height:1.5;"
+                                aria-describedby="rejectionReasonHelp"
+                            ></textarea>
+                            <small id="rejectionReasonHelp" style="display:block; margin-top:6px; color:#64748b;">
+                                Wajib diisi ketika memilih aksi Tolak. Maksimal 2.000 karakter.
+                            </small>
+                            <small id="rejectionReasonError" style="display:none; color:#d9364f; margin-top:5px;">
+                                Alasan penolakan wajib diisi.
+                            </small>
+                        </div>
+
                         <div class="verification-actions"> 
                             <button 
                                 type="button" 
@@ -5437,8 +5457,59 @@ if (searchSuggestions) {
     const modalGeotangging =
         document.getElementById('modalGeotangging'); 
  
-    const modalStatus = 
-        document.getElementById('modalStatus'); 
+    const modalStatus =
+        document.getElementById('modalStatus');
+
+    const rejectionReasonGroup =
+        document.getElementById('rejectionReasonGroup');
+
+    const modalAlasanPenolakan =
+        document.getElementById('modalAlasanPenolakan');
+
+    const rejectionReasonError =
+        document.getElementById('rejectionReasonError');
+
+    function toggleRejectionReason() {
+        const isRejected = modalStatus && modalStatus.value === 'rejected';
+        if (rejectionReasonGroup) {
+            rejectionReasonGroup.style.display = isRejected ? 'block' : 'none';
+        }
+        if (modalAlasanPenolakan) {
+            modalAlasanPenolakan.required = Boolean(isRejected);
+            if (!isRejected) {
+                modalAlasanPenolakan.setCustomValidity('');
+                if (rejectionReasonError) rejectionReasonError.style.display = 'none';
+            }
+        }
+    }
+
+    if (modalStatus) {
+        modalStatus.addEventListener('change', toggleRejectionReason);
+    }
+
+    if (modalAlasanPenolakan) {
+        modalAlasanPenolakan.addEventListener('input', function () {
+            if (modalAlasanPenolakan.value.trim() !== '') {
+                modalAlasanPenolakan.setCustomValidity('');
+                if (rejectionReasonError) rejectionReasonError.style.display = 'none';
+            }
+        });
+    }
+
+    if (verificationUpdateForm) {
+        verificationUpdateForm.addEventListener('submit', function (event) {
+            if (modalStatus && modalStatus.value === 'rejected'
+                && (!modalAlasanPenolakan || modalAlasanPenolakan.value.trim() === '')) {
+                event.preventDefault();
+                if (modalAlasanPenolakan) {
+                    modalAlasanPenolakan.setCustomValidity('Alasan penolakan wajib diisi.');
+                    modalAlasanPenolakan.reportValidity();
+                    modalAlasanPenolakan.focus();
+                }
+                if (rejectionReasonError) rejectionReasonError.style.display = 'block';
+            }
+        });
+    }
  
     const modalAnggota = 
         document.getElementById('modalAnggota'); 
@@ -6915,13 +6986,18 @@ function normalizeQuestion(question, index) {
             verificationActionSection.classList.remove('is-hidden');
         }
 
-        if (modalStatus) { 
-            if (normalizedStatus === 'approved' || normalizedStatus === 'rejected') { 
-                modalStatus.value = normalizedStatus; 
-            } else { 
-                modalStatus.value = ''; 
-            } 
-        } 
+        if (modalStatus) {
+            if (normalizedStatus === 'approved' || normalizedStatus === 'rejected') {
+                modalStatus.value = normalizedStatus;
+            } else {
+                modalStatus.value = '';
+            }
+        }
+
+        if (modalAlasanPenolakan) {
+            modalAlasanPenolakan.value = row.dataset.alasanPenolakan || '';
+        }
+        toggleRejectionReason();
  
  
         if ( 

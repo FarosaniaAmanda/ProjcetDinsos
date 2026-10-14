@@ -315,6 +315,10 @@ class MonitoringController extends VerifikasiController
                 default => 'Draft',
             };
 
+        $item['alasan_penolakan'] = trim((string) (
+            data_get($item, 'alasan_penolakan', '')
+        )) ?: null;
+
         /*
         |--------------------------------------------------------------------------
         | STATUS CLASS

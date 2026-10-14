@@ -450,6 +450,9 @@ class VerifikasiController extends Controller
 
                     'status' => $status,
 
+                    // Alasan penolakan disediakan untuk Monitoring dan Laporan.
+                    'alasan_penolakan' => $item->alasan_penolakan ?? null,
+
                     'status_label' => $this->getStatusLabel(
                         $status
                     ),
@@ -3132,15 +3135,24 @@ if (
         $id
     ): RedirectResponse {
 
-        $validated =
-            $request->validate(
-                [
-                    'status' => [
-                        'required',
-                        'in:approved,rejected',
-                    ],
-                ]
-            );
+        $validated = $request->validate(
+            [
+                'status' => ['required', 'in:approved,rejected'],
+                'alasan_penolakan' => [
+                    'nullable',
+                    'string',
+                    'max:2000',
+                    'required_if:status,rejected',
+                ],
+            ],
+            [
+                'status.required' => 'Silakan pilih aksi verifikasi.',
+                'status.in' => 'Aksi verifikasi tidak valid.',
+                'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi ketika data ditolak.',
+                'alasan_penolakan.string' => 'Alasan penolakan harus berupa teks.',
+                'alasan_penolakan.max' => 'Alasan penolakan maksimal 2.000 karakter.',
+            ]
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -3234,8 +3246,13 @@ if (
         |--------------------------------------------------------------------------
         */
 
-        $item->status =
-            $validated['status'];
+        $item->status = $validated['status'];
+
+        // Alasan wajib disimpan untuk status ditolak.
+        // Jika status berubah menjadi disetujui, alasan lama dibersihkan.
+        $item->alasan_penolakan = $validated['status'] === 'rejected'
+            ? trim((string) $validated['alasan_penolakan'])
+            : null;
 
         $user =
             $request->user();
@@ -3254,10 +3271,9 @@ if (
         |--------------------------------------------------------------------------
         */
 
-        $message =
-            $validated['status'] === 'approved'
-                ? 'Data berhasil disetujui.'
-                : 'Data berhasil ditolak.';
+        $message = $validated['status'] === 'approved'
+            ? 'Data berhasil disetujui.'
+            : 'Data berhasil ditolak. Alasan penolakan berhasil disimpan.';
 
         return redirect()
             ->route(
