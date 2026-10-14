@@ -910,6 +910,42 @@ color: #7652C8;
         line-height: 1.55;
     }
 
+    /* ALASAN PENOLAKAN DI MODAL DETAIL */
+    .monitoring-rejection-reason {
+        display: none;
+        margin: 0 0 16px;
+        padding: 15px 16px;
+        border: 1px solid #f1c5c8;
+        border-left: 4px solid #d9364f;
+        border-radius: 12px;
+        background: #fff8f8;
+        box-sizing: border-box;
+    }
+
+    .monitoring-rejection-reason.show {
+        display: block;
+    }
+
+    .monitoring-rejection-reason-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 7px;
+        color: #b42336;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .monitoring-rejection-reason-text {
+        margin: 0;
+        color: #5f2930;
+        font-size: 13px;
+        line-height: 1.65;
+        font-weight: 500;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
     .monitoring-detail-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2322,6 +2358,8 @@ color: #7652C8;
                                     default => 'Draft',
                                 });
 
+                                $alasanPenolakan = trim((string) data_get($item, 'alasan_penolakan', ''));
+
                                 /*
                                  * KUISIONER PART 1
                                  */
@@ -2422,6 +2460,8 @@ color: #7652C8;
                                         data-tanggal="{{ $tanggal }}"
 
                                         data-status="{{ $statusLabel }}"
+
+                                        data-alasan-penolakan="{{ $alasanPenolakan }}"
 
                                         data-anggota-detail='@json($anggotaDetail)'
 
@@ -2673,6 +2713,14 @@ color: #7652C8;
 
             </div>
 
+            {{-- ALASAN PENOLAKAN: HANYA DITAMPILKAN JIKA STATUS DITOLAK --}}
+            <section class="monitoring-rejection-reason" id="detailAlasanPenolakanCard" aria-live="polite">
+                <h3 class="monitoring-rejection-reason-title">
+                    
+                    Alasan Data Ditolak !
+                </h3>
+                <p class="monitoring-rejection-reason-text" id="detailAlasanPenolakan">-</p>
+            </section>
 
             {{-- INFORMASI RESPONDEN --}}
             <section class="monitoring-detail-section">
@@ -4436,6 +4484,19 @@ if (searchInput) {
             button.dataset.status
         );
 
+        // Alasan penolakan hanya ditampilkan untuk responden berstatus Ditolak.
+        const rejectionReasonCard = document.getElementById('detailAlasanPenolakanCard');
+        const rejectionReasonText = document.getElementById('detailAlasanPenolakan');
+        const currentStatus = String(button.dataset.status || '').trim().toLowerCase();
+        const rejectionReason = String(button.dataset.alasanPenolakan || '').trim();
+        const isRejected = currentStatus === 'rejected'
+            || currentStatus === 'reject'
+            || currentStatus.includes('ditolak');
+
+        if (rejectionReasonCard && rejectionReasonText) {
+            rejectionReasonText.textContent = rejectionReason || 'Alasan penolakan belum tersedia.';
+            rejectionReasonCard.classList.toggle('show', isRejected);
+        }
 
         document.getElementById(
             'detailNoKk'

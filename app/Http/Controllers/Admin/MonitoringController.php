@@ -315,9 +315,15 @@ class MonitoringController extends VerifikasiController
                 default => 'Draft',
             };
 
-        $item['alasan_penolakan'] = trim((string) (
-            data_get($item, 'alasan_penolakan', '')
-        )) ?: null;
+        // Alasan penolakan diteruskan ke card Detail Monitoring.
+        // Data ini berasal dari VerifikasiController / database.
+        $alasanPenolakan = data_get($item, 'alasan_penolakan')
+            ?? data_get($item, 'alasanPenolakan')
+            ?? null;
+
+        $item['alasan_penolakan'] = is_scalar($alasanPenolakan)
+            ? (trim((string) $alasanPenolakan) ?: null)
+            : null;
 
         /*
         |--------------------------------------------------------------------------

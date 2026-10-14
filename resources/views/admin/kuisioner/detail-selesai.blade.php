@@ -694,27 +694,12 @@
 
                 @php
                     $p1 = $dataPart1;
-
-                    /*
-                    * RT / RW
-                    * Prioritas dari data Part 1.
-                    * Jika kosong, coba ambil dari relasi keluarga jika tersedia.
-                    */
-                    $rt = $p1->rt
-                        ?? ($p1->keluarga->rt ?? null);
-
-                    $rw = $p1->rw
-                        ?? ($p1->keluarga->rw ?? null);
-
-                    /*
-                    * Kota / Kabupaten
-                    */
-                    $kota = $p1->kabupaten
-                        ?? $p1->kabupaten_kota
-                        ?? $p1->kota
-                        ?? ($p1->keluarga->kabupaten ?? null)
-                        ?? ($p1->keluarga->kota ?? null)
-                        ?? '-';
+                    $rtRwDisplay = $p1->rt_rw_display ?? '-';
+                    $kota = $p1->kota_kabupaten_display
+                        ?? $p1->daerah_display
+                        ?? $p1->daerah
+                        ?? ($keluarga->daerah ?? null)
+                        ?? 'Kota Pasuruan';
                 @endphp
 
                 <div class="info-grid">
@@ -745,9 +730,9 @@
 
                     {{-- JUMLAH KELUARGA --}}
                     <div class="info-item">
-                        <div class="info-label">Jumlah Keluarga</div>
+                        <div class="info-label">Jumlah Anggota Keluarga</div>
                         <div class="info-value">
-                            {{ $p1->jml_keluarga ?? '-' }}
+                            {{ filled($p1->jumlah_keluarga_display ?? null) && $p1->jumlah_keluarga_display !== '-' ? $p1->jumlah_keluarga_display : (filled($p1->jml_keluarga ?? null) ? $p1->jml_keluarga : (filled($keluarga->jumlah_anggota_keluarga ?? null) ? $keluarga->jumlah_anggota_keluarga : (filled($keluarga->jml_keluarga ?? null) ? $keluarga->jml_keluarga : '-'))) }}
                         </div>
                     </div>
 
@@ -755,7 +740,7 @@
                     <div class="info-item">
                         <div class="info-label">Provinsi</div>
                         <div class="info-value">
-                            {{ $p1->provinsi ?? '-' }}
+                            {{ $p1->provinsi_display ?? ($p1->provinsi ?? '-') }}
                         </div>
                     </div>
 
@@ -771,7 +756,7 @@
                     <div class="info-item">
                         <div class="info-label">Kecamatan</div>
                         <div class="info-value">
-                            {{ $p1->kecamatan ?? '-' }}
+                            {{ $p1->kecamatan_display ?? ($p1->kecamatan ?? '-') }}
                         </div>
                     </div>
 
@@ -779,7 +764,7 @@
                     <div class="info-item">
                         <div class="info-label">Kelurahan / Desa</div>
                         <div class="info-value">
-                            {{ $p1->kelurahan ?? $p1->desa ?? '-' }}
+                            {{ $p1->kelurahan_display ?? ($p1->kelurahan ?? $p1->desa ?? '-') }}
                         </div>
                     </div>
 
@@ -787,11 +772,7 @@
                     <div class="info-item">
                         <div class="info-label">RT / RW</div>
                         <div class="info-value">
-                            @if($rt || $rw)
-                                {{ $rt ?? '-' }} / {{ $rw ?? '-' }}
-                            @else
-                                -
-                            @endif
+{{ $rtRwDisplay }}
                         </div>
                     </div>
 
@@ -807,15 +788,47 @@
                     <div class="info-item">
                         <div class="info-label">Alamat</div>
                         <div class="info-value">
-                            {{ $p1->alamat ?? $p1->alamat_lengkap ?? '-' }}
+                            {{ $p1->alamat_lengkap_display ?? ($p1->alamat ?? $p1->alamat_lengkap ?? '-') }}
                         </div>
                     </div>
 
-                    {{-- STATUS --}}
+                    {{-- JALAN RUMAH --}}
                     <div class="info-item">
-                        <div class="info-label">Status</div>
+                        <div class="info-label">Jalan Rumah</div>
                         <div class="info-value">
-                            {{ $p1->status ?? '-' }}
+                            {{ $p1->jalan_rumah ?? $p1->alamat_jalan ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- NOMOR RUMAH --}}
+                    <div class="info-item">
+                        <div class="info-label">Nomor Rumah</div>
+                        <div class="info-value">
+                            {{ $p1->nomor_rumah ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- STATUS KESESUAIAN ALAMAT --}}
+                    <div class="info-item">
+                        <div class="info-label">Is Alamat Sesuai</div>
+                        <div class="info-value">
+                            {{ $p1->is_alamat_sesuai ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- ALASAN ALAMAT TIDAK SESUAI --}}
+                    <div class="info-item">
+                        <div class="info-label">Alasan Tidak Sesuai</div>
+                        <div class="info-value">
+                            {{ $p1->alasan_tidak_sesuai ?? '-' }}
+                        </div>
+                    </div>
+
+                    {{-- ALASAN PENOLAKAN --}}
+                    <div class="info-item">
+                        <div class="info-label">Alasan Penolakan</div>
+                        <div class="info-value">
+                            {{ $p1->alasan_penolakan ?? '-' }}
                         </div>
                     </div>
 
@@ -958,55 +971,107 @@
                     @php
                         $attributes = $dataPart1->getAttributes();
 
+                        // Identitas utama sudah ditampilkan di kartu Informasi Responden,
+                        // jadi sembunyikan kolom yang sama agar tidak tampil dua kali.
                         $hiddenPart1 = [
-                            'id',
-                            'created_at',
-                            'updated_at',
-                            'deleted_at',
-                            'keluarga_periode_kode',
-                            'status',
-                            'current_part',
-                            'created_by',
-                            'updated_by'
+                            'id', 'created_at', 'updated_at', 'deleted_at',
+                            'keluarga_periode_kode', 'status', 'current_part',
+                            'created_by', 'updated_by',
+                            // Sembunyikan hanya metadata dan field bantu berakhiran _display.
+                            // Kolom jawaban asli Part 1 tetap ditampilkan.
+                            'jumlah_keluarga_display', 'provinsi_display', 'daerah_display',
+                            'kecamatan_display', 'kelurahan_display', 'rt_rw_display',
+                            'alamat_lengkap_display', 'geotagging_display',
+                            'kota_kabupaten_display',
                         ];
                     @endphp
 
                     <div class="answers-grid">
-
                         @foreach($attributes as $field => $value)
-
-                            @if(!in_array($field, $hiddenPart1))
-
+                            @if(!in_array($field, $hiddenPart1, true))
+                                @php
+                                    // Gunakan nilai fallback dari controller untuk dua field ini,
+                                    // bukan nilai mentah yang bisa kosong di Part 1.
+                                    if ($field === 'jml_keluarga') {
+                                        $value = $dataPart1->jumlah_keluarga_display ?? $value;
+                                    } elseif ($field === 'daerah') {
+                                        $value = $dataPart1->daerah_display ?? $value;
+                                    }
+                                @endphp
                                 <div class="answer-item">
-
-                                    <div class="answer-label">
-                                        {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
-                                    </div>
-
+                                    <div class="answer-label">{{ ucwords(str_replace(['_', '-'], ' ', $field)) }}</div>
                                     <div class="answer-value">
-
                                         @if(is_array($value))
-
                                             {{ implode(', ', $value) }}
-
                                         @elseif(is_object($value))
-
                                             {{ json_encode($value, JSON_UNESCAPED_UNICODE) }}
-
                                         @else
-
-                                            {{ $value !== null && $value !== '' ? $value : '-' }}
-
+                                            {{ $value !== null && $value !== '' && $value !== '-' ? $value : '-' }}
                                         @endif
-
                                     </div>
-
                                 </div>
-
                             @endif
-
                         @endforeach
+                    </div>
 
+                    {{-- Peta geotagging dan titik lokasi rumah --}}
+                    @php
+                        $geoRaw = trim((string) (
+                            $dataPart1->geotangging
+                            ?? $dataPart1->geotagging
+                            ?? $dataPart1->geotagging_display
+                            ?? ($keluarga->geotagging ?? null)
+                            ?? ($keluarga->geotangging ?? null)
+                            ?? ''
+                        ));
+                        $latitude = null;
+                        $longitude = null;
+
+                        // Mendukung format "-7.6, 112.9", URL Google Maps, dan URL berisi @lat,long.
+                        if ($geoRaw !== '') {
+                            if (preg_match('/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/', $geoRaw, $matches)
+                                || preg_match('/[?&](?:q|query|ll|center)=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/', $geoRaw, $matches)
+                                || preg_match('/^\s*(-?\d+(?:\.\d+)?)\s*[,;]\s*(-?\d+(?:\.\d+)?)\s*$/', $geoRaw, $matches)) {
+                                $latitude = (float) $matches[1];
+                                $longitude = (float) $matches[2];
+                                if ($latitude < -90 || $latitude > 90 || $longitude < -180 || $longitude > 180) {
+                                    $latitude = $longitude = null;
+                                }
+                            }
+                        }
+                    @endphp
+
+                    <div class="answer-map-section" style="margin-top:22px; padding:18px; border:1px solid #e2e8f0; border-radius:12px; background:#fff;">
+                        <h4 style="margin:0 0 8px; color:#252a86; font-size:16px;">Titik Lokasi & Peta Geotagging</h4>
+                        @if($latitude !== null && $longitude !== null)
+                            <p style="margin:0 0 12px; color:#64748b; font-size:13px;">
+                                Koordinat: {{ $latitude }}, {{ $longitude }}
+                            </p>
+                            <div style="width:100%; height:320px; overflow:hidden; border-radius:10px; border:1px solid #e2e8f0;">
+                                <iframe
+                                    title="Peta lokasi rumah"
+                                    width="100%"
+                                    height="320"
+                                    style="border:0;"
+                                    loading="lazy"
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    src="https://www.google.com/maps?q={{ $latitude }},{{ $longitude }}&z=16&output=embed">
+                                </iframe>
+                            </div>
+                            <p style="margin:12px 0 0;">
+                                <a href="https://www.google.com/maps?q={{ $latitude }},{{ $longitude }}" target="_blank" rel="noopener noreferrer" style="color:#252a86; font-weight:600; text-decoration:underline;">
+                                    Buka titik lokasi di Google Maps
+                                </a>
+                            </p>
+                        @elseif($geoRaw !== '' && $geoRaw !== '-')
+                            <p style="margin:0 0 10px; color:#64748b; font-size:13px;">Data geotagging tersimpan, tetapi format koordinatnya belum dapat dibaca sebagai latitude dan longitude.</p>
+                            <div style="padding:12px; background:#f8fafc; border-radius:8px; overflow-wrap:anywhere;">{{ $geoRaw }}</div>
+                            @if(filter_var($geoRaw, FILTER_VALIDATE_URL))
+                                <p style="margin:12px 0 0;"><a href="{{ $geoRaw }}" target="_blank" rel="noopener noreferrer" style="color:#252a86; font-weight:600; text-decoration:underline;">Buka tautan geotagging</a></p>
+                            @endif
+                        @else
+                            <div style="padding:14px; border-radius:8px; background:#f8fafc; color:#64748b;">Titik lokasi dan peta belum tersedia karena koordinat geotagging belum tersimpan pada jawaban Part 1.</div>
+                        @endif
                     </div>
 
                 @else

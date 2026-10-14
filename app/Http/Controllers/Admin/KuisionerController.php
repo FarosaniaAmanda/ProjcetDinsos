@@ -3120,23 +3120,87 @@ class KuisionerController extends Controller
             $keluarga = Keluarga::where('no_kk', $dataPart1->no_kk)->first();
         }
 
-        $jumlahAnggotaTambahan = $keluarga
-            ? KeluargaAnggota::where('keluarga_kode', $keluarga->kode)->count()
-            : 0;
+        // Ambil nilai pertama yang benar-benar terisi, bukan sekadar tidak-null.
+        $firstFilled = static function (...$values) {
+            foreach ($values as $value) {
+                if (is_string($value)) {
+                    $value = trim($value);
+                }
+                if ($value !== null && $value !== '') {
+                    return $value;
+                }
+            }
+            return null;
+        };
 
-        $dataPart1->jumlah_keluarga_display = $dataPart1->jml_keluarga !== null
-            ? $dataPart1->jml_keluarga
-            : ($keluarga ? 1 + $jumlahAnggotaTambahan : '-');
-        $dataPart1->daerah_display = filled($dataPart1->daerah)
-            ? $dataPart1->daerah
-            : (filled($dataPart1->provinsi) ? $dataPart1->provinsi : '-');
-        $dataPart1->rt_rw_display = $keluarga
-            ? trim((string) $keluarga->rt . ' / ' . (string) $keluarga->rw, ' /')
-            : '-';
-        $dataPart1->geotagging_display = filled($dataPart1->geotangging)
-            ? $dataPart1->geotangging
-            : ($keluarga->geotagging ?? '-');
-        $dataPart1->kota_kabupaten_display = 'Kota Pasuruan';
+        // Jumlah anggota: utamakan jawaban Part 1, lalu hitung data anggota.
+        // Kode anggota keluarga mengacu pada kode keluarga, bukan kode periode.
+        $kodeUntukAnggota = $keluarga->kode ?? $keluargaKode;
+        $jumlahAnggotaTambahan = $kodeUntukAnggota
+            ? KeluargaAnggota::where('keluarga_kode', $kodeUntukAnggota)->count()
+            : 0;
+        $jumlahKeluarga = $firstFilled(
+            $dataPart1->jml_keluarga,
+            $dataPart1->jumlah_keluarga,
+            $dataPart1->jumlah_anggota_keluarga,
+            $keluarga->jumlah_anggota_keluarga ?? null,
+            $keluarga->jml_keluarga ?? null
+        );
+        // Jika jumlah tidak diisi langsung, gunakan jumlah kepala keluarga + anggota tambahan.
+        if ($jumlahKeluarga === null && ($keluarga || $jumlahAnggotaTambahan > 0)) {
+            // Kepala keluarga + anggota tambahan yang tersimpan pada tabel keluarga_anggotas.
+            $jumlahKeluarga = 1 + $jumlahAnggotaTambahan;
+        }
+        $dataPart1->jumlah_keluarga_display = $jumlahKeluarga ?? '-';
+
+        // Nama kecamatan/kelurahan dari jawaban Part 1, atau lookup dari master wilayah.
+        $namaKecamatan = $firstFilled($dataPart1->kecamatan, $keluarga->kecamatan ?? null);
+        if (!$namaKecamatan && $keluarga && $keluarga->kecamatan_id) {
+            $namaKecamatan = DB::table('kecamatans')
+                ->where('kecamatan_id', $keluarga->kecamatan_id)
+                ->value('deskripsi');
+        }
+        $namaKelurahan = $firstFilled($dataPart1->kelurahan, $dataPart1->desa ?? null, $keluarga->kelurahan ?? null);
+        if (!$namaKelurahan && $keluarga && $keluarga->kelurahan_id) {
+            $namaKelurahan = DB::table('kelurahans')
+                ->where('kelurahan_id', $keluarga->kelurahan_id)
+                ->value('deskripsi');
+        }
+
+        // RT/RW pada form Part 1 disimpan dalam satu kolom rt_rw.
+        $rtRw = $firstFilled($dataPart1->rt_rw, $keluarga->rt_rw ?? null);
+        if (!$rtRw) {
+            $rt = $firstFilled($keluarga->rt ?? null);
+            $rw = $firstFilled($keluarga->rw ?? null);
+            $rtRw = ($rt || $rw) ? trim(($rt ?? '-') . ' / ' . ($rw ?? '-')) : null;
+        }
+
+        $provinsi = $firstFilled($dataPart1->provinsi, $keluarga->provinsi ?? null);
+        // Tabel keluargas tidak memiliki kolom daerah; gunakan jawaban Part 1,
+        // lalu default Kota Pasuruan jika jawaban tersebut kosong.
+        $daerah = $firstFilled(
+            $dataPart1->daerah,
+            'Kota Pasuruan'
+        );
+        $alamatLengkap = $firstFilled(
+            $dataPart1->alamat_lengkap,
+            $keluarga->alamat_lengkap ?? null,
+            $keluarga->alamat ?? null
+        );
+        $geotagging = $firstFilled(
+            $dataPart1->geotangging,
+            $keluarga->geotagging ?? null,
+            $keluarga->geotangging ?? null
+        );
+
+        $dataPart1->provinsi_display = $provinsi ?? '-';
+        $dataPart1->daerah_display = $daerah ?? '-';
+        $dataPart1->kecamatan_display = $namaKecamatan ?? '-';
+        $dataPart1->kelurahan_display = $namaKelurahan ?? '-';
+        $dataPart1->rt_rw_display = $rtRw ?? '-';
+        $dataPart1->alamat_lengkap_display = $alamatLengkap ?? '-';
+        $dataPart1->geotagging_display = $geotagging ?? '-';
+        $dataPart1->kota_kabupaten_display = $daerah ?? 'Kota Pasuruan';
 
         $dataPart2 = KeluargaPart2::where('keluarga_periode_kode', $keluargaKode)->first();
         $dataPart3 = KeluargaPart3::where('keluarga_periode_kode', $keluargaKode)->first();

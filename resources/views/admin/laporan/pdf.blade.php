@@ -129,6 +129,12 @@
             <tr><th>Periode</th><td>{{ $item['periode'] ?? '-' }}</td></tr>
             <tr><th>Tanggal Pendataan</th><td>{{ $item['tanggal'] ?? '-' }}</td></tr>
             <tr><th>Status</th><td>{{ $item['status_label'] ?? '-' }}</td></tr>
+            @if (in_array(strtolower(trim((string) ($item['status'] ?? $item['status_label'] ?? ''))), ['rejected', 'reject', 'ditolak'], true))
+                <tr>
+                    <th>Alasan Penolakan</th>
+                    <td>{{ trim((string) ($item['alasan_penolakan'] ?? '')) ?: 'Alasan penolakan belum tersedia.' }}</td>
+                </tr>
+            @endif
             <tr><th>Petugas</th><td>{{ $item['petugas'] ?? '-' }}</td></tr>
         </tbody>
     </table>

@@ -10,6 +10,33 @@
  
  <style>
 
+/* Kartu alasan penolakan pada Detail Laporan */
+.laporan-rejection-reason {
+    display: none;
+    margin: 0 0 18px;
+    padding: 16px 18px;
+    border: 1px solid #fecaca;
+    border-left: 4px solid #dc2626;
+    border-radius: 10px;
+    background: #fff7f7;
+}
+.laporan-rejection-reason.show { display: block; }
+.laporan-rejection-reason-title {
+    margin: 0 0 7px;
+    color: #b91c1c;
+    font-size: 14px;
+    font-weight: 700;
+}
+.laporan-rejection-reason-text {
+    margin: 0;
+    color: #7f1d1d;
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+
 /* ============================================================
    LAPORAN
    ============================================================ */
@@ -1756,7 +1783,7 @@
         <div class="laporan-stat-info">
 
             <div class="laporan-stat-label">
-                Kuisioner Selesai
+                Disetujui
             </div>
 
             <div class="laporan-stat-value">
@@ -1773,7 +1800,7 @@
         <div class="laporan-stat-info">
 
             <div class="laporan-stat-label">
-                Wilayah Terdata
+                Ditolak
             </div>
 
             <div class="laporan-stat-value">
@@ -2351,6 +2378,12 @@
  
             </div> 
  
+            {{-- Alasan penolakan hanya muncul untuk data berstatus Ditolak --}}
+            <section class="laporan-rejection-reason" id="laporanRejectionReasonCard" aria-live="polite">
+                <h3 class="laporan-rejection-reason-title">Alasan Data Ditolak ! </h3>
+                <p class="laporan-rejection-reason-text" id="laporanRejectionReasonText">-</p>
+            </section>
+
             <div class="laporan-info-section"> 
  
                 <div class="laporan-info-title"> 
@@ -2704,7 +2737,10 @@ document.addEventListener('DOMContentLoaded', function () {
         'modalStatusSummary' 
     ); 
  
-    const modalNoKk = document.getElementById( 
+    
+    const laporanRejectionReasonCard = document.getElementById('laporanRejectionReasonCard');
+    const laporanRejectionReasonText = document.getElementById('laporanRejectionReasonText');
+const modalNoKk = document.getElementById( 
         'modalNoKk' 
     ); 
  
@@ -3263,6 +3299,11 @@ document.addEventListener('DOMContentLoaded', function () {
             modalStatusSummary.textContent = 
                 data.status || '-'; 
             applyDetailStatusTone(modalStatusSummary, data.status);
+        }
+
+        if (laporanRejectionReasonCard && laporanRejectionReasonText) {
+            laporanRejectionReasonText.textContent = '';
+            laporanRejectionReasonCard.classList.remove('show');
         } 
  
         if (modalNoKk) { 
@@ -3391,6 +3432,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 modalStatus.textContent = 
                     item.status_label || '-'; 
                 applyDetailStatusTone(modalStatus, item.status_label);
+            }
+
+            // Gunakan alasan yang dikirim dari data Part 1 di database.
+            const normalizedDetailStatus = String(
+                item.status || item.status_label || ''
+            ).trim().toLowerCase();
+            const detailIsRejected = ['rejected', 'reject', 'ditolak'].includes(normalizedDetailStatus);
+            const savedRejectionReason = String(
+                item.alasan_penolakan || item.alasanPenolakan || ''
+            ).trim();
+
+            if (laporanRejectionReasonCard && laporanRejectionReasonText) {
+                laporanRejectionReasonText.textContent =
+                    savedRejectionReason || 'Alasan penolakan belum tersedia.';
+                laporanRejectionReasonCard.classList.toggle('show', detailIsRejected);
             } 
  
             if (modalComplete) { 
