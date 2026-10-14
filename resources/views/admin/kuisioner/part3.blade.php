@@ -1006,7 +1006,7 @@
                 href="{{ route('kuisioner.part2') }}"
                 class="part3-back"
             >
-                ← Kembali
+                ← Kembali ke Part 2
             </a>
 
 
@@ -1019,7 +1019,7 @@
                     value="draft"
                     class="part3-draft"
                 >
-                    Simpan Draft
+                    Draft
                 </button>
 
 

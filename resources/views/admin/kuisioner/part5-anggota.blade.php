@@ -1,6 +1,6 @@
 @extends('admin.kuisioner.layout')
 
-@section('content')
+@section('kuisioner-content')
 
 <style>
     .part5-anggota-wrapper {

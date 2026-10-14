@@ -167,6 +167,43 @@ class KuisionerController extends Controller
             ->orderByDesc('updated_at')
             ->get();
 
+        foreach ($selesai as $item) {
+            $keluarga = Keluarga::where(
+                'kode',
+                $item->keluarga_periode_kode
+            )->first();
+
+            if (!$keluarga && $item->no_kk) {
+                $keluarga = Keluarga::where(
+                    'no_kk',
+                    $item->no_kk
+                )->first();
+            }
+
+            $item->keluarga_data = $keluarga;
+            $item->rt_rw_display = $keluarga
+                ? trim((string) $keluarga->rt . ' / ' . (string) $keluarga->rw, ' /')
+                : '-';
+
+            $jumlahAnggotaTambahan = $keluarga
+                ? KeluargaAnggota::where('keluarga_kode', $keluarga->kode)->count()
+                : 0;
+
+            $item->jumlah_keluarga_display = $item->jml_keluarga !== null
+                ? $item->jml_keluarga
+                : ($keluarga ? 1 + $jumlahAnggotaTambahan : '-');
+
+            $item->daerah_display = filled($item->daerah)
+                ? $item->daerah
+                : (filled($item->provinsi) ? $item->provinsi : '-');
+
+            $item->geotagging_display = filled($item->geotangging)
+                ? $item->geotangging
+                : ($keluarga->geotagging ?? '-');
+
+            $item->kota_kabupaten_display = 'Kota Pasuruan';
+        }
+
         return view('admin.kuisioner.selesai', [
             'selesai' => $selesai,
         ]);
@@ -1957,6 +1994,7 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        
         $dataPart5 = KeluargaPart5::where(
             'keluarga_periode_kode',
             $draft->keluarga_periode_kode
@@ -1964,36 +2002,41 @@ class KuisionerController extends Controller
             ->get()
             ->keyBy('keluarga_anggota_kode');
 
-    /*
-    |--------------------------------------------------------------------------
-    | CEK KELENGKAPAN SEMUA ANGGOTA
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | CEK KELENGKAPAN SEMUA ANGGOTA
+        |--------------------------------------------------------------------------
+        */
 
-    $jumlahAnggota = $anggota->count();
+        $jumlahAnggota = $anggota->count();
 
-    $jumlahSelesai = $anggota->filter(
-        function ($item) use ($dataPart5) {
+        $statusPart5 = [];
+
+        foreach ($anggota as $item) {
             $data = $dataPart5->get($item->kode);
 
-            return $data && $this->part5DataLengkap($data);
+            $statusPart5[$item->kode] = $data
+                ? $this->part5DataLengkap($data)
+                : false;
         }
-    )->count();
 
-    $semuaAnggotaSelesai = $jumlahAnggota > 0
-    && $jumlahSelesai === $jumlahAnggota;
+        $jumlahSelesai = count(array_filter($statusPart5));
 
-    return view(
-        'admin.kuisioner.part5',
-        compact(
-            'draft',
-            'anggota',
-            'dataPart5',
-            'jumlahAnggota',
-            'jumlahSelesai',
-            'semuaAnggotaSelesai'
-        )
-    );
+        $semuaAnggotaSelesai = $jumlahAnggota > 0
+            && $jumlahSelesai === $jumlahAnggota;
+
+        return view(
+            'admin.kuisioner.part5',
+            compact(
+                'draft',
+                'anggota',
+                'dataPart5',
+                'statusPart5',
+                'jumlahAnggota',
+                'jumlahSelesai',
+                'semuaAnggotaSelesai'
+            )
+        );
     }
 
     /*
@@ -2203,6 +2246,13 @@ class KuisionerController extends Controller
             'pekerjaan_utama' =>
                 'required|string|max:255',
 
+            'pekerjaan_lainnya' => [
+                'nullable',
+                'required_if:pekerjaan_utama,Lainnya',
+                'string',
+                'max:255',
+            ],
+
             'status_pekerjaan' =>
                 'required_unless:pekerjaan_utama,Tidak Bekerja|string|max:255',
 
@@ -2283,6 +2333,8 @@ class KuisionerController extends Controller
 
             'pekerjaan_utama' =>
                 $validated['pekerjaan_utama'],
+
+            'pekerjaan_lainnya' => $validated['pekerjaan_lainnya'] ?? null,
 
             'status_pekerjaan' =>
                 $validated['status_pekerjaan'] ?? null,
@@ -2490,15 +2542,22 @@ class KuisionerController extends Controller
             $draft->keluarga_periode_kode
         )->get()->keyBy('keluarga_anggota_kode');
 
+        
         $jumlahAnggota = $anggota->count();
 
-        $jumlahSelesai = $anggota->filter(
-            function ($item) use ($dataPart5) {
-                $data = $dataPart5->get($item->kode);
+        $statusPart5 = [];
 
-                return $data && $this->part5DataLengkap($data);
-            }
-        )->count();
+        foreach ($anggota as $item) {
+            $data = $dataPart5->get($item->kode);
+
+            $statusPart5[$item->kode] = $data
+                ? $this->part5DataLengkap($data)
+                : false;
+        }
+
+        $jumlahSelesai = count(
+            array_filter($statusPart5)
+        );
 
         if ($jumlahAnggota === 0) {
             return redirect()
@@ -3046,125 +3105,51 @@ class KuisionerController extends Controller
 
     public function detailSelesai($id)
     {
-        /*
-        |--------------------------------------------------------------------------
-        | AMBIL DATA PART 1
-        |--------------------------------------------------------------------------
-        */
-
-        $dataPart1 =
-            KeluargaPart1::findOrFail($id);
-
-        /*
-        |--------------------------------------------------------------------------
-        | PASTIKAN SUDAH SELESAI
-        |--------------------------------------------------------------------------
-        */
+        $dataPart1 = KeluargaPart1::findOrFail($id);
 
         if ($dataPart1->status !== 'selesai') {
-
             return redirect()
                 ->route('kuisioner.selesai')
-                ->with(
-                    'warning',
-                    'Data kuisioner belum berstatus selesai.'
-                );
+                ->with('warning', 'Data kuisioner belum berstatus selesai.');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | KODE KELUARGA
-        |--------------------------------------------------------------------------
-        */
+        $keluargaKode = $dataPart1->keluarga_periode_kode;
 
-        $keluargaKode =
-            $dataPart1->keluarga_periode_kode;
+        $keluarga = Keluarga::where('kode', $keluargaKode)->first();
+        if (!$keluarga && $dataPart1->no_kk) {
+            $keluarga = Keluarga::where('no_kk', $dataPart1->no_kk)->first();
+        }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PART 2
-        |--------------------------------------------------------------------------
-        */
+        $jumlahAnggotaTambahan = $keluarga
+            ? KeluargaAnggota::where('keluarga_kode', $keluarga->kode)->count()
+            : 0;
 
-        $dataPart2 =
-            KeluargaPart2::where(
-                'keluarga_periode_kode',
-                $keluargaKode
-            )->first();
+        $dataPart1->jumlah_keluarga_display = $dataPart1->jml_keluarga !== null
+            ? $dataPart1->jml_keluarga
+            : ($keluarga ? 1 + $jumlahAnggotaTambahan : '-');
+        $dataPart1->daerah_display = filled($dataPart1->daerah)
+            ? $dataPart1->daerah
+            : (filled($dataPart1->provinsi) ? $dataPart1->provinsi : '-');
+        $dataPart1->rt_rw_display = $keluarga
+            ? trim((string) $keluarga->rt . ' / ' . (string) $keluarga->rw, ' /')
+            : '-';
+        $dataPart1->geotagging_display = filled($dataPart1->geotangging)
+            ? $dataPart1->geotangging
+            : ($keluarga->geotagging ?? '-');
+        $dataPart1->kota_kabupaten_display = 'Kota Pasuruan';
 
-        /*
-        |--------------------------------------------------------------------------
-        | PART 3
-        |--------------------------------------------------------------------------
-        */
-
-        $dataPart3 =
-            KeluargaPart3::where(
-                'keluarga_periode_kode',
-                $keluargaKode
-            )->first();
-
-        /*
-        |--------------------------------------------------------------------------
-        | PART 4
-        |--------------------------------------------------------------------------
-        */
-
-        $dataPart4 =
-            KeluargaPart4::where(
-                'keluarga_periode_kode',
-                $keluargaKode
-            )->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | ANGGOTA KELUARGA
-        |--------------------------------------------------------------------------
-        */
-
-        $anggota =
-            KeluargaAnggota::where(
-                'keluarga_kode',
-                $keluargaKode
-            )
-                ->orderBy('id')
-                ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | PART 5
-        |--------------------------------------------------------------------------
-        */
-
-        $dataPart5 =
-            KeluargaPart5::where(
-                'keluarga_periode_kode',
-                $keluargaKode
-            )
-                ->get()
-                ->keyBy(
-                    'keluarga_anggota_kode'
-                );
-
-        /*
-        |--------------------------------------------------------------------------
-        | FOTO RUMAH
-        |--------------------------------------------------------------------------
-        */
-
-        $fotoRumah =
-            KeluargaFotoRumah::where(
-                'keluarga_periode_kode',
-                $keluargaKode
-            )
-                ->get()
-                ->keyBy('jenis_foto');
-
-        /*
-        |--------------------------------------------------------------------------
-        | KIRIM KE VIEW
-        |--------------------------------------------------------------------------
-        */
+        $dataPart2 = KeluargaPart2::where('keluarga_periode_kode', $keluargaKode)->first();
+        $dataPart3 = KeluargaPart3::where('keluarga_periode_kode', $keluargaKode)->first();
+        $dataPart4 = KeluargaPart4::where('keluarga_periode_kode', $keluargaKode)->get();
+        $anggota = KeluargaAnggota::where('keluarga_kode', $keluargaKode)
+            ->orderBy('id')
+            ->get();
+        $dataPart5 = KeluargaPart5::where('keluarga_periode_kode', $keluargaKode)
+            ->get()
+            ->keyBy('keluarga_anggota_kode');
+        $fotoRumah = KeluargaFotoRumah::where('keluarga_periode_kode', $keluargaKode)
+            ->get()
+            ->keyBy('jenis_foto');
 
         return view(
             'admin.kuisioner.detail-selesai',
@@ -3175,7 +3160,8 @@ class KuisionerController extends Controller
                 'dataPart4',
                 'anggota',
                 'dataPart5',
-                'fotoRumah'
+                'fotoRumah',
+                'keluarga'
             )
         );
     }
@@ -3305,11 +3291,7 @@ class KuisionerController extends Controller
             ->route('kuisioner.index')
             ->with('success', 'Draft Part 5 berhasil disimpan. Kamu bisa melanjutkan pengisian nanti.');
     }
-    /*
-    |--------------------------------------------------------------------------
-    | CEK APAKAH DATA PART 5 ANGGOTA SUDAH LENGKAP
-    |--------------------------------------------------------------------------
-    */
+   
 
 
 }

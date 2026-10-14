@@ -626,7 +626,7 @@
                 {{-- PART 5 --}}
                 <a
                     href="{{ route('kuisioner.part5') }}"
-                    class="part-item {{ request()->routeIs('kuisioner.part5') ? 'active' : '' }}"
+                    class="part-item {{ request()->routeIs('kuisioner.part5', 'kuisioner.part5.*') ? 'active' : '' }}"
                 >
                     <div class="part-number">
                         5

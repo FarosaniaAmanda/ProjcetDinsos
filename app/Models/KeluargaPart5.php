@@ -22,6 +22,7 @@ class KeluargaPart5 extends Model
         'ijazah_tertinggi',
         'ijazah_lainnya',
         'pekerjaan_utama',
+        'pekerjaan_lainnya',
         'status_pekerjaan',
         'kepemilikan_rekening',
         'is_disabilitas_fisik',

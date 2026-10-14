@@ -907,7 +907,7 @@
 
         <div class="part4-footer">
             <a href="{{ route('kuisioner.part3') }}" class="part4-back">
-                ← Kembali
+                ← Kembali ke Part 3
             </a>
 
             <div class="part4-footer-actions">
@@ -917,7 +917,7 @@
                     value="draft"
                     class="part4-draft"
                 >
-                    Simpan Draft
+                    Draft
                 </button>
 
                 <button

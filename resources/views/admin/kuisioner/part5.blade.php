@@ -1,6 +1,6 @@
 @extends('admin.kuisioner.layout')
 
-@section('content')
+@section('kuisioner-content')
 
 <style>
     .part5-list-wrapper {
@@ -335,67 +335,8 @@
 
                 @forelse ($anggota as $index => $item)
 
-                    
-                
                 @php
-                    $dataAnggota = $dataPart5->get($item->kode);
-                    $sudahDiisi = false;
-                    $alasanBelumLengkap = [];
-
-                    if (!$dataAnggota) {
-                        $alasanBelumLengkap[] = 'Data anggota belum tersimpan.';
-                    } else {
-                        $kolomWajib = [
-                            'keberadaan',
-                            'jenis_kelamin',
-                            'status_perkawinan',
-                            'status_sekolah',
-                            'ijazah_tertinggi',
-                            'pekerjaan_utama',
-                            'kepemilikan_rekening',
-                            'is_disabilitas_fisik',
-                            'is_disabilitas_mental',
-                            'is_disabilitas_intelektual',
-                            'is_disabilitas_netra',
-                            'is_disabilitas_rungu',
-                            'is_disabilitas_wicara',
-                        ];
-
-                        foreach ($kolomWajib as $kolom) {
-                            if (
-                                !isset($dataAnggota->{$kolom}) ||
-                                trim((string) $dataAnggota->{$kolom}) === ''
-                            ) {
-                                $alasanBelumLengkap[] = $kolom;
-                            }
-                        }
-
-                        if (
-                            $dataAnggota->ijazah_tertinggi === 'Lainnya' &&
-                            trim((string) $dataAnggota->ijazah_lainnya) === ''
-                        ) {
-                            $alasanBelumLengkap[] = 'ijazah_lainnya';
-                        }
-
-                        if (
-                            $dataAnggota->pekerjaan_utama !== 'Tidak Bekerja' &&
-                            trim((string) $dataAnggota->status_pekerjaan) === ''
-                        ) {
-                            $alasanBelumLengkap[] = 'status_pekerjaan';
-                        }
-
-                        $keluhan = $dataAnggota->keluhan_kesehatan;
-
-                        if (is_string($keluhan)) {
-                            $keluhan = json_decode($keluhan, true);
-                        }
-
-                        if (!is_array($keluhan) || count($keluhan) < 1) {
-                            $alasanBelumLengkap[] = 'keluhan_kesehatan';
-                        }
-
-                        $sudahDiisi = count($alasanBelumLengkap) === 0;
-                    }
+                    $sudahDiisi = (bool) ($statusPart5[$item->kode] ?? false);
                 @endphp
 
 
@@ -425,11 +366,6 @@
                                 <span class="part5-status part5-status-belum">
                                     Belum Diisi
                                 </span>
-
-                                <div style="margin-top: 6px; font-size: 11px; color: #a35b00;">
-                                    Belum lengkap:
-                                    {{ implode(', ', $alasanBelumLengkap) }}
-                                </div>
                             @endif
                         </td>
 
@@ -482,7 +418,7 @@
                     type="submit"
                     class="part5-draft-btn"
                 >
-                    Simpan Draft
+                    Draft
                 </button>
             </form>
 
