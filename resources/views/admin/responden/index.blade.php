@@ -1343,7 +1343,7 @@ textarea.responden-form-control {
                         @php
                             $jumlahAnggota = (int) ($keluarga->jml_keluarga ?? $keluarga->anggota->count());
                             $alamatSumber = $keluarga->alamat_tampil ?? $keluarga->alamat_lengkap ?? '';
-                            $koordinatKeluarga = $keluarga->geotagging ?? null;
+                            $koordinatKeluarga = $keluarga->geotangging ?? null;
                             if (!$koordinatKeluarga && preg_match(
                                 '/Koordinat:\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i',
                                 $alamatSumber,
@@ -1363,7 +1363,7 @@ textarea.responden-form-control {
                         <tr
                             class="responden-row responden-family-main"
                             id="keluarga-row-{{ $keluarga->id }}"
-                            data-geotagging="{{ $keluarga->geotagging ?? $keluarga->alamat_lengkap }}"
+                            data-geotagging="{{ $keluarga->geotangging ?? $keluarga->alamat_lengkap }}"
                         >
 
                             <td class="responden-number">
@@ -1430,6 +1430,11 @@ textarea.responden-form-control {
                                         </div>
                                     @endif
                                 </div>
+                                @if($koordinatKeluarga)
+                                    <div style="font-size:11px;color:#777;margin-top:6px;">
+                                        Koordinat: {{ $koordinatKeluarga }}
+                                    </div>
+                                @endif
                             </td>
 
                             <td>
@@ -1504,6 +1509,11 @@ textarea.responden-form-control {
                                             </div>
                                         @endif
                                     </div>
+                                    @if($koordinatKeluarga)
+                                        <div style="font-size:11px;color:#777;margin-top:6px;">
+                                            Koordinat: {{ $koordinatKeluarga }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td>
                                     <span style="font-size:10px;color:#aaa;">—</span>
@@ -2684,60 +2694,6 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () { n.remove(); }, 4000);
     }
 
-    // Pencarian otomatis saat mengetik, sekaligus menjaga fokus dan posisi kursor.
-    const searchInput = document.getElementById('searchResponden');
-    const searchForm = document.getElementById('searchRespondenForm');
-    let searchTimer = null;
-
-    if (searchInput && searchForm) {
-        const currentSearch = searchInput.value.trim();
-
-        // Setelah hasil pencarian dimuat, kembalikan fokus dan posisi kursor.
-        try {
-            const savedCursor = sessionStorage.getItem('respondenSearchCursor');
-            if (savedCursor !== null) {
-                sessionStorage.removeItem('respondenSearchCursor');
-                const cursorPosition = Math.min(
-                    parseInt(savedCursor, 10) || 0,
-                    searchInput.value.length
-                );
-                searchInput.focus();
-                searchInput.setSelectionRange(cursorPosition, cursorPosition);
-            }
-        } catch (error) {
-            // Pencarian tetap berjalan jika penyimpanan sesi tidak tersedia.
-        }
-
-        searchInput.addEventListener('input', function () {
-            clearTimeout(searchTimer);
-
-            searchTimer = setTimeout(function () {
-                const keyword = searchInput.value.trim();
-
-                // Hindari reload jika kata kunci tidak berubah.
-                if (keyword === currentSearch) {
-                    return;
-                }
-
-                // Simpan posisi kursor agar tidak hilang setelah hasil dimuat.
-                try {
-                    sessionStorage.setItem(
-                        'respondenSearchCursor',
-                        String(searchInput.selectionStart ?? searchInput.value.length)
-                    );
-                } catch (error) {
-                    // Tetap lanjutkan pencarian jika penyimpanan sesi tidak tersedia.
-                }
-
-                if (typeof searchForm.requestSubmit === 'function') {
-                    searchForm.requestSubmit();
-                } else {
-                    searchForm.submit();
-                }
-            }, 600);
-        });
-    }
-
     const m = document.getElementById('modalDetailResponden');
     if (m) {
         m.addEventListener('click', function (e) {
@@ -3899,7 +3855,36 @@ function renderAnggotaEdit() {
 }
 
 
+function simpanInputAnggotaEditKeData() {
+
+    const container = document.getElementById('anggotaEditContainer');
+
+    if (!container) {
+        return;
+    }
+
+    const cards = Array.from(container.querySelectorAll('.anggota-card'));
+
+    anggotaEditData = cards.map(function (card) {
+        const idInput = card.querySelector('input[name$="[id]"]');
+        const nikInput = card.querySelector('input[name$="[nik]"]');
+        const namaInput = card.querySelector('input[name$="[nama_lengkap]"]');
+        const statusInput = card.querySelector('select[name$="[status_keluarga]"]');
+
+        return {
+            id: idInput && idInput.value !== '' ? idInput.value : null,
+            nik: nikInput ? nikInput.value : '',
+            nama_lengkap: namaInput ? namaInput.value : '',
+            status_keluarga: statusInput ? statusInput.value : ''
+        };
+    });
+}
+
+
 function tambahAnggotaEditBaru() {
+
+    // Simpan semua input yang sedang diketik sebelum kartu dirender ulang.
+    simpanInputAnggotaEditKeData();
 
     anggotaEditData.push({
         id: null,
@@ -3927,6 +3912,9 @@ function tambahAnggotaEditBaru() {
 
 
 function hapusAnggotaEdit(index) {
+
+    // Pertahankan input anggota lain yang belum disimpan.
+    simpanInputAnggotaEditKeData();
 
     const item = anggotaEditData[index];
 

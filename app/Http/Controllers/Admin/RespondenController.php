@@ -231,11 +231,6 @@ class RespondenController extends Controller
                 'string',
                 'max:100',
             ],
-            'geotagging' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
         ]);
 
         DB::transaction(function () use ($request) {
@@ -267,7 +262,11 @@ class RespondenController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $alamatLengkap = $request->alamat_lengkap;
+            // Koordinat disimpan terpisah pada kolom keluargas.geotagging.
+            $alamatLengkap =
+                $this->hapusGeotagDariAlamat(
+                    $request->alamat_lengkap
+                );
 
             /*
             |--------------------------------------------------------------------------
@@ -310,6 +309,7 @@ class RespondenController extends Controller
                 ->update([
                     'rt' => $request->input('rt'),
                     'rw' => $request->input('rw'),
+                    'geotagging' => $request->input('geotangging'),
                     'updated_at' => now(),
                 ]);
 
@@ -460,8 +460,11 @@ class RespondenController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $geotangging = $keluarga->geotagging
-            ?: $this->ambilGeotagDariAlamat($keluarga->alamat_lengkap);
+        $geotangging =
+            $keluarga->geotagging
+            ?: $this->ambilGeotagDariAlamat(
+                $keluarga->alamat_lengkap
+            );
 
         /*
         |--------------------------------------------------------------------------
@@ -834,11 +837,6 @@ class RespondenController extends Controller
                 'string',
                 'max:100',
             ],
-            'geotagging' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
         ]);
 
         DB::transaction(function () use (
@@ -873,7 +871,11 @@ class RespondenController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $alamatLengkap = $request->alamat_lengkap;
+            // Koordinat disimpan terpisah pada kolom keluargas.geotagging.
+            $alamatLengkap =
+                $this->hapusGeotagDariAlamat(
+                    $request->alamat_lengkap
+                );
 
             /*
             |--------------------------------------------------------------------------
@@ -916,7 +918,7 @@ class RespondenController extends Controller
                 ->update([
                     'rt' => $request->input('rt'),
                     'rw' => $request->input('rw'),
-                    'geotagging' => $request->input('geotagging', $request->input('geotangging')),
+                    'geotagging' => $request->input('geotangging'),
                     'updated_at' => now(),
                 ]);
 
@@ -1126,8 +1128,11 @@ class RespondenController extends Controller
                 $keluarga->alamat_lengkap
             );
 
-        $geotangging = $keluarga->geotagging
-            ?: $this->ambilGeotagDariAlamat($keluarga->alamat_lengkap);
+        $geotangging =
+            $keluarga->geotagging
+            ?: $this->ambilGeotagDariAlamat(
+                $keluarga->alamat_lengkap
+            );
 
         return response()->json([
             'id' =>
@@ -1358,3 +1363,4 @@ class RespondenController extends Controller
         return null;
     }
 }
+
