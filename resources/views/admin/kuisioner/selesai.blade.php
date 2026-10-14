@@ -1,81 +1,43 @@
+
 @extends('admin.layouts.app')
 
-@section('title', 'Kuisioner Diajukan')
+@section('title', 'Kuisioner Menunggu Verifikasi')
 
 @section('content')
 
 <div class="kuisioner-selesai-page">
 
-    {{-- =========================================================
-         PAGE HEADER
-    ========================================================== --}}
+    {{-- PAGE HEADER --}}
     <div class="page-header">
-
         <div class="page-header-text">
-            <h1>Kuisioner Diajukan</h1>
-
-            <p>
-                Daftar kuisioner yang telah selesai diisi dan siap untuk
-                diajukan ke proses verifikasi.
-            </p>
+            <h1>Kuisioner Menunggu Verifikasi</h1>
+            <p>Daftar kuisioner yang telah diajukan dan sedang menunggu proses verifikasi.</p>
         </div>
-
     </div>
 
-
-    {{-- =========================================================
-         ALERT SUCCESS
-    ========================================================== --}}
+    {{-- ALERT SUCCESS --}}
     @if(session('success'))
-
         <div class="alert alert-success">
-
-            <div class="alert-icon">
-                ✓
-            </div>
-
-            <div>
-                {{ session('success') }}
-            </div>
-
+            <div class="alert-icon">✓</div>
+            <div>{{ session('success') }}</div>
         </div>
-
     @endif
 
-
-    {{-- =========================================================
-         ALERT WARNING
-    ========================================================== --}}
+    {{-- ALERT WARNING --}}
     @if(session('warning'))
-
         <div class="alert alert-warning">
-
-            <div class="alert-icon">
-                !
-            </div>
-
-            <div>
-                {{ session('warning') }}
-            </div>
-
+            <div class="alert-icon">!</div>
+            <div>{{ session('warning') }}</div>
         </div>
-
     @endif
 
-
-    {{-- =========================================================
-         SUMMARY
-    ========================================================== --}}
+    {{-- SUMMARY --}}
     <div class="summary-card">
-
-        <div class="summary-icon">
-            ✓
-        </div>
+        <div class="summary-icon">!</div>
 
         <div class="summary-content">
-
             <span class="summary-label">
-                Kuisioner Diajukan
+                Total Kuisioner Menunggu Verifikasi
             </span>
 
             <strong class="summary-number">
@@ -83,291 +45,156 @@
             </strong>
 
             <span class="summary-description">
-                Data telah menyelesaikan seluruh tahapan kuisioner.
+                Kuisioner yang telah diajukan dan menunggu pemeriksaan verifikator.
             </span>
-
         </div>
-
     </div>
 
-
-    {{-- =========================================================
-         MAIN CARD
-    ========================================================== --}}
+    {{-- MAIN CARD --}}
     <div class="data-card">
 
         <div class="data-card-header">
-
             <div>
-
-                <h2>
-                    Daftar Kuisioner
-                </h2>
-
-                <p>
-                    Data di bawah merupakan kuisioner yang sudah selesai
-                    diisi oleh petugas.
-                </p>
-
+                <h2>Daftar Kuisioner Menunggu Verifikasi</h2>
+                <p>Data di bawah merupakan kuisioner yang menunggu proses verifikasi.</p>
             </div>
 
             <div class="data-count">
                 {{ $selesai->count() }} Data
             </div>
-
         </div>
 
-
-        {{-- =====================================================
-             TABLE
-        ====================================================== --}}
+        {{-- TABLE --}}
         <div class="table-wrapper">
-
             <table class="data-table">
 
                 <thead>
-
                     <tr>
-
-                        <th width="60">
-                            No
-                        </th>
-
-                        <th>
-                            No. KK
-                        </th>
-
-                        <th>
-                            NIK
-                        </th>
-
-                        <th>
-                            Nama Kepala Keluarga
-                        </th>
-
-                        <th>
-                            Kecamatan
-                        </th>
-
-                        <th>
-                            Kelurahan
-                        </th>
-
-                        <th>
-                            Status
-                        </th>
-
-                        <th>
-                            Tanggal Selesai
-                        </th>
-
-                        <th width="125">
-                            Aksi
-                        </th>
-
+                        <th width="60">No</th>
+                        <th>No. KK</th>
+                        <th>NIK</th>
+                        <th>Nama Kepala Keluarga</th>
+                        <th>Kecamatan</th>
+                        <th>Kelurahan</th>
+                        <th>Status</th>
+                        <th>Tanggal Pengajuan</th>
+                        <th width="125">Aksi</th>
                     </tr>
-
                 </thead>
 
-
                 <tbody>
-
                     @forelse($selesai as $item)
-
                         <tr>
-
-                            {{-- =================================================
-                                 NO
-                            ================================================== --}}
+                            {{-- NO --}}
                             <td class="number-column">
                                 {{ $loop->iteration }}
                             </td>
 
-
-                            {{-- =================================================
-                                 NO KK
-                            ================================================== --}}
+                            {{-- NO KK --}}
                             <td>
-
                                 <div class="primary-text">
                                     {{ $item->no_kk ?? '-' }}
                                 </div>
-
                             </td>
 
-
-                            {{-- =================================================
-                                 NIK
-                            ================================================== --}}
+                            {{-- NIK --}}
                             <td>
-
                                 <div class="primary-text">
                                     {{ $item->nik ?? '-' }}
                                 </div>
-
                             </td>
 
-
-                            {{-- =================================================
-                                 NAMA
-                            ================================================== --}}
+                            {{-- NAMA --}}
                             <td>
-
                                 <div class="name-cell">
-
                                     <div class="name-avatar">
                                         {{ strtoupper(substr($item->nama_kepala_keluarga ?? 'K', 0, 1)) }}
                                     </div>
 
                                     <div class="name-content">
-
                                         <strong>
                                             {{ $item->nama_kepala_keluarga ?? '-' }}
                                         </strong>
-
                                     </div>
-
                                 </div>
-
                             </td>
 
-
-                            {{-- =================================================
-                                 KECAMATAN
-                            ================================================== --}}
+                            {{-- KECAMATAN --}}
                             <td>
                                 {{ $item->kecamatan ?? '-' }}
                             </td>
 
-
-                            {{-- =================================================
-                                 KELURAHAN
-                            ================================================== --}}
+                            {{-- KELURAHAN --}}
                             <td>
                                 {{ $item->kelurahan ?? '-' }}
                             </td>
 
-
-                            {{-- =================================================
-                                 STATUS
-                            ================================================== --}}
+                            {{-- STATUS --}}
                             <td>
-
-                                <span class="status-badge">
-
+                                <span class="status-badge status-menunggu">
                                     <span class="status-dot"></span>
-
-                                    Selesai
-
+                                    Menunggu Verifikasi
                                 </span>
-
                             </td>
 
-
-                            {{-- =================================================
-                                 TANGGAL SELESAI
-                            ================================================== --}}
+                            {{-- TANGGAL PENGAJUAN --}}
                             <td>
-
                                 <div class="date-cell">
-
                                     {{ $item->updated_at
                                         ? $item->updated_at->format('d-m-Y')
                                         : '-'
                                     }}
 
                                     @if($item->updated_at)
-
                                         <small>
                                             {{ $item->updated_at->format('H:i') }}
                                         </small>
-
                                     @endif
-
                                 </div>
-
                             </td>
 
-
-                            {{-- =================================================
-                                 AKSI
-                            ================================================== --}}
+                            {{-- AKSI --}}
                             <td>
-
                                 <a
                                     href="{{ route('kuisioner.selesai.detail', $item->id) }}"
                                     class="btn-detail"
                                     title="Lihat Detail Kuisioner"
                                 >
-
-
-                                    <span>
-                                        Detail
-                                    </span>
-
+                                    <span>Detail</span>
                                 </a>
-
                             </td>
-
                         </tr>
 
-
                     @empty
-
                         <tr>
-
-                            <td
-                                colspan="9"
-                                class="empty-state"
-                            >
-
-                                <div class="empty-icon">
-                                    ✓
-                                </div>
+                            <td colspan="9" class="empty-state">
+                                <div class="empty-icon">!</div>
 
                                 <h3>
-                                    Belum Ada Kuisioner Selesai
+                                    Belum Ada Kuisioner Menunggu Verifikasi
                                 </h3>
 
                                 <p>
-                                    Kuisioner yang telah selesai diisi
-                                    akan muncul di halaman ini.
+                                    Kuisioner yang telah diajukan akan muncul di halaman ini
+                                    dan menunggu proses verifikasi.
                                 </p>
-
                             </td>
-
                         </tr>
-
                     @endforelse
-
                 </tbody>
 
             </table>
-
         </div>
-
     </div>
-
 </div>
 
-
 @push('styles')
-
 <style>
-
-    /* =========================================================
-       PAGE
-    ========================================================== */
-
     .kuisioner-selesai-page {
         width: 100%;
     }
 
-
-    /* =========================================================
-       PAGE HEADER
-    ========================================================== */
-
+    /* PAGE HEADER */
     .page-header {
         display: flex;
         align-items: flex-start;
@@ -391,11 +218,7 @@
         line-height: 1.6;
     }
 
-
-    /* =========================================================
-       ALERT
-    ========================================================== */
-
+    /* ALERT */
     .alert {
         display: flex;
         align-items: center;
@@ -423,11 +246,9 @@
         width: 28px;
         height: 28px;
         flex: 0 0 28px;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         border-radius: 50%;
         font-weight: 800;
     }
@@ -440,80 +261,84 @@
         background: #fef0c7;
     }
 
-
-    /* =========================================================
-       SUMMARY CARD
-    ========================================================== */
-
+    /* SUMMARY CARD */
     .summary-card {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 18px;
+        gap: 20px;
+        padding: 25px 28px;
+        margin-bottom: 24px;
+        overflow: hidden;
+        background: linear-gradient(115deg, #ffffff 0%, #fffbeb 100%);
+        border: 1px solid #fde68a;
+        border-left: 5px solid #eab308;
+        border-radius: 18px;
+        box-shadow: 0 8px 24px rgba(146, 64, 14, 0.07);
+    }
 
-        padding: 22px 24px;
-        margin-bottom: 22px;
-
-        background: #ffffff;
-        border: 1px solid #eaecf0;
-        border-radius: 15px;
-
-        box-shadow: 0 4px 18px rgba(16, 24, 40, 0.05);
+    .summary-card::after {
+        content: "";
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        right: -48px;
+        top: -68px;
+        border-radius: 50%;
+        background: rgba(234, 179, 8, 0.08);
+        pointer-events: none;
     }
 
     .summary-icon {
-        width: 58px;
-        height: 58px;
-        flex: 0 0 58px;
-
+        width: 64px;
+        height: 64px;
+        flex: 0 0 64px;
         display: flex;
         align-items: center;
         justify-content: center;
-
-        border-radius: 14px;
-
-        background: #ecfdf3;
-        color: #299447;
-
-        font-size: 25px;
+        border: 1px solid #fde68a;
+        border-radius: 18px;
+        background: #fef3c7;
+        color: #b45309;
+        font-size: 30px;
         font-weight: 800;
+        box-shadow: 0 4px 10px rgba(180, 83, 9, 0.08);
     }
 
     .summary-content {
+        position: relative;
+        z-index: 1;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 5px;
     }
 
     .summary-label {
-        color: #667085;
+        color: #92400e;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 700;
+        letter-spacing: 0.2px;
     }
 
     .summary-number {
-        color: #101828;
-        font-size: 26px;
+        color: #78350f;
+        font-size: 36px;
         font-weight: 800;
-        line-height: 1.2;
+        line-height: 1.15;
     }
 
     .summary-description {
-        color: #667085;
+        color: #78716c;
         font-size: 13px;
+        line-height: 1.6;
     }
 
-
-    /* =========================================================
-       MAIN CARD
-    ========================================================== */
-
+    /* MAIN CARD */
     .data-card {
         background: #ffffff;
         border: 1px solid #eaecf0;
         border-radius: 15px;
-
         box-shadow: 0 4px 18px rgba(16, 24, 40, 0.05);
-
         overflow: hidden;
     }
 
@@ -521,93 +346,65 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-
         gap: 20px;
-
         padding: 21px 24px;
-
         border-bottom: 1px solid #eaecf0;
     }
 
     .data-card-header h2 {
         margin: 0 0 5px;
-
         color: #252A86;
-
         font-size: 19px;
         font-weight: 750;
     }
 
     .data-card-header p {
         margin: 0;
-
         color: #667085;
-
         font-size: 14px;
         line-height: 1.5;
     }
 
     .data-count {
         flex-shrink: 0;
-
         padding: 8px 13px;
-
         border-radius: 9px;
-
-        background: #f2f4f7;
-        color: #344054;
-
+        background: #fef3c7;
+        color: #92400e;
         font-size: 13px;
         font-weight: 700;
     }
 
-
-    /* =========================================================
-       TABLE
-    ========================================================== */
-
+    /* TABLE */
     .table-wrapper {
         width: 100%;
-
         overflow-x: auto;
-
         -webkit-overflow-scrolling: touch;
     }
 
     .data-table {
         width: 100%;
         min-width: 1180px;
-
         border-collapse: collapse;
     }
 
     .data-table thead th {
         padding: 15px 17px;
-
         background: #f8f9fc;
-
         color: #475467;
-
         font-size: 13px;
         font-weight: 750;
-
         text-align: left;
-
         white-space: nowrap;
-
         border-bottom: 1px solid #eaecf0;
     }
 
     .data-table tbody td {
         padding: 16px 17px;
-
         color: #344054;
-
         font-size: 14px;
         line-height: 1.5;
-
         vertical-align: middle;
-
         border-bottom: 1px solid #f2f4f7;
     }
 
@@ -630,23 +427,15 @@
 
     .primary-text {
         color: #344054;
-
         font-weight: 600;
-
         white-space: nowrap;
     }
 
-
-    /* =========================================================
-       NAME
-    ========================================================== */
-
+    /* NAME */
     .name-cell {
         display: flex;
         align-items: center;
-
         gap: 10px;
-
         min-width: 210px;
     }
 
@@ -654,75 +443,58 @@
         width: 36px;
         height: 36px;
         flex: 0 0 36px;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         border-radius: 50%;
-
         background: #eef2ff;
         color: #252A86;
-
         font-size: 14px;
         font-weight: 800;
     }
 
     .name-content strong {
         display: block;
-
         color: #344054;
-
         font-size: 14px;
         font-weight: 700;
-
         white-space: nowrap;
     }
 
-
-    /* =========================================================
-       STATUS
-    ========================================================== */
-
+    /* STATUS MENUNGGU VERIFIKASI */
     .status-badge {
         display: inline-flex;
         align-items: center;
-
         gap: 7px;
-
         padding: 7px 11px;
-
         border-radius: 999px;
-
-        background: #ecfdf3;
-        color: #027a48;
-
         font-size: 13px;
         font-weight: 700;
-
         white-space: nowrap;
+    }
+
+    .status-badge.status-menunggu {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #fde68a;
     }
 
     .status-dot {
         width: 7px;
         height: 7px;
-
+        flex: 0 0 7px;
         border-radius: 50%;
-
-        background: #299447;
     }
 
+    .status-badge.status-menunggu .status-dot {
+        background: #d97706;
+    }
 
-    /* =========================================================
-       DATE
-    ========================================================== */
-
+    /* DATE */
     .date-cell {
         display: flex;
         flex-direction: column;
-
         gap: 2px;
-
         white-space: nowrap;
     }
 
@@ -731,50 +503,31 @@
         font-size: 12px;
     }
 
-
-    /* =========================================================
-       BUTTON DETAIL
-    ========================================================== */
-
+    /* BUTTON DETAIL */
     .btn-detail {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-
         gap: 7px;
-
         min-height: 38px;
-
         padding: 8px 13px;
-
         border: 1px solid #d0d5dd;
         border-radius: 9px;
-
         background: #ffffff;
         color: #344054;
-
         font-size: 13px;
         font-weight: 700;
-
         text-decoration: none;
-
         white-space: nowrap;
-
-        transition:
-            background .2s ease,
-            border-color .2s ease,
-            color .2s ease,
-            transform .2s ease,
-            box-shadow .2s ease;
+        transition: background .2s ease, border-color .2s ease,
+            color .2s ease, transform .2s ease, box-shadow .2s ease;
     }
 
     .btn-detail:hover {
         background: #f8f9fc;
         border-color: #252A86;
         color: #252A86;
-
         transform: translateY(-1px);
-
         box-shadow: 0 3px 8px rgba(16, 24, 40, 0.08);
     }
 
@@ -782,69 +535,41 @@
         transform: translateY(0);
     }
 
-    .btn-detail-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        font-size: 14px;
-        line-height: 1;
-    }
-
-
-    /* =========================================================
-       EMPTY STATE
-    ========================================================== */
-
+    /* EMPTY STATE */
     .empty-state {
         padding: 60px 25px !important;
-
         text-align: center !important;
     }
 
     .empty-icon {
         width: 58px;
         height: 58px;
-
         margin: 0 auto 15px;
-
         display: flex;
         align-items: center;
         justify-content: center;
-
         border-radius: 50%;
-
-        background: #f2f4f7;
-        color: #667085;
-
+        background: #fef3c7;
+        color: #b45309;
         font-size: 23px;
         font-weight: 800;
     }
 
     .empty-state h3 {
         margin: 0 0 7px;
-
         color: #344054;
-
         font-size: 17px;
         font-weight: 700;
     }
 
     .empty-state p {
         margin: 0;
-
         color: #667085;
-
         font-size: 14px;
     }
 
-
-    /* =========================================================
-       TABLET
-    ========================================================== */
-
+    /* TABLET */
     @media (max-width: 900px) {
-
         .page-header-text h1 {
             font-size: 24px;
         }
@@ -856,16 +581,10 @@
         .data-table {
             min-width: 1180px;
         }
-
     }
 
-
-    /* =========================================================
-       MOBILE
-    ========================================================== */
-
+    /* MOBILE */
     @media (max-width: 600px) {
-
         .page-header {
             margin-bottom: 18px;
         }
@@ -878,7 +597,6 @@
             font-size: 14px;
         }
 
-
         .summary-card {
             padding: 18px;
             gap: 13px;
@@ -888,8 +606,11 @@
             width: 48px;
             height: 48px;
             flex-basis: 48px;
-
             font-size: 21px;
+        }
+
+        .summary-label {
+            font-size: 12px;
         }
 
         .summary-number {
@@ -901,10 +622,8 @@
             line-height: 1.5;
         }
 
-
         .data-card-header {
             padding: 18px;
-
             flex-direction: column;
             align-items: flex-start;
         }
@@ -921,37 +640,22 @@
             align-self: flex-start;
         }
 
-
-        /*
-         * Tabel tetap horizontal scroll agar
-         * data tidak bertumpuk di layar HP.
-         */
         .data-table {
             min-width: 1180px;
         }
 
-
         .btn-detail {
             min-height: 36px;
-
             padding: 8px 11px;
-
             font-size: 12px;
         }
-
     }
 
-
-    /* =========================================================
-       SMALL MOBILE
-    ========================================================== */
-
+    /* SMALL MOBILE */
     @media (max-width: 400px) {
-
         .page-header-text h1 {
             font-size: 20px;
         }
-
 
         .summary-card {
             align-items: flex-start;
@@ -966,11 +670,8 @@
         .summary-number {
             font-size: 21px;
         }
-
     }
-
 </style>
-
 @endpush
 
 @endsection

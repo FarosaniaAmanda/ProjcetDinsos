@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Detail Kuisioner Selesai')
+@section('title', 'Detail Kuisioner Menunggu Verifikasi')
 
 @section('content')
 
@@ -373,6 +373,8 @@
         align-items: center;
         gap: 8px;
         border-bottom: 1px solid #e8e9ef;
+        cursor: pointer;
+        user-select: none;
     }
 
     .member-number {
@@ -395,7 +397,22 @@
     }
 
     .member-body {
+        display: none;
         padding: 9px;
+    }
+
+    .member-card.expanded .member-body {
+        display: block;
+    }
+
+    .member-toggle-icon {
+        margin-left: auto;
+        color: #888da0;
+        transition: transform .2s;
+    }
+
+    .member-card.expanded .member-toggle-icon {
+        transform: rotate(180deg);
     }
 
     /* =========================================================
@@ -652,7 +669,7 @@
         <div class="detail-header-left">
 
             <div>
-                <h1>Detail Kuisioner Selesai</h1>
+                <h1>Detail Kuisioner Menunggu Verifikasi</h1>
                 <p>Detail jawaban pendataan keluarga</p>
             </div>
 
@@ -821,14 +838,6 @@
                         <div class="info-label">Alasan Tidak Sesuai</div>
                         <div class="info-value">
                             {{ $p1->alasan_tidak_sesuai ?? '-' }}
-                        </div>
-                    </div>
-
-                    {{-- ALASAN PENOLAKAN --}}
-                    <div class="info-item">
-                        <div class="info-label">Alasan Penolakan</div>
-                        <div class="info-value">
-                            {{ $p1->alasan_penolakan ?? '-' }}
                         </div>
                     </div>
 
@@ -1016,14 +1025,22 @@
 
                     {{-- Peta geotagging dan titik lokasi rumah --}}
                     @php
-                        $geoRaw = trim((string) (
-                            $dataPart1->geotangging
-                            ?? $dataPart1->geotagging
-                            ?? $dataPart1->geotagging_display
-                            ?? ($keluarga->geotagging ?? null)
-                            ?? ($keluarga->geotangging ?? null)
-                            ?? ''
-                        ));
+                        $geoRaw = '';
+                        foreach ([
+                            $dataPart1->geotangging ?? null,
+                            $dataPart1->geotagging ?? null,
+                            $dataPart1->geotagging_display ?? null,
+                            $keluarga->geotagging ?? null,
+                            $keluarga->geotangging ?? null,
+                        ] as $geoCandidate) {
+                            if (is_scalar($geoCandidate)) {
+                                $geoCandidate = trim((string) $geoCandidate);
+                                if ($geoCandidate !== '' && $geoCandidate !== '-') {
+                                    $geoRaw = $geoCandidate;
+                                    break;
+                                }
+                            }
+                        }
                         $latitude = null;
                         $longitude = null;
 
@@ -1147,6 +1164,17 @@
 
                                         <div class="answer-value">
 
+                                            @php
+                                                $displayValue = $value;
+                                                if ($field === 'is_keluarga_lain') {
+                                                    $displayValue = match ((string) $value) {
+                                                        '1' => 'Ya',
+                                                        '0' => 'Tidak',
+                                                        default => $value,
+                                                    };
+                                                }
+                                            @endphp
+
                                             @if(is_array($value))
 
                                                 {{ implode(', ', $value) }}
@@ -1157,7 +1185,7 @@
 
                                             @else
 
-                                                {{ $value !== null && $value !== '' ? $value : '-' }}
+                                                {{ $displayValue !== null && $displayValue !== '' ? $displayValue : '-' }}
 
                                             @endif
 
@@ -1241,10 +1269,41 @@
                                     <div class="answer-item">
 
                                         <div class="answer-label">
-                                            {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                            {{ match ($field) {
+                                                'pendapatan_pekerjaan' => 'Penghasilan dari Pekerjaan',
+                                                'total_pendapatan_kerja' => 'Total Pendapatan dari Pekerjaan Sebulan',
+                                                'total_pendapatan_usaha' => 'Total Pendapatan dari Usaha Sebulan',
+                                                'pendapatan_lainnya' => 'Penghasilan Lainnya',
+                                                'total_pendapatan_lainnya' => 'Total Penghasilan Lainnya Sebulan',
+                                                default => ucwords(str_replace(['_', '-'], ' ', $field)),
+                                            } }}
                                         </div>
 
                                         <div class="answer-value">
+
+                                            @php
+                                                $displayValue = $value;
+                                                $totalPendapatanKerja = is_array($attributes)
+                                                    ? ($attributes['total_pendapatan_kerja'] ?? null)
+                                                    : ($record->total_pendapatan_kerja ?? null);
+                                                $totalPendapatanLainnya = is_array($attributes)
+                                                    ? ($attributes['total_pendapatan_lainnya'] ?? null)
+                                                    : ($record->total_pendapatan_lainnya ?? null);
+
+                                                if (in_array($field, ['pendapatan_pekerjaan', 'pendapatan_lainnya'], true)) {
+                                                    $displayValue = match ((string) $value) {
+                                                        '1' => 'Ada',
+                                                        '0' => 'Tidak',
+                                                        default => $value,
+                                                    };
+
+                                                    if (($displayValue === null || $displayValue === '') && $field === 'pendapatan_pekerjaan' && $totalPendapatanKerja !== null) {
+                                                        $displayValue = 'Ada';
+                                                    } elseif (($displayValue === null || $displayValue === '') && $field === 'pendapatan_lainnya' && $totalPendapatanLainnya !== null) {
+                                                        $displayValue = 'Ada';
+                                                    }
+                                                }
+                                            @endphp
 
                                             @if(is_array($value))
 
@@ -1256,7 +1315,7 @@
 
                                             @else
 
-                                                {{ $value !== null && $value !== '' ? $value : '-' }}
+                                                {{ $displayValue !== null && $displayValue !== '' ? $displayValue : '-' }}
 
                                             @endif
 
@@ -1349,6 +1408,17 @@
 
                                                 <div class="answer-value">
 
+                                                    @php
+                                                        $displayValue = $value;
+                                                        if ($field === 'is_punya_aset') {
+                                                            $displayValue = match ((string) $value) {
+                                                                '1' => 'Ada',
+                                                                '0' => 'Tidak Ada',
+                                                                default => $value,
+                                                            };
+                                                        }
+                                                    @endphp
+
                                                     @if(is_array($value))
 
                                                         {{ implode(', ', $value) }}
@@ -1359,7 +1429,7 @@
 
                                                     @else
 
-                                                        {{ $value !== null && $value !== '' ? $value : '-' }}
+                                                        {{ $displayValue !== null && $displayValue !== '' ? $displayValue : '-' }}
 
                                                     @endif
 
@@ -1474,7 +1544,13 @@
 
                         <div class="member-card">
 
-                            <div class="member-header">
+                            <div class="member-header"
+                                 role="button"
+                                 tabindex="0"
+                                 aria-expanded="false"
+                                 aria-controls="member-body-{{ $index }}"
+                                 onclick="toggleMember(this)"
+                                 onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleMember(this); }">
 
                                 <div class="member-number">
                                     {{ $index + 1 }}
@@ -1487,10 +1563,12 @@
                                         ?? 'Anggota Keluarga' }}
                                 </div>
 
+                                <i class="fas fa-chevron-down member-toggle-icon" aria-hidden="true"></i>
+
                             </div>
 
 
-                            <div class="member-body">
+                            <div class="member-body" id="member-body-{{ $index }}">
 
                                 @php
                                     $memberAttributes = method_exists($member, 'getAttributes')
@@ -1514,6 +1592,24 @@
 
                                                 <div class="answer-value">
 
+                                                    @php
+                                                        $displayValue = $value;
+                                                        if (in_array($field, [
+                                                            'is_disabilitas_fisik',
+                                                            'is_disabilitas_mental',
+                                                            'is_disabilitas_intelektual',
+                                                            'is_disabilitas_netra',
+                                                            'is_disabilitas_rungu',
+                                                            'is_disabilitas_wicara',
+                                                        ], true)) {
+                                                            $displayValue = match ((string) $value) {
+                                                                '1' => 'Ya',
+                                                                '0' => 'Tidak',
+                                                                default => $value,
+                                                            };
+                                                        }
+                                                    @endphp
+
                                                     @if(is_array($value))
 
                                                         {{ implode(', ', $value) }}
@@ -1524,7 +1620,7 @@
 
                                                     @else
 
-                                                        {{ $value !== null && $value !== '' ? $value : '-' }}
+                                                        {{ $displayValue !== null && $displayValue !== '' ? $displayValue : '-' }}
 
                                                     @endif
 
@@ -1863,6 +1959,16 @@
         if (!card) return;
 
         card.classList.toggle('active');
+    }
+
+    function toggleMember(header) {
+
+        const card = header.closest('.member-card');
+
+        if (!card) return;
+
+        const isExpanded = card.classList.toggle('expanded');
+        header.setAttribute('aria-expanded', String(isExpanded));
     }
 
 

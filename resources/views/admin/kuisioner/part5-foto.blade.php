@@ -710,6 +710,21 @@
             padding: 20px;
         }
     }
+
+    .part5-draft-btn {
+    padding: 14px 24px;
+    border: 1px solid #dce1ed;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #292d8f;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    }
+
+    .part5-draft-btn:hover {
+        background: #f0f2ff;
+    }
 </style>
 
 <div class="part5-foto-wrapper">
@@ -770,7 +785,6 @@
                         name="tampak_depan"
                         class="part5-foto-input"
                         accept="image/jpeg,image/png,image/jpg"
-                        required
                     >
 
                     <button
@@ -833,7 +847,6 @@
                         name="ruang_tamu"
                         class="part5-foto-input"
                         accept="image/jpeg,image/png,image/jpg"
-                        required
                     >
 
                     <button
@@ -896,7 +909,6 @@
                         name="kamar_mandi"
                         class="part5-foto-input"
                         accept="image/jpeg,image/png,image/jpg"
-                        required
                     >
 
                     <button
@@ -950,12 +962,10 @@
             <div class="part5-foto-footer-actions">
                 <button
                     type="submit"
-                    name="aksi"
+                    name="action"
                     value="draft"
-                    class="part5-foto-draft"
-                    formnovalidate
+                    class="part5-draft-btn"
                 >
-                    <i class="far fa-save"></i>
                     Draft
                 </button>
 

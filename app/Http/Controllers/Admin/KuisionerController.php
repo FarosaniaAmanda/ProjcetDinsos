@@ -2574,8 +2574,8 @@ class KuisionerController extends Controller
         )
             ->get()
             ->keyBy('jenis_foto');
-
-        return view(
+        
+            return view(
             'admin.kuisioner.part5-foto',
             compact('draft', 'fotoRumah')
         );
@@ -2688,53 +2688,45 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        
         $action = $request->input('action', 'final');
         $isDraft = $action === 'draft';
         $deleteFoto = $request->input('delete_foto', []);
 
-        $request->validate([
+        $fotoTersimpan = KeluargaFotoRumah::where(
+            'keluarga_periode_kode',
+            $draft->keluarga_periode_kode
+        )->get()->keyBy('jenis_foto');
 
-            'tampak_depan' => [
-                $isDraft || !empty($deleteFoto['tampak_depan']) ? 'nullable' : 'required',
+        $aturanFoto = [];
+
+        foreach (['tampak_depan', 'ruang_tamu', 'kamar_mandi'] as $field) {
+            $fotoLamaAda = $fotoTersimpan->has($field);
+            $ditandaiHapus = !empty($deleteFoto[$field]);
+
+            $wajibUpload = !$isDraft && (
+                !$fotoLamaAda || $ditandaiHapus
+            );
+
+            $aturanFoto[$field] = [
+                $wajibUpload ? 'required' : 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png',
                 'max:5120',
-            ],
+            ];
+        }
 
-            'ruang_tamu' => [
-                $isDraft || !empty($deleteFoto['ruang_tamu']) ? 'nullable' : 'required',
-                'image',
-                'mimes:jpg,jpeg,png',
-                'max:5120',
-            ],
-
-            'kamar_mandi' => [
-                $isDraft || !empty($deleteFoto['kamar_mandi']) ? 'nullable' : 'required',
-                'image',
-                'mimes:jpg,jpeg,png',
-                'max:5120',
-            ],
-
-        ], [
-
+        $request->validate($aturanFoto, [
             'tampak_depan.required' =>
                 'Foto tampak depan wajib diupload.',
-
             'ruang_tamu.required' =>
                 'Foto ruang tamu wajib diupload.',
-
             'kamar_mandi.required' =>
                 'Foto kamar mandi wajib diupload.',
-
-            'tampak_depan.image' =>
-                'File tampak depan harus berupa gambar.',
-
-            'ruang_tamu.image' =>
-                'File ruang tamu harus berupa gambar.',
-
-            'kamar_mandi.image' =>
-                'File kamar mandi harus berupa gambar.',
-
+            '*.image' =>
+                'File harus berupa gambar.',
+            '*.mimes' =>
+                'Format foto harus JPG, JPEG, atau PNG.',
             '*.max' =>
                 'Ukuran setiap foto maksimal 5 MB.',
         ]);
@@ -2786,32 +2778,26 @@ class KuisionerController extends Controller
 
         try {
 
-            foreach (
-                $jenisFoto
-                as $field => $namaJenis
-            ) {
-
-                $file =
-                    $request->file($field);
+            foreach ($jenisFoto as $field => $namaJenis) {
+                $file = $request->file($field);
                 $markedDelete = !empty($deleteFoto[$field]);
 
                 $existing = KeluargaFotoRumah::where(
                     'keluarga_periode_kode',
                     $draft->keluarga_periode_kode
                 )
-                    ->where(
-                        'jenis_foto',
-                        $field
-                    )
+                    ->where('jenis_foto', $field)
                     ->first();
 
                 if ($markedDelete && !$file) {
                     if ($existing) {
-                        if ($existing->path_file) {
-                            Storage::disk('public')->delete($existing->path_file);
-                        }
+                        $pathLama = $existing->path_file;
 
                         $existing->delete();
+
+                        if ($pathLama) {
+                            Storage::disk('public')->delete($pathLama);
+                        }
                     }
 
                     continue;
@@ -2821,14 +2807,7 @@ class KuisionerController extends Controller
                     continue;
                 }
 
-                /*
-                |--------------------------------------------------------------------------
-                | NAMA FILE
-                |--------------------------------------------------------------------------
-                */
-
-                $namaFile =
-                    time()
+                $namaFile = time()
                     . '_'
                     . $field
                     . '_'
@@ -2836,65 +2815,38 @@ class KuisionerController extends Controller
                     . '.'
                     . $file->getClientOriginalExtension();
 
-                /*
-                |--------------------------------------------------------------------------
-                | SIMPAN FILE
-                |--------------------------------------------------------------------------
-                */
-
                 $path = $file->storeAs(
                     'kuisioner/rumah',
                     $namaFile,
                     'public'
                 );
 
-                /*
-                |--------------------------------------------------------------------------
-                | DATA FOTO
-                |--------------------------------------------------------------------------
-                */
+                if (!$path) {
+                    throw new \RuntimeException(
+                        'Gagal menyimpan foto ' . $namaJenis . '.'
+                    );
+                }
 
                 $data = [
-
-                    'keluarga_periode_kode' =>
-                        $draft->keluarga_periode_kode,
-
-                    'jenis_foto' =>
-                        $field,
-
-                    'nama_file' =>
-                        $namaFile,
-
-                    'path_file' =>
-                        $path,
-
-                    'updated_by' =>
-                        $userId,
-
-                    'updated_at' =>
-                        now(),
+                    'keluarga_periode_kode' => $draft->keluarga_periode_kode,
+                    'jenis_foto' => $field,
+                    'nama_file' => $namaFile,
+                    'path_file' => $path,
+                    'updated_by' => $userId,
+                    'updated_at' => now(),
                 ];
 
-                /*
-                |--------------------------------------------------------------------------
-                | UPDATE / INSERT
-                |--------------------------------------------------------------------------
-                */
-
                 if ($existing) {
-                    if ($existing->path_file) {
-                        Storage::disk('public')->delete($existing->path_file);
-                    }
+                    $pathLama = $existing->path_file;
 
                     $existing->update($data);
 
+                    if ($pathLama && $pathLama !== $path) {
+                        Storage::disk('public')->delete($pathLama);
+                    }
                 } else {
-
-                    $data['created_by'] =
-                        $userId;
-
-                    $data['created_at'] =
-                        now();
+                    $data['created_by'] = $userId;
+                    $data['created_at'] = now();
 
                     KeluargaFotoRumah::create($data);
                 }
@@ -2912,7 +2864,7 @@ class KuisionerController extends Controller
                 DB::commit();
 
                 return redirect()
-                    ->route('kuisioner.part5')
+                    ->route('kuisioner.index')
                     ->with(
                         'success',
                         'Foto rumah berhasil disimpan sebagai draft.'
@@ -3308,7 +3260,7 @@ class KuisionerController extends Controller
 
                 return redirect()
                     ->route(
-                        'kuisioner.part5'
+                        'kuisioner.part5.foto'
                     );
 
             default:
