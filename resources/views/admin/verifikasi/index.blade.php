@@ -4909,7 +4909,32 @@
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script> 
-document.addEventListener('DOMContentLoaded', function () { 
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Menghapus tanda bintang hanya pada label Part 1 di hasil kuesioner.
+    // Form pengisian kuesioner tidak menggunakan helper ini.
+    function cleanPart1ResultLabel(value) {
+        const label = String(value ?? '').trim();
+        const allowedLabels = [
+            'NIK',
+            'Nama Kepala Keluarga',
+            'Status dalam Keluarga',
+            'Nomor KK',
+            'Jumlah Anggota Keluarga',
+            'Provinsi',
+            'Kabupaten / Kota',
+            'Kecamatan',
+            'Kelurahan',
+            'Kode Pos',
+            'RT / RW',
+            'Alamat Lengkap'
+        ];
+
+        const withoutAsterisk = label.replace(/\s*\*\s*$/, '');
+        return allowedLabels.includes(withoutAsterisk) ? withoutAsterisk : label;
+    }
+
+ 
  
     /* ===================================================== 
        SUCCESS ALERT 
@@ -5907,6 +5932,10 @@ function normalizeQuestion(question, index) {
         number: index + 1,
         text: questionText,
         answer: answerText,
+        reason: normalizeQuestionAnswer(getFirstValue(question, [
+            'reason',
+            'alasan'
+        ], '')).trim(),
         type: finalType || 'text',
         imageUrl: imageUrl,
         imageName: imageName
@@ -6389,7 +6418,9 @@ function normalizeQuestion(question, index) {
 
             const questionCount =
                 Array.isArray(part.questions)
-                    ? part.questions.length
+                    ? part.questions.filter(function (question) {
+                        return String(question.type || '').toLowerCase() !== 'map';
+                    }).length
                     : 0;
 
             contentCount.textContent =
@@ -6397,7 +6428,7 @@ function normalizeQuestion(question, index) {
 
             contentBody.innerHTML = '';
 
-            if (!questionCount) {
+            if (!part.questions.length) {
                 contentBody.innerHTML = `
                     <div class="questionnaire-empty">
                         <div class="questionnaire-empty-icon">
@@ -6422,13 +6453,16 @@ function normalizeQuestion(question, index) {
                 const questionBox = document.createElement('div');
                 questionBox.className = 'questionnaire-question';
 
+                const isLocation = String(question.type || '').toLowerCase() === 'map';
                 const questionNumber =
                     String(question.number ?? questionIndex + 1);
 
                 const questionText =
-                    String(
-                        question.text ||
-                        `Pertanyaan ${questionIndex + 1}`
+                    cleanPart1ResultLabel(
+                        String(
+                            question.text ||
+                            `Pertanyaan ${questionIndex + 1}`
+                        )
                     );
 
                 const answerText =
@@ -6440,8 +6474,9 @@ function normalizeQuestion(question, index) {
                 questionNumberElement.className =
                     'questionnaire-question-number';
 
-                questionNumberElement.textContent =
-                    `PERTANYAAN ${questionNumber}`;
+                questionNumberElement.textContent = isLocation
+                    ? 'LOKASI RUMAH'
+                    : `PERTANYAAN ${questionNumber}`;
 
                 const questionTextElement =
                     document.createElement('div');
@@ -6458,8 +6493,9 @@ function normalizeQuestion(question, index) {
                 answerLabel.className =
                     'questionnaire-answer-label';
 
-                answerLabel.textContent =
-                    'Jawaban Responden';
+                answerLabel.textContent = isLocation
+                    ? 'Koordinat dan peta'
+                    : 'Jawaban Responden';
 
                 const answerElement =
                     document.createElement('div');
@@ -6631,6 +6667,23 @@ function normalizeQuestion(question, index) {
                 questionBox.appendChild(answerLabel);
                 questionBox.appendChild(answerElement);
 
+                if (
+                    !isLocation
+                    && String(question.reason || '').trim() !== ''
+                    && answerText.toLowerCase() === 'tidak'
+                ) {
+                    const reasonLabel = document.createElement('div');
+                    reasonLabel.className = 'questionnaire-answer-label';
+                    reasonLabel.textContent = 'Alasan alamat tidak sesuai';
+
+                    const reasonValue = document.createElement('div');
+                    reasonValue.className = 'questionnaire-answer';
+                    reasonValue.textContent = String(question.reason);
+
+                    questionBox.appendChild(reasonLabel);
+                    questionBox.appendChild(reasonValue);
+                }
+
                 contentBody.appendChild(questionBox);
             });
 
@@ -6663,7 +6716,9 @@ function normalizeQuestion(question, index) {
 
             const questionCount =
                 Array.isArray(part.questions)
-                    ? part.questions.length
+                    ? part.questions.filter(function (question) {
+                        return String(question.type || '').toLowerCase() !== 'map';
+                    }).length
                     : 0;
 
             const numberElement =

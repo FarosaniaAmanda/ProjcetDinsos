@@ -1804,7 +1804,7 @@
             </div>
 
             <div class="laporan-stat-value">
-                {{ $wilayahTerdata ?? 0 }}
+                {{ $wilayahTerdata?? 0 }}
             </div>
 
         </div>
@@ -2509,7 +2509,32 @@
 </div> 
  
 <script> 
-document.addEventListener('DOMContentLoaded', function () { 
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Menghapus tanda bintang hanya pada label Part 1 di hasil kuesioner.
+    // Form pengisian kuesioner tidak menggunakan helper ini.
+    function cleanPart1ResultLabel(value) {
+        const label = String(value ?? '').trim();
+        const allowedLabels = [
+            'NIK',
+            'Nama Kepala Keluarga',
+            'Status dalam Keluarga',
+            'Nomor KK',
+            'Jumlah Anggota Keluarga',
+            'Provinsi',
+            'Kabupaten / Kota',
+            'Kecamatan',
+            'Kelurahan',
+            'Kode Pos',
+            'RT / RW',
+            'Alamat Lengkap'
+        ];
+
+        const withoutAsterisk = label.replace(/\s*\*\s*$/, '');
+        return allowedLabels.includes(withoutAsterisk) ? withoutAsterisk : label;
+    }
+
+ 
  
     /* ===================================================== 
        ELEMENT FILTER 
@@ -2945,11 +2970,12 @@ const modalNoKk = document.getElementById(
  
                         ${questions.map(function (question) { 
  
-                            const label = 
-                                question.question || 
-                                question.text || 
-                                question.pertanyaan || 
-                                'Pertanyaan'; 
+                            const label = cleanPart1ResultLabel(
+                                question.question ||
+                                question.text ||
+                                question.pertanyaan ||
+                                'Pertanyaan'
+                            ); 
  
                             const answer = 
                                 reportAnswerText(question); 
