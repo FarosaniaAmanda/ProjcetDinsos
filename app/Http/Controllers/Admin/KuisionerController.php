@@ -2566,60 +2566,13 @@ class KuisionerController extends Controller
                 ->route('kuisioner.part1');
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | TAMPILKAN HALAMAN FOTO
-        |--------------------------------------------------------------------------
-        */
-
-        /*
-        |--------------------------------------------------------------------------
-        | CEK KELENGKAPAN PART 5 SEBELUM MEMBUKA HALAMAN FOTO
-        |--------------------------------------------------------------------------
-        */
-
-        $anggota = KeluargaAnggota::where(
-            'keluarga_kode',
-            $draft->keluarga_periode_kode
-        )->get();
-
-        $dataPart5 = KeluargaPart5::where(
-            'keluarga_periode_kode',
-            $draft->keluarga_periode_kode
-        )->get()->keyBy('keluarga_anggota_kode');
-
-        $jumlahAnggota = $anggota->count();
-
-        $statusPart5 = [];
-
-        foreach ($anggota as $item) {
-            $data = $dataPart5->get($item->kode);
-
-            $statusPart5[$item->kode] = $data
-                ? $this->part5DataLengkap($data)
-                : false;
-        }
-
-        $jumlahSelesai = count(
-            array_filter($statusPart5)
-        );
-
-        if ($jumlahAnggota === 0) {
-            return redirect()
-                ->route('kuisioner.part5')
-                ->with(
-                    'warning',
-                    'Belum ada data anggota keluarga yang tersedia.'
-                );
-        }
-
         $fotoRumah = KeluargaFotoRumah::where(
             'keluarga_periode_kode',
             $draft->keluarga_periode_kode
         )
             ->get()
             ->keyBy('jenis_foto');
-        
+
             return view(
             'admin.kuisioner.part5-foto',
             compact('draft', 'fotoRumah')
@@ -2724,7 +2677,6 @@ class KuisionerController extends Controller
         })->count();
 
         $semuaAnggotaSelesai =
-            $jumlahAnggota > 0 &&
             $jumlahAnggota === $jumlahAnggotaSelesai;
 
         /*
@@ -2733,7 +2685,6 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        
         $action = $request->input('action', 'final');
         $isDraft = $action === 'draft';
         $isEditingRejectedQuestionnaire = session('editing_rejected_questionnaire');

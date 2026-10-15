@@ -1617,6 +1617,162 @@ color: #7652C8;
         text-decoration: underline;
     }
 
+    .monitoring-questionnaire-content-body.monitoring-questionnaire-part1 {
+        max-height: 520px;
+    }
+
+    .monitoring-questionnaire-part1 .monitoring-question-item {
+        padding: 15px;
+        border: 1px solid #e5e7ee;
+        border-radius: 10px;
+        box-shadow: 0 2px 7px rgba(30, 35, 60, .03);
+    }
+
+    .monitoring-questionnaire-part1 .monitoring-question-number {
+        min-width: 0;
+        height: auto;
+        min-height: 24px;
+        margin-bottom: 8px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: #f0f1f5;
+        color: #666c7a;
+        font-size: 9px;
+        letter-spacing: .35px;
+    }
+
+    .monitoring-questionnaire-part1 .monitoring-question-text {
+        margin-bottom: 12px;
+        color: #374151;
+        font-size: 13px;
+        line-height: 1.65;
+    }
+
+    .monitoring-questionnaire-part1 .monitoring-answer-label {
+        margin-bottom: 5px;
+        color: #656b79;
+        font-size: 10px;
+        letter-spacing: .4px;
+    }
+
+    .monitoring-questionnaire-part1 .monitoring-answer-value {
+        min-height: 42px;
+        padding: 10px 12px;
+        border-left: 3px solid #55B5D5;
+        border-radius: 7px;
+        background: #f5f8fa;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .monitoring-questionnaire-part1 .monitoring-answer-value.is-empty {
+        border-left-color: #F5C928;
+        background: #fff9e8;
+        color: #8a6a20;
+    }
+
+    .monitoring-questionnaire-part1 .monitoring-address-reason-label {
+        margin-top: 10px;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-answer-map {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid #e6e8ef;
+        border-radius: 10px;
+        background: #f8f9fc;
+        overflow: hidden;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-map-coordinates {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 9px 11px;
+        border: 1px solid #e2e5ec;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #4b5563;
+        font-size: 12px;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-map-coordinates strong {
+        color: #333;
+        font-weight: 700;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-map-container {
+        width: 100%;
+        height: 330px;
+        min-height: 260px;
+        border: 1px solid #dfe3eb;
+        border-radius: 9px;
+        overflow: hidden;
+        background: #eef1f5;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-map-container .leaflet-container {
+        width: 100%;
+        height: 100%;
+        font-family: inherit;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-map-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 150px;
+        padding: 20px;
+        border: 1px dashed #d8dce6;
+        border-radius: 9px;
+        background: #f8f9fc;
+        color: #777;
+        font-size: 12px;
+        line-height: 1.5;
+        text-align: center;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-map-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 9px;
+        padding: 7px 10px;
+        border-radius: 7px;
+        background: #eef0ff;
+        color: #252A86;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .monitoring-questionnaire-part1 .questionnaire-map-link:hover {
+        background: #252A86;
+        color: #ffffff;
+    }
+
+    @media (max-width: 850px) {
+        .monitoring-questionnaire-content-body.monitoring-questionnaire-part1 {
+            max-height: 450px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .monitoring-questionnaire-part1 .questionnaire-map-container {
+            height: 260px;
+            min-height: 220px;
+        }
+
+        .monitoring-questionnaire-part1 .questionnaire-map-coordinates {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 2px;
+        }
+    }
+
     .monitoring-images {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -2989,6 +3145,31 @@ color: #7652C8;
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    // Menghapus tanda bintang hanya pada label Part 1 di hasil kuesioner.
+    // Form pengisian kuesioner tidak menggunakan helper ini.
+    function cleanPart1ResultLabel(value) {
+        const label = String(value ?? '').trim();
+        const allowedLabels = [
+            'NIK',
+            'Nama Kepala Keluarga',
+            'Status dalam Keluarga',
+            'Nomor KK',
+            'Jumlah Anggota Keluarga',
+            'Provinsi',
+            'Kabupaten / Kota',
+            'Kecamatan',
+            'Kelurahan',
+            'Kode Pos',
+            'RT / RW',
+            'Alamat Lengkap'
+        ];
+
+        const withoutAsterisk = label.replace(/\s*\*\s*$/, '');
+        return allowedLabels.includes(withoutAsterisk) ? withoutAsterisk : label;
+    }
+
+
+
     /* =====================================================
        ELEMENT
     ===================================================== */
@@ -3491,18 +3672,22 @@ if (searchInput) {
 
 
             const nested =
-                item.questions ||
-                item.pertanyaan_list ||
-                item.items;
+                item.questions ??
+                item.pertanyaan ??
+                item.pertanyaan_list ??
+                item.items ??
+                item.answers;
 
 
             if (Array.isArray(nested)) {
 
                 const rawPart =
                     item.part ??
+                    item.part_number ??
                     item.number ??
                     item.bagian ??
                     item.section ??
+                    item.section_number ??
                     (index + 1);
                 const partMatch =
                     String(rawPart).match(/(?:part|bagian)?\s*(\d+)/i);
@@ -3512,6 +3697,10 @@ if (searchInput) {
                         : index + 1;
                 const partTitle =
                     item.title ||
+                    item.judul ||
+                    item.nama ||
+                    item.part_title ||
+                    item.section_title ||
                     (partMatch
                         ? String(rawPart).replace(/^(?:part|bagian)?\s*\d+\s*[-:–]?\s*/i, '').trim()
                         : '');
@@ -3571,6 +3760,7 @@ if (searchInput) {
             item.question_text ||
             item.nama_pertanyaan ||
             item.text ||
+            item.judul ||
             item.label ||
             ('Pertanyaan ' + (index + 1));
 
@@ -3581,6 +3771,7 @@ if (searchInput) {
             item.response ??
             item.nilai ??
             item.value ??
+            item.hasil ??
             '';
         const rawAnswer = answerValue;
 
@@ -3635,8 +3826,10 @@ if (searchInput) {
 
         return {
             part: String(part),
+            number: Number(item.number ?? item.nomor ?? item.no ?? item.urutan ?? index + 1),
             question: String(question),
             answer: String(answerValue ?? ''),
+            reason: String(item.reason ?? item.alasan ?? '').trim(),
             type: isMapQuestion ? 'map' : type,
             latitude: coordinates?.latitude ?? null,
             longitude: coordinates?.longitude ?? null,
@@ -3650,7 +3843,117 @@ if (searchInput) {
     }
 
 
-    function renderQuestionAnswer(item, answerElement) {
+    function renderPart1MapAnswer(item, answerElement) {
+        const rawCoordinates = String(item.answer ?? '').trim();
+        const coordinateValue =
+            !rawCoordinates || rawCoordinates === '-' || rawCoordinates.toLowerCase() === 'null'
+                ? 'Belum tersedia'
+                : rawCoordinates;
+
+        answerElement.classList.add('is-visual');
+
+        const mapWrapper = document.createElement('div');
+        mapWrapper.className = 'questionnaire-answer-map';
+
+        const coordinateLabel = document.createElement('div');
+        coordinateLabel.className = 'questionnaire-map-coordinates';
+
+        const coordinateTitle = document.createElement('strong');
+        coordinateTitle.textContent = 'Koordinat lokasi:';
+
+        const coordinateText = document.createElement('span');
+        coordinateText.textContent = coordinateValue;
+
+        coordinateLabel.append(coordinateTitle, coordinateText);
+        mapWrapper.appendChild(coordinateLabel);
+        answerElement.appendChild(mapWrapper);
+
+        const hasValidCoordinates =
+            Number.isFinite(item.latitude) &&
+            Number.isFinite(item.longitude) &&
+            item.latitude >= -90 &&
+            item.latitude <= 90 &&
+            item.longitude >= -180 &&
+            item.longitude <= 180;
+
+        if (!hasValidCoordinates || !window.L) {
+            const emptyMap = document.createElement('div');
+            emptyMap.className = 'questionnaire-map-empty';
+            emptyMap.textContent = hasValidCoordinates
+                ? 'Peta tidak dapat dimuat. Pastikan koneksi internet tersedia.'
+                : 'Titik lokasi belum tersedia atau koordinat tidak valid.';
+            mapWrapper.appendChild(emptyMap);
+
+            return;
+        }
+
+        const latitude = item.latitude;
+        const longitude = item.longitude;
+        const mapId =
+            'monitoring-part1-map-' +
+            Date.now() +
+            '-' +
+            Math.random().toString(36).slice(2, 8);
+
+        const mapContainer = document.createElement('div');
+        mapContainer.className = 'questionnaire-map-container';
+        mapContainer.id = mapId;
+        mapWrapper.appendChild(mapContainer);
+
+        const mapLink = document.createElement('a');
+        mapLink.className = 'questionnaire-map-link';
+        mapLink.href =
+            'https://www.openstreetmap.org/?mlat=' +
+            encodeURIComponent(latitude) +
+            '&mlon=' +
+            encodeURIComponent(longitude) +
+            '#map=18/' +
+            encodeURIComponent(latitude) +
+            '/' +
+            encodeURIComponent(longitude);
+        mapLink.target = '_blank';
+        mapLink.rel = 'noopener noreferrer';
+        mapLink.textContent = 'Buka lokasi di OpenStreetMap';
+        mapWrapper.appendChild(mapLink);
+
+        window.setTimeout(function () {
+            if (!document.getElementById(mapId)) {
+                return;
+            }
+
+            const map = window.L.map(mapContainer, {
+                scrollWheelZoom: false,
+                attributionControl: true
+            }).setView([latitude, longitude], 16);
+
+            mapContainer._leaflet_map = map;
+
+            window.L.tileLayer(
+                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap contributors'
+                }
+            ).addTo(map);
+
+            window.L.marker([latitude, longitude])
+                .addTo(map)
+                .bindPopup('Titik Lokasi Responden<br>' + escapeHtml(rawCoordinates))
+                .openPopup();
+
+            window.setTimeout(function () {
+                map.invalidateSize();
+            }, 100);
+        }, 50);
+    }
+
+
+    function renderQuestionAnswer(item, answerElement, usePart1MapStyle = false) {
+        if (item.type === 'map' && usePart1MapStyle) {
+            renderPart1MapAnswer(item, answerElement);
+
+            return;
+        }
 
         if (
             item.type === 'map' &&
@@ -3859,6 +4162,17 @@ if (searchInput) {
                 const questions = Array.isArray(member.questions)
                     ? member.questions
                     : [];
+                const usableQuestions = questions.filter(function (question) {
+                    const questionText = String(
+                        question.question ||
+                        question.pertanyaan ||
+                        question.text ||
+                        question.label ||
+                        ''
+                    ).trim().toLowerCase();
+
+                    return questionText !== 'data part 5';
+                });
 
                 answersBody.innerHTML = '';
 
@@ -3867,7 +4181,7 @@ if (searchInput) {
                 memberHeading.textContent = `${name} · NIK: ${nik} · ${relation}`;
                 answersBody.appendChild(memberHeading);
 
-                if (questions.length === 0) {
+                if (usableQuestions.length === 0) {
                     const empty = document.createElement('div');
                     empty.className = 'monitoring-questionnaire-placeholder';
                     empty.innerHTML = '<strong>Jawaban Belum Tersedia</strong><span>Belum ada jawaban kuisioner untuk anggota ini.</span>';
@@ -3875,7 +4189,7 @@ if (searchInput) {
                     return;
                 }
 
-                questions.forEach(function (question, questionIndex) {
+                usableQuestions.forEach(function (question, questionIndex) {
                     const questionItem = normalizeQuestion(
                         question,
                         'Part 5',
@@ -3890,7 +4204,7 @@ if (searchInput) {
 
                     const text = document.createElement('div');
                     text.className = 'monitoring-question-text';
-                    text.textContent = questionItem.question;
+                    text.textContent = cleanPart1ResultLabel(questionItem.question);
 
                     const label = document.createElement('div');
                     label.className = 'monitoring-answer-label';
@@ -4047,7 +4361,11 @@ if (searchInput) {
                                                 <div class="monitoring-questionnaire-part-meta">
                                                     ${memberPart
                                                         ? memberPart.members.length + ' anggota keluarga'
-                                                        : items.length + ' pertanyaan'}
+                                                        : (partNumber === 1
+                                                            ? items.filter(function (item) {
+                                                                return item.type !== 'map';
+                                                            }).length
+                                                            : items.length) + ' pertanyaan'}
                                                 </div>
                                             </div>
 
@@ -4160,6 +4478,8 @@ if (searchInput) {
                     selectedTitle.textContent =
                         'Pilih Bagian Kuisioner';
 
+                    selectedBody.classList.remove('monitoring-questionnaire-part1');
+
                     selectedBody.innerHTML = `
                         <div class="monitoring-questionnaire-placeholder">
                             <strong>
@@ -4196,6 +4516,11 @@ if (searchInput) {
                 const partNumber =
                     getPartNumber(partName, index);
 
+                selectedBody.classList.toggle(
+                    'monitoring-questionnaire-part1',
+                    partNumber === 1
+                );
+
                 let cleanTitle =
                     String(partName)
                         .replace(
@@ -4227,20 +4552,34 @@ if (searchInput) {
 
                 selectedBody.innerHTML =
                     items.map(function (item, qIndex) {
+                        const isLocation =
+                            String(item.type || '').toLowerCase() === 'map';
+                        const answerText =
+                            String(item.answer || '').trim();
+                        const showAddressReason =
+                            partNumber === 1 &&
+                            answerText.toLowerCase() === 'tidak' &&
+                            String(item.reason || '').trim() !== '';
 
                         return `
                             <div class="monitoring-question-item">
 
                                 <div class="monitoring-question-number">
-                                    Pertanyaan ${qIndex + 1}
+                                    ${isLocation
+                                        ? 'LOKASI RUMAH'
+                                        : 'PERTANYAAN ' + (item.number || qIndex + 1)}
                                 </div>
 
                                 <div class="monitoring-question-text">
-                                    ${escapeHtml(item.question)}
+                                    ${escapeHtml(
+                                        partNumber === 1
+                                            ? cleanPart1ResultLabel(item.question)
+                                            : item.question
+                                    )}
                                 </div>
 
                                 <div class="monitoring-answer-label">
-                                    Jawaban Responden
+                                    ${isLocation ? 'Koordinat dan peta' : 'Jawaban Responden'}
                                 </div>
 
                                 <div
@@ -4248,6 +4587,17 @@ if (searchInput) {
                                     data-answer-index="${qIndex}"
                                 >
                                 </div>
+
+                                ${showAddressReason
+                                    ? `
+                                        <div class="monitoring-answer-label monitoring-address-reason-label">
+                                            Alasan alamat tidak sesuai
+                                        </div>
+                                        <div class="monitoring-answer-value monitoring-address-reason">
+                                            ${escapeHtml(item.reason)}
+                                        </div>
+                                    `
+                                    : ''}
 
                             </div>
                         `;
@@ -4262,7 +4612,8 @@ if (searchInput) {
 
                         renderQuestionAnswer(
                             items[answerIndex],
-                            answerElement
+                            answerElement,
+                            partNumber === 1
                         );
                     });
 

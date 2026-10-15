@@ -1167,7 +1167,18 @@
 
                                             @php
                                                 $displayValue = $value;
-                                                if ($field === 'is_keluarga_lain') {
+
+                                                // Tampilkan kondisi atap sebagai keterangan kondisi bangunan,
+                                                // bukan angka kode yang tersimpan di database.
+                                                if (str_contains(strtolower($field), 'atap')) {
+                                                    $displayValue = match (strtolower(trim((string) $value))) {
+                                                        '0' => 'Baik',
+                                                        '1' => 'Rusak Ringan',
+                                                        '2' => 'Rusak Sedang',
+                                                        '3' => 'Rusak Berat',
+                                                        default => $value,
+                                                    };
+                                                } elseif ($field === 'is_keluarga_lain') {
                                                     $displayValue = match ((string) $value) {
                                                         '1' => 'Ya',
                                                         '0' => 'Tidak',
@@ -1595,15 +1606,12 @@
 
                                                     @php
                                                         $displayValue = $value;
-                                                        if (in_array($field, [
-                                                            'is_disabilitas_fisik',
-                                                            'is_disabilitas_mental',
-                                                            'is_disabilitas_intelektual',
-                                                            'is_disabilitas_netra',
-                                                            'is_disabilitas_rungu',
-                                                            'is_disabilitas_wicara',
-                                                        ], true)) {
-                                                            $displayValue = match ((string) $value) {
+                                                        $fieldLower = strtolower($field);
+                                                        if (
+                                                            str_contains($fieldLower, 'disabilitas')
+                                                            || str_contains($fieldLower, 'penyakit')
+                                                        ) {
+                                                            $displayValue = match (strtolower(trim((string) $value))) {
                                                                 '1' => 'Ya',
                                                                 '0' => 'Tidak',
                                                                 default => $value,
@@ -1671,6 +1679,21 @@
 
                                                             <div class="answer-value">
 
+                                                                @php
+                                                                    $displayValue = $value;
+                                                                    $fieldLower = strtolower($field);
+                                                                    if (
+                                                                        str_contains($fieldLower, 'disabilitas')
+                                                                        || str_contains($fieldLower, 'penyakit')
+                                                                    ) {
+                                                                        $displayValue = match (strtolower(trim((string) $value))) {
+                                                                            '1' => 'Ya',
+                                                                            '0' => 'Tidak',
+                                                                            default => $value,
+                                                                        };
+                                                                    }
+                                                                @endphp
+
                                                                 @if(is_array($value))
 
                                                                     {{ implode(', ', $value) }}
@@ -1681,7 +1704,7 @@
 
                                                                 @else
 
-                                                                    {{ $value !== null && $value !== '' ? $value : '-' }}
+                                                                    {{ $displayValue !== null && $displayValue !== '' ? $displayValue : '-' }}
 
                                                                 @endif
 
