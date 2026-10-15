@@ -1167,14 +1167,12 @@
                                             @php
                                                 $displayValue = $value;
 
-                                                // Tampilkan kondisi atap sebagai keterangan kondisi bangunan,
-                                                // bukan angka kode yang tersimpan di database.
-                                                if (str_contains(strtolower($field), 'atap')) {
+                                                if ($field === 'kondisi_atap') {
                                                     $displayValue = match (strtolower(trim((string) $value))) {
-                                                        '0' => 'Baik',
-                                                        '1' => 'Rusak Ringan',
-                                                        '2' => 'Rusak Sedang',
-                                                        '3' => 'Rusak Berat',
+                                                        '1' => 'Baik',
+                                                        '2' => 'Rusak Ringan',
+                                                        '3' => 'Rusak Sedang',
+                                                        '4' => 'Rusak Berat',
                                                         default => $value,
                                                     };
                                                 } elseif ($field === 'is_keluarga_lain') {
