@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Detail Kuisioner Menunggu Verifikasi')
+@section('title', in_array($dataPart1->status, ['approved', 'disetujui'], true) ? 'Detail Kuisioner Disetujui' : 'Detail Kuisioner Selesai')
 
 @section('content')
 
@@ -669,13 +669,13 @@
         <div class="detail-header-left">
 
             <div>
-                <h1>Detail Kuisioner Menunggu Verifikasi</h1>
+                <h1>{{ in_array($dataPart1->status, ['approved', 'disetujui'], true) ? 'Detail Kuisioner Disetujui' : 'Detail Kuisioner Selesai' }}</h1>
                 <p>Detail jawaban pendataan keluarga</p>
             </div>
 
         </div>
 
-        <a href="{{ route('kuisioner.selesai') }}" class="btn-back">
+        <a href="{{ in_array($dataPart1->status, ['approved', 'disetujui'], true) ? route('kuisioner.disetujui') : route('kuisioner.selesai') }}" class="btn-back">
             <i class="fas fa-arrow-left"></i>
             Kembali
         </a>
