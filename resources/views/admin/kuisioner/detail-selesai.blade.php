@@ -763,7 +763,7 @@
 
                     {{-- KOTA --}}
                     <div class="info-item">
-                        <div class="info-label">Kota / Kabupaten</div>
+                        <div class="info-label">Kota</div>
                         <div class="info-value">
                             {{ $kota }}
                         </div>
@@ -779,7 +779,7 @@
 
                     {{-- KELURAHAN --}}
                     <div class="info-item">
-                        <div class="info-label">Kelurahan / Desa</div>
+                        <div class="info-label">Kelurahan</div>
                         <div class="info-value">
                             {{ $p1->kelurahan_display ?? ($p1->kelurahan ?? $p1->desa ?? '-') }}
                         </div>
@@ -827,7 +827,7 @@
 
                     {{-- STATUS KESESUAIAN ALAMAT --}}
                     <div class="info-item">
-                        <div class="info-label">Is Alamat Sesuai</div>
+                        <div class="info-label">APAKAH ALAMAT SESUAI?</div>
                         <div class="info-value">
                             {{ $p1->is_alamat_sesuai ?? '-' }}
                         </div>
@@ -988,6 +988,7 @@
                             'created_by', 'updated_by',
                             // Sembunyikan hanya metadata dan field bantu berakhiran _display.
                             // Kolom jawaban asli Part 1 tetap ditampilkan.
+                            'geotagging', 'geotangging',
                             'jumlah_keluarga_display', 'provinsi_display', 'daerah_display',
                             'kecamatan_display', 'kelurahan_display', 'rt_rw_display',
                             'alamat_lengkap_display', 'geotagging_display',

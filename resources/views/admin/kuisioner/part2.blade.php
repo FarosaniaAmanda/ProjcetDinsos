@@ -213,8 +213,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 48px;
-        padding: 0 19px;
+        min-height: 42px;
+        padding: 0 16px;
         border-radius: 9px;
         font-family: inherit;
         font-size: 13px;
@@ -249,7 +249,7 @@
     }
 
     .part2-next {
-        padding: 0 21px;
+        padding: 0 16px;
         border: none;
         background: #292D8F;
         color: #FFFFFF;
@@ -439,7 +439,7 @@
         .part2-back,
         .part2-draft,
         .part2-next {
-            min-height: 46px;
+            min-height: 42px;
             font-size: 13px;
         }
 
@@ -1540,7 +1540,7 @@
                     type="submit"
                     name="action"
                     value="draft"
-                    class="part2-draft"
+                    class="part2-draft kuisioner-draft-button"
                 >
                     Draft
                 </button>

@@ -416,7 +416,7 @@
 
                 <button
                     type="submit"
-                    class="part5-draft-btn"
+                    class="part5-draft-btn kuisioner-draft-button"
                 >
                     Draft
                 </button>

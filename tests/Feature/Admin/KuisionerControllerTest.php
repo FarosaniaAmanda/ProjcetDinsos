@@ -1,4 +1,4 @@
-<?php
+git stash pop<?php
 
 namespace Tests\Feature\Admin;
 

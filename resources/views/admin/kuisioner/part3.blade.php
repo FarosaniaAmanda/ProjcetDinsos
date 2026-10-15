@@ -1017,7 +1017,7 @@
                     type="submit"
                     name="action"
                     value="draft"
-                    class="part3-draft"
+                    class="part3-draft kuisioner-draft-button"
                 >
                     Draft
                 </button>
