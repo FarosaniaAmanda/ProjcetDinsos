@@ -27,6 +27,33 @@
         box-sizing: border-box;
     }
 
+    .kuisioner-layout button.kuisioner-draft-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border: 1px solid #D9DCE8;
+        border-radius: 9px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.4;
+        white-space: nowrap;
+        box-sizing: border-box;
+        background: #FFFFFF;
+        color: #292D8F;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .kuisioner-layout button.kuisioner-draft-button:hover {
+        background: #F5F6FB;
+        border-color: #292D8F;
+        color: #292D8F;
+    }
+
 
     /* =========================================================
        AREA UTAMA

@@ -1321,7 +1321,7 @@ input[type="hidden"][name="longitude"] {
                     <div class="form-actions">
                         <button
                             type="submit"
-                            class="btn-draft"
+                            class="btn-draft kuisioner-draft-button"
                             name="action"
                             value="draft"
                         >

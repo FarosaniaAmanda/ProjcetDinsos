@@ -964,7 +964,7 @@
                     type="submit"
                     name="action"
                     value="draft"
-                    class="part5-draft-btn"
+                    class="part5-draft-btn kuisioner-draft-button"
                 >
                     Draft
                 </button>
