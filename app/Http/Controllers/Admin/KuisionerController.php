@@ -4,16 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
+use App\Models\KeluargaAnggota;
+use App\Models\KeluargaFotoRumah;
 use App\Models\KeluargaPart1;
 use App\Models\KeluargaPart2;
 use App\Models\KeluargaPart3;
 use App\Models\KeluargaPart4;
 use App\Models\KeluargaPart5;
-use App\Models\KeluargaAnggota;
-use App\Models\KeluargaFotoRumah;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class KuisionerController extends Controller
 {
@@ -39,8 +43,18 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $statusSudahDidata = [
+            'draft',
+            'selesai',
+            'approved',
+            'disetujui',
+            'rejected',
+            'reject',
+            'ditolak',
+        ];
+
         $kodeSudahDidata = KeluargaPart1::query()
-            ->whereIn('status', ['draft', 'selesai'])
+            ->whereIn('status', $statusSudahDidata)
             ->pluck('keluarga_periode_kode')
             ->unique()
             ->toArray();
@@ -66,6 +80,14 @@ class KuisionerController extends Controller
 
         $selesaiCount = KeluargaPart1::where('status', 'selesai')->count();
 
+        $ditolakCount = KeluargaPart1::query()
+            ->whereIn('status', ['rejected', 'reject', 'ditolak'])
+            ->count();
+
+        $diterimaCount = KeluargaPart1::query()
+            ->whereIn('status', ['approved', 'disetujui'])
+            ->count();
+
         /*
         |--------------------------------------------------------------------------
         | PENCARIAN DRAFT
@@ -79,7 +101,7 @@ class KuisionerController extends Controller
 
         if ($search !== '') {
             $draftQuery->where(function ($query) use ($search) {
-                $keyword = '%' . $search . '%';
+                $keyword = '%'.$search.'%';
 
                 $query->where('no_kk', 'like', $keyword)
                     ->orWhere('nik', 'like', $keyword)
@@ -132,6 +154,8 @@ class KuisionerController extends Controller
             'draftCount' => $draftCount,
             'selesaiCount' => $selesaiCount,
             'submitCount' => $submitCount,
+            'ditolakCount' => $ditolakCount,
+            'diterimaCount' => $diterimaCount,
             'drafts' => $drafts,
             'selesais' => collect(),
             'search' => $search,
@@ -173,7 +197,7 @@ class KuisionerController extends Controller
                 $item->keluarga_periode_kode
             )->first();
 
-            if (!$keluarga && $item->no_kk) {
+            if (! $keluarga && $item->no_kk) {
                 $keluarga = Keluarga::where(
                     'no_kk',
                     $item->no_kk
@@ -182,7 +206,7 @@ class KuisionerController extends Controller
 
             $item->keluarga_data = $keluarga;
             $item->rt_rw_display = $keluarga
-                ? trim((string) $keluarga->rt . ' / ' . (string) $keluarga->rw, ' /')
+                ? trim((string) $keluarga->rt.' / '.(string) $keluarga->rw, ' /')
                 : '-';
 
             $jumlahAnggotaTambahan = $keluarga
@@ -209,6 +233,131 @@ class KuisionerController extends Controller
         ]);
     }
 
+    public function ditolak(): View
+    {
+        return view('admin.kuisioner.ditolak', [
+            'kuisioner' => $this->getQuestionnairesByStatus([
+                'rejected',
+                'reject',
+                'ditolak',
+            ]),
+        ]);
+    }
+
+    public function disetujui(): View
+    {
+        return view('admin.kuisioner.disetujui', [
+            'kuisioner' => $this->getQuestionnairesByStatus([
+                'approved',
+                'disetujui',
+            ]),
+        ]);
+    }
+
+    private function getQuestionnairesByStatus(array $statuses): EloquentCollection
+    {
+        $questionnaires = KeluargaPart1::query()
+            ->whereIn('status', $statuses)
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->get();
+
+        $familyCodes = $questionnaires
+            ->pluck('keluarga_periode_kode')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $familyNumbers = $questionnaires
+            ->pluck('no_kk')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $families = Keluarga::query()
+            ->whereIn('kode', $familyCodes)
+            ->orWhereIn('no_kk', $familyNumbers)
+            ->get([
+                'kode',
+                'no_kk',
+                'nik',
+                'nama_lengkap',
+            ]);
+
+        $familiesByCode = $families->keyBy('kode');
+        $familiesByNumber = $families->keyBy('no_kk');
+
+        foreach ($questionnaires as $questionnaire) {
+            $questionnaire->keluarga_data = $familiesByCode->get(
+                $questionnaire->keluarga_periode_kode
+            ) ?? $familiesByNumber->get($questionnaire->no_kk);
+        }
+
+        return $questionnaires;
+    }
+
+    public function editRejected(int $id): RedirectResponse
+    {
+        $questionnaire = KeluargaPart1::query()->findOrFail($id);
+        $status = strtolower(trim((string) $questionnaire->status));
+
+        if (! in_array($status, ['rejected', 'reject', 'ditolak'], true)) {
+            return redirect()
+                ->route('kuisioner.ditolak')
+                ->with('error', 'Hanya kuisioner berstatus ditolak yang dapat diedit.');
+        }
+
+        $familyCode = trim((string) $questionnaire->keluarga_periode_kode);
+        $familyExists = $familyCode !== ''
+            && Keluarga::query()->where('kode', $familyCode)->exists();
+
+        if (! $familyExists && filled($questionnaire->no_kk)) {
+            $family = Keluarga::query()
+                ->where('no_kk', $questionnaire->no_kk)
+                ->first();
+
+            if ($family) {
+                $familyCode = $family->kode;
+                $questionnaire->keluarga_periode_kode = $familyCode;
+                $questionnaire->save();
+                $familyExists = true;
+            }
+        }
+
+        if (! $familyExists) {
+            return redirect()
+                ->route('kuisioner.ditolak')
+                ->with('error', 'Data keluarga tidak ditemukan sehingga kuisioner tidak dapat diedit.');
+        }
+
+        session([
+            'draft_keluarga_id' => $questionnaire->id,
+            'selected_keluarga_kode' => $familyCode,
+            'editing_rejected_questionnaire' => true,
+            'part1_selesai' => false,
+            'part2_selesai' => false,
+            'part3_selesai' => false,
+            'part4_selesai' => false,
+            'part5_selesai' => false,
+        ]);
+
+        return redirect()
+            ->route('kuisioner.part1')
+            ->with('success', 'Kuisioner ditolak langsung dibuka untuk diedit. Status dan data yang sudah tersimpan tetap dipertahankan.');
+    }
+
+    private function editableQuestionnaireQuery(): Builder
+    {
+        $query = KeluargaPart1::query();
+
+        if (session('editing_rejected_questionnaire')) {
+            return $query
+                ->whereKey(session('draft_keluarga_id'))
+                ->whereIn('status', ['rejected', 'reject', 'ditolak']);
+        }
+
+        return $query->where('status', 'draft');
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -234,7 +383,15 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
         $kodeSudahDipakai = KeluargaPart1::query()
-            ->whereIn('status', ['draft', 'selesai'])
+            ->whereIn('status', [
+                'draft',
+                'selesai',
+                'approved',
+                'disetujui',
+                'rejected',
+                'reject',
+                'ditolak',
+            ])
             ->pluck('keluarga_periode_kode')
             ->unique()
             ->toArray();
@@ -246,17 +403,17 @@ class KuisionerController extends Controller
         */
         $responden = Keluarga::query()
             ->when(
-                !empty($kodeSudahDipakai),
+                ! empty($kodeSudahDipakai),
                 function ($query) use ($kodeSudahDipakai) {
                     $query->whereNotIn('kode', $kodeSudahDipakai);
                 }
             )
             ->when(
-                !empty($kataKunci),
+                ! empty($kataKunci),
                 function ($query) use ($kataKunci) {
                     foreach ($kataKunci as $kata) {
                         $query->where(function ($q) use ($kata) {
-                            $keyword = '%' . $kata . '%';
+                            $keyword = '%'.$kata.'%';
 
                             $q->where('nama_lengkap', 'like', $keyword)
                                 ->orWhere('nik', 'like', $keyword)
@@ -274,7 +431,7 @@ class KuisionerController extends Controller
                             WHEN nama_lengkap LIKE ? THEN 1
                             ELSE 2
                         END',
-                        [$search, $search . '%']
+                        [$search, $search.'%']
                     );
                 }
             )
@@ -297,7 +454,6 @@ class KuisionerController extends Controller
             compact('responden', 'search')
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -322,7 +478,7 @@ class KuisionerController extends Controller
             $query->where(
                 'nama_lengkap',
                 'like',
-                '%' . $search . '%'
+                '%'.$search.'%'
             );
         }
 
@@ -353,7 +509,7 @@ class KuisionerController extends Controller
         foreach ($keluargas as $keluarga) {
             $part1 = $statusKeluarga->get($keluarga->kode);
 
-            if (!$part1) {
+            if (! $part1) {
                 // BELUM PERNAH MULAI
                 $keluarga->status_kuesioner = null;
                 $keluarga->current_part_kuesioner = 0;
@@ -401,7 +557,7 @@ class KuisionerController extends Controller
             session('selected_keluarga_kode')
         );
 
-        if (!$keluargaAktif) {
+        if (! $keluargaAktif) {
             session()->forget([
                 'selected_keluarga_kode',
                 'draft_keluarga_id',
@@ -410,6 +566,7 @@ class KuisionerController extends Controller
                 'part3_selesai',
                 'part4_selesai',
                 'part5_selesai',
+                'editing_rejected_questionnaire',
             ]);
         }
 
@@ -425,12 +582,11 @@ class KuisionerController extends Controller
             if ($selectedKeluarga) {
 
                 $anggotaPertama = $selectedKeluarga->anggota->first();
-            
-                $data = KeluargaPart1::where(
+
+                $data = $this->editableQuestionnaireQuery()->where(
                     'keluarga_periode_kode',
                     $selectedKeluarga->kode
                 )
-                    ->where('status', 'draft')
                     ->latest('id')
                     ->first();
 
@@ -455,8 +611,7 @@ class KuisionerController extends Controller
                 }
 
                 session([
-                    'selected_keluarga_kode' =>
-                        $selectedKeluarga->kode,
+                    'selected_keluarga_kode' => $selectedKeluarga->kode,
                 ]);
             }
         }
@@ -622,7 +777,7 @@ class KuisionerController extends Controller
             $validated['keluarga_kode']
             ?? session('selected_keluarga_kode');
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             return back()
                 ->withInput()
                 ->with(
@@ -637,11 +792,10 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $draft = KeluargaPart1::where(
+        $draft = $this->editableQuestionnaireQuery()->where(
             'keluarga_periode_kode',
             $keluargaKode
         )
-            ->where('status', 'draft')
             ->latest('id')
             ->first();
 
@@ -651,9 +805,8 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if (!$draft) {
-            $draft = new KeluargaPart1();
-
+        if (! $draft) {
+            $draft = new KeluargaPart1;
             $draft->status = 'draft';
             $draft->current_part = 1;
             $draft->created_by = $user;
@@ -734,10 +887,10 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $draft->is_alamat_sesuai = 
+        $draft->is_alamat_sesuai =
             $validated['is_alamat_sesuai'] ?? null;
 
-        $draft->alasan_tidak_sesuai = 
+        $draft->alasan_tidak_sesuai =
             $validated['alasan_tidak_sesuai'] ?? null;
 
         /*
@@ -764,7 +917,9 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $draft->status = 'draft';
+        if (! session('editing_rejected_questionnaire')) {
+            $draft->status = 'draft';
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -807,26 +962,19 @@ class KuisionerController extends Controller
         */
 
         session([
-            'draft_keluarga_id' =>
-                $draft->id,
+            'draft_keluarga_id' => $draft->id,
 
-            'selected_keluarga_kode' =>
-                $keluargaKode,
+            'selected_keluarga_kode' => $keluargaKode,
 
-            'part1_selesai' =>
-                false,
+            'part1_selesai' => false,
 
-            'part2_selesai' =>
-                false,
+            'part2_selesai' => false,
 
-            'part3_selesai' =>
-                false,
+            'part3_selesai' => false,
 
-            'part4_selesai' =>
-                false,
+            'part4_selesai' => false,
 
-            'part5_selesai' =>
-                false,
+            'part5_selesai' => false,
         ]);
 
         /*
@@ -869,7 +1017,7 @@ class KuisionerController extends Controller
     {
         $keluargaKode = session('selected_keluarga_kode');
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             return redirect()
                 ->route('kuisioner.part1')
                 ->with(
@@ -880,7 +1028,7 @@ class KuisionerController extends Controller
 
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
             return redirect()
                 ->route('kuisioner.part1')
                 ->with(
@@ -889,15 +1037,14 @@ class KuisionerController extends Controller
                 );
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
+        $draft = $this->editableQuestionnaireQuery()->where('id', $draftId)
             ->where(
                 'keluarga_periode_kode',
                 $keluargaKode
             )
-            ->where('status', 'draft')
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
 
             session()->forget([
                 'draft_keluarga_id',
@@ -907,6 +1054,7 @@ class KuisionerController extends Controller
                 'part3_selesai',
                 'part4_selesai',
                 'part5_selesai',
+                'editing_rejected_questionnaire',
             ]);
 
             return redirect()
@@ -958,7 +1106,7 @@ class KuisionerController extends Controller
     {
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -968,11 +1116,11 @@ class KuisionerController extends Controller
                 );
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
-            ->where('status', 'draft')
+        $draft = $this->editableQuestionnaireQuery()
+            ->where('id', $draftId)
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -1142,11 +1290,11 @@ class KuisionerController extends Controller
 
         $keluargaKode = $draft->keluarga_periode_kode;
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             $keluargaKode = session('selected_keluarga_kode');
         }
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -1164,7 +1312,7 @@ class KuisionerController extends Controller
 
         $kondisiAtap = null;
 
-        if (!empty($validated['kondisi_atap'])) {
+        if (! empty($validated['kondisi_atap'])) {
 
             $kondisiAtap = match ($validated['kondisi_atap']) {
 
@@ -1226,14 +1374,11 @@ class KuisionerController extends Controller
 
             $data = [
 
-                'keluarga_periode_kode' =>
-                    $keluargaKode,
+                'keluarga_periode_kode' => $keluargaKode,
 
-                'jenis_bangungan' =>
-                    $validated['jenis_bangunan'] ?? null,
+                'jenis_bangungan' => $validated['jenis_bangunan'] ?? null,
 
-                'is_keluarga_lain' =>
-                    isset($validated['keluarga_lain'])
+                'is_keluarga_lain' => isset($validated['keluarga_lain'])
                         ? (
                             $validated['keluarga_lain'] === 'Ya'
                                 ? 1
@@ -1241,68 +1386,47 @@ class KuisionerController extends Controller
                         )
                         : null,
 
-                'jml_keluarga_lain' =>
-                    $validated['jumlah_keluarga_lain'] ?? null,
+                'jml_keluarga_lain' => $validated['jumlah_keluarga_lain'] ?? null,
 
-                'total_penghuni' =>
-                    $validated['jumlah_orang'] ?? null,
+                'total_penghuni' => $validated['jumlah_orang'] ?? null,
 
-                'kepemilikan_bangunan' =>
-                    $kepemilikan,
+                'kepemilikan_bangunan' => $kepemilikan,
 
-                'bukti_kepemilikan' =>
-                    $validated['bukti_kepemilikan'] ?? null,
+                'bukti_kepemilikan' => $validated['bukti_kepemilikan'] ?? null,
 
-                'harga_sewa_kontrak' =>
-                    $hargaSewa,
+                'harga_sewa_kontrak' => $hargaSewa,
 
-                'luas_lantai' =>
-                    $validated['luas_lantai'] ?? null,
+                'luas_lantai' => $validated['luas_lantai'] ?? null,
 
-                'jenis_lantai' =>
-                    $validated['jenis_lantai'] ?? null,
+                'jenis_lantai' => $validated['jenis_lantai'] ?? null,
 
-                'kondisi_lantai' =>
-                    $validated['kondisi_lantai'] ?? null,
+                'kondisi_lantai' => $validated['kondisi_lantai'] ?? null,
 
-                'jenis_dinding' =>
-                    $validated['jenis_dinding'] ?? null,
+                'jenis_dinding' => $validated['jenis_dinding'] ?? null,
 
-                'kondisi_dinding' =>
-                    $validated['kondisi_dinding'] ?? null,
+                'kondisi_dinding' => $validated['kondisi_dinding'] ?? null,
 
-                'jenis_atap' =>
-                    $validated['jenis_atap'] ?? null,
+                'jenis_atap' => $validated['jenis_atap'] ?? null,
 
-                'kondisi_atap' =>
-                    $kondisiAtap,
+                'kondisi_atap' => $kondisiAtap,
 
-                'fasilitas_bab' =>
-                    $validated['fasilitas_bab'] ?? null,
+                'fasilitas_bab' => $validated['fasilitas_bab'] ?? null,
 
-                'jenis_kloset' =>
-                    $validated['jenis_toilet'] ?? null,
+                'jenis_kloset' => $validated['jenis_toilet'] ?? null,
 
-                'sumber_minum' =>
-                    $validated['sumber_air_minum'] ?? null,
+                'sumber_minum' => $validated['sumber_air_minum'] ?? null,
 
-                'sumber_penerangan' =>
-                    $validated['sumber_penerangan'] ?? null,
+                'sumber_penerangan' => $validated['sumber_penerangan'] ?? null,
 
-                'daya_listrik' =>
-                    $validated['daya_listrik'] ?? null,
+                'daya_listrik' => $validated['daya_listrik'] ?? null,
 
-                'idpel_pln' =>
-                    $validated['id_pelanggan_pln'] ?? null,
+                'idpel_pln' => $validated['id_pelanggan_pln'] ?? null,
 
-                'jml_meteran' =>
-                    $validated['jumlah_meteran'] ?? null,
+                'jml_meteran' => $validated['jumlah_meteran'] ?? null,
 
-                'updated_by' =>
-                    $user,
+                'updated_by' => $user,
 
-                'updated_at' =>
-                    now(),
+                'updated_at' => now(),
             ];
 
             $part2 = KeluargaPart2::where(
@@ -1310,7 +1434,7 @@ class KuisionerController extends Controller
                 $keluargaKode
             )->first();
 
-            if (!$part2) {
+            if (! $part2) {
 
                 $data['created_by'] = $user;
                 $data['created_at'] = now();
@@ -1330,8 +1454,7 @@ class KuisionerController extends Controller
 
             $draft->update([
 
-                'current_part' =>
-                    $validated['action'] === 'draft' ? 2 : 3,
+                'current_part' => $validated['action'] === 'draft' ? 2 : 3,
 
                 'updated_by' => $user,
 
@@ -1345,23 +1468,17 @@ class KuisionerController extends Controller
         */
 
         session([
-            'draft_keluarga_id' =>
-                $draft->id,
+            'draft_keluarga_id' => $draft->id,
 
-            'part1_selesai' =>
-                true,
+            'part1_selesai' => true,
 
-            'part2_selesai' =>
-                $validated['action'] === 'next',
+            'part2_selesai' => $validated['action'] === 'next',
 
-            'part3_selesai' =>
-                false,
+            'part3_selesai' => false,
 
-            'part4_selesai' =>
-                false,
+            'part4_selesai' => false,
 
-            'part5_selesai' =>
-                false,
+            'part5_selesai' => false,
         ]);
 
         if ($validated['action'] === 'draft') {
@@ -1391,27 +1508,26 @@ class KuisionerController extends Controller
     {
         $keluargaKode = session('selected_keluarga_kode');
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
+        $draft = $this->editableQuestionnaireQuery()->where('id', $draftId)
             ->where(
                 'keluarga_periode_kode',
                 $keluargaKode
             )
-            ->where('status', 'draft')
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
 
             session()->forget([
                 'draft_keluarga_id',
@@ -1453,22 +1569,21 @@ class KuisionerController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    
     public function storePart3(Request $request)
     {
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
             return redirect()
                 ->route('kuisioner.part1')
                 ->with('error', 'Silakan pilih keluarga terlebih dahulu.');
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
-            ->where('status', 'draft')
+        $draft = $this->editableQuestionnaireQuery()
+            ->where('id', $draftId)
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
             return redirect()
                 ->route('kuisioner.part1')
                 ->with('error', 'Data draft keluarga tidak ditemukan.');
@@ -1540,7 +1655,7 @@ class KuisionerController extends Controller
         $keluargaKode = $draft->keluarga_periode_kode
             ?: session('selected_keluarga_kode');
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             return back()
                 ->withInput()
                 ->with('error', 'Kode keluarga tidak ditemukan.');
@@ -1556,40 +1671,29 @@ class KuisionerController extends Controller
             $data = [
                 'keluarga_periode_kode' => $keluargaKode,
 
-                'pengeluaran_listrik_bulanan' =>
-                    $validated['pengeluaran_listrik_bulanan'] ?? null,
+                'pengeluaran_listrik_bulanan' => $validated['pengeluaran_listrik_bulanan'] ?? null,
 
-                'pengeluaran_pulsa_bulanan' =>
-                    $validated['pengeluaran_pulsa_bulanan'] ?? null,
+                'pengeluaran_pulsa_bulanan' => $validated['pengeluaran_pulsa_bulanan'] ?? null,
 
-                'pengeluaran_internet_bulanan' =>
-                    $validated['pengeluaran_internet_bulanan'] ?? null,
+                'pengeluaran_internet_bulanan' => $validated['pengeluaran_internet_bulanan'] ?? null,
 
-                'pengeluaran_makan_mingguan' =>
-                    $validated['pengeluaran_makan_mingguan'] ?? null,
+                'pengeluaran_makan_mingguan' => $validated['pengeluaran_makan_mingguan'] ?? null,
 
-                'pengeluaran_nonmakan_bulanan' =>
-                    $validated['pengeluaran_nonmakan_bulanan'] ?? null,
+                'pengeluaran_nonmakan_bulanan' => $validated['pengeluaran_nonmakan_bulanan'] ?? null,
 
-                'pengeluaran_nonmakan_tahunan' =>
-                    $validated['pengeluaran_nonmakan_tahunan'] ?? null,
+                'pengeluaran_nonmakan_tahunan' => $validated['pengeluaran_nonmakan_tahunan'] ?? null,
 
-                'pendapatan_pekerjaan' =>
-                    $validated['pendapatan_pekerjaan'] ?? null,
+                'pendapatan_pekerjaan' => $validated['pendapatan_pekerjaan'] ?? null,
 
-                'total_pendapatan_kerja' =>
-                    ($validated['pendapatan_pekerjaan'] ?? null) === 'Tidak'
+                'total_pendapatan_kerja' => ($validated['pendapatan_pekerjaan'] ?? null) === 'Tidak'
                         ? null
                         : ($validated['total_pendapatan_kerja'] ?? null),
 
-                'total_pendapatan_usaha' =>
-                    $validated['total_pendapatan_usaha'] ?? null,
+                'total_pendapatan_usaha' => $validated['total_pendapatan_usaha'] ?? null,
 
-                'pendapatan_lainnya' =>
-                    $validated['pendapatan_lainnya'] ?? null,
+                'pendapatan_lainnya' => $validated['pendapatan_lainnya'] ?? null,
 
-                'total_pendapatan_lainnya' =>
-                    ($validated['pendapatan_lainnya'] ?? null) === 'Tidak'
+                'total_pendapatan_lainnya' => ($validated['pendapatan_lainnya'] ?? null) === 'Tidak'
                         ? null
                         : ($validated['total_pendapatan_lainnya'] ?? null),
 
@@ -1671,16 +1775,15 @@ class KuisionerController extends Controller
         $keluargaKode = session('selected_keluarga_kode');
         $draftId = session('draft_keluarga_id');
 
-        if (!$keluargaKode || !$draftId) {
+        if (! $keluargaKode || ! $draftId) {
             return redirect()->route('kuisioner.part1');
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
+        $draft = $this->editableQuestionnaireQuery()->where('id', $draftId)
             ->where('keluarga_periode_kode', $keluargaKode)
-            ->where('status', 'draft')
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
             return redirect()->route('kuisioner.part1');
         }
 
@@ -1712,7 +1815,7 @@ class KuisionerController extends Controller
     {
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -1722,18 +1825,16 @@ class KuisionerController extends Controller
                 );
         }
 
-        
         $keluargaKode = session('selected_keluarga_kode');
 
-        $draft = KeluargaPart1::where('id', $draftId)
-            ->where('status', 'draft')
+        $draft = $this->editableQuestionnaireQuery()
+            ->where('id', $draftId)
             ->when($keluargaKode, function ($query) use ($keluargaKode) {
                 $query->where('keluarga_periode_kode', $keluargaKode);
             })
             ->first();
 
-
-        if (!$draft) {
+        if (! $draft) {
 
             session()->forget([
                 'draft_keluarga_id',
@@ -1759,22 +1860,18 @@ class KuisionerController extends Controller
 
         $request->validate([
 
-            'aset' =>
-                ['required', 'array'],
+            'aset' => ['required', 'array'],
 
-            'aset.*.punya' =>
-                ['required', 'in:0,1'],
+            'aset.*.punya' => ['required', 'in:0,1'],
 
-            'aset.*.jumlah' =>
-                ['nullable', 'integer', 'min:0'],
+            'aset.*.jumlah' => ['nullable', 'integer', 'min:0'],
 
-            'action' =>
-                ['required', 'in:draft,next'],
+            'action' => ['required', 'in:draft,next'],
         ]);
 
         $keluargaKode = $draft->keluarga_periode_kode;
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
 
             return back()
                 ->withInput()
@@ -1814,7 +1911,7 @@ class KuisionerController extends Controller
             foreach ($asetList as $aset) {
 
                 $data = $request->input(
-                    'aset.' . md5($aset),
+                    'aset.'.md5($aset),
                     []
                 );
 
@@ -1838,23 +1935,17 @@ class KuisionerController extends Controller
 
                 $saveData = [
 
-                    'keluarga_periode_kode' =>
-                        $keluargaKode,
+                    'keluarga_periode_kode' => $keluargaKode,
 
-                    'aset_keluarga' =>
-                        $aset,
+                    'aset_keluarga' => $aset,
 
-                    'is_punya_aset' =>
-                        $punya,
+                    'is_punya_aset' => $punya,
 
-                    'jml_aset' =>
-                        $jumlah,
+                    'jml_aset' => $jumlah,
 
-                    'updated_by' =>
-                        auth()->user()->username ?? 'admin',
+                    'updated_by' => auth()->user()->username ?? 'admin',
 
-                    'updated_at' =>
-                        now(),
+                    'updated_at' => now(),
                 ];
 
                 if ($existing) {
@@ -1918,7 +2009,7 @@ class KuisionerController extends Controller
                 ->withInput()
                 ->with(
                     'error',
-                    'Data Part 4 gagal disimpan: ' .
+                    'Data Part 4 gagal disimpan: '.
                     $e->getMessage()
                 );
         }
@@ -1934,27 +2025,26 @@ class KuisionerController extends Controller
     {
         $keluargaKode = session('selected_keluarga_kode');
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
+        $draft = $this->editableQuestionnaireQuery()->where('id', $draftId)
             ->where(
                 'keluarga_periode_kode',
                 $keluargaKode
             )
-            ->where('status', 'draft')
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
 
             session()->forget([
                 'draft_keluarga_id',
@@ -1994,7 +2084,6 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        
         $dataPart5 = KeluargaPart5::where(
             'keluarga_periode_kode',
             $draft->keluarga_periode_kode
@@ -2049,27 +2138,26 @@ class KuisionerController extends Controller
     {
         $keluargaKode = session('selected_keluarga_kode');
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
+        $draft = $this->editableQuestionnaireQuery()->where('id', $draftId)
             ->where(
                 'keluarga_periode_kode',
                 $keluargaKode
             )
-            ->where('status', 'draft')
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
 
             session()->forget([
                 'draft_keluarga_id',
@@ -2107,7 +2195,7 @@ class KuisionerController extends Controller
             )
             ->first();
 
-        if (!$anggota) {
+        if (! $anggota) {
 
             return redirect()
                 ->route('kuisioner.part5')
@@ -2156,7 +2244,7 @@ class KuisionerController extends Controller
         $draftId =
             session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -2169,7 +2257,7 @@ class KuisionerController extends Controller
         $draft =
             KeluargaPart1::find($draftId);
 
-        if (!$draft) {
+        if (! $draft) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -2195,7 +2283,7 @@ class KuisionerController extends Controller
             )
             ->first();
 
-        if (!$anggota) {
+        if (! $anggota) {
 
             return redirect()
                 ->route('kuisioner.part5')
@@ -2213,27 +2301,19 @@ class KuisionerController extends Controller
 
         $validated = $request->validate([
 
-            'keberadaan' =>
-                'required|string|max:255',
+            'keberadaan' => 'required|string|max:255',
 
-            'no_hp' =>
-                'nullable|string|max:16',
+            'no_hp' => 'nullable|string|max:16',
 
-            'jenis_kelamin' =>
-                'required|string|max:16',
+            'jenis_kelamin' => 'required|string|max:16',
 
-            'tanggal_lahir' =>
-                'nullable|date',
+            'tanggal_lahir' => 'nullable|date',
 
-            'status_perkawinan' =>
-                'required|string|max:255',
+            'status_perkawinan' => 'required|string|max:255',
 
-            'status_sekolah' =>
-                'required|string|max:255',
+            'status_sekolah' => 'required|string|max:255',
 
-            
-            'ijazah_tertinggi' =>
-                'required|string|max:255',
+            'ijazah_tertinggi' => 'required|string|max:255',
 
             'ijazah_lainnya' => [
                 'nullable',
@@ -2242,9 +2322,7 @@ class KuisionerController extends Controller
                 'max:255',
             ],
 
-
-            'pekerjaan_utama' =>
-                'required|string|max:255',
+            'pekerjaan_utama' => 'required|string|max:255',
 
             'pekerjaan_lainnya' => [
                 'nullable',
@@ -2253,41 +2331,33 @@ class KuisionerController extends Controller
                 'max:255',
             ],
 
-            'status_pekerjaan' =>
-                'required_unless:pekerjaan_utama,Tidak Bekerja|string|max:255',
+            'status_pekerjaan' => 'required_unless:pekerjaan_utama,Tidak Bekerja|string|max:255',
 
-            'kepemilikan_rekening' =>
-                'required|string|max:255',
+            'kepemilikan_rekening' => 'required|string|max:255',
 
-            'is_disabilitas_fisik' =>
-                'required|in:0,1',
+            'is_disabilitas_fisik' => 'required|in:0,1',
 
-            'is_disabilitas_mental' =>
-                'required|in:0,1',
+            'is_disabilitas_mental' => 'required|in:0,1',
 
-            'is_disabilitas_intelektual' =>
-                'required|in:0,1',
+            'is_disabilitas_intelektual' => 'required|in:0,1',
 
-            'is_disabilitas_netra' =>
-                'required|in:0,1',
+            'is_disabilitas_netra' => 'required|in:0,1',
 
-            'is_disabilitas_rungu' =>
-                'required|in:0,1',
+            'is_disabilitas_rungu' => 'required|in:0,1',
 
-            'is_disabilitas_wicara' =>
-                'required|in:0,1',
+            'is_disabilitas_wicara' => 'required|in:0,1',
 
             'keluhan_kesehatan' => [
-            'required',
-            'array',
-            'min:1',
-        ],
+                'required',
+                'array',
+                'min:1',
+            ],
 
-        'keluhan_kesehatan.*' => [
-            'required',
-            'string',
-            'max:255',
-        ],
+            'keluhan_kesehatan.*' => [
+                'required',
+                'string',
+                'max:255',
+            ],
         ]);
 
         /*
@@ -2298,81 +2368,58 @@ class KuisionerController extends Controller
 
         $data = [
 
-            'keluarga_periode_kode' =>
-                $draft->keluarga_periode_kode,
+            'keluarga_periode_kode' => $draft->keluarga_periode_kode,
 
-            'keluarga_anggota_kode' =>
-                $anggota->kode,
+            'keluarga_anggota_kode' => $anggota->kode,
 
-            'keberadaan' =>
-                $validated['keberadaan'],
+            'keberadaan' => $validated['keberadaan'],
 
-            'no_hp' =>
-                $validated['no_hp'] ?? null,
+            'no_hp' => $validated['no_hp'] ?? null,
 
-            'jenis_kelamin' =>
-                $validated['jenis_kelamin'],
+            'jenis_kelamin' => $validated['jenis_kelamin'],
 
-            'tanggal_lahir' =>
-                $validated['tanggal_lahir'] ?? null,
+            'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
 
-            'status_perkawinan' =>
-                $validated['status_perkawinan'],
+            'status_perkawinan' => $validated['status_perkawinan'],
 
-            'status_sekolah' =>
-                $validated['status_sekolah'],
+            'status_sekolah' => $validated['status_sekolah'],
 
-            
-            'ijazah_tertinggi' =>
-                $validated['ijazah_tertinggi'],
+            'ijazah_tertinggi' => $validated['ijazah_tertinggi'],
 
-            'ijazah_lainnya' =>
-                $validated['ijazah_tertinggi'] === 'Lainnya'
+            'ijazah_lainnya' => $validated['ijazah_tertinggi'] === 'Lainnya'
                     ? ($validated['ijazah_lainnya'] ?? null)
                     : null,
 
-            'pekerjaan_utama' =>
-                $validated['pekerjaan_utama'],
+            'pekerjaan_utama' => $validated['pekerjaan_utama'],
 
             'pekerjaan_lainnya' => $validated['pekerjaan_lainnya'] ?? null,
 
-            'status_pekerjaan' =>
-                $validated['status_pekerjaan'] ?? null,
+            'status_pekerjaan' => $validated['status_pekerjaan'] ?? null,
 
-            'kepemilikan_rekening' =>
-                $validated['kepemilikan_rekening'],
+            'kepemilikan_rekening' => $validated['kepemilikan_rekening'],
 
-            'is_disabilitas_fisik' =>
-                $validated['is_disabilitas_fisik'],
+            'is_disabilitas_fisik' => $validated['is_disabilitas_fisik'],
 
-            'is_disabilitas_mental' =>
-                $validated['is_disabilitas_mental'],
+            'is_disabilitas_mental' => $validated['is_disabilitas_mental'],
 
-            'is_disabilitas_intelektual' =>
-                $validated['is_disabilitas_intelektual'],
+            'is_disabilitas_intelektual' => $validated['is_disabilitas_intelektual'],
 
-            'is_disabilitas_netra' =>
-                $validated['is_disabilitas_netra'],
+            'is_disabilitas_netra' => $validated['is_disabilitas_netra'],
 
-            'is_disabilitas_rungu' =>
-                $validated['is_disabilitas_rungu'],
+            'is_disabilitas_rungu' => $validated['is_disabilitas_rungu'],
 
-            'is_disabilitas_wicara' =>
-                $validated['is_disabilitas_wicara'],
+            'is_disabilitas_wicara' => $validated['is_disabilitas_wicara'],
 
             'keluhan_kesehatan' => json_encode(
                 $validated['keluhan_kesehatan'],
                 JSON_UNESCAPED_UNICODE
             ),
 
-            'created_by' =>
-                auth()->id() ?? 'system',
+            'created_by' => auth()->id() ?? 'system',
 
-            'updated_by' =>
-                auth()->id() ?? 'system',
+            'updated_by' => auth()->id() ?? 'system',
 
-            'updated_at' =>
-                now(),
+            'updated_at' => now(),
         ];
 
         /*
@@ -2409,65 +2456,65 @@ class KuisionerController extends Controller
                 'success',
                 'Data anggota berhasil disimpan.'
             );
+    }
+
+    private function part5DataLengkap($data): bool
+    {
+        if (! $data) {
+            return false;
         }
-        
-        private function part5DataLengkap($data): bool
-        {
-            if (!$data) {
-                return false;
-            }
 
-            $kolomWajib = [
-                'keberadaan',
-                'jenis_kelamin',
-                'status_perkawinan',
-                'status_sekolah',
-                'ijazah_tertinggi',
-                'pekerjaan_utama',
-                'kepemilikan_rekening',
-                'is_disabilitas_fisik',
-                'is_disabilitas_mental',
-                'is_disabilitas_intelektual',
-                'is_disabilitas_netra',
-                'is_disabilitas_rungu',
-                'is_disabilitas_wicara',
-            ];
+        $kolomWajib = [
+            'keberadaan',
+            'jenis_kelamin',
+            'status_perkawinan',
+            'status_sekolah',
+            'ijazah_tertinggi',
+            'pekerjaan_utama',
+            'kepemilikan_rekening',
+            'is_disabilitas_fisik',
+            'is_disabilitas_mental',
+            'is_disabilitas_intelektual',
+            'is_disabilitas_netra',
+            'is_disabilitas_rungu',
+            'is_disabilitas_wicara',
+        ];
 
-            foreach ($kolomWajib as $kolom) {
-                if (
-                    !isset($data->{$kolom}) ||
-                    trim((string) $data->{$kolom}) === ''
-                ) {
-                    return false;
-                }
-            }
-
+        foreach ($kolomWajib as $kolom) {
             if (
-                $data->ijazah_tertinggi === 'Lainnya' &&
-                trim((string) $data->ijazah_lainnya) === ''
+                ! isset($data->{$kolom}) ||
+                trim((string) $data->{$kolom}) === ''
             ) {
                 return false;
             }
-
-            if (
-                $data->pekerjaan_utama !== 'Tidak Bekerja' &&
-                trim((string) $data->status_pekerjaan) === ''
-            ) {
-                return false;
-            }
-
-            $keluhan = $data->keluhan_kesehatan;
-
-            if (is_string($keluhan)) {
-                $keluhan = json_decode($keluhan, true);
-            }
-
-            if (!is_array($keluhan) || count($keluhan) < 1) {
-                return false;
-            }
-
-            return true;
         }
+
+        if (
+            $data->ijazah_tertinggi === 'Lainnya' &&
+            trim((string) $data->ijazah_lainnya) === ''
+        ) {
+            return false;
+        }
+
+        if (
+            $data->pekerjaan_utama !== 'Tidak Bekerja' &&
+            trim((string) $data->status_pekerjaan) === ''
+        ) {
+            return false;
+        }
+
+        $keluhan = $data->keluhan_kesehatan;
+
+        if (is_string($keluhan)) {
+            $keluhan = json_decode($keluhan, true);
+        }
+
+        if (! is_array($keluhan) || count($keluhan) < 1) {
+            return false;
+        }
+
+        return true;
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -2479,27 +2526,26 @@ class KuisionerController extends Controller
     {
         $keluargaKode = session('selected_keluarga_kode');
 
-        if (!$keluargaKode) {
+        if (! $keluargaKode) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
         $draftId = session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
             return redirect()
                 ->route('kuisioner.part1');
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
+        $draft = $this->editableQuestionnaireQuery()->where('id', $draftId)
             ->where(
                 'keluarga_periode_kode',
                 $keluargaKode
             )
-            ->where('status', 'draft')
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
 
             session()->forget([
                 'draft_keluarga_id',
@@ -2542,7 +2588,6 @@ class KuisionerController extends Controller
             $draft->keluarga_periode_kode
         )->get()->keyBy('keluarga_anggota_kode');
 
-        
         $jumlahAnggota = $anggota->count();
 
         $statusPart5 = [];
@@ -2596,7 +2641,7 @@ class KuisionerController extends Controller
         $draftId =
             session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -2615,7 +2660,7 @@ class KuisionerController extends Controller
         $draft =
             KeluargaPart1::find($draftId);
 
-        if (!$draft) {
+        if (! $draft) {
 
             return redirect()
                 ->route('kuisioner.part1')
@@ -2691,6 +2736,7 @@ class KuisionerController extends Controller
         
         $action = $request->input('action', 'final');
         $isDraft = $action === 'draft';
+        $isEditingRejectedQuestionnaire = session('editing_rejected_questionnaire');
         $deleteFoto = $request->input('delete_foto', []);
 
         $fotoTersimpan = KeluargaFotoRumah::where(
@@ -2739,14 +2785,11 @@ class KuisionerController extends Controller
 
         $jenisFoto = [
 
-            'tampak_depan' =>
-                'Foto Tampak Depan',
+            'tampak_depan' => 'Foto Tampak Depan',
 
-            'ruang_tamu' =>
-                'Foto Ruang Tamu',
+            'ruang_tamu' => 'Foto Ruang Tamu',
 
-            'kamar_mandi' =>
-                'Foto Kamar Mandi',
+            'kamar_mandi' => 'Foto Kamar Mandi',
         ];
 
         /*
@@ -2789,7 +2832,7 @@ class KuisionerController extends Controller
                     ->where('jenis_foto', $field)
                     ->first();
 
-                if ($markedDelete && !$file) {
+                if ($markedDelete && ! $file) {
                     if ($existing) {
                         $pathLama = $existing->path_file;
 
@@ -2803,7 +2846,7 @@ class KuisionerController extends Controller
                     continue;
                 }
 
-                if (!$file) {
+                if (! $file) {
                     continue;
                 }
 
@@ -2853,15 +2896,36 @@ class KuisionerController extends Controller
             }
 
             if ($isDraft) {
-
-                $draft->update([
-                    'status' => 'draft',
+                $draftAttributes = [
                     'current_part' => 5,
                     'updated_by' => $userName,
                     'updated_at' => now(),
-                ]);
+                ];
+
+                if (! $isEditingRejectedQuestionnaire) {
+                    $draftAttributes['status'] = 'draft';
+                }
+
+                $draft->update($draftAttributes);
 
                 DB::commit();
+
+                if ($isEditingRejectedQuestionnaire) {
+                    session()->forget([
+                        'draft_keluarga_id',
+                        'selected_keluarga_kode',
+                        'part1_selesai',
+                        'part2_selesai',
+                        'part3_selesai',
+                        'part4_selesai',
+                        'part5_selesai',
+                        'editing_rejected_questionnaire',
+                    ]);
+
+                    return redirect()
+                        ->route('kuisioner.ditolak')
+                        ->with('success', 'Perubahan kuisioner ditolak berhasil disimpan.');
+                }
 
                 return redirect()
                     ->route('kuisioner.index')
@@ -2877,7 +2941,7 @@ class KuisionerController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            if (!$semuaAnggotaSelesai) {
+            if (! $semuaAnggotaSelesai) {
 
                 DB::commit();
 
@@ -2897,17 +2961,13 @@ class KuisionerController extends Controller
 
             $draft->update([
 
-                'status' =>
-                    'selesai',
+                'status' => 'selesai',
 
-                'current_part' =>
-                    5,
+                'current_part' => 5,
 
-                'updated_by' =>
-                    $userName,
+                'updated_by' => $userName,
 
-                'updated_at' =>
-                    now(),
+                'updated_at' => now(),
             ]);
 
             /*
@@ -2931,6 +2991,7 @@ class KuisionerController extends Controller
                 'part4_selesai',
 
                 'part5_selesai',
+                'editing_rejected_questionnaire',
             ]);
 
             DB::commit();
@@ -2956,7 +3017,7 @@ class KuisionerController extends Controller
                 ->withInput()
                 ->with(
                     'error',
-                    'Kuisioner gagal diselesaikan: ' .
+                    'Kuisioner gagal diselesaikan: '.
                     $e->getMessage()
                 );
         }
@@ -2973,7 +3034,7 @@ class KuisionerController extends Controller
         $draftId =
             session('draft_keluarga_id');
 
-        if (!$draftId) {
+        if (! $draftId) {
 
             return redirect()
                 ->route('kuisioner.index')
@@ -3014,14 +3075,11 @@ class KuisionerController extends Controller
 
         $draft->update([
 
-            'status' =>
-                'selesai',
+            'status' => 'selesai',
 
-            'current_part' =>
-                5,
+            'current_part' => 5,
 
-            'updated_by' =>
-                auth()->user()->name ?? 'admin',
+            'updated_by' => auth()->user()->name ?? 'admin',
         ]);
 
         session()->forget([
@@ -3039,6 +3097,7 @@ class KuisionerController extends Controller
             'part4_selesai',
 
             'part5_selesai',
+            'editing_rejected_questionnaire',
         ]);
 
         return redirect()
@@ -3059,16 +3118,16 @@ class KuisionerController extends Controller
     {
         $dataPart1 = KeluargaPart1::findOrFail($id);
 
-        if ($dataPart1->status !== 'selesai') {
+        if (! in_array($dataPart1->status, ['selesai', 'approved', 'disetujui'], true)) {
             return redirect()
                 ->route('kuisioner.selesai')
-                ->with('warning', 'Data kuisioner belum berstatus selesai.');
+                ->with('warning', 'Data kuisioner belum berstatus selesai atau disetujui.');
         }
 
         $keluargaKode = $dataPart1->keluarga_periode_kode;
 
         $keluarga = Keluarga::where('kode', $keluargaKode)->first();
-        if (!$keluarga && $dataPart1->no_kk) {
+        if (! $keluarga && $dataPart1->no_kk) {
             $keluarga = Keluarga::where('no_kk', $dataPart1->no_kk)->first();
         }
 
@@ -3202,26 +3261,19 @@ class KuisionerController extends Controller
 
         session([
 
-            'draft_keluarga_id' =>
-                $draft->id,
+            'draft_keluarga_id' => $draft->id,
 
-            'selected_keluarga_kode' =>
-                $draft->keluarga_periode_kode,
+            'selected_keluarga_kode' => $draft->keluarga_periode_kode,
 
-            'part1_selesai' =>
-                (int) $draft->current_part >= 2,
+            'part1_selesai' => (int) $draft->current_part >= 2,
 
-            'part2_selesai' =>
-                (int) $draft->current_part >= 3,
+            'part2_selesai' => (int) $draft->current_part >= 3,
 
-            'part3_selesai' =>
-                (int) $draft->current_part >= 4,
+            'part3_selesai' => (int) $draft->current_part >= 4,
 
-            'part4_selesai' =>
-                (int) $draft->current_part >= 5,
+            'part4_selesai' => (int) $draft->current_part >= 5,
 
-            'part5_selesai' =>
-                false,
+            'part5_selesai' => false,
         ]);
 
         switch (
@@ -3271,25 +3323,23 @@ class KuisionerController extends Controller
                     );
         }
     }
-    
-    
+
     public function simpanDraftPart5()
     {
         $draftId = session('draft_keluarga_id');
         $keluargaKode = session('selected_keluarga_kode');
 
-        if (!$draftId || !$keluargaKode) {
+        if (! $draftId || ! $keluargaKode) {
             return redirect()
                 ->route('kuisioner.part1')
                 ->with('error', 'Sesi draft tidak ditemukan. Silakan buka kembali draft keluarga.');
         }
 
-        $draft = KeluargaPart1::where('id', $draftId)
+        $draft = $this->editableQuestionnaireQuery()->where('id', $draftId)
             ->where('keluarga_periode_kode', $keluargaKode)
-            ->where('status', 'draft')
             ->first();
 
-        if (!$draft) {
+        if (! $draft) {
             return redirect()
                 ->route('kuisioner.index')
                 ->with('error', 'Draft tidak ditemukan atau sudah selesai.');
@@ -3302,12 +3352,26 @@ class KuisionerController extends Controller
             ?? 'admin';
         $draft->save();
 
+        if (session('editing_rejected_questionnaire')) {
+            session()->forget([
+                'draft_keluarga_id',
+                'selected_keluarga_kode',
+                'part1_selesai',
+                'part2_selesai',
+                'part3_selesai',
+                'part4_selesai',
+                'part5_selesai',
+                'editing_rejected_questionnaire',
+            ]);
+
+            return redirect()
+                ->route('kuisioner.ditolak')
+                ->with('success', 'Perubahan kuisioner ditolak berhasil disimpan.');
+        }
+
         // Kembali ke halaman daftar draft agar hasilnya terlihat.
         return redirect()
             ->route('kuisioner.index')
             ->with('success', 'Draft Part 5 berhasil disimpan. Kamu bisa melanjutkan pengisian nanti.');
     }
-   
-
-
 }

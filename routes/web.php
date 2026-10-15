@@ -91,13 +91,11 @@ Route::post('/profil/ubah-password', function (Request $request) {
         'password_lama.required' => 'Password lama wajib diisi.',
         'password_baru.required' => 'Password baru wajib diisi.',
         'password_baru.min' => 'Password baru minimal 8 karakter.',
-        'password_baru_confirmation.required' =>
-            'Konfirmasi password wajib diisi.',
-        'password_baru_confirmation.same' =>
-            'Konfirmasi password tidak sama.',
+        'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.',
+        'password_baru_confirmation.same' => 'Konfirmasi password tidak sama.',
     ]);
 
-    if (!Auth::check()) {
+    if (! Auth::check()) {
         return redirect()->route('login');
     }
 
@@ -107,7 +105,7 @@ Route::post('/profil/ubah-password', function (Request $request) {
         ->where('id', $userId)
         ->first();
 
-    if (!$user) {
+    if (! $user) {
         Auth::logout();
 
         return redirect()->route('login');
@@ -128,7 +126,7 @@ Route::post('/profil/ubah-password', function (Request $request) {
         );
     }
 
-    if (!$passwordBenar) {
+    if (! $passwordBenar) {
         return back()
             ->withErrors([
                 'password_lama' => 'Password lama salah.',
@@ -229,6 +227,15 @@ Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
 
 Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
     ->name('kuisioner.selesai');
+
+Route::get('/kuisioner/ditolak', [KuisionerController::class, 'ditolak'])
+    ->name('kuisioner.ditolak');
+
+Route::get('/kuisioner/disetujui', [KuisionerController::class, 'disetujui'])
+    ->name('kuisioner.disetujui');
+
+Route::post('/kuisioner/ditolak/{id}/edit', [KuisionerController::class, 'editRejected'])
+    ->name('kuisioner.rejected.edit');
 
 /*
 |--------------------------------------------------------------------------

@@ -1017,7 +1017,7 @@
 
             {{-- DITOLAK --}}
             <a
-                href="{{ route('verifikasi.index', ['status' => 'ditolak']) }}"
+                href="{{ route('kuisioner.ditolak') }}"
                 class="status-card reject-card"
             >
                 <div>
@@ -1036,7 +1036,7 @@
 
             {{-- DISETUJUI --}}
             <a
-                href="{{ route('verifikasi.index', ['status' => 'disetujui']) }}"
+                href="{{ route('kuisioner.disetujui') }}"
                 class="status-card accept-card"
             >
                 <div>
