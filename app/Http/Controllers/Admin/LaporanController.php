@@ -372,7 +372,7 @@ class LaporanController extends MonitoringController
     /**
      * Read the same approved/rejected records exposed by Monitoring.
      */
-    private function eligibleRows(
+    protected function eligibleRows(
         ?array $filters = null
     ): Collection {
         $filters ??= [
@@ -387,6 +387,15 @@ class LaporanController extends MonitoringController
         $query = $this->buildFilteredPart1Query(
             $filters,
             ['not_processed', 'draft', 'pending', 'approved', 'rejected']
+        )->whereIn(
+            'part1_keluarga.status',
+            [
+                'approved',
+                'disetujui',
+                'rejected',
+                'reject',
+                'ditolak',
+            ]
         );
 
         return $this->filterRows(
@@ -458,4 +467,3 @@ class LaporanController extends MonitoringController
             ->values();
     }
 }
-

@@ -191,6 +191,30 @@
                             ?? data_get($question, 'text')
                             ?? 'Pertanyaan';
 
+                        // Bersihkan tanda bintang hanya pada 11 label Part 1 di PDF.
+                        if ((string) $partNumber === '1') {
+                            $part1ResultLabels = [
+                                'NIK',
+                                'Nama Kepala Keluarga',
+                                'Status dalam Keluarga',
+                                'Nomor KK',
+                                'Jumlah Anggota Keluarga',
+                                'Provinsi',
+                                'Kabupaten / Kota',
+                                'Kecamatan',
+                                'Kelurahan',
+                                'Kode Pos',
+                                'RT / RW',
+                                'Alamat Lengkap',
+                            ];
+
+                            $labelWithoutAsterisk = preg_replace('/\\s*\\*\\s*$/u', '', trim((string) $questionText));
+
+                            if (in_array($labelWithoutAsterisk, $part1ResultLabels, true)) {
+                                $questionText = $labelWithoutAsterisk;
+                            }
+                        }
+
                         $questionType = strtolower((string) (
                             data_get($question, 'type')
                             ?? data_get($question, 'tipe')

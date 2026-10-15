@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Keluarga;
 use App\Models\KeluargaFotoRumah;
+use App\Models\KeluargaPart1;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -602,6 +604,254 @@ class MonitoringController extends VerifikasiController
                 })
                 ->values()
                 ->all();
+
+        /*
+        |--------------------------------------------------------------------------
+        | LENGKAPI DATA PART 1 DARI RESPONDEN DAN TABEL KUISIONER
+        |--------------------------------------------------------------------------
+        | RT/RW berasal dari data responden atau jawaban Part 1.
+        | Alasan alamat tidak sesuai dan koordinat diambil dari record Part 1.
+        | Pencarian memakai kode periode/KK agar tidak mengambil responden lain.
+        */
+
+        $kodePeriodeSumber = data_get($item, 'keluarga_periode_kode')
+            ?? data_get($item, 'kode_periode')
+            ?? data_get($item, 'kode');
+
+        $noKkSumber = data_get($item, 'no_kk')
+            ?? data_get($item, 'nomor_induk_keluarga');
+
+        $part1Sumber = null;
+
+        $part1IdSumber = data_get($item, 'id');
+
+        if (filled($part1IdSumber)) {
+            $part1Sumber = KeluargaPart1::find($part1IdSumber);
+        }
+
+        if (! $part1Sumber && filled($kodePeriodeSumber)) {
+            $part1Sumber = KeluargaPart1::where(
+                'keluarga_periode_kode',
+                $kodePeriodeSumber
+            )->latest('id')->first();
+        }
+
+        if (! $part1Sumber && blank($kodePeriodeSumber) && filled($noKkSumber)) {
+            $part1Sumber = KeluargaPart1::where('no_kk', $noKkSumber)
+                ->latest('id')->first();
+        }
+
+        $keluargaSumber = null;
+        $kodeKeluargaSumber = $part1Sumber->keluarga_periode_kode
+            ?? $kodePeriodeSumber;
+
+        if (filled($kodeKeluargaSumber)) {
+            $keluargaSumber = Keluarga::where('kode', $kodeKeluargaSumber)->first();
+        }
+
+        if (! $keluargaSumber && blank($kodeKeluargaSumber) && filled($noKkSumber)) {
+            $keluargaSumber = Keluarga::where('no_kk', $noKkSumber)->first();
+        }
+
+        $firstFilledMonitoring = static function (...$values) {
+            foreach ($values as $value) {
+                if (is_string($value)) {
+                    $value = trim($value);
+                }
+
+                if ($value !== null && $value !== '' && $value !== '-') {
+                    return $value;
+                }
+            }
+
+            return null;
+        };
+
+        $rtRwSumber = $firstFilledMonitoring(
+            $part1Sumber->rt_rw ?? null,
+            $keluargaSumber->rt_rw ?? null
+        );
+
+        if (! $rtRwSumber) {
+            $rt = $firstFilledMonitoring($keluargaSumber->rt ?? null);
+            $rw = $firstFilledMonitoring($keluargaSumber->rw ?? null);
+
+            if ($rt || $rw) {
+                $rtRwSumber = 'RT '.($rt ?? '-').' / RW '.($rw ?? '-');
+            }
+        }
+
+        $alamatSesuaiRaw = $part1Sumber->is_alamat_sesuai ?? null;
+        $alamatSesuaiText = null;
+
+        if ($alamatSesuaiRaw !== null && $alamatSesuaiRaw !== '') {
+            $alamatSesuaiText = in_array(
+                strtolower(trim((string) $alamatSesuaiRaw)),
+                ['1', 'true', 'ya', 'yes', 'sesuai'],
+                true
+            ) ? 'Ya' : 'Tidak';
+        }
+
+        $alasanAlamat = $firstFilledMonitoring(
+            $part1Sumber->alasan_tidak_sesuai ?? null
+        );
+
+        $geotagSumber = $firstFilledMonitoring(
+            $part1Sumber->geotangging ?? null,
+            $keluargaSumber->geotagging ?? null,
+            $keluargaSumber->geotangging ?? null,
+            data_get($item, 'geotagging'),
+            data_get($item, 'geotangging'),
+            data_get($item, 'coordinates')
+        );
+
+        // Pastikan struktur Part 1 tersedia.
+        $part1IndexSumber = collect($kuisioner)->search(function ($part) {
+            $number = (int) (data_get($part, 'part')
+                ?? data_get($part, 'number')
+                ?? data_get($part, 'part_number')
+                ?? 0);
+
+            $title = strtolower((string) (data_get($part, 'title') ?? data_get($part, 'name') ?? ''));
+
+            return $number === 1 || str_contains($title, 'part 1') || str_contains($title, 'data keluarga');
+        });
+
+        if ($part1IndexSumber === false) {
+            array_unshift($kuisioner, [
+                'part' => 1,
+                'number' => 1,
+                'title' => 'Data Keluarga',
+                'questions' => [],
+            ]);
+            $part1IndexSumber = 0;
+        }
+
+        if (! isset($kuisioner[$part1IndexSumber]['questions']) || ! is_array($kuisioner[$part1IndexSumber]['questions'])) {
+            $kuisioner[$part1IndexSumber]['questions'] = [];
+        }
+
+        $upsertPart1Question = function (array &$questions, array $needles, string $label, $answer, ?string $type = null) {
+            if ($answer === null || $answer === '') {
+                return;
+            }
+
+            $foundIndex = null;
+
+            foreach ($questions as $index => $question) {
+                if (! is_array($question)) {
+                    continue;
+                }
+
+                $text = strtolower(trim((string) (
+                    data_get($question, 'question')
+                    ?? data_get($question, 'pertanyaan')
+                    ?? data_get($question, 'text')
+                    ?? data_get($question, 'label')
+                    ?? ''
+                )));
+
+                foreach ($needles as $needle) {
+                    if ($text !== '' && str_contains($text, $needle)) {
+                        $foundIndex = $index;
+                        break 2;
+                    }
+                }
+            }
+
+            if ($foundIndex !== null) {
+                $existingAnswer = data_get($questions[$foundIndex], 'answer')
+                    ?? data_get($questions[$foundIndex], 'jawaban')
+                    ?? data_get($questions[$foundIndex], 'value');
+
+                if ($existingAnswer === null || trim((string) $existingAnswer) === '' || trim((string) $existingAnswer) === '-') {
+                    $questions[$foundIndex]['answer'] = $answer;
+                }
+
+                if ($type) {
+                    $questions[$foundIndex]['type'] = $type;
+                }
+
+                return;
+            }
+
+            $question = [
+                'question' => $label,
+                'text' => $label,
+                'answer' => $answer,
+            ];
+
+            if ($type) {
+                $question['type'] = $type;
+            }
+
+            $questions[] = $question;
+        };
+
+        $questionsPart1 = &$kuisioner[$part1IndexSumber]['questions'];
+
+        $upsertPart1Question(
+            $questionsPart1,
+            ['rt/rw', 'rt / rw', 'rt rw', 'rukun tetangga', 'rukun warga'],
+            'RT / RW *',
+            $rtRwSumber
+        );
+
+        $upsertPart1Question(
+            $questionsPart1,
+            ['alamat sesuai', 'kesesuaian alamat', 'tempat tinggal saat ini sesuai', 'sesuai dengan kk'],
+            'Apakah alamat tempat tinggal saat ini sesuai dengan KK? *',
+            $alamatSesuaiText
+        );
+
+        if (strtolower((string) $alamatSesuaiText) === 'tidak' && $alasanAlamat) {
+            foreach ($questionsPart1 as &$question) {
+                if (! is_array($question)) {
+                    continue;
+                }
+
+                $questionText = strtolower(trim((string) (
+                    data_get($question, 'question')
+                    ?? data_get($question, 'pertanyaan')
+                    ?? data_get($question, 'text')
+                    ?? data_get($question, 'label')
+                    ?? ''
+                )));
+
+                if (
+                    str_contains($questionText, 'tempat tinggal saat ini sesuai')
+                    || str_contains($questionText, 'sesuai dengan kk')
+                    || str_contains($questionText, 'kesesuaian alamat')
+                ) {
+                    $question['reason'] = $alasanAlamat;
+                    break;
+                }
+            }
+
+            unset($question);
+        }
+
+        if ($geotagSumber) {
+            $coordinatesSumber = $this->extractCoordinates($geotagSumber);
+            if ($coordinatesSumber) {
+                $geotagSumber = $coordinatesSumber['latitude'].', '.$coordinatesSumber['longitude'];
+            }
+
+            $upsertPart1Question(
+                $questionsPart1,
+                ['geotagging', 'geotag', 'titik lokasi', 'lokasi tempat tinggal', 'koordinat'],
+                'Titik lokasi (geotagging) tempat tinggal saat ini',
+                $geotagSumber,
+                'map'
+            );
+
+            // Jadikan koordinat tersedia juga pada level item yang dibaca oleh Blade.
+            $item['geotagging'] = $geotagSumber;
+            $item['geotangging'] = $geotagSumber;
+            $item['coordinates'] = $geotagSumber;
+        }
+
+        unset($questionsPart1);
 
         /*
         |--------------------------------------------------------------------------

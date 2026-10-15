@@ -11,6 +11,7 @@ use App\Models\KeluargaPart2;
 use App\Models\KeluargaPart3;
 use App\Models\KeluargaPart4;
 use App\Models\KeluargaPart5;
+use App\Models\KeluargaPeriode;
 use App\Models\Periode;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -210,24 +211,85 @@ class VerifikasiController extends Controller
 
     protected function getData(?Builder $query = null)
     {
-        $items = ($query ?? KeluargaPart1::query())
-            ->where(function ($query) {
+        $periodeTerpilih = $this->getSelectedPeriode();
+        $itemsQuery = $query ?? KeluargaPart1::query();
+
+        if (KeluargaPeriode::query()->exists()) {
+            $itemsQuery->whereExists(
+                function (QueryBuilder $familyPeriodQuery) use ($periodeTerpilih): void {
+                    $familyPeriodQuery
+                        ->selectRaw('1')
+                        ->from('keluarga_periodes as verification_period')
+                        ->join(
+                            'keluargas as verification_family',
+                            'verification_family.kode',
+                            '=',
+                            'verification_period.keluarga_kode'
+                        )
+                        ->whereColumn(
+                            'verification_period.kode',
+                            'part1_keluarga.keluarga_periode_kode'
+                        );
+
+                    if ($periodeTerpilih) {
+                        $familyPeriodQuery->where(
+                            'verification_period.periode_kode',
+                            $periodeTerpilih->kode
+                        );
+                    }
+                }
+            );
+        } else {
+            $itemsQuery->where(function (Builder $query): void {
                 $query
                     ->whereIn(
-                        'keluarga_periode_kode',
+                        'part1_keluarga.keluarga_periode_kode',
                         Keluarga::query()->select('kode')
                     )
                     ->orWhereIn(
-                        'no_kk',
+                        'part1_keluarga.no_kk',
                         Keluarga::query()
                             ->whereNotNull('no_kk')
                             ->select('no_kk')
                     );
-            })
+            });
+        }
+
+        $items = $itemsQuery
             ->orderByDesc('id')
             ->get();
 
-        $periodeTerpilih = $this->getSelectedPeriode();
+        $familyPeriods = KeluargaPeriode::query()
+            ->whereIn(
+                'kode',
+                $items
+                    ->pluck('keluarga_periode_kode')
+                    ->filter()
+                    ->unique()
+                    ->values()
+            )
+            ->when(
+                $periodeTerpilih,
+                fn (Builder $periodQuery): Builder => $periodQuery->where(
+                    'periode_kode',
+                    $periodeTerpilih->kode
+                )
+            )
+            ->with('keluarga')
+            ->get()
+            ->keyBy('kode');
+
+        $periodesByCode = Periode::query()
+            ->whereIn(
+                'kode',
+                $familyPeriods
+                    ->pluck('periode_kode')
+                    ->filter()
+                    ->unique()
+                    ->values()
+            )
+            ->get()
+            ->keyBy('kode');
 
         /*
         |--------------------------------------------------------------------------
@@ -236,7 +298,11 @@ class VerifikasiController extends Controller
         */
 
         return $items
-            ->map(function ($item) use ($periodeTerpilih) {
+            ->map(function ($item) use (
+                $periodeTerpilih,
+                $familyPeriods,
+                $periodesByCode
+            ) {
 
                 /*
                 |--------------------------------------------------------------------------
@@ -244,29 +310,38 @@ class VerifikasiController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $keluarga = null;
+                $familyPeriod = $familyPeriods->get(
+                    $item->keluarga_periode_kode
+                );
 
-                if ($item->keluarga_periode_kode) {
-                    $keluarga = Keluarga::where(
-                        'kode',
-                        $item->keluarga_periode_kode
-                    )->first();
-                }
+                $keluarga = $familyPeriod?->keluarga;
 
                 /*
                 |--------------------------------------------------------------------------
-                | FALLBACK NO KK
+                | FALLBACK DATA LAMA
                 |--------------------------------------------------------------------------
                 */
 
-                if (
-                    ! $keluarga &&
-                    $item->no_kk
-                ) {
-                    $keluarga = Keluarga::where(
-                        'no_kk',
-                        $item->no_kk
-                    )->first();
+                if (! $keluarga) {
+                    if ($item->keluarga_periode_kode) {
+                        $keluarga = Keluarga::where(
+                            'kode',
+                            $item->keluarga_periode_kode
+                        )->first();
+                    }
+
+                    if (! $keluarga && $item->no_kk) {
+                        $familyQuery = Keluarga::where(
+                            'no_kk',
+                            $item->no_kk
+                        );
+
+                        if (filled($item->nik)) {
+                            $familyQuery->where('nik', $item->nik);
+                        }
+
+                        $keluarga = $familyQuery->first();
+                    }
                 }
 
                 /*
@@ -370,7 +445,9 @@ class VerifikasiController extends Controller
                 |--------------------------------------------------------------------------
                 */
 
-                $periode = $periodeTerpilih;
+                $periode = $periodesByCode->get(
+                    $familyPeriod?->periode_kode
+                ) ?? $periodeTerpilih;
 
                 /*
                 |--------------------------------------------------------------------------
@@ -527,7 +604,9 @@ class VerifikasiController extends Controller
                     // RT/RW dan koordinat sekaligus di kolom alamat_lengkap.
                     'rt_rw' => $this->resolveRtRw(
                         $item->rt_rw ?? ($keluarga->rt_rw ?? null),
-                        $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+                        $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null),
+                        $keluarga->rt ?? null,
+                        $keluarga->rw ?? null
                     ),
 
                     'alamat_lengkap' => $this->cleanFullAddress(
@@ -544,7 +623,9 @@ class VerifikasiController extends Controller
                     */
 
                     'geotangging' => $this->resolveGeotag(
-                        $item->geotangging ?? null,
+                        filled($item->geotangging ?? null)
+                            ? $item->geotangging
+                            : ($keluarga->geotagging ?? $keluarga->geotangging ?? null),
                         $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
                     ),
 
@@ -1215,7 +1296,25 @@ class VerifikasiController extends Controller
     protected function whereQuestionnaireComplete(
         Builder $query
     ): void {
+        $query->where(function (Builder $completionQuery): void {
+            $completionQuery
+                ->whereIn('part1_keluarga.status', [
+                    'selesai',
+                    'approved',
+                    'disetujui',
+                    'rejected',
+                    'reject',
+                    'ditolak',
+                ])
+                ->orWhere(function (Builder $completePartsQuery): void {
+                    $this->whereQuestionnairePartsComplete($completePartsQuery);
+                });
+        });
+    }
 
+    protected function whereQuestionnairePartsComplete(
+        Builder $query
+    ): void {
         $query
             ->where(
                 'part1_keluarga.current_part',
@@ -1473,6 +1572,10 @@ class VerifikasiController extends Controller
             )
         ) {
             return 'rejected';
+        }
+
+        if ($rawStatus === 'selesai') {
+            return 'pending';
         }
 
         /*
@@ -1916,7 +2019,7 @@ class VerifikasiController extends Controller
     | Helper ini memisahkan nilai tersebut hanya untuk tampilan, tanpa mengubah DB.
     */
 
-    protected function resolveRtRw($rtRw, $alamat): string
+    protected function resolveRtRw($rtRw, $alamat, $rt = null, $rw = null): string
     {
         $rtRw = trim((string) ($rtRw ?? ''));
 
@@ -1926,6 +2029,22 @@ class VerifikasiController extends Controller
             }
 
             return $rtRw;
+        }
+
+        $rt = trim((string) ($rt ?? ''));
+        $rw = trim((string) ($rw ?? ''));
+        $parts = [];
+
+        if ($rt !== '' && $rt !== '-') {
+            $parts[] = 'RT '.(ctype_digit($rt) ? sprintf('%03d', (int) $rt) : $rt);
+        }
+
+        if ($rw !== '' && $rw !== '-') {
+            $parts[] = 'RW '.(ctype_digit($rw) ? sprintf('%03d', (int) $rw) : $rw);
+        }
+
+        if ($parts !== []) {
+            return implode(' / ', $parts);
         }
 
         $alamat = (string) ($alamat ?? '');
@@ -1944,8 +2063,6 @@ class VerifikasiController extends Controller
             if (preg_match('/-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?/', $geotag, $m)) {
                 return preg_replace('/\s+/', '', $m[0]);
             }
-
-            return $geotag;
         }
 
         if (preg_match(
@@ -1953,10 +2070,10 @@ class VerifikasiController extends Controller
             (string) ($alamat ?? ''),
             $m
         )) {
-            return $m[1] . ', ' . $m[2];
+            return $m[1].', '.$m[2];
         }
 
-        return '-';
+        return $geotag !== '' && $geotag !== '-' ? $geotag : '-';
     }
 
     protected function cleanFullAddress($alamat): string
@@ -2049,110 +2166,131 @@ class VerifikasiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        
-$part1Questions = [
+        $firstStoredValue = static function (mixed ...$values): mixed {
+            foreach ($values as $value) {
+                if ($value === null) {
+                    continue;
+                }
 
-    $this->question(
-        'Nomor KK',
-        $item->no_kk
-            ?? ($keluarga->no_kk ?? '-')
-    ),
+                if (is_string($value)) {
+                    $value = trim($value);
+                }
 
-    $this->question(
-        'NIK',
-        $item->nik
-            ?? ($keluarga->nik ?? '-')
-    ),
+                if ($value !== '' && $value !== '-') {
+                    return $value;
+                }
+            }
 
-    $this->question(
-        'Jumlah Anggota Keluarga',
-        $item->jml_keluarga
-            ?? (
-                $keluarga
-                    ? KeluargaAnggota::query()
-                        ->where(
-                            'keluarga_kode',
-                            $keluarga->kode
-                        )
-                        ->count()
-                    : '-'
-            )
-    ),
+            return '-';
+        };
 
-    $this->question(
-        'Provinsi',
-        $item->provinsi
-            ?? ($keluarga->provinsi ?? '-')
-    ),
+        $jumlahAnggota = $firstStoredValue($item->jml_keluarga);
+        if ($jumlahAnggota === '-' && $keluarga) {
+            $jumlahAnggota = KeluargaAnggota::query()
+                ->where('keluarga_kode', $keluarga->kode)
+                ->count() + 1;
+        }
 
-    $this->question(
-        'Daerah',
-        filled($item->daerah)
-            ? $item->daerah
-            : (
-                filled($keluarga->daerah ?? null)
-                    ? $keluarga->daerah
-                    : 'KOTA PASURUAN'
-            )
-    ),
+        $daerah = $firstStoredValue($item->daerah, $keluarga->daerah ?? null);
+        if ($daerah === '-') {
+            $daerah = 'Kota Pasuruan';
+        }
 
-    $this->question(
-        'Kecamatan',
-        $item->kecamatan
-            ?? ($keluarga->kecamatan ?? '-')
-    ),
+        $alamatSesuaiRaw = $this->resolveAddressMatch($item, $keluarga);
 
-    $this->question(
-        'Kelurahan',
-        $item->kelurahan
-            ?? ($keluarga->kelurahan ?? '-')
-    ),
+        $alamatSesuaiQuestion = $this->question(
+            'Apakah alamat tempat tinggal saat ini sesuai dengan KK? *',
+            $this->formatBoolean($alamatSesuaiRaw)
+        );
+        $alasanAlamatTidakSesuai = trim((string) ($item->alasan_tidak_sesuai ?? ''));
 
-    $this->question(
-        'Kode Pos',
-        $item->kode_pos
-            ?? ($keluarga->kode_pos ?? '-')
-    ),
+        if (
+            $this->formatBoolean($alamatSesuaiRaw) === 'Tidak'
+            && $alasanAlamatTidakSesuai !== ''
+            && $alasanAlamatTidakSesuai !== '-'
+        ) {
+            $alamatSesuaiQuestion['reason'] = $alasanAlamatTidakSesuai;
+        }
 
-    $this->question(
-        'RT / RW',
-        $this->resolveRtRw(
-            $item->rt_rw ?? ($keluarga->rt_rw ?? null),
-            $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
-        )
-    ),
+        $part1Questions = [
+            $this->question(
+                'NIK *',
+                $firstStoredValue($item->nik, $keluarga->nik ?? null)
+            ),
+            $this->question(
+                'Nama Kepala Keluarga *',
+                $firstStoredValue($item->nama_kepala_keluarga, $keluarga->nama_lengkap ?? null)
+            ),
+            $this->question(
+                'Status dalam Keluarga *',
+                $firstStoredValue($keluarga->status_keluarga ?? null, $item->status_dalam_keluarga ?? null)
+            ),
+            $this->question(
+                'Nomor KK *',
+                $firstStoredValue($item->no_kk, $keluarga->no_kk ?? null)
+            ),
+            $this->question(
+                'Jumlah Anggota Keluarga *',
+                $jumlahAnggota
+            ),
+            $this->question(
+                'Provinsi *',
+                $firstStoredValue($item->provinsi, $keluarga->provinsi ?? null)
+            ),
+            $this->question(
+                'Kabupaten / Kota *',
+                $daerah
+            ),
+            $this->question(
+                'Kecamatan *',
+                $firstStoredValue($item->kecamatan, $keluarga->kecamatan ?? null)
+            ),
+            $this->question(
+                'Kelurahan *',
+                $firstStoredValue($item->kelurahan, $keluarga->kelurahan ?? null)
+            ),
+            $this->question(
+                'Kode Pos',
+                $firstStoredValue($item->kode_pos, $keluarga->kode_pos ?? null)
+            ),
+            $this->question(
+                'RT / RW *',
+                $this->resolveRtRw(
+                    $item->rt_rw ?? ($keluarga->rt_rw ?? null),
+                    $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null),
+                    $keluarga->rt ?? null,
+                    $keluarga->rw ?? null
+                )
+            ),
+            $this->question(
+                'Alamat Lengkap *',
+                $this->cleanFullAddress(
+                    $firstStoredValue($item->alamat_lengkap, $keluarga->alamat_lengkap ?? null)
+                )
+            ),
+            $this->question(
+                'Jalan',
+                $firstStoredValue($item->jalan_rumah, $keluarga->jalan_rumah ?? null)
+            ),
+            $this->question(
+                'Nomor Rumah',
+                $firstStoredValue($item->nomor_rumah, $keluarga->nomor_rumah ?? null)
+            ),
+            $alamatSesuaiQuestion,
+        ];
 
-    $this->question(
-        'Alamat Lengkap',
-        $this->cleanFullAddress(
-            $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
-        )
-    ),
-
-    $this->question(
-        'Jalan / Rumah',
-        $item->jalan_rumah ?? '-'
-    ),
-
-    $this->question(
-        'Alamat Sesuai',
-        $this->formatBoolean(
-            $this->resolveAddressMatch($item, $keluarga)
-        )
-    ),
-
-    [
-        'number' => 0,
-        'text' => 'Titik Lokasi (Geotagging)',
-        'question' => 'Titik Lokasi (Geotagging)',
-        'answer' => $this->resolveGeotag(
-            $item->geotangging ?? null,
-            $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
-        ),
-        'type' => 'map',
-    ],
-];
-
+        $part1Questions[] = [
+            'number' => 0,
+            'text' => 'Lokasi Rumah / Geotagging',
+            'question' => 'Lokasi Rumah / Geotagging',
+            'answer' => $this->resolveGeotag(
+                filled($item->geotangging ?? null)
+                    ? $item->geotangging
+                    : ($keluarga->geotagging ?? $keluarga->geotangging ?? null),
+                $item->alamat_lengkap ?? ($keluarga->alamat_lengkap ?? null)
+            ),
+            'type' => 'map',
+        ];
 
         /*
         |--------------------------------------------------------------------------
@@ -2508,29 +2646,28 @@ $part1Questions = [
                 $fotoRumah as $foto
             ) {
 
-               
-$rawPath = trim(
-    str_replace('\\', '/', (string) $foto->path_file)
-);
+                $rawPath = trim(
+                    str_replace('\\', '/', (string) $foto->path_file)
+                );
 
-if (
-    $rawPath !== ''
-    && preg_match('/^https?:\/\//i', $rawPath)
-) {
-    // File sudah memiliki URL lengkap.
-    $url = $rawPath;
-} else {
-    // Hilangkan prefix penyimpanan yang mungkin sudah tersimpan.
-    $path = preg_replace(
-        '#^(?:public/|storage/|app/public/)#i',
-        '',
-        ltrim($rawPath, '/')
-    );
+                if (
+                    $rawPath !== ''
+                    && preg_match('/^https?:\/\//i', $rawPath)
+                ) {
+                    // File sudah memiliki URL lengkap.
+                    $url = $rawPath;
+                } else {
+                    // Hilangkan prefix penyimpanan yang mungkin sudah tersimpan.
+                    $path = preg_replace(
+                        '#^(?:public/|storage/|app/public/)#i',
+                        '',
+                        ltrim($rawPath, '/')
+                    );
 
-    $url = $path !== ''
-        ? Storage::disk('public')->url($path)
-        : '';
-}
+                    $url = $path !== ''
+                        ? Storage::disk('public')->url($path)
+                        : '';
+                }
 
                 $jenis = str_replace(
                     '_',
