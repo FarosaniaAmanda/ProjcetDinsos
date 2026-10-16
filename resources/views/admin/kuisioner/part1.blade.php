@@ -769,13 +769,13 @@ input[type="hidden"][name="longitude"] {
 
                         <input
                             type="text"
-                            name="status_dalam_keluarga"
+                            name="status_keluarga"
                             class="form-control"
-                            value="{{ old('status_dalam_keluarga', $data->status_dalam_keluarga ?? $selectedKeluarga->status_keluarga ?? '') }}"
+                            value="{{ old('status_keluarga', $data->status_keluarga ?? $selectedKeluarga->status_keluarga ?? '') }}"
                             readonly
                         >
 
-                        @error('status_dalam_keluarga')
+                        @error('status_keluarga')
 
                             <div class="field-error">
                                 {{ $message }}
@@ -847,13 +847,13 @@ input[type="hidden"][name="longitude"] {
 
                         <input
                             type="number"
-                            name="jumlah_anggota"
+                            name="jml_keluarga"
                             class="form-control"
                             value="{{ $jumlahAnggota }}"
                             readonly
                         >
 
-                        @error('jumlah_anggota')
+                        @error('jml_keluarga')
 
                             <div class="field-error">
                                 {{ $message }}

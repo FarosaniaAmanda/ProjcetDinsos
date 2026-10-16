@@ -22,6 +22,7 @@ class DashboardVerificationTest extends TestCase
         Schema::dropIfExists('part2_kondisi_rumahs');
         Schema::dropIfExists('part1_keluarga');
         Schema::dropIfExists('keluargas');
+        Schema::dropIfExists('kecamatans');
         Schema::dropIfExists('periodes');
 
         Schema::create('periodes', function (Blueprint $table): void {
@@ -30,12 +31,18 @@ class DashboardVerificationTest extends TestCase
             $table->timestamps();
         });
 
+        Schema::create('kecamatans', function (Blueprint $table): void {
+            $table->string('kecamatan_id')->primary();
+            $table->string('deskripsi');
+        });
+
         Schema::create('keluargas', function (Blueprint $table): void {
             $table->id();
             $table->string('kode');
             $table->string('no_kk');
             $table->string('nama_lengkap');
             $table->string('kecamatan')->nullable();
+            $table->string('kecamatan_id')->nullable();
             $table->timestamps();
         });
 
@@ -143,6 +150,23 @@ class DashboardVerificationTest extends TestCase
 
                 return true;
             });
+    }
+
+    public function test_dashboard_shows_disabled_pagination_controls_when_questionnaires_fit_on_one_page(): void
+    {
+        $this->createVerificationRecord(1, 'approved');
+
+        $response = $this->get(route('dashboard'));
+
+        $response
+            ->assertSee('aria-label="Navigasi halaman kuisioner"', false)
+            ->assertSee('pagination-button active', false)
+            ->assertSee('aria-current="page"', false);
+
+        $this->assertSame(
+            2,
+            substr_count($response->getContent(), 'aria-disabled="true"')
+        );
     }
 
     public function test_dashboard_paginates_all_two_thousand_questionnaires(): void

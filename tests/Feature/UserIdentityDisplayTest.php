@@ -12,8 +12,8 @@ class UserIdentityDisplayTest extends TestCase
     public static function authenticatedUsersByRole(): array
     {
         return [
-            'operator account' => ['operator', 'Operator Aktif', 'Operator'],
-            'petugas account' => ['petugas', 'Petugas Aktif', 'Petugas'],
+            'operator account' => ['operator', 'Eka', 'Operator'],
+            'verifikator account' => ['verifikator', 'Adibah', 'Verifikator'],
         ];
     }
 
@@ -37,7 +37,12 @@ class UserIdentityDisplayTest extends TestCase
 
         $layout = view('admin.layouts.app')->render();
         $dashboard = view('admin.dashboard', [
+            'totalResponden' => 0,
             'periodeAktif' => 0,
+            'jumlahMenungguVerifikasi' => 0,
+            'jumlahDisetujui' => 0,
+            'jumlahDitolak' => 0,
+            'persebaranKecamatan' => collect(),
             'rekapPeriode' => collect(),
             'kuisionerTerakhir' => collect(),
         ])->render();
@@ -45,6 +50,26 @@ class UserIdentityDisplayTest extends TestCase
         $this->assertStringContainsString($name, $layout);
         $this->assertStringContainsString($roleLabel, $layout);
         $this->assertStringNotContainsString('Operator - Admin', $layout);
+        $dashboardProfileMarker = strpos($dashboard, 'class="header-admin"');
+        $dashboardProfileStart = strrpos(
+            substr($dashboard, 0, (int) $dashboardProfileMarker),
+            '<a'
+        );
+        $dashboardProfileEnd = strpos($dashboard, '</a>', (int) $dashboardProfileMarker);
+
+        $this->assertNotFalse($dashboardProfileMarker);
+        $this->assertNotFalse($dashboardProfileStart);
+        $this->assertNotFalse($dashboardProfileEnd);
+
+        $dashboardProfile = substr(
+            $dashboard,
+            (int) $dashboardProfileStart,
+            (int) $dashboardProfileEnd - (int) $dashboardProfileStart
+        );
+
+        $this->assertStringContainsString($name, $dashboardProfile);
+        $this->assertStringContainsString($roleLabel, $dashboardProfile);
+
         $profileMarker = strpos($layout, '<!-- ADMIN PROFILE -->');
         $profileLinkStart = strpos($layout, '<a', (int) $profileMarker);
         $profileLinkEnd = strpos($layout, '</a>', (int) $profileLinkStart);

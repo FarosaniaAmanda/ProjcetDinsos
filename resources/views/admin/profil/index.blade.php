@@ -1,6 +1,6 @@
 @php
-    $authenticatedUser = auth()->user();
-    $authenticatedName = $authenticatedUser?->name ?: 'Pengguna';
+    $authenticatedName = trim((string) ($authenticatedUser?->name ?? ''))
+        ?: 'Nama tidak tersedia';
     $authenticatedRole = ucfirst($authenticatedUser?->role ?: 'pengguna');
     $authenticatedInitial = strtoupper(substr($authenticatedName, 0, 1));
 @endphp

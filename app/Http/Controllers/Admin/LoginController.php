@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class LoginController extends Controller
 {
@@ -16,7 +19,6 @@ class LoginController extends Controller
     {
         return view('admin.auth.login');
     }
-
 
     /**
      * Proses login
@@ -31,96 +33,42 @@ class LoginController extends Controller
             'password.required' => 'Password wajib diisi.',
         ]);
 
+        $nomorIdentitas = trim((string) $credentials['nomor_identitas']);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Cari user berdasarkan Nomor Identitas
-        |--------------------------------------------------------------------------
-        */
+        $user = User::query()
+            ->where(function (Builder $query) use ($nomorIdentitas): void {
+                $query
+                    ->where('nomor_identitas', $nomorIdentitas)
+                    ->orWhere('email', $nomorIdentitas);
 
-        $user = \App\Models\User::where(
-            'nomor_identitas',
-            $credentials['nomor_identitas']
-        )->first();
+                if (Schema::hasColumn('users', 'username')) {
+                    $query->orWhere('username', $nomorIdentitas);
+                }
+            })
+            ->first();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | User tidak ditemukan
-        |--------------------------------------------------------------------------
-        */
-
-        if (!$user) {
-
+        if (! $user) {
             return back()
                 ->withErrors([
-                    'nomor_identitas' =>
-                        'Nomor Identitas atau password salah.',
+                    'nomor_identitas' => 'Nomor Identitas atau password salah.',
                 ])
                 ->withInput(
                     $request->only('nomor_identitas')
                 );
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Cek password
-        |--------------------------------------------------------------------------
-        |
-        | Password baru:
-        | langsung dibandingkan sebagai teks biasa.
-        |
-        | Password lama:
-        | jika masih berupa Bcrypt ($2y$),
-        | tetap diverifikasi menggunakan Hash::check().
-        |
-        */
-
+        $passwordDatabase = $user->getRawOriginal('password');
         $passwordBenar = false;
 
-        $passwordDatabase = $user->getRawOriginal('password');
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Password Bcrypt lama
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            is_string($passwordDatabase) &&
-            str_starts_with($passwordDatabase, '$2y$')
-        ) {
-
-            $passwordBenar = Hash::check(
-                $credentials['password'],
-                $passwordDatabase
-            );
+        if (is_string($passwordDatabase) && $passwordDatabase !== '') {
+            if (str_starts_with($passwordDatabase, '$2') || str_starts_with($passwordDatabase, '$argon') || str_starts_with($passwordDatabase, '$pbkdf2')) {
+                $passwordBenar = Hash::check($credentials['password'], $passwordDatabase);
+            } else {
+                $passwordBenar = hash_equals((string) $passwordDatabase, (string) $credentials['password']);
+            }
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Password teks biasa
-        |--------------------------------------------------------------------------
-        */
-
-        else {
-
-            $passwordBenar =
-                $passwordDatabase === $credentials['password'];
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Login berhasil
-        |--------------------------------------------------------------------------
-        */
 
         if ($passwordBenar) {
-
             Auth::login($user);
 
             $request->session()->regenerate();
@@ -128,23 +76,14 @@ class LoginController extends Controller
             return redirect()->route('dashboard');
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Login gagal
-        |--------------------------------------------------------------------------
-        */
-
         return back()
             ->withErrors([
-                'nomor_identitas' =>
-                    'Nomor Identitas atau password salah.',
+                'nomor_identitas' => 'Nomor Identitas atau password salah.',
             ])
             ->withInput(
                 $request->only('nomor_identitas')
             );
     }
-
 
     /**
      * Logout

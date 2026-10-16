@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Kelurahan;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -103,12 +104,8 @@ class UserController extends Controller
                 'nomor_identitas' => $validated['nomor_identitas'],
                 'name' => $validated['name'],
                 'email' => $validated['email'],
-
-                // Password default
-                'password' => 'perlinsos123',
-
+                'password' => Hash::make('perlinsos123'),
                 'role' => $validated['role'],
-
                 'kelurahan' => $kelurahan
                     ? $kelurahan->deskripsi
                     : null,
@@ -118,7 +115,7 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'message' => ucfirst($validated['role'])
-                . ' berhasil ditambahkan.',
+                .' berhasil ditambahkan.',
         ]);
     }
 
@@ -209,7 +206,7 @@ class UserController extends Controller
     public function resetPassword(User $user)
     {
         $user->update([
-            'password' => 'perlinsos123',
+            'password' => Hash::make('perlinsos123'),
         ]);
 
         return response()->json([

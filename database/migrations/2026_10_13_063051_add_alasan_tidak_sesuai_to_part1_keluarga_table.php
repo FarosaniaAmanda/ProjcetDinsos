@@ -8,8 +8,13 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('part1_keluarga', 'alasan_tidak_sesuai')) {
-            Schema::table('part1_keluarga', function (Blueprint $table) {
+        $tableName = 'part1_keluarga';
+
+        if (
+            Schema::hasTable($tableName) &&
+            ! Schema::hasColumn($tableName, 'alasan_tidak_sesuai')
+        ) {
+            Schema::table($tableName, function (Blueprint $table) {
                 $table->text('alasan_tidak_sesuai')->nullable();
             });
         }
@@ -17,8 +22,13 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (Schema::hasColumn('part1_keluarga', 'alasan_tidak_sesuai')) {
-            Schema::table('part1_keluarga', function (Blueprint $table) {
+        $tableName = 'part1_keluarga';
+
+        if (
+            Schema::hasTable($tableName) &&
+            Schema::hasColumn($tableName, 'alasan_tidak_sesuai')
+        ) {
+            Schema::table($tableName, function (Blueprint $table) {
                 $table->dropColumn('alasan_tidak_sesuai');
             });
         }

@@ -1,6 +1,7 @@
 @php
     $authenticatedUser = auth()->user();
-    $authenticatedName = $authenticatedUser?->name ?: 'Pengguna';
+    $authenticatedName = trim((string) ($authenticatedUser?->name ?? ''))
+        ?: 'Nama tidak tersedia';
     $authenticatedRole = ucfirst($authenticatedUser?->role ?: 'pengguna');
 @endphp
 
@@ -1660,18 +1661,18 @@
             <div class="admin-text">
 
                 <div class="admin-name">
-                    {{ auth()->user()->name ?? 'Pengguna' }}
+                    {{ $authenticatedName }}
                 </div>
 
                 <div class="admin-role">
-                    {{ ucfirst(auth()->user()->role ?? 'Pengguna') }}
+                    {{ $authenticatedRole }}
                 </div>
 
             </div>
 
 
             <div class="admin-avatar">
-                {{ strtoupper(substr(auth()->user()->name ?? 'P', 0, 1)) }}
+            {{ strtoupper(substr($authenticatedName, 0, 1)) }}
             </div>
 
         </a>
@@ -2135,50 +2136,48 @@
                         Menampilkan {{ $kuisionerTerakhir->firstItem() ?? 0 }} sampai {{ $kuisionerTerakhir->lastItem() ?? 0 }} dari {{ $kuisionerTerakhir->total() }} data
                     </div>
 
-                    @if($kuisionerTerakhir->hasPages())
-                        @php
-                            $lastPage = max(1, $kuisionerTerakhir->lastPage());
-                            $currentPage = min($kuisionerTerakhir->currentPage(), $lastPage);
-                            $startPage = max(1, $currentPage - 2);
-                            $endPage = min($lastPage, $currentPage + 2);
-                        @endphp
+                    @php
+                        $lastPage = max(1, $kuisionerTerakhir->lastPage());
+                        $currentPage = min($kuisionerTerakhir->currentPage(), $lastPage);
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($lastPage, $currentPage + 2);
+                    @endphp
 
-                        <div class="pagination-buttons" aria-label="Navigasi halaman kuisioner">
-                            @if($kuisionerTerakhir->onFirstPage())
-                                <span class="pagination-button" aria-disabled="true">‹</span>
-                            @else
-                                <a class="pagination-button" href="{{ $kuisionerTerakhir->previousPageUrl() }}" aria-label="Halaman sebelumnya">‹</a>
+                    <div class="pagination-buttons" aria-label="Navigasi halaman kuisioner">
+                        @if($kuisionerTerakhir->onFirstPage())
+                            <span class="pagination-button" aria-disabled="true">‹</span>
+                        @else
+                            <a class="pagination-button" href="{{ $kuisionerTerakhir->previousPageUrl() }}" aria-label="Halaman sebelumnya">‹</a>
+                        @endif
+
+                        @if($startPage > 1)
+                            <a class="pagination-button" href="{{ $kuisionerTerakhir->url(1) }}">1</a>
+                            @if($startPage > 2)
+                                <span class="pagination-info" aria-hidden="true">…</span>
                             @endif
+                        @endif
 
-                            @if($startPage > 1)
-                                <a class="pagination-button" href="{{ $kuisionerTerakhir->url(1) }}">1</a>
-                                @if($startPage > 2)
-                                    <span class="pagination-info" aria-hidden="true">…</span>
-                                @endif
+                        @foreach($kuisionerTerakhir->getUrlRange($startPage, $endPage) as $page => $url)
+                            <a
+                                class="pagination-button {{ $page === $currentPage ? 'active' : '' }}"
+                                href="{{ $url }}"
+                                @if($page === $currentPage) aria-current="page" @endif
+                            >{{ $page }}</a>
+                        @endforeach
+
+                        @if($endPage < $lastPage)
+                            @if($endPage < $lastPage - 1)
+                                <span class="pagination-info" aria-hidden="true">…</span>
                             @endif
+                            <a class="pagination-button" href="{{ $kuisionerTerakhir->url($lastPage) }}">{{ $lastPage }}</a>
+                        @endif
 
-                            @foreach($kuisionerTerakhir->getUrlRange($startPage, $endPage) as $page => $url)
-                                <a
-                                    class="pagination-button {{ $page === $currentPage ? 'active' : '' }}"
-                                    href="{{ $url }}"
-                                    @if($page === $currentPage) aria-current="page" @endif
-                                >{{ $page }}</a>
-                            @endforeach
-
-                            @if($endPage < $lastPage)
-                                @if($endPage < $lastPage - 1)
-                                    <span class="pagination-info" aria-hidden="true">…</span>
-                                @endif
-                                <a class="pagination-button" href="{{ $kuisionerTerakhir->url($lastPage) }}">{{ $lastPage }}</a>
-                            @endif
-
-                            @if($kuisionerTerakhir->hasMorePages())
-                                <a class="pagination-button" href="{{ $kuisionerTerakhir->nextPageUrl() }}" aria-label="Halaman berikutnya">›</a>
-                            @else
-                                <span class="pagination-button" aria-disabled="true">›</span>
-                            @endif
-                        </div>
-                    @endif
+                        @if($kuisionerTerakhir->hasMorePages())
+                            <a class="pagination-button" href="{{ $kuisionerTerakhir->nextPageUrl() }}" aria-label="Halaman berikutnya">›</a>
+                        @else
+                            <span class="pagination-button" aria-disabled="true">›</span>
+                        @endif
+                    </div>
                 </div>
             @endif
 
@@ -3468,7 +3467,7 @@ if (kecamatanCtx) {
 
 
             ctx.fillText(
-                'Responden',
+                'verifikasi ',
                 x,
                 y + 22
             );

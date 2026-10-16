@@ -8,17 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('keluargas')) {
+            return;
+        }
+
         Schema::table('keluargas', function (Blueprint $table) {
 
-            if (!Schema::hasColumn('keluargas', 'kecamatan_id')) {
+            if (! Schema::hasColumn('keluargas', 'kecamatan_id')) {
                 $table->string('kecamatan_id')->nullable()->after('status_keluarga');
             }
 
-            if (!Schema::hasColumn('keluargas', 'kelurahan_id')) {
+            if (! Schema::hasColumn('keluargas', 'kelurahan_id')) {
                 $table->string('kelurahan_id')->nullable()->after('kecamatan_id');
             }
 
-            if (!Schema::hasColumn('keluargas', 'rt_rw_id')) {
+            if (! Schema::hasColumn('keluargas', 'rt_rw_id')) {
                 $table->unsignedBigInteger('rt_rw_id')->nullable()->after('kelurahan_id');
             }
 
@@ -27,6 +31,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('keluargas')) {
+            return;
+        }
+
         Schema::table('keluargas', function (Blueprint $table) {
 
             if (Schema::hasColumn('keluargas', 'rt_rw_id')) {

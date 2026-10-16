@@ -8,41 +8,45 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('keluargas')) {
+            return;
+        }
+
         Schema::table('keluargas', function (Blueprint $table) {
 
-            if (!Schema::hasColumn('keluargas', 'nomor_kk')) {
+            if (! Schema::hasColumn('keluargas', 'nomor_kk')) {
                 $table->string('nomor_kk')->unique()->after('id');
             }
 
-            if (!Schema::hasColumn('keluargas', 'nama_kepala_keluarga')) {
+            if (! Schema::hasColumn('keluargas', 'nama_kepala_keluarga')) {
                 $table->string('nama_kepala_keluarga')->after('nomor_kk');
             }
 
-            if (!Schema::hasColumn('keluargas', 'provinsi')) {
+            if (! Schema::hasColumn('keluargas', 'provinsi')) {
                 $table->string('provinsi')->nullable();
             }
 
-            if (!Schema::hasColumn('keluargas', 'daerah')) {
+            if (! Schema::hasColumn('keluargas', 'daerah')) {
                 $table->string('daerah')->nullable();
             }
 
-            if (!Schema::hasColumn('keluargas', 'kecamatan')) {
+            if (! Schema::hasColumn('keluargas', 'kecamatan')) {
                 $table->string('kecamatan')->nullable();
             }
 
-            if (!Schema::hasColumn('keluargas', 'kelurahan')) {
+            if (! Schema::hasColumn('keluargas', 'kelurahan')) {
                 $table->string('kelurahan')->nullable();
             }
 
-            if (!Schema::hasColumn('keluargas', 'kode_pos')) {
+            if (! Schema::hasColumn('keluargas', 'kode_pos')) {
                 $table->string('kode_pos', 10)->nullable();
             }
 
-            if (!Schema::hasColumn('keluargas', 'rt_rw')) {
+            if (! Schema::hasColumn('keluargas', 'rt_rw')) {
                 $table->string('rt_rw', 20)->nullable();
             }
 
-            if (!Schema::hasColumn('keluargas', 'alamat_lengkap')) {
+            if (! Schema::hasColumn('keluargas', 'alamat_lengkap')) {
                 $table->text('alamat_lengkap')->nullable();
             }
         });
@@ -50,6 +54,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('keluargas')) {
+            return;
+        }
+
         Schema::table('keluargas', function (Blueprint $table) {
 
             $columns = [

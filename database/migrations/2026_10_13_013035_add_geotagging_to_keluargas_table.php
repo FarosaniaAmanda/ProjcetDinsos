@@ -11,15 +11,46 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('keluargas', function (Blueprint $table) {
-            $table->string('geotagging')->nullable();
-        });
+        if (! Schema::hasTable('keluargas')) {
+            return;
+        }
+
+        if (! Schema::hasColumn('keluargas', 'rt')) {
+            Schema::table('keluargas', function (Blueprint $table) {
+                $table->string('rt', 10)->nullable();
+            });
+        }
+
+        if (! Schema::hasColumn('keluargas', 'rw')) {
+            Schema::table('keluargas', function (Blueprint $table) {
+                $table->string('rw', 10)->nullable();
+            });
+        }
+
+        if (! Schema::hasColumn('keluargas', 'geotagging')) {
+            Schema::table('keluargas', function (Blueprint $table) {
+                $table->string('geotagging', 255)->nullable();
+            });
+        }
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
+        if (! Schema::hasTable('keluargas')) {
+            return;
+        }
+
         Schema::table('keluargas', function (Blueprint $table) {
-            $table->dropColumn('geotagging');
+            $columns = ['rt', 'rw', 'geotagging'];
+
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('keluargas', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
 };

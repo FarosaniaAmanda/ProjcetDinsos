@@ -2,17 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Periode;
-use App\Models\Wilayah;
-use App\Models\Petugas;
-use App\Models\PetugasPeriode;
-use App\Models\Keluarga;
 use App\Models\AnggotaKeluarga;
+use App\Models\Jawaban;
+use App\Models\Keluarga;
 use App\Models\Kuesioner;
 use App\Models\OpsiJawaban;
 use App\Models\Pendataan;
-use App\Models\Jawaban;
+use App\Models\Periode;
+use App\Models\Petugas;
+use App\Models\PetugasPeriode;
+use App\Models\User;
+use App\Models\Wilayah;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,15 +26,17 @@ class DatabaseSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        $admin = User::create([
-            'name' => 'Administrator',
-            'username' => 'admin',
-            'email' => 'admin@dinsos.test',
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'is_active' => true,
-        ]);
-
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@dinsos.test'],
+            [
+                'nomor_identitas' => 'ADM-001',
+                'name' => 'Administrator',
+                'username' => 'admin',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'is_active' => true,
+            ]
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -48,7 +50,6 @@ class DatabaseSeeder extends Seeder
             'tanggal_selesai' => '2026-09-30',
             'status' => 'aktif',
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -76,31 +77,35 @@ class DatabaseSeeder extends Seeder
             'provinsi' => 'Jawa Timur',
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | USER PETUGAS
         |--------------------------------------------------------------------------
         */
 
-        $userPetugas1 = User::create([
-            'name' => 'Siti Aminah',
-            'username' => 'siti',
-            'email' => 'siti@dinsos.test',
-            'password' => Hash::make('password'),
-            'role' => 'petugas',
-            'is_active' => true,
-        ]);
+        $userPetugas1 = User::updateOrCreate(
+            ['email' => 'siti@dinsos.test'],
+            [
+                'nomor_identitas' => 'PETUGAS-001',
+                'name' => 'Siti Aminah',
+                'username' => 'siti',
+                'password' => Hash::make('password'),
+                'role' => 'petugas',
+                'is_active' => true,
+            ]
+        );
 
-        $userPetugas2 = User::create([
-            'name' => 'Budi Santoso',
-            'username' => 'budi',
-            'email' => 'budi@dinsos.test',
-            'password' => Hash::make('password'),
-            'role' => 'petugas',
-            'is_active' => true,
-        ]);
-
+        $userPetugas2 = User::updateOrCreate(
+            ['email' => 'budi@dinsos.test'],
+            [
+                'nomor_identitas' => 'PETUGAS-002',
+                'name' => 'Budi Santoso',
+                'username' => 'budi',
+                'password' => Hash::make('password'),
+                'role' => 'petugas',
+                'is_active' => true,
+            ]
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -128,7 +133,6 @@ class DatabaseSeeder extends Seeder
             'status' => 'aktif',
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | PETUGAS PERIODE
@@ -146,7 +150,6 @@ class DatabaseSeeder extends Seeder
             'periode_id' => $periode->id,
             'wilayah_id' => $wilayah2->id,
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -175,7 +178,6 @@ class DatabaseSeeder extends Seeder
             'status_pendataan' => 'belum_didata',
             'tanggal_pendaftaran' => now(),
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -212,7 +214,6 @@ class DatabaseSeeder extends Seeder
             'umur' => 6,
             'status_keluarga' => 'anak',
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -309,7 +310,6 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
             'urutan' => 10,
         ]);
-
 
         /*
         |--------------------------------------------------------------------------
@@ -429,7 +429,6 @@ class DatabaseSeeder extends Seeder
             'urutan' => 3,
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | PENDATAAN
@@ -447,7 +446,6 @@ class DatabaseSeeder extends Seeder
             'reviewed_at' => now(),
             'reviewed_by' => $admin->id,
         ]);
-
 
         /*
         |--------------------------------------------------------------------------

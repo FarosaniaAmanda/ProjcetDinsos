@@ -45,6 +45,7 @@ class RespondenWorkflowTest extends TestCase
             $table->string('kelurahan_id')->nullable();
             $table->string('rt', 5)->nullable();
             $table->string('rw', 5)->nullable();
+            $table->string('geotagging', 255)->nullable();
             $table->string('kode_pos', 10)->nullable();
             $table->text('alamat_lengkap')->nullable();
             $table->string('created_by');
@@ -110,8 +111,11 @@ class RespondenWorkflowTest extends TestCase
             'status_kepala_keluarga' => 'Kepala Keluarga',
             'kecamatan_id' => '3575020',
             'kelurahan_id' => '3575020001',
+            'rt' => '001',
+            'rw' => '002',
             'kode_pos' => '67127',
             'alamat_lengkap' => 'Jl. Mawar No. 5, RT 001/RW 002',
+            'geotangging' => '-7.645321, 112.906543',
             'anggota' => [
                 [
                     'nik' => '3575020101010003',
@@ -135,8 +139,17 @@ class RespondenWorkflowTest extends TestCase
             'status_keluarga' => 'Kepala Keluarga',
             'kecamatan_id' => '3575020',
             'kelurahan_id' => '3575020001',
+            'rt' => '001',
+            'rw' => '002',
             'kode_pos' => '67127',
             'alamat_lengkap' => 'Jl. Mawar No. 5, RT 001/RW 002',
+        ]);
+
+        $this->assertDatabaseHas('keluargas', [
+            'no_kk' => '3575020101010001',
+            'rt' => '001',
+            'rw' => '002',
+            'geotagging' => '-7.645321, 112.906543',
         ]);
 
         $this->assertDatabaseHas('part1_keluarga', [
@@ -190,6 +203,27 @@ class RespondenWorkflowTest extends TestCase
         $this->withoutVite()
             ->get(route('responden.index', ['search' => 'Nama Responden Terpencil']))
             ->assertSee('Nama Responden Terpencil');
+    }
+
+    public function test_store_saves_rt_rw_and_geotagging(): void
+    {
+        $response = $this->post(route('responden.store'), [
+            'nomor_kk' => '3575020101010001',
+            'nik_kepala_keluarga' => '3575020101010002',
+            'nama_kepala_keluarga' => 'Kepala Keluarga Tes',
+            'rt' => '001',
+            'rw' => '002',
+            'geotangging' => '-7.645321, 112.906543',
+        ]);
+
+        $response->assertRedirect(route('responden.index'));
+
+        $this->assertDatabaseHas('keluargas', [
+            'no_kk' => '3575020101010001',
+            'rt' => '001',
+            'rw' => '002',
+            'geotagging' => '-7.645321, 112.906543',
+        ]);
     }
 
     public function test_region_lookup_uses_cached_nominatim_coordinates(): void

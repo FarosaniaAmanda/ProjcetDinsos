@@ -681,6 +681,24 @@ class KuisionerController extends Controller
                 'max:255',
             ],
 
+            'jumlah_anggota' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'status_keluarga' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'status_dalam_keluarga' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
             'provinsi' => [
                 'nullable',
                 'string',
@@ -828,7 +846,9 @@ class KuisionerController extends Controller
             $validated['no_kk'] ?? null;
 
         $draft->jml_keluarga =
-            $validated['jml_keluarga'] ?? null;
+            $validated['jml_keluarga']
+            ?? $validated['jumlah_anggota']
+            ?? null;
 
         $draft->provinsi =
             $validated['provinsi'] ?? null;
@@ -2573,7 +2593,7 @@ class KuisionerController extends Controller
             ->get()
             ->keyBy('jenis_foto');
 
-            return view(
+        return view(
             'admin.kuisioner.part5-foto',
             compact('draft', 'fotoRumah')
         );
@@ -2699,10 +2719,10 @@ class KuisionerController extends Controller
 
         foreach (['tampak_depan', 'ruang_tamu', 'kamar_mandi'] as $field) {
             $fotoLamaAda = $fotoTersimpan->has($field);
-            $ditandaiHapus = !empty($deleteFoto[$field]);
+            $ditandaiHapus = ! empty($deleteFoto[$field]);
 
-            $wajibUpload = !$isDraft && (
-                !$fotoLamaAda || $ditandaiHapus
+            $wajibUpload = ! $isDraft && (
+                ! $fotoLamaAda || $ditandaiHapus
             );
 
             $aturanFoto[$field] = [
@@ -2714,18 +2734,12 @@ class KuisionerController extends Controller
         }
 
         $request->validate($aturanFoto, [
-            'tampak_depan.required' =>
-                'Foto tampak depan wajib diupload.',
-            'ruang_tamu.required' =>
-                'Foto ruang tamu wajib diupload.',
-            'kamar_mandi.required' =>
-                'Foto kamar mandi wajib diupload.',
-            '*.image' =>
-                'File harus berupa gambar.',
-            '*.mimes' =>
-                'Format foto harus JPG, JPEG, atau PNG.',
-            '*.max' =>
-                'Ukuran setiap foto maksimal 5 MB.',
+            'tampak_depan.required' => 'Foto tampak depan wajib diupload.',
+            'ruang_tamu.required' => 'Foto ruang tamu wajib diupload.',
+            'kamar_mandi.required' => 'Foto kamar mandi wajib diupload.',
+            '*.image' => 'File harus berupa gambar.',
+            '*.mimes' => 'Format foto harus JPG, JPEG, atau PNG.',
+            '*.max' => 'Ukuran setiap foto maksimal 5 MB.',
         ]);
 
         /*
@@ -2774,7 +2788,7 @@ class KuisionerController extends Controller
 
             foreach ($jenisFoto as $field => $namaJenis) {
                 $file = $request->file($field);
-                $markedDelete = !empty($deleteFoto[$field]);
+                $markedDelete = ! empty($deleteFoto[$field]);
 
                 $existing = KeluargaFotoRumah::where(
                     'keluarga_periode_kode',
@@ -2802,12 +2816,12 @@ class KuisionerController extends Controller
                 }
 
                 $namaFile = time()
-                    . '_'
-                    . $field
-                    . '_'
-                    . uniqid()
-                    . '.'
-                    . $file->getClientOriginalExtension();
+                    .'_'
+                    .$field
+                    .'_'
+                    .uniqid()
+                    .'.'
+                    .$file->getClientOriginalExtension();
 
                 $path = $file->storeAs(
                     'kuisioner/rumah',
@@ -2815,9 +2829,9 @@ class KuisionerController extends Controller
                     'public'
                 );
 
-                if (!$path) {
+                if (! $path) {
                     throw new \RuntimeException(
-                        'Gagal menyimpan foto ' . $namaJenis . '.'
+                        'Gagal menyimpan foto '.$namaJenis.'.'
                     );
                 }
 
@@ -3092,6 +3106,7 @@ class KuisionerController extends Controller
                     return $value;
                 }
             }
+
             return null;
         };
 
@@ -3117,13 +3132,13 @@ class KuisionerController extends Controller
 
         // Nama kecamatan/kelurahan dari jawaban Part 1, atau lookup dari master wilayah.
         $namaKecamatan = $firstFilled($dataPart1->kecamatan, $keluarga->kecamatan ?? null);
-        if (!$namaKecamatan && $keluarga && $keluarga->kecamatan_id) {
+        if (! $namaKecamatan && $keluarga && $keluarga->kecamatan_id) {
             $namaKecamatan = DB::table('kecamatans')
                 ->where('kecamatan_id', $keluarga->kecamatan_id)
                 ->value('deskripsi');
         }
         $namaKelurahan = $firstFilled($dataPart1->kelurahan, $dataPart1->desa ?? null, $keluarga->kelurahan ?? null);
-        if (!$namaKelurahan && $keluarga && $keluarga->kelurahan_id) {
+        if (! $namaKelurahan && $keluarga && $keluarga->kelurahan_id) {
             $namaKelurahan = DB::table('kelurahans')
                 ->where('kelurahan_id', $keluarga->kelurahan_id)
                 ->value('deskripsi');
@@ -3131,10 +3146,10 @@ class KuisionerController extends Controller
 
         // RT/RW pada form Part 1 disimpan dalam satu kolom rt_rw.
         $rtRw = $firstFilled($dataPart1->rt_rw, $keluarga->rt_rw ?? null);
-        if (!$rtRw) {
+        if (! $rtRw) {
             $rt = $firstFilled($keluarga->rt ?? null);
             $rw = $firstFilled($keluarga->rw ?? null);
-            $rtRw = ($rt || $rw) ? trim(($rt ?? '-') . ' / ' . ($rw ?? '-')) : null;
+            $rtRw = ($rt || $rw) ? trim(($rt ?? '-').' / '.($rw ?? '-')) : null;
         }
 
         $provinsi = $firstFilled($dataPart1->provinsi, $keluarga->provinsi ?? null);
@@ -3325,4 +3340,10 @@ class KuisionerController extends Controller
             ->route('kuisioner.index')
             ->with('success', 'Draft Part 5 berhasil disimpan. Kamu bisa melanjutkan pengisian nanti.');
     }
+    /*
+    |--------------------------------------------------------------------------
+    | CEK APAKAH DATA PART 5 ANGGOTA SUDAH LENGKAP
+    |--------------------------------------------------------------------------
+    */
+
 }

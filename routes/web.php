@@ -64,8 +64,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/profil', function () {
-    return view('admin.profil.index');
+Route::get('/profil', function (Request $request) {
+    return view('admin.profil.index', [
+        'authenticatedUser' => $request->user(),
+    ]);
 })->name('profil.index');
 
 Route::get('/profil/ubah-password', function () {
@@ -91,12 +93,9 @@ Route::post('/profil/ubah-password', function (Request $request) {
         'password_lama.required' => 'Password lama wajib diisi.',
         'password_baru.required' => 'Password baru wajib diisi.',
         'password_baru.min' => 'Password baru minimal 8 karakter.',
-        'password_baru_confirmation.required' =>
-            'Konfirmasi password wajib diisi.',
-        'password_baru_confirmation.same' =>
-            'Konfirmasi password tidak sama.',
+        'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.',
+        'password_baru_confirmation.same' => 'Konfirmasi password tidak sama.',
     ]);
-
 
     /*
     |--------------------------------------------------------------------------
@@ -104,10 +103,9 @@ Route::post('/profil/ubah-password', function (Request $request) {
     |--------------------------------------------------------------------------
     */
 
-    if (!Auth::check()) {
+    if (! Auth::check()) {
         return redirect()->route('login');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -121,12 +119,11 @@ Route::post('/profil/ubah-password', function (Request $request) {
         ->where('id', $userId)
         ->first();
 
-    if (!$user) {
+    if (! $user) {
         Auth::logout();
 
         return redirect()->route('login');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -139,7 +136,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
     $passwordLamaInput =
         (string) $request->input('password_lama');
 
-
     /*
     |--------------------------------------------------------------------------
     | CEK PASSWORD LAMA
@@ -147,7 +143,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
     */
 
     $passwordBenar = false;
-
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +164,6 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
     }
 
-
     /*
     |--------------------------------------------------------------------------
     | JIKA PASSWORD LAMA DI DATABASE TEKS BIASA
@@ -184,14 +178,13 @@ Route::post('/profil/ubah-password', function (Request $request) {
         );
     }
 
-    if (!$passwordBenar) {
+    if (! $passwordBenar) {
         return back()
             ->withErrors([
                 'password_lama' => 'Password lama salah.',
             ])
             ->withInput();
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -207,14 +200,11 @@ Route::post('/profil/ubah-password', function (Request $request) {
         ->where('id', $userId)
         ->update([
 
-            'password' =>
-                $request->input('password_baru'),
+            'password' => $request->input('password_baru'),
 
-            'updated_at' =>
-                now(),
+            'updated_at' => now(),
 
         ]);
-
 
     /*
     |--------------------------------------------------------------------------
@@ -287,7 +277,6 @@ Route::get('/responden/{id}/edit-data', [RespondenController::class, 'editData']
 
 Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'getKelurahan'])
     ->name('responden.kelurahan');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -385,7 +374,6 @@ Route::post('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'sto
 Route::post('/kuisioner/part5/draft', [KuisionerController::class, 'simpanDraftPart5'])
     ->name('kuisioner.part5.draft');
 
-
 /*
 |--------------------------------------------------------------------------
 | KUISIONER - FOTO RUMAH
@@ -470,9 +458,11 @@ Route::get('/laporan', [LaporanController::class, 'index'])
     ->name('laporan.index');
 
 Route::get('/laporan/{id}/detail', [LaporanController::class, 'showDetail'])
+    ->whereNumber('id')
     ->name('laporan.detail');
 
 Route::get('/laporan/{id}/pdf', [LaporanController::class, 'pdf'])
+    ->whereNumber('id')
     ->name('laporan.pdf');
 
 Route::get('/laporan/export', [LaporanController::class, 'export'])

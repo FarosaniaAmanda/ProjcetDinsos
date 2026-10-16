@@ -6,11 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
 use App\Models\KeluargaAnggota;
 use App\Models\KeluargaPart1;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
 class RespondenController extends Controller
@@ -27,17 +24,6 @@ class RespondenController extends Controller
             'anggota' => function ($query) {
                 $query
                     ->where('status_keluarga', '!=', 'Kepala Keluarga')
-                    ->orderByRaw("
-                        CASE status_keluarga
-                            WHEN 'Istri' THEN 2
-                            WHEN 'Suami' THEN 3
-                            WHEN 'Anak' THEN 4
-                            WHEN 'Orang Tua' THEN 5
-                            WHEN 'Saudara' THEN 6
-                            WHEN 'Famili' THEN 7
-                            ELSE 999
-                        END
-                    ")
                     ->orderBy('id');
             },
         ]);
@@ -373,28 +359,6 @@ class RespondenController extends Controller
                     'created_by' => $createdBy,
                 ]);
             }
-
-            KeluargaPart1::create([
-                'keluarga_periode_kode' => $keluarga->kode,
-                'nik' => $nikKepalaKeluarga,
-                'nama_kepala_keluarga' => $request->nama_kepala_keluarga,
-                'no_kk' => $request->nomor_kk,
-                'jml_keluarga' => count($request->input('anggota', [])) + 1,
-                'provinsi' => $request->input('provinsi'),
-                'daerah' => $request->input('daerah'),
-                'kecamatan' => DB::table('kecamatans')
-                    ->where('kecamatan_id', $request->input('kecamatan_id'))
-                    ->value('deskripsi'),
-                'kelurahan' => DB::table('kelurahans')
-                    ->where('kelurahan_id', $request->input('kelurahan_id'))
-                    ->value('deskripsi'),
-                'kode_pos' => $request->input('kode_pos'),
-                'alamat_lengkap' => $alamatLengkap,
-                'geotangging' => $request->input('geotangging'),
-                'status' => 'draft',
-                'current_part' => 1,
-                'created_by' => $createdBy,
-            ]);
         });
 
         return redirect()
@@ -978,77 +942,6 @@ class RespondenController extends Controller
     }
 
     /**
-     * Mengambil koordinat kelurahan dari layanan geocoding.
-     */
-    public function mapCoordinates(string $kelurahanId): JsonResponse
-    {
-        $kelurahan = DB::table('kelurahans')
-            ->where('kelurahan_id', $kelurahanId)
-            ->first();
-
-        abort_if($kelurahan === null, 404, 'Kelurahan tidak ditemukan.');
-
-        $kecamatan = DB::table('kecamatans')
-            ->where('kecamatan_id', $kelurahan->kecamatan_id)
-            ->first();
-
-        abort_if($kecamatan === null, 404, 'Kecamatan tidak ditemukan.');
-
-        $coordinates = Cache::remember(
-            'geocoding:kelurahan:'.$kelurahanId,
-            now()->addDays(30),
-            function () use ($kelurahan, $kecamatan): ?array {
-                $request = Http::connectTimeout(3)
-                    ->timeout(10)
-                    ->withUserAgent(config('services.geocoding.user_agent'));
-
-                $caBundle = config('services.geocoding.ca_bundle');
-
-                if (is_string($caBundle) && $caBundle !== '') {
-                    $request = $request->withOptions(['verify' => $caBundle]);
-                }
-
-                $parameters = array_filter([
-                    'q' => $kelurahan->deskripsi.', '.$kecamatan->deskripsi.', Kota Pasuruan, Jawa Timur, Indonesia',
-                    'format' => 'jsonv2',
-                    'limit' => 1,
-                    'email' => config('services.geocoding.email'),
-                ], static fn ($value): bool => $value !== null && $value !== '');
-
-                $results = $request
-                    ->get((string) config('services.geocoding.endpoint'), $parameters)
-                    ->throw()
-                    ->json();
-
-                $result = is_array($results) ? ($results[0] ?? null) : null;
-
-                if (
-                    ! is_array($result)
-                    || ! is_numeric($result['lat'] ?? null)
-                    || ! is_numeric($result['lon'] ?? null)
-                ) {
-                    return null;
-                }
-
-                return [
-                    'latitude' => (float) $result['lat'],
-                    'longitude' => (float) $result['lon'],
-                ];
-            }
-        );
-
-        if ($coordinates === null) {
-            return response()->json([
-                'message' => 'Koordinat kelurahan tidak ditemukan.',
-            ], 404);
-        }
-
-        return response()->json([
-            'data' => $coordinates,
-        ]);
-    }
-
-    /**
      * Menghapus data responden.
      */
     public function destroy(Request $request, $id)
@@ -1311,8 +1204,8 @@ class RespondenController extends Controller
                 );
 
             $hasil =
-                trim($alamat) .
-                "\n" .
+                trim($alamat).
+                "\n".
                 $tambahan;
         }
 

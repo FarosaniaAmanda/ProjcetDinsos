@@ -2,20 +2,24 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Perbaiki default updated_at terlebih dahulu
-        DB::statement("
-            ALTER TABLE part1_keluarga
-            MODIFY updated_at TIMESTAMP NULL DEFAULT NULL
-        ");
+        if (! Schema::hasTable('part1_keluarga')) {
+            return;
+        }
 
-        // Tambahkan kolom draft
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('
+                ALTER TABLE part1_keluarga
+                MODIFY updated_at TIMESTAMP NULL DEFAULT NULL
+            ');
+        }
+
         Schema::table('part1_keluarga', function (Blueprint $table) {
 
             $table->string('status')
@@ -31,11 +35,15 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasTable('part1_keluarga')) {
+            return;
+        }
+
         Schema::table('part1_keluarga', function (Blueprint $table) {
 
             $table->dropColumn([
                 'status',
-                'current_part'
+                'current_part',
             ]);
 
         });

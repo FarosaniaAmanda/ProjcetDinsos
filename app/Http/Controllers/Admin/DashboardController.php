@@ -9,7 +9,9 @@ use App\Models\Periode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -35,39 +37,66 @@ class DashboardController extends Controller
 
     public function index(): View
     {
+        $hasKeluargasTable = Schema::hasTable('keluargas');
+        $hasPeriodesTable = Schema::hasTable('periodes');
+        $hasKecamatanTable = Schema::hasTable('kecamatans');
+        $hasPart1Table = Schema::hasTable('part1_keluarga');
+
         // Total data keluarga/responden
-        $totalResponden = Keluarga::count();
+        $totalResponden = $hasKeluargasTable ? Keluarga::count() : 0;
 
         // Jumlah periode aktif
-        $periodeAktif = Periode::where('status_periode', 'Aktif')->count();
+        $periodeAktif = $hasPeriodesTable
+            ? Periode::where('status_periode', 'Aktif')->count()
+            : 0;
 
         // Rekap periode tetap dipertahankan
-        $rekapPeriode = Periode::orderByDesc('id')->get();
+        $rekapPeriode = $hasPeriodesTable
+            ? Periode::orderByDesc('id')->get()
+            : collect();
 
         // Data yang masuk hari ini
-        $dataMasukHariIni = Keluarga::whereDate(
-            'created_at',
-            today()
-        )->count();
+        $dataMasukHariIni = $hasKeluargasTable
+            ? Keluarga::whereDate('created_at', today())->count()
+            : 0;
 
         // Grafik persebaran kecamatan dari database
-        $persebaranKecamatan = DB::table('kecamatans')
-            ->leftJoin(
-                'keluargas',
-                'keluargas.kecamatan_id',
-                '=',
-                'kecamatans.kecamatan_id'
-            )
-            ->select(
-                'kecamatans.deskripsi as nama_kecamatan',
-                DB::raw('COUNT(keluargas.id) as total_responden')
-            )
-            ->groupBy(
-                'kecamatans.kecamatan_id',
-                'kecamatans.deskripsi'
-            )
-            ->orderBy('kecamatans.deskripsi')
-            ->get();
+        $persebaranKecamatan = $hasKecamatanTable && $hasKeluargasTable
+            ? DB::table('kecamatans')
+                ->leftJoin(
+                    'keluargas',
+                    'keluargas.kecamatan_id',
+                    '=',
+                    'kecamatans.kecamatan_id'
+                )
+                ->select(
+                    'kecamatans.deskripsi as nama_kecamatan',
+                    DB::raw('COUNT(keluargas.id) as total_responden')
+                )
+                ->groupBy(
+                    'kecamatans.kecamatan_id',
+                    'kecamatans.deskripsi'
+                )
+                ->orderBy('kecamatans.deskripsi')
+                ->get()
+            : collect();
+
+        if (! $hasPart1Table) {
+            $kuisionerTerakhir = new LengthAwarePaginator([], 0, 5);
+
+            return view('admin.dashboard', compact(
+                'totalResponden',
+                'periodeAktif',
+                'rekapPeriode',
+                'dataMasukHariIni',
+                'persebaranKecamatan',
+                'kuisionerTerakhir'
+            ) + [
+                'jumlahDisetujui' => 0,
+                'jumlahMenungguVerifikasi' => 0,
+                'jumlahDitolak' => 0,
+            ]);
+        }
 
         // Jumlah data yang disetujui
         $jumlahDisetujui = $this->linkedVerificationQuery()
