@@ -37,6 +37,14 @@ class PeriodeController extends Controller
     }
 
     /**
+     * Menampilkan form tambah periode.
+     */
+    public function create()
+    {
+        return view('admin.periode.create');
+    }
+
+    /**
      * Menyimpan periode baru.
      */
     public function store(Request $request)

@@ -43,6 +43,8 @@ class RespondenWorkflowTest extends TestCase
             $table->string('status_keluarga');
             $table->string('kecamatan_id')->nullable();
             $table->string('kelurahan_id')->nullable();
+            $table->string('rt', 5)->nullable();
+            $table->string('rw', 5)->nullable();
             $table->string('kode_pos', 10)->nullable();
             $table->text('alamat_lengkap')->nullable();
             $table->string('created_by');

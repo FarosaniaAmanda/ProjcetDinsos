@@ -1,3 +1,10 @@
+@php
+    $authenticatedUser = auth()->user();
+    $authenticatedName = $authenticatedUser?->name ?: 'Pengguna';
+    $authenticatedRole = ucfirst($authenticatedUser?->role ?: 'pengguna');
+    $authenticatedInitial = strtoupper(substr($authenticatedName, 0, 1));
+@endphp
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -7,7 +14,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Profil Operator | Sistem Pendataan Perlinsos</title>
+    <title>Profil {{ $authenticatedRole }} | Sistem Pendataan Perlinsos</title>
 
     <style>
 
@@ -394,11 +401,11 @@
     <div class="profile-header">
 
         <h1>
-            Profil Operator
+            Profil {{ $authenticatedRole }}
         </h1>
 
         <p>
-            Informasi akun administrator sistem.
+            Informasi akun {{ strtolower($authenticatedRole) }} sistem.
         </p>
 
     </div>
@@ -437,7 +444,7 @@
 
             <div class="profile-avatar">
 
-                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                {{ $authenticatedInitial }}
 
             </div>
 
@@ -448,13 +455,13 @@
 
                 <h2>
 
-                    {{ Auth::user()->name }}
+                    {{ $authenticatedName }}
 
                 </h2>
 
                 <span>
 
-                    Administrator Sistem Pendataan Perlinsos
+                    Akun {{ strtolower($authenticatedRole) }} Sistem Pendataan Perlinsos
 
                 </span>
 
@@ -471,17 +478,17 @@
         <div class="profile-info">
 
 
-            <!-- NAMA OPERATOR -->
+            <!-- NAMA PENGGUNA -->
 
             <div class="info-item">
 
                 <label>
-                    Nama Operator
+                    Nama {{ $authenticatedRole }}
                 </label>
 
                 <strong>
 
-                    {{ Auth::user()->name }}
+                    {{ $authenticatedName }}
 
                 </strong>
 
@@ -498,7 +505,7 @@
 
                 <strong>
 
-                    {{ ucfirst(Auth::user()->role) }}
+                    {{ $authenticatedRole }}
 
                 </strong>
 
@@ -532,7 +539,7 @@
 
                 <strong>
 
-                    {{ ucfirst(Auth::user()->role) }}
+                    {{ $authenticatedRole }}
 
                 </strong>
 

@@ -1,3 +1,9 @@
+@php
+    $authenticatedUser = auth()->user();
+    $authenticatedName = $authenticatedUser?->name ?: 'Pengguna';
+    $authenticatedRole = ucfirst($authenticatedUser?->role ?: 'pengguna');
+@endphp
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -357,14 +363,14 @@
         }
 
         .admin-name {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             color: #1f2937;
         }
 
         .admin-role {
             margin-top: 2px;
-            font-size: 10px;
+            font-size: 11px;
             color: #9ca3af;
         }
 
@@ -650,11 +656,11 @@
         }
 
         .verification-approved {
-            background: #252A86;
+            background: #21874b;
         }
 
-        .verification-submitted {
-            background: #8A96E8;
+        .verification-pending {
+            background: #f2c94c;
         }
 
         .verification-rejected {
@@ -878,6 +884,9 @@
         }
 
         .pagination-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             min-width: 31px;
             height: 31px;
             padding: 0 9px;
@@ -889,6 +898,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: .2s ease;
+            text-decoration: none;
         }
 
         .pagination-button:hover:not(:disabled) {
@@ -1697,10 +1707,11 @@
 
             <div class="welcome-title">
                 Selamat Datang,
-                {{ ucfirst(auth()->user()->role ?? 'Pengguna') }}
+                {{ $authenticatedName }}
             </div>
 
             <div class="welcome-text">
+                Anda masuk sebagai {{ strtolower($authenticatedRole) }}.
                 Kelola data pendataan sosial, kuisioner,
                 verifikasi alamat, monitoring, dan laporan
                 melalui sistem ini.
@@ -1721,7 +1732,7 @@
                 </div>
 
                 <div class="stat-value">
-                    128
+                    {{ $totalResponden ?? 0 }}
                 </div>
 
                 <div class="stat-description">
@@ -1755,7 +1766,7 @@
                 </div>
 
                 <div class="stat-value">
-                    12
+                    {{ $jumlahMenungguVerifikasi ?? 0 }}
                 </div>
 
                 <div class="stat-description">
@@ -1772,11 +1783,11 @@
                 </div>
 
                 <div class="stat-value">
-                    96
+                    {{ $jumlahDisetujui ?? 0 }}
                 </div>
 
                 <div class="stat-description">
-                    Data alamat telah diverifikasi
+                    Data telah diverifikasi
                 </div>
 
             </div>
@@ -1823,12 +1834,12 @@
                 <div class="chart-header">
 
                     <div class="chart-title">
-                        Status Verifikasi Alamat
+                        Status Verifikasi
                     </div>
 
                     <div class="chart-description">
-                        Perbandingan status verifikasi alamat
-                        responden berdasarkan data kuisioner.
+                        Perbandingan status verifikasi responden
+                        berdasarkan data kuisioner.
                     </div>
 
                 </div>
@@ -1862,28 +1873,28 @@
                             </div>
 
                             <strong id="approvedValue">
-                                96 (75%)
+                                {{ $jumlahDisetujui ?? 0 }}
                             </strong>
 
                         </div>
 
 
-                        <!-- DIAJUKAN -->
+                        <!-- MENUNGGU VERIFIKASI -->
 
                         <div class="verification-legend-item">
 
                             <div class="verification-legend-left">
 
-                                <span class="verification-dot verification-submitted"></span>
+                                <span class="verification-dot verification-pending"></span>
 
                                 <span>
-                                    Diajukan
+                                    Menunggu Verifikasi
                                 </span>
 
                             </div>
 
-                            <strong id="submittedValue">
-                                20 (16%)
+                            <strong id="pendingValue">
+                                {{ $jumlahMenungguVerifikasi ?? 0 }}
                             </strong>
 
                         </div>
@@ -1904,7 +1915,7 @@
                             </div>
 
                             <strong id="rejectedValue">
-                                12 (9%)
+                                {{ $jumlahDitolak ?? 0 }}
                             </strong>
 
                         </div>
@@ -1992,12 +2003,15 @@
 
 
                                     <td>
-                                        {{ $index + 1 }}
+                                        {{ $kuisionerTerakhir instanceof \Illuminate\Pagination\LengthAwarePaginator
+                                            ? (($kuisionerTerakhir->firstItem() ?? 1) + $loop->index)
+                                            : $loop->iteration }}
                                     </td>
 
 
                                     <td>
                                         {{ $kuisioner->nama_responden
+                                            ?? $kuisioner->nama_kepala_keluarga
                                             ?? $kuisioner->nama
                                             ?? '-' }}
                                     </td>
@@ -2012,7 +2026,8 @@
 
                                         {{ isset($kuisioner->created_at)
                                             ? \Carbon\Carbon::parse(
-                                                $kuisioner->created_at
+                                                $kuisioner->updated_at
+                                                ?? $kuisioner->created_at
                                             )->format('d/m/Y')
                                             : '-' }}
 
@@ -2025,7 +2040,6 @@
 
                                             $status = strtolower(trim(
                                                 $kuisioner->status_verifikasi
-                                                ?? $kuisioner->status
                                                 ?? 'diajukan'
                                             ));
 
@@ -2062,14 +2076,19 @@
                                         )
 
                                             <span class="status-badge status-diajukan">
-                                                Diajukan
+                                                Menunggu Verifikasi
                                             </span>
 
+                                        @elseif($status === 'not_processed')
+
+                                            <span class="status-badge status-belum">
+                                                Belum Didata
+                                            </span>
 
                                         @else
 
                                             <span class="status-badge status-belum">
-                                                {{ ucfirst($status) }}
+                                                {{ $status === 'draft' ? 'Draft' : ucfirst($status) }}
                                             </span>
 
                                         @endif
@@ -2110,23 +2129,58 @@
 
             <!-- PAGINATION KUISIONER -->
 
-            <div
-                class="pagination-area"
-                id="questionnairePagination"
-            >
+            @if($kuisionerTerakhir instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                <div class="pagination-area">
+                    <div class="pagination-info">
+                        Menampilkan {{ $kuisionerTerakhir->firstItem() ?? 0 }} sampai {{ $kuisionerTerakhir->lastItem() ?? 0 }} dari {{ $kuisionerTerakhir->total() }} data
+                    </div>
 
-                <div
-                    class="pagination-info"
-                    id="questionnaireInfo"
-                ></div>
+                    @if($kuisionerTerakhir->hasPages())
+                        @php
+                            $lastPage = max(1, $kuisionerTerakhir->lastPage());
+                            $currentPage = min($kuisionerTerakhir->currentPage(), $lastPage);
+                            $startPage = max(1, $currentPage - 2);
+                            $endPage = min($lastPage, $currentPage + 2);
+                        @endphp
 
+                        <div class="pagination-buttons" aria-label="Navigasi halaman kuisioner">
+                            @if($kuisionerTerakhir->onFirstPage())
+                                <span class="pagination-button" aria-disabled="true">‹</span>
+                            @else
+                                <a class="pagination-button" href="{{ $kuisionerTerakhir->previousPageUrl() }}" aria-label="Halaman sebelumnya">‹</a>
+                            @endif
 
-                <div
-                    class="pagination-buttons"
-                    id="questionnaireButtons"
-                ></div>
+                            @if($startPage > 1)
+                                <a class="pagination-button" href="{{ $kuisionerTerakhir->url(1) }}">1</a>
+                                @if($startPage > 2)
+                                    <span class="pagination-info" aria-hidden="true">…</span>
+                                @endif
+                            @endif
 
-            </div>
+                            @foreach($kuisionerTerakhir->getUrlRange($startPage, $endPage) as $page => $url)
+                                <a
+                                    class="pagination-button {{ $page === $currentPage ? 'active' : '' }}"
+                                    href="{{ $url }}"
+                                    @if($page === $currentPage) aria-current="page" @endif
+                                >{{ $page }}</a>
+                            @endforeach
+
+                            @if($endPage < $lastPage)
+                                @if($endPage < $lastPage - 1)
+                                    <span class="pagination-info" aria-hidden="true">…</span>
+                                @endif
+                                <a class="pagination-button" href="{{ $kuisionerTerakhir->url($lastPage) }}">{{ $lastPage }}</a>
+                            @endif
+
+                            @if($kuisionerTerakhir->hasMorePages())
+                                <a class="pagination-button" href="{{ $kuisionerTerakhir->nextPageUrl() }}" aria-label="Halaman berikutnya">›</a>
+                            @else
+                                <span class="pagination-button" aria-disabled="true">›</span>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            @endif
 
         </div>
 
@@ -2873,14 +2927,6 @@
        TANPA BATAS JUMLAH DATA
     ====================================================== */
 
-    setupPagination(
-        'questionnaireTable',
-        'questionnaire-row',
-        'questionnaireInfo',
-        'questionnaireButtons'
-    );
-
-
     /* =====================================================
        PAGINATION REKAP PERIODE
 
@@ -3185,180 +3231,77 @@
 
     setupPeriodPagination();
 
-
-    /* =====================================================
-       GRAFIK KECAMATAN
-    ====================================================== */
-
-    const kecamatanCtx =
-        document.getElementById(
-            'kecamatanChart'
-        );
-
-
-    new Chart(
-        kecamatanCtx,
-        {
-
-            type: 'bar',
-
-
-            data: {
-
-                labels: [
-
-                    'Bugul Kidul',
-                    'Gadingrejo',
-                    'Panggungrejo',
-                    'Purworejo'
-
-                ],
-
-
-                datasets: [
-
-                    {
-
-                        label:
-                            'Jumlah Responden',
-
-
-                        data: [
-
-                            35,
-                            25,
-                            30,
-                            38
-
-                        ],
-
-
-                        backgroundColor: [
-
-                            '#252A86',
-                            '#3B4CCA',
-                            '#6675D9',
-                            '#8A96E8'
-
-                        ],
-
-
-                        borderRadius: 6,
-
-
-                        borderWidth: 0,
-
-
-                        categoryPercentage:
-                            0.65,
-
-
-                        barPercentage:
-                            0.78
-
-                    }
-
-                ]
-
-            },
-
-
-            options: {
-
-                responsive: true,
-
-
-                maintainAspectRatio:
-                    false,
-
-
-                plugins: {
-
-                    legend: {
-
-                        display:
-                            false
-
-                    }
-
-                },
-
-
-                scales: {
-
-                    y: {
-
-                        beginAtZero:
-                            true,
-
-
-                        ticks: {
-
-                            precision:
-                                0
-
-                        },
-
-
-                        grid: {
-
-                            color:
-                                '#eef0f5'
-
-                        },
-
-
-                        title: {
-
-                            display:
-                                true,
-
-
-                            text:
-                                'Jumlah Responden'
-
-                        }
-
-                    },
-
-
-                    x: {
-
-                        grid: {
-
-                            display:
-                                false
-
-                        },
-
-
-                        title: {
-
-                            display:
-                                true,
-
-
-                            text:
-                                'Kecamatan'
-
-                        }
-
-                    }
-
+/* =====================================================
+   GRAFIK KECAMATAN - OTOMATIS DARI DATABASE
+====================================================== */
+
+const kecamatanCtx = document.getElementById('kecamatanChart');
+
+const kecamatanLabels = {{ \Illuminate\Support\Js::from(
+    $persebaranKecamatan->pluck('nama_kecamatan')->values()->all()
+) }};
+
+const kecamatanValues = {{ \Illuminate\Support\Js::from(
+    $persebaranKecamatan->pluck('total_responden')->values()->all()
+) }};
+
+if (kecamatanCtx) {
+    new Chart(kecamatanCtx, {
+        type: 'bar',
+        data: {
+            labels: kecamatanLabels,
+            datasets: [{
+                label: 'Jumlah Responden',
+                data: kecamatanValues,
+                backgroundColor: ['#252A86', '#3B4CCA', '#6675D9', '#8A96E8'],
+                borderRadius: 6,
+                borderWidth: 0,
+                categoryPercentage: 0.65,
+                barPercentage: 0.78
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
                 }
-
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                    grid: {
+                        color: '#eef0f5'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Jumlah Responden'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Kecamatan'
+                    }
+                }
             }
-
         }
-    );
-
+    });
+}
 
     /* =====================================================
        GRAFIK STATUS VERIFIKASI
        
        3 STATUS:
        1. DISETUJUI
-       2. DIAJUKAN
+       2. MENUNGGU VERIFIKASI
        3. DITOLAK
     ====================================================== */
 
@@ -3369,22 +3312,11 @@
         );
 
 
-    /* =====================================================
-       DATA VERIFIKASI
-
-       TOTAL:
-       96 + 20 + 12 = 128
-    ====================================================== */
-
-    const verificationData = {
-
-        disetujui: 96,
-
-        diajukan: 20,
-
-        ditolak: 12
-
-    };
+    const verificationData = {{ \Illuminate\Support\Js::from([
+        'disetujui' => $jumlahDisetujui ?? 0,
+        'menungguVerifikasi' => $jumlahMenungguVerifikasi ?? 0,
+        'ditolak' => $jumlahDitolak ?? 0,
+    ]) }};
 
 
     /* =====================================================
@@ -3393,39 +3325,23 @@
 
     const verificationTotal =
         verificationData.disetujui +
-        verificationData.diajukan +
+        verificationData.menungguVerifikasi +
         verificationData.ditolak;
+
+    const verificationHasData = verificationTotal > 0;
 
 
     /* =====================================================
        HITUNG PERSENTASE
     ====================================================== */
 
-    const approvedPercentage =
-        Math.round(
-            (
-                verificationData.disetujui /
-                verificationTotal
-            ) * 100
-        );
+    const percentageFor = (value) => verificationTotal === 0
+        ? 0
+        : Math.round((value / verificationTotal) * 100);
 
-
-    const submittedPercentage =
-        Math.round(
-            (
-                verificationData.diajukan /
-                verificationTotal
-            ) * 100
-        );
-
-
-    const rejectedPercentage =
-        Math.round(
-            (
-                verificationData.ditolak /
-                verificationTotal
-            ) * 100
-        );
+    const approvedPercentage = percentageFor(verificationData.disetujui);
+    const pendingPercentage = percentageFor(verificationData.menungguVerifikasi);
+    const rejectedPercentage = percentageFor(verificationData.ditolak);
 
 
     /* =====================================================
@@ -3442,11 +3358,11 @@
 
 
     document.getElementById(
-        'submittedValue'
+        'pendingValue'
     ).textContent =
-        verificationData.diajukan +
+        verificationData.menungguVerifikasi +
         ' (' +
-        submittedPercentage +
+        pendingPercentage +
         '%)';
 
 
@@ -3583,7 +3499,7 @@
 
                     'Disetujui',
 
-                    'Diajukan',
+                    'Menunggu Verifikasi',
 
                     'Ditolak'
 
@@ -3594,26 +3510,22 @@
 
                     {
 
-                        data: [
-
+                        data: verificationHasData
+                            ? [
                             verificationData.disetujui,
-
-                            verificationData.diajukan,
-
+                            verificationData.menungguVerifikasi,
                             verificationData.ditolak
+                            ]
+                            : [1],
 
-                        ],
 
-
-                        backgroundColor: [
-
-                            '#252A86',
-
-                            '#8A96E8',
-
+                        backgroundColor: verificationHasData
+                            ? [
+                            '#21874b',
+                            '#f2c94c',
                             '#d9534f'
-
-                        ],
+                            ]
+                            : ['#e5e7eb'],
 
 
                         borderWidth:
@@ -3656,6 +3568,10 @@
 
                     tooltip: {
 
+                        filter: function() {
+                            return verificationHasData;
+                        },
+
                         callbacks: {
 
                             label:
@@ -3666,13 +3582,7 @@
                                         context.raw;
 
 
-                                    const percentage =
-                                        Math.round(
-                                            (
-                                                value /
-                                                verificationTotal
-                                            ) * 100
-                                        );
+                                    const percentage = percentageFor(value);
 
 
                                     return (

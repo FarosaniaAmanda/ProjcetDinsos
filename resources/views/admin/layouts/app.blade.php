@@ -1,3 +1,10 @@
+@php
+    $authenticatedUser = auth()->user();
+    $authenticatedName = $authenticatedUser?->name ?: 'Pengguna';
+    $authenticatedRole = ucfirst($authenticatedUser?->role ?: 'pengguna');
+    $authenticatedInitial = strtoupper(substr($authenticatedName, 0, 1));
+@endphp
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -605,6 +612,22 @@
             position: relative;
 
             z-index: 2;
+
+            color: inherit;
+            text-decoration: none;
+            padding: 6px 9px;
+            border-radius: 10px;
+            transition:
+                background-color .25s ease,
+                transform .25s ease,
+                box-shadow .25s ease;
+        }
+
+        .admin-profile:hover,
+        .admin-profile:focus-visible {
+            background: #f3f4f6;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
         }
 
         .admin-info {
@@ -1746,16 +1769,20 @@
 
             <!-- ADMIN PROFILE -->
 
-            <div class="admin-profile">
+            <a
+                href="{{ route('profil.index') }}"
+                class="admin-profile"
+                aria-label="Buka profil {{ $authenticatedName }}"
+            >
 
                 <div class="admin-info">
 
                     <div class="admin-name">
-                        Operator
+                        {{ $authenticatedName }}
                     </div>
 
                     <div class="admin-role">
-                        Admin
+                        {{ $authenticatedRole }}
                     </div>
 
                 </div>
@@ -1763,12 +1790,12 @@
 
                 <div
                     class="admin-avatar"
-                    title="Operator - Admin"
+                    title="{{ $authenticatedName }} - {{ $authenticatedRole }}"
                 >
-                    A
+                    {{ $authenticatedInitial }}
                 </div>
 
-            </div>
+            </a>
 
         </header>
 

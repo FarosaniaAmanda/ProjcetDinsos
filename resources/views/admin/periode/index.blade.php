@@ -349,7 +349,7 @@
         }
 
         .user-name {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
             color: #1f2937;
         }
@@ -357,7 +357,7 @@
         .user-role {
             margin-top: 2px;
             color: #9ca3af;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         .avatar {
@@ -389,11 +389,17 @@
             border-radius: 10px;
             position: relative;
             z-index: 100;
-            transition: .2s ease;
+            transition:
+                background-color .25s ease,
+                transform .25s ease,
+                box-shadow .25s ease;
         }
 
-        .profile-link:hover {
+        .profile-link:hover,
+        .profile-link:focus-visible {
             background: #f3f4f6;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
         }
 
         .profile-link .user-info {
@@ -1532,7 +1538,7 @@
             <div class="page-header">
 
                 <div class="page-kicker">
-                    ADMIN
+                    MASTER
                 </div>
 
                 <h1 class="page-title">
