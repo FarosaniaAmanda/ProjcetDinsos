@@ -1414,6 +1414,10 @@ class KuisionerController extends Controller
 
                 'bukti_kepemilikan' => $validated['bukti_kepemilikan'] ?? null,
 
+                'status_kepemilikan_lainnya' => $kepemilikan === 'Lainnya'
+                    ? ($validated['status_kepemilikan_lainnya'] ?? null)
+                    : null,
+
                 'harga_sewa_kontrak' => $hargaSewa,
 
                 'luas_lantai' => $validated['luas_lantai'] ?? null,
@@ -1880,9 +1884,9 @@ class KuisionerController extends Controller
 
         $request->validate([
 
-            'aset' => ['required', 'array'],
+            'aset' => ['nullable', 'array'],
 
-            'aset.*.punya' => ['required', 'in:0,1'],
+            'aset.*.punya' => ['nullable', 'in:0,1'],
 
             'aset.*.jumlah' => ['nullable', 'integer', 'min:0'],
 
@@ -1937,11 +1941,11 @@ class KuisionerController extends Controller
 
                 $punya = isset($data['punya'])
                     ? (int) $data['punya']
-                    : 0;
+                    : null;
 
                 $jumlah = $punya === 1
-                    ? ($data['jumlah'] ?? 0)
-                    : 0;
+                    ? ($data['jumlah'] ?? null)
+                    : ($punya === 0 ? 0 : null);
 
                 $existing = KeluargaPart4::where(
                     'keluarga_periode_kode',
@@ -2478,6 +2482,429 @@ class KuisionerController extends Controller
             );
     }
 
+    /**
+     * @return array{
+     *     missing_questions: array<int, string>,
+     *     route: string|null,
+     *     route_parameters: array<string, string>
+     * }
+     */
+    private function questionnaireCompletionIssues(
+        KeluargaPart1 $draft,
+        Request $request
+    ): array {
+        $missingQuestions = [];
+        $firstRoute = null;
+        $firstRouteParameters = [];
+
+        $addMissing = function (
+            int $part,
+            string $question,
+            string $route,
+            array $parameters = []
+        ) use (
+            &$missingQuestions,
+            &$firstRoute,
+            &$firstRouteParameters
+        ): void {
+            $missingQuestions[] = 'Part '.$part.' — '.$question;
+
+            if ($firstRoute === null) {
+                $firstRoute = $route;
+                $firstRouteParameters = $parameters;
+            }
+        };
+
+        $isAnswered = static function (mixed $value): bool {
+            return $value !== null
+                && (! is_string($value) || trim($value) !== '');
+        };
+        $firstAnswered = static function (mixed ...$values) use ($isAnswered): mixed {
+            foreach ($values as $value) {
+                if ($isAnswered($value)) {
+                    return $value;
+                }
+            }
+
+            return null;
+        };
+
+        $keluarga = Keluarga::with('anggota')
+            ->where('kode', $draft->keluarga_periode_kode)
+            ->first();
+
+        $kecamatan = $draft->kecamatan;
+        if (! $isAnswered($kecamatan) && $keluarga?->kecamatan_id) {
+            $kecamatan = DB::table('kecamatans')
+                ->where('kecamatan_id', $keluarga->kecamatan_id)
+                ->value('deskripsi');
+        }
+
+        $kelurahan = $draft->kelurahan;
+        if (! $isAnswered($kelurahan) && $keluarga?->kelurahan_id) {
+            $kelurahan = DB::table('kelurahans')
+                ->where('kelurahan_id', $keluarga->kelurahan_id)
+                ->value('deskripsi');
+        }
+
+        $rt = trim((string) ($keluarga?->rt ?? ''));
+        $rw = trim((string) ($keluarga?->rw ?? ''));
+        $rtRw = $rt !== '' || $rw !== '' ? $rt.' / '.$rw : null;
+
+        $jumlahAnggota = KeluargaAnggota::where(
+            'keluarga_kode',
+            $draft->keluarga_periode_kode
+        )->count();
+
+        $part1Questions = [
+            '1. NIK' => $firstAnswered($draft->nik, $keluarga?->nik),
+            '2. Nama kepala keluarga' => $firstAnswered($draft->nama_kepala_keluarga, $keluarga?->nama_lengkap),
+            '3. Status dalam keluarga' => $firstAnswered(
+                $keluarga?->anggota->first()?->status_keluarga,
+                $keluarga?->status_keluarga
+            ),
+            '4. Nomor KK' => $firstAnswered($draft->no_kk, $keluarga?->no_kk),
+            '5. Jumlah anggota keluarga' => $jumlahAnggota > 0 ? $jumlahAnggota : null,
+            '6. Provinsi' => $firstAnswered($draft->provinsi, 'Jawa Timur'),
+            '7. Kabupaten/Kota' => $firstAnswered($draft->daerah, 'Kota Pasuruan'),
+            '8. Kecamatan' => $kecamatan,
+            '9. Kelurahan' => $kelurahan,
+            '10. Kode pos' => $firstAnswered($draft->kode_pos, $keluarga?->kode_pos),
+            '11. RT/RW' => $rtRw,
+            '12. Alamat lengkap' => $firstAnswered(
+                $draft->alamat_lengkap,
+                $keluarga?->alamat_lengkap
+            ),
+            '13. Jalan' => $firstAnswered(
+                $draft->jalan_rumah,
+                $keluarga?->jalan_rumah,
+                $keluarga?->jalan
+            ),
+            '14. Nomor rumah' => $firstAnswered(
+                $draft->nomor_rumah,
+                $keluarga?->nomor_rumah
+            ),
+            '15. Kesesuaian alamat dengan KK' => $draft->is_alamat_sesuai,
+        ];
+
+        foreach ($part1Questions as $label => $value) {
+            if (! $isAnswered($value)) {
+                $addMissing(1, $label, 'kuisioner.part1');
+            }
+        }
+
+        if (
+            (string) $draft->is_alamat_sesuai === '0'
+            && ! $isAnswered($draft->alasan_tidak_sesuai)
+        ) {
+            $addMissing(
+                1,
+                '15. Alasan alamat tidak sesuai dengan KK',
+                'kuisioner.part1'
+            );
+        }
+
+        $dataPart2 = KeluargaPart2::where(
+            'keluarga_periode_kode',
+            $draft->keluarga_periode_kode
+        )->first();
+
+        $part2Questions = [
+            '16. Jenis bangunan tempat tinggal' => $dataPart2?->jenis_bangungan,
+            '17. Keberadaan keluarga lain dalam satu bangunan' => $dataPart2?->is_keluarga_lain,
+            '18. Jumlah orang yang tinggal dalam rumah' => $dataPart2?->total_penghuni,
+            '19. Status kepemilikan rumah' => $dataPart2?->kepemilikan_bangunan,
+            '20. Luas lantai rumah' => $dataPart2?->luas_lantai,
+            '21. Jenis lantai' => $dataPart2?->jenis_lantai,
+            '22. Kondisi lantai' => $dataPart2?->kondisi_lantai,
+            '23. Jenis dinding' => $dataPart2?->jenis_dinding,
+            '24. Kondisi dinding' => $dataPart2?->kondisi_dinding,
+            '25. Jenis atap' => $dataPart2?->jenis_atap,
+            '26. Kondisi atap' => $dataPart2?->kondisi_atap,
+            '27. Fasilitas buang air besar' => $dataPart2?->fasilitas_bab,
+            '28. Jenis kloset' => $dataPart2?->jenis_kloset,
+            '29. Sumber air minum' => $dataPart2?->sumber_minum,
+            '30. Sumber penerangan' => $dataPart2?->sumber_penerangan,
+            '31. Daya listrik' => $dataPart2?->daya_listrik,
+            '32. ID pelanggan PLN/nomor meteran' => $dataPart2?->idpel_pln,
+            '33. Jumlah meteran listrik' => $dataPart2?->jml_meteran,
+        ];
+
+        foreach ($part2Questions as $label => $value) {
+            if (! $isAnswered($value)) {
+                $addMissing(2, $label, 'kuisioner.part2');
+            }
+        }
+
+        if ((int) $dataPart2?->is_keluarga_lain === 1 && ! $isAnswered($dataPart2?->jml_keluarga_lain)) {
+            $addMissing(
+                2,
+                '17. Jumlah keluarga lain dalam satu bangunan',
+                'kuisioner.part2'
+            );
+        }
+
+        if ($dataPart2?->kepemilikan_bangunan === 'Milik Sendiri' && ! $isAnswered($dataPart2?->bukti_kepemilikan)) {
+            $addMissing(2, '19. Bukti kepemilikan rumah', 'kuisioner.part2');
+        }
+
+        if (
+            $dataPart2?->kepemilikan_bangunan === 'Lainnya'
+            && ! $isAnswered($dataPart2?->status_kepemilikan_lainnya)
+        ) {
+            $addMissing(
+                2,
+                '19. Keterangan status kepemilikan lainnya',
+                'kuisioner.part2'
+            );
+        }
+
+        if (
+            in_array($dataPart2?->kepemilikan_bangunan, ['Kontrak/Sewa', 'Bebas Sewa'], true)
+            && ! $isAnswered($dataPart2?->harga_sewa_kontrak)
+        ) {
+            $addMissing(
+                2,
+                $dataPart2->kepemilikan_bangunan === 'Kontrak/Sewa'
+                    ? '19. Besaran sewa rumah per bulan'
+                    : '19. Perkiraan nilai sewa rumah per bulan',
+                'kuisioner.part2'
+            );
+        }
+
+        $dataPart3 = KeluargaPart3::where(
+            'keluarga_periode_kode',
+            $draft->keluarga_periode_kode
+        )->first();
+
+        $part3Questions = [
+            '34. Pengeluaran listrik per bulan' => $dataPart3?->pengeluaran_listrik_bulanan,
+            '35. Pengeluaran pulsa per bulan' => $dataPart3?->pengeluaran_pulsa_bulanan,
+            '36. Pengeluaran internet per bulan' => $dataPart3?->pengeluaran_internet_bulanan,
+            '37. Pengeluaran makanan per minggu' => $dataPart3?->pengeluaran_makan_mingguan,
+            '38. Pengeluaran bukan makanan rutin per bulan' => $dataPart3?->pengeluaran_nonmakan_bulanan,
+            '39. Pengeluaran bukan makanan rutin per tahun' => $dataPart3?->pengeluaran_nonmakan_tahunan,
+            '40. Ada/tidaknya pendapatan dari pekerjaan' => $dataPart3?->pendapatan_pekerjaan,
+            '41. Pendapatan dari usaha per bulan' => $dataPart3?->total_pendapatan_usaha,
+            '42. Ada/tidaknya pendapatan lainnya' => $dataPart3?->pendapatan_lainnya,
+        ];
+
+        foreach ($part3Questions as $label => $value) {
+            if (! $isAnswered($value)) {
+                $addMissing(3, $label, 'kuisioner.part3');
+            }
+        }
+
+        if (
+            $dataPart3?->pendapatan_pekerjaan === 'Ada'
+            && ! $isAnswered($dataPart3?->total_pendapatan_kerja)
+        ) {
+            $addMissing(3, '40. Total pendapatan pekerjaan per bulan', 'kuisioner.part3');
+        }
+
+        if (
+            $dataPart3?->pendapatan_lainnya === 'Ada'
+            && ! $isAnswered($dataPart3?->total_pendapatan_lainnya)
+        ) {
+            $addMissing(3, '42. Total pendapatan lainnya per bulan', 'kuisioner.part3');
+        }
+
+        $asetList = [
+            'Tabung Gas 3 KG',
+            'Tabung Gas 5,5 KG atau Lebih',
+            'Lemari Es/Kulkas',
+            'AC (Air Conditioner)',
+            'Emas/Perhiasan',
+            'Komputer/Laptop/Tablet',
+            'Sepeda Motor',
+            'Mobil',
+            'Rumah/Bangunan (selain yang ditempati)',
+            'Lahan Lainnya',
+        ];
+
+        $dataPart4 = KeluargaPart4::where(
+            'keluarga_periode_kode',
+            $draft->keluarga_periode_kode
+        )->get()->keyBy('aset_keluarga');
+
+        foreach ($asetList as $index => $aset) {
+            $questionNumber = $index + 43;
+            $answer = $dataPart4->get($aset);
+
+            if (! $isAnswered($answer?->is_punya_aset)) {
+                $addMissing(
+                    4,
+                    $questionNumber.'. '.$aset,
+                    'kuisioner.part4'
+                );
+            } elseif (
+                (int) $answer->is_punya_aset === 1
+                && ! $isAnswered($answer->jml_aset)
+            ) {
+                $addMissing(
+                    4,
+                    $questionNumber.'. Jumlah '.$aset,
+                    'kuisioner.part4'
+                );
+            }
+        }
+
+        $anggotaList = KeluargaAnggota::where(
+            'keluarga_kode',
+            $draft->keluarga_periode_kode
+        )->orderBy('id')->get();
+
+        $dataPart5 = KeluargaPart5::where(
+            'keluarga_periode_kode',
+            $draft->keluarga_periode_kode
+        )
+            ->get()
+            ->keyBy('keluarga_anggota_kode');
+
+        $part5Fields = [
+            'keberadaan' => '52. Keberadaan anggota keluarga',
+            'jenis_kelamin' => '54. Jenis kelamin',
+            'status_perkawinan' => '56. Status perkawinan',
+            'status_sekolah' => '57. Status partisipasi sekolah',
+            'ijazah_tertinggi' => '58. Ijazah/STTB tertinggi',
+            'pekerjaan_utama' => '59. Profesi pekerjaan utama',
+            'kepemilikan_rekening' => '61. Kepemilikan rekening/dompet digital',
+            'is_disabilitas_fisik' => '62. Disabilitas fisik',
+            'is_disabilitas_mental' => '63. Disabilitas mental',
+            'is_disabilitas_intelektual' => '64. Disabilitas intelektual',
+            'is_disabilitas_netra' => '65. Disabilitas sensorik netra',
+            'is_disabilitas_rungu' => '66. Disabilitas sensorik rungu',
+            'is_disabilitas_wicara' => '67. Disabilitas sensorik wicara',
+        ];
+
+        if ($anggotaList->isEmpty()) {
+            $addMissing(
+                5,
+                'Data anggota keluarga belum tersedia',
+                'kuisioner.part5'
+            );
+        }
+
+        foreach ($anggotaList as $anggota) {
+            $answer = $dataPart5->get($anggota->kode);
+            $namaAnggota = $anggota->nama_lengkap;
+            $routeParameters = ['kode' => $anggota->kode];
+
+            foreach ($part5Fields as $field => $label) {
+                if (! $isAnswered($answer?->{$field})) {
+                    $addMissing(
+                        5,
+                        $namaAnggota.' — '.$label,
+                        'kuisioner.part5.anggota',
+                        $routeParameters
+                    );
+                }
+            }
+
+            if (
+                $answer?->ijazah_tertinggi === 'Lainnya'
+                && ! $isAnswered($answer->ijazah_lainnya)
+            ) {
+                $addMissing(
+                    5,
+                    $namaAnggota.' — 58. Keterangan ijazah lainnya',
+                    'kuisioner.part5.anggota',
+                    $routeParameters
+                );
+            }
+
+            if (
+                $answer?->pekerjaan_utama === 'Lainnya'
+                && ! $isAnswered($answer->pekerjaan_lainnya)
+            ) {
+                $addMissing(
+                    5,
+                    $namaAnggota.' — 59. Keterangan pekerjaan lainnya',
+                    'kuisioner.part5.anggota',
+                    $routeParameters
+                );
+            }
+
+            if (
+                $answer?->pekerjaan_utama !== null
+                && $answer->pekerjaan_utama !== 'Tidak Bekerja'
+                && ! $isAnswered($answer->status_pekerjaan)
+            ) {
+                $addMissing(
+                    5,
+                    $namaAnggota.' — 60. Status kedudukan dalam pekerjaan',
+                    'kuisioner.part5.anggota',
+                    $routeParameters
+                );
+            }
+
+            $keluhanKesehatan = $answer?->keluhan_kesehatan;
+            if (is_string($keluhanKesehatan)) {
+                $decodedKeluhan = json_decode($keluhanKesehatan, true);
+                $keluhanKesehatan = is_array($decodedKeluhan)
+                    ? $decodedKeluhan
+                    : (trim($keluhanKesehatan) !== '' ? [$keluhanKesehatan] : []);
+            }
+
+            if (! is_array($keluhanKesehatan) || count($keluhanKesehatan) === 0) {
+                $addMissing(
+                    5,
+                    $namaAnggota.' — 68. Keluhan kesehatan',
+                    'kuisioner.part5.anggota',
+                    $routeParameters
+                );
+            }
+        }
+
+        $fotoTersimpan = KeluargaFotoRumah::where(
+            'keluarga_periode_kode',
+            $draft->keluarga_periode_kode
+        )->get()->keyBy('jenis_foto');
+
+        $fotoQuestions = [
+            'tampak_depan' => '69. Foto tampak depan rumah',
+            'ruang_tamu' => '70. Foto ruang tamu',
+            'kamar_mandi' => '71. Foto kamar mandi',
+        ];
+        $fotoDihapus = $request->input('delete_foto', []);
+
+        foreach ($fotoQuestions as $field => $label) {
+            if (
+                (! $fotoTersimpan->has($field) || ! empty($fotoDihapus[$field]))
+                && ! $request->hasFile($field)
+            ) {
+                $addMissing(5, $label, 'kuisioner.part5.foto');
+            }
+        }
+
+        return [
+            'missing_questions' => $missingQuestions,
+            'route' => $firstRoute,
+            'route_parameters' => $firstRouteParameters,
+        ];
+    }
+
+    /**
+     * @param array{
+     *     missing_questions: array<int, string>,
+     *     route: string|null,
+     *     route_parameters: array<string, string>
+     * } $issues
+     */
+    private function redirectToIncompleteQuestionnaire(array $issues): RedirectResponse
+    {
+        return redirect()
+            ->route(
+                $issues['route'] ?? 'kuisioner.part1',
+                $issues['route_parameters']
+            )
+            ->with('missing_questions', $issues['missing_questions'])
+            ->with(
+                'warning',
+                'Kuisioner belum dapat diselesaikan. Lengkapi pertanyaan yang masih kosong berikut.'
+            );
+    }
+
     private function part5DataLengkap($data): bool
     {
         if (! $data) {
@@ -2710,37 +3137,44 @@ class KuisionerController extends Controller
         $isEditingRejectedQuestionnaire = session('editing_rejected_questionnaire');
         $deleteFoto = $request->input('delete_foto', []);
 
-        $fotoTersimpan = KeluargaFotoRumah::where(
-            'keluarga_periode_kode',
-            $draft->keluarga_periode_kode
-        )->get()->keyBy('jenis_foto');
-
         $aturanFoto = [];
 
-        foreach (['tampak_depan', 'ruang_tamu', 'kamar_mandi'] as $field) {
-            $fotoLamaAda = $fotoTersimpan->has($field);
-            $ditandaiHapus = ! empty($deleteFoto[$field]);
 
-            $wajibUpload = ! $isDraft && (
-                ! $fotoLamaAda || $ditandaiHapus
-            );
+            foreach (['tampak_depan', 'ruang_tamu', 'kamar_mandi'] as $field) {
+                $fotoLamaAda = $fotoTersimpan->has($field);
+                $ditandaiHapus = ! empty($deleteFoto[$field]);
 
-            $aturanFoto[$field] = [
-                $wajibUpload ? 'required' : 'nullable',
-                'image',
-                'mimes:jpg,jpeg,png',
-                'max:5120',
-            ];
-        }
+                $wajibUpload = ! $isDraft && (
+                    ! $fotoLamaAda || $ditandaiHapus
+                );
 
-        $request->validate($aturanFoto, [
-            'tampak_depan.required' => 'Foto tampak depan wajib diupload.',
-            'ruang_tamu.required' => 'Foto ruang tamu wajib diupload.',
-            'kamar_mandi.required' => 'Foto kamar mandi wajib diupload.',
-            '*.image' => 'File harus berupa gambar.',
-            '*.mimes' => 'Format foto harus JPG, JPEG, atau PNG.',
-            '*.max' => 'Ukuran setiap foto maksimal 5 MB.',
-        ]);
+                $aturanFoto[$field] = [
+                    $wajibUpload ? 'required' : 'nullable',
+                    'image',
+                    'mimes:jpg,jpeg,png',
+                    'max:5120',
+                ];
+            }
+
+            $request->validate($aturanFoto, [
+                'tampak_depan.required' => 'Foto tampak depan wajib diupload.',
+                'ruang_tamu.required' => 'Foto ruang tamu wajib diupload.',
+                'kamar_mandi.required' => 'Foto kamar mandi wajib diupload.',
+                '*.image' => 'File harus berupa gambar.',
+                '*.mimes' => 'Format foto harus JPG, JPEG, atau PNG.',
+                '*.max' => 'Ukuran setiap foto maksimal 5 MB.',
+            ]);
+
+            if (! $isDraft) {
+                $completionIssues = $this->questionnaireCompletionIssues(
+                    $draft,
+                    $request
+                );
+
+                if ($completionIssues['missing_questions'] !== []) {
+                    return $this->redirectToIncompleteQuestionnaire($completionIssues);
+                }
+            }
 
         /*
         |--------------------------------------------------------------------------
@@ -3011,6 +3445,15 @@ class KuisionerController extends Controller
 
         $draft =
             KeluargaPart1::findOrFail($draftId);
+
+        $completionIssues = $this->questionnaireCompletionIssues(
+            $draft,
+            $request
+        );
+
+        if ($completionIssues['missing_questions'] !== []) {
+            return $this->redirectToIncompleteQuestionnaire($completionIssues);
+        }
 
         $jumlahAnggota = KeluargaAnggota::where(
             'keluarga_kode',

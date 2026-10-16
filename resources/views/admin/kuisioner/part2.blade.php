@@ -861,7 +861,7 @@
                         type="text"
                         name="status_kepemilikan_lainnya"
                         class="part2-input"
-                        value="{{ old('status_kepemilikan_lainnya', '') }}"
+                        value="{{ old('status_kepemilikan_lainnya', $dataPart2->status_kepemilikan_lainnya ?? '') }}"
                         placeholder="Masukkan status kepemilikan"
                     >
 

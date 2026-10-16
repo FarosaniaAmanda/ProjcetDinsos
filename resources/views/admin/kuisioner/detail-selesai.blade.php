@@ -712,6 +712,11 @@
                 @php
                     $p1 = $dataPart1;
                     $rtRwDisplay = $p1->rt_rw_display ?? '-';
+                    $alamatSesuaiDisplay = match ((string) ($p1->is_alamat_sesuai ?? '')) {
+                        '1' => 'Iya',
+                        '0' => 'Tidak',
+                        default => ($p1->is_alamat_sesuai ?? '-'),
+                    };
                     $kota = $p1->kota_kabupaten_display
                         ?? $p1->daerah_display
                         ?? $p1->daerah
@@ -829,7 +834,7 @@
                     <div class="info-item">
                         <div class="info-label">APAKAH ALAMAT SESUAI?</div>
                         <div class="info-value">
-                            {{ $p1->is_alamat_sesuai ?? '-' }}
+                            {{ $alamatSesuaiDisplay }}
                         </div>
                     </div>
 
@@ -1006,6 +1011,12 @@
                                         $value = $dataPart1->jumlah_keluarga_display ?? $value;
                                     } elseif ($field === 'daerah') {
                                         $value = $dataPart1->daerah_display ?? $value;
+                                    } elseif ($field === 'is_alamat_sesuai') {
+                                        $value = match ((string) $value) {
+                                            '1' => 'Iya',
+                                            '0' => 'Tidak',
+                                            default => $value,
+                                        };
                                     }
                                 @endphp
                                 <div class="answer-item">

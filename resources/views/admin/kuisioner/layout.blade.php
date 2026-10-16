@@ -54,6 +54,30 @@
         color: #292D8F;
     }
 
+    .completion-warning {
+        margin-bottom: 18px;
+        padding: 15px 18px;
+        border: 1px solid #F3D58A;
+        border-radius: 10px;
+        background: #FFF7E6;
+        color: #805A00;
+        font-size: 13px;
+    }
+
+    .completion-warning strong {
+        display: block;
+        margin-bottom: 7px;
+    }
+
+    .completion-warning ul {
+        margin: 7px 0 0;
+        padding-left: 22px;
+    }
+
+    .completion-warning li + li {
+        margin-top: 4px;
+    }
+
 
     /* =========================================================
        AREA UTAMA
@@ -674,6 +698,17 @@
                  ===================================================== --}}
 
             <div class="kuisioner-content">
+
+                @if (session('missing_questions'))
+                    <div class="completion-warning" role="alert">
+                        <strong>{{ session('warning') }}</strong>
+                        <ul>
+                            @foreach (session('missing_questions') as $question)
+                                <li>{{ $question }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
                 @yield('kuisioner-content')
 

@@ -205,7 +205,8 @@
         margin-bottom: 6px;
     }
 
-    .part5-question.hidden-question {
+    .part5-question.hidden-question,
+    .part5-question.keberadaan-hidden {
         display: none;
     }
 
@@ -1409,6 +1410,76 @@ document.addEventListener('DOMContentLoaded', function () {
     */
 
     toggleQuestion60();
+
+    /*
+    |--------------------------------------------------------------------------
+    | PERTANYAAN 52 - SEMBUNYIKAN PERTANYAAN LAINNYA
+    |--------------------------------------------------------------------------
+    | Jika keberadaan anggota adalah Meninggal atau sudah pisah KK,
+    | pertanyaan 53 dan seterusnya disembunyikan. Tombol simpan tetap tampil.
+    | Atribut required dinonaktifkan sementara agar form tetap dapat disimpan.
+    | Nilai input tidak dihapus, sehingga data yang sudah terisi tetap terjaga.
+    */
+
+    const keberadaanRadios = document.querySelectorAll(
+        'input[name="keberadaan"]'
+    );
+
+    const question52 = document.querySelector(
+        '.part5-anggota-wrapper form > .part5-question'
+    );
+
+    const pertanyaanLanjutan = Array.from(
+        document.querySelectorAll(
+            '.part5-anggota-wrapper form > .part5-question'
+        )
+    ).filter(function (question) {
+        return question !== question52;
+    });
+
+    // Simpan status required asli setiap input agar bisa dipulihkan.
+    pertanyaanLanjutan.forEach(function (question) {
+        question.querySelectorAll('input, select, textarea').forEach(function (input) {
+            if (input.hasAttribute('required')) {
+                input.dataset.part5OriginalRequired = 'true';
+            }
+        });
+    });
+
+    function togglePertanyaanBerdasarkanKeberadaan() {
+        const selected = document.querySelector(
+            'input[name="keberadaan"]:checked'
+        );
+
+        const sembunyikanPertanyaan =
+            selected &&
+            (
+                selected.value === 'Meninggal' ||
+                selected.value === 'Sudah Pisah kartu keluarga'
+            );
+
+        pertanyaanLanjutan.forEach(function (question) {
+            question.classList.toggle(
+                'keberadaan-hidden',
+                Boolean(sembunyikanPertanyaan)
+            );
+
+            question.querySelectorAll('input, select, textarea').forEach(function (input) {
+                if (sembunyikanPertanyaan) {
+                    input.required = false;
+                } else if (input.dataset.part5OriginalRequired === 'true') {
+                    input.required = true;
+                }
+            });
+        });
+    }
+
+    keberadaanRadios.forEach(function (radio) {
+        radio.addEventListener('change', togglePertanyaanBerdasarkanKeberadaan);
+    });
+
+    // Terapkan juga saat halaman dibuka dengan data yang sudah tersimpan.
+    togglePertanyaanBerdasarkanKeberadaan();
 
 });
 </script>

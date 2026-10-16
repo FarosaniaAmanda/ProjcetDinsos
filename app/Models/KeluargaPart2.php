@@ -18,6 +18,7 @@ class KeluargaPart2 extends Model
         'total_penghuni',
         'kepemilikan_bangunan',
         'bukti_kepemilikan',
+        'status_kepemilikan_lainnya',
         'harga_sewa_kontrak',
         'luas_lantai',
         'jenis_lantai',
