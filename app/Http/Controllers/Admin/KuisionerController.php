@@ -3137,44 +3137,48 @@ class KuisionerController extends Controller
         $isEditingRejectedQuestionnaire = session('editing_rejected_questionnaire');
         $deleteFoto = $request->input('delete_foto', []);
 
+        $fotoTersimpan = KeluargaFotoRumah::where(
+            'keluarga_periode_kode',
+            $draft->keluarga_periode_kode
+        )->get()->keyBy('jenis_foto');
+
         $aturanFoto = [];
 
+        foreach (['tampak_depan', 'ruang_tamu', 'kamar_mandi'] as $field) {
+            $fotoLamaAda = $fotoTersimpan->has($field);
+            $ditandaiHapus = ! empty($deleteFoto[$field]);
 
-            foreach (['tampak_depan', 'ruang_tamu', 'kamar_mandi'] as $field) {
-                $fotoLamaAda = $fotoTersimpan->has($field);
-                $ditandaiHapus = ! empty($deleteFoto[$field]);
+            $wajibUpload = ! $isDraft && (
+                ! $fotoLamaAda || $ditandaiHapus
+            );
 
-                $wajibUpload = ! $isDraft && (
-                    ! $fotoLamaAda || $ditandaiHapus
-                );
+            $aturanFoto[$field] = [
+                $wajibUpload ? 'required' : 'nullable',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:5120',
+            ];
+        }
 
-                $aturanFoto[$field] = [
-                    $wajibUpload ? 'required' : 'nullable',
-                    'image',
-                    'mimes:jpg,jpeg,png',
-                    'max:5120',
-                ];
+        $request->validate($aturanFoto, [
+            'tampak_depan.required' => 'Foto tampak depan wajib diupload.',
+            'ruang_tamu.required' => 'Foto ruang tamu wajib diupload.',
+            'kamar_mandi.required' => 'Foto kamar mandi wajib diupload.',
+            '*.image' => 'File harus berupa gambar.',
+            '*.mimes' => 'Format foto harus JPG, JPEG, atau PNG.',
+            '*.max' => 'Ukuran setiap foto maksimal 5 MB.',
+        ]);
+
+        if (! $isDraft) {
+            $completionIssues = $this->questionnaireCompletionIssues(
+                $draft,
+                $request
+            );
+
+            if ($completionIssues['missing_questions'] !== []) {
+                return $this->redirectToIncompleteQuestionnaire($completionIssues);
             }
-
-            $request->validate($aturanFoto, [
-                'tampak_depan.required' => 'Foto tampak depan wajib diupload.',
-                'ruang_tamu.required' => 'Foto ruang tamu wajib diupload.',
-                'kamar_mandi.required' => 'Foto kamar mandi wajib diupload.',
-                '*.image' => 'File harus berupa gambar.',
-                '*.mimes' => 'Format foto harus JPG, JPEG, atau PNG.',
-                '*.max' => 'Ukuran setiap foto maksimal 5 MB.',
-            ]);
-
-            if (! $isDraft) {
-                $completionIssues = $this->questionnaireCompletionIssues(
-                    $draft,
-                    $request
-                );
-
-                if ($completionIssues['missing_questions'] !== []) {
-                    return $this->redirectToIncompleteQuestionnaire($completionIssues);
-                }
-            }
+        }
 
         /*
         |--------------------------------------------------------------------------
