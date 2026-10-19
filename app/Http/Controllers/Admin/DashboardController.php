@@ -236,9 +236,17 @@ class DashboardController extends Controller
                             self::NOT_PROCESSED_STATUSES
                         )
                     );
+            })
+            ->where(function (Builder $query): void {
+                $query
+                    ->whereRaw(
+                        'LOWER(TRIM(part1_keluarga.status)) = ?',
+                        ['selesai']
+                    )
+                    ->orWhere(function (Builder $completeQuery): void {
+                        $this->whereQuestionnaireComplete($completeQuery);
+                    });
             });
-
-        $this->whereQuestionnaireComplete($query);
 
         return $query;
     }
