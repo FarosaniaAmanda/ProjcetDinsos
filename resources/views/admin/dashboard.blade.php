@@ -509,41 +509,82 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0,1fr));
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 22px;
         }
 
         .stat-card {
+            position: relative;
+            display: flex;
+            min-height: 125px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-align: center;
             background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 9px;
-            padding: 18px;
+            border: 1px solid #e6e8f1;
+            border-radius: 16px;
+            padding: 18px 10px;
             min-width: 0;
-            transition: .2s ease;
+            box-shadow: 0 6px 20px rgba(41, 45, 143, .045);
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+            height: 4px;
+            background: var(--stat-color);
         }
 
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 7px 18px rgba(37,42,134,.08);
+            box-shadow: 0 10px 25px rgba(41, 45, 143, .08);
+        }
+
+        .stat-card-respondent {
+            --stat-color: #3155c6;
+        }
+
+        .stat-card-period {
+            --stat-color: #EC4899;
+        }
+
+        .stat-card-pending {
+            --stat-color: #d99a00;
+        }
+
+        .stat-card-approved {
+            --stat-color: #15916d;
         }
 
         .stat-label {
-            font-size: 11px;
-            color: #6b7280;
-            margin-bottom: 9px;
+            color: #27305e;
+            font-size: 13px;
+            font-weight: 700;
+            line-height: 1.35;
         }
 
         .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #252A86;
+            margin-top: 9px;
+            color: var(--stat-color);
+            font-size: 29px;
+            font-weight: 800;
+            letter-spacing: -1px;
             line-height: 1;
         }
 
         .stat-description {
             margin-top: 8px;
+            color: #8a92a5;
             font-size: 10px;
-            color: #9ca3af;
+            line-height: 1.4;
         }
 
 
@@ -1087,23 +1128,23 @@
             }
 
             .stat-card {
-                padding: 13px;
+                min-height: 115px;
+                padding: 13px 10px;
             }
 
             .stat-label {
-                font-size: 9px;
+                font-size: 11px;
                 line-height: 1.35;
-                margin-bottom: 7px;
             }
 
             .stat-value {
-                font-size: 21px;
+                font-size: 25px;
             }
 
             .stat-description {
-                font-size: 8px;
+                font-size: 9px;
                 line-height: 1.4;
-                margin-top: 6px;
+                margin-top: 7px;
             }
 
             .dashboard-chart-grid {
@@ -1726,7 +1767,7 @@
         <div class="stats-grid">
 
 
-            <div class="stat-card">
+            <div class="stat-card stat-card-respondent">
 
                 <div class="stat-label">
                     Total Responden
@@ -1743,7 +1784,7 @@
             </div>
 
 
-            <div class="stat-card">
+            <div class="stat-card stat-card-period">
 
                 <div class="stat-label">
                     Periode Aktif
@@ -1760,10 +1801,10 @@
             </div>
 
 
-            <div class="stat-card">
+            <div class="stat-card stat-card-pending">
 
                 <div class="stat-label">
-                    Data Berjalan Saat Ini
+                    Menunggu Verifikasi
                 </div>
 
                 <div class="stat-value">
@@ -1771,16 +1812,16 @@
                 </div>
 
                 <div class="stat-description">
-                    Data pendataan yang sedang berjalan
+                    Data kuisioner menunggu verifikasi
                 </div>
 
             </div>
 
 
-            <div class="stat-card">
+            <div class="stat-card stat-card-approved">
 
                 <div class="stat-label">
-                    Data Terverifikasi
+                    Data Disetujui
                 </div>
 
                 <div class="stat-value">
@@ -1788,7 +1829,7 @@
                 </div>
 
                 <div class="stat-description">
-                    Data telah diverifikasi
+                    Data telah disetujui
                 </div>
 
             </div>

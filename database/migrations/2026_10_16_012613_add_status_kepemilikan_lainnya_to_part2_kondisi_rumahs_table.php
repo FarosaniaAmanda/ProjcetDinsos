@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('part2_kondisi_rumahs', function (Blueprint $table) {
-            $table->string('status_kepemilikan_lainnya')->nullable();
-        });
+        if (! Schema::hasTable('part2_kondisi_rumahs')) {
+            return;
+        }
+
+        if (! Schema::hasColumn('part2_kondisi_rumahs', 'status_kepemilikan_lainnya')) {
+            Schema::table('part2_kondisi_rumahs', function (Blueprint $table) {
+                $table->string('status_kepemilikan_lainnya')->nullable();
+            });
+        }
     }
 
     /**
