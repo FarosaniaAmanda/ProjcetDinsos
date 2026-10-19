@@ -1761,8 +1761,8 @@
  
     <div class="laporan-stats">
 
+    {{-- TOTAL RESPONDEN --}}
     <div class="laporan-stat-card">
-
         <div class="laporan-stat-info">
 
             <div class="laporan-stat-label">
@@ -1770,16 +1770,15 @@
             </div>
 
             <div class="laporan-stat-value">
-                {{ $totalResponden ?? count($laporan ?? []) }}
+                {{ $totalResponden ?? 0 }}
             </div>
 
         </div>
-
     </div>
 
 
+    {{-- DISETUJUI --}}
     <div class="laporan-stat-card">
-
         <div class="laporan-stat-info">
 
             <div class="laporan-stat-label">
@@ -1787,16 +1786,15 @@
             </div>
 
             <div class="laporan-stat-value">
-                {{ $kuisionerSelesai ?? 0 }}
+                {{ $disetujui ?? 0 }}
             </div>
 
         </div>
-
     </div>
 
 
+    {{-- DITOLAK --}}
     <div class="laporan-stat-card">
-
         <div class="laporan-stat-info">
 
             <div class="laporan-stat-label">
@@ -1804,15 +1802,13 @@
             </div>
 
             <div class="laporan-stat-value">
-                {{ $wilayahTerdata?? 0 }}
+                {{ $ditolak ?? 0 }}
             </div>
 
         </div>
-
     </div>
 
 </div>
-
 
 
  

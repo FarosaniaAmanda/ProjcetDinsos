@@ -25,8 +25,33 @@ class LaporanController extends MonitoringController
         );
 
         $laporanRows = $this->eligibleRows($filters);
+        $disetujui = $laporanRows
+    ->where('status', 'approved')
+    ->count();
+
+$ditolak = $laporanRows
+    ->where('status', 'rejected')
+    ->count();
 
         $totalResponden = $laporanRows->count();
+
+        // Statistik card dihitung dari status yang tersimpan pada data laporan.
+        $disetujui = $laporanRows
+            ->filter(function (array $item): bool {
+                $status = strtolower(trim((string) data_get($item, 'status', '')));
+
+                return in_array($status, ['approved', 'disetujui'], true);
+            })
+            ->count();
+
+        $ditolak = $laporanRows
+            ->filter(function (array $item): bool {
+                $status = strtolower(trim((string) data_get($item, 'status', '')));
+
+                return in_array($status, ['rejected', 'reject', 'ditolak'], true);
+            })
+            ->count();
+
         $kuisionerSelesai = $laporanRows
             ->where('is_complete', true)
             ->count();
@@ -56,7 +81,7 @@ class LaporanController extends MonitoringController
         $kecamatanList = $this->getKecamatanOptions();
         $kelurahanList = $this->getKelurahanOptions($filters['kecamatan']);
 
-        return view('admin.laporan.index', compact(
+            return view('admin.laporan.index', compact(
             'laporan',
             'filters',
             'kecamatanList',
@@ -65,6 +90,8 @@ class LaporanController extends MonitoringController
             'kuisionerSelesai',
             'petugasAktif',
             'wilayahTerdata',
+            'disetujui',
+            'ditolak',
         ));
     }
 
