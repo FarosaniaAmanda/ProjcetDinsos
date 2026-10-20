@@ -15,8 +15,8 @@
     </header>
 
     <section class="status-summary">
-        <span>Jumlah Kuisioner Disetujui</span>
-        <strong>{{ $kuisioner->count() }}</strong>
+    <span>Jumlah Kuisioner Disetujui</span>
+    <strong>{{ $kuisioner->total() }}</strong>
     </section>
 
     <section class="status-list-card">
@@ -25,7 +25,7 @@
                 <h2>Daftar Responden Disetujui</h2>
 
             </div>
-            <span>{{ $kuisioner->count() }} Data</span>
+            <span>{{ $kuisioner->total() }} Data</span>
         </div>
 
         <div class="status-table-wrapper">
@@ -47,7 +47,7 @@
                 <tbody>
                     @forelse ($kuisioner as $item)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $kuisioner->firstItem() + $loop->index }}</td>
                             <td>{{ $item->no_kk ?: ($item->keluarga_data?->no_kk ?: '-') }}</td>
                             <td>{{ $item->nik ?: ($item->keluarga_data?->nik ?: '-') }}</td>
                             <td>{{ $item->nama_kepala_keluarga ?: ($item->keluarga_data?->nama_lengkap ?: '-') }}</td>
@@ -68,6 +68,43 @@
                     @endforelse
                 </tbody>
             </table>
+        <div class="status-pagination">
+            <div class="pagination-info">
+                Menampilkan
+                <strong>{{ $kuisioner->firstItem() ?? 0 }}</strong>
+                sampai
+                <strong>{{ $kuisioner->lastItem() ?? 0 }}</strong>
+                dari
+                <strong>{{ $kuisioner->total() }}</strong>
+                data
+            </div>
+
+            <div class="pagination-buttons">
+                {{-- Tombol halaman sebelumnya --}}
+                @if ($kuisioner->onFirstPage())
+                    <span class="pagination-btn disabled">&lsaquo;</span>
+                @else
+                    <a href="{{ $kuisioner->previousPageUrl() }}"
+                    class="pagination-btn">&lsaquo;</a>
+                @endif
+
+                {{-- Nomor halaman --}}
+                @for ($page = 1; $page <= $kuisioner->lastPage(); $page++)
+                    @if ($page == $kuisioner->currentPage())
+                        <span class="pagination-btn active">{{ $page }}</span>
+                    @else
+                        <a href="{{ $kuisioner->url($page) }}"
+                        class="pagination-btn">{{ $page }}</a>
+                    @endif
+                @endfor
+
+                {{-- Tombol halaman berikutnya --}}
+                @if ($kuisioner->hasMorePages())
+                    <a href="{{ $kuisioner->nextPageUrl() }}"
+                    class="pagination-btn">&rsaquo;</a>
+                @else
+                    <span class="pagination-btn disabled">&rsaquo;</span>
+                @endif
         </div>
     </section>
 </div>
@@ -98,5 +135,86 @@
     .status-empty strong, .status-empty span { display: block; }
     .status-empty span { margin-top: 7px; color: #667085; }
     @media (max-width: 700px) { .status-questionnaire-page { padding: 18px 12px 28px; } .status-page-header { align-items: flex-start; flex-direction: column; } .status-header-actions { width: 100%; } .status-page-header h1 { font-size: 22px; } }
+    .status-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 20px 24px;
+        border-top: 1px solid #e8ebf3;
+        background: #fff;
+        flex-wrap: wrap;
+    }
+
+    .pagination-info {
+        color: #667085;
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .pagination-info strong {
+        font-weight: 500;
+        color: #667085;
+    }
+
+    .pagination-buttons {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .pagination-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 9px;
+        border: 1px solid #d7daf2;
+        border-radius: 8px;
+        background: #fff;
+        color: #252a86;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        box-sizing: border-box;
+        transition: background .2s, color .2s;
+    }
+
+    .pagination-btn:hover:not(.disabled):not(.active) {
+        background: #f0f1ff;
+    }
+
+    .pagination-btn.active {
+        border-color: #292d8f;
+        background: #292d8f;
+        color: #fff;
+    }
+
+    .pagination-btn.disabled {
+        background: #f5f6fa;
+        color: #b8bdcc;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 700px) {
+        .status-pagination {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 18px 16px;
+        }
+
+        .pagination-buttons {
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .pagination-btn {
+            min-width: 42px;
+            height: 44px;
+            padding: 0 10px;
+            border-radius: 10px;
+        }
+    }
 </style>
 @endsection

@@ -699,14 +699,18 @@
 
             <div class="kuisioner-content">
 
-                @if (session('missing_questions'))
+                
+                @if (session('missing_questions') && !request()->routeIs('kuisioner.part5', 'kuisioner.part5.*'))
                     <div class="completion-warning" role="alert">
-                        <strong>{{ session('warning') }}</strong>
                         <ul>
                             @foreach (session('missing_questions') as $question)
                                 <li>{{ $question }}</li>
                             @endforeach
                         </ul>
+                    </div>
+                @elseif (session('warning'))
+                    <div class="completion-warning" role="alert">
+                        <strong>{{ session('warning') }}</strong>
                     </div>
                 @endif
 

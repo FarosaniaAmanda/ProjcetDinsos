@@ -13,6 +13,10 @@
             <h1>Kuisioner Menunggu Verifikasi</h1>
             <p>Daftar kuisioner yang telah diajukan dan sedang menunggu proses verifikasi.</p>
         </div>
+
+        <a href="{{ route('kuisioner.index') }}" class="btn-kembali">
+            &larr; Kembali ke Kuisioner
+        </a>
     </div>
 
     {{-- ALERT SUCCESS --}}
@@ -41,7 +45,7 @@
             </span>
 
             <strong class="summary-number">
-                {{ $selesai->count() }}
+                {{ $selesai->total() }}
             </strong>
 
             <span class="summary-description">
@@ -60,7 +64,7 @@
             </div>
 
             <div class="data-count">
-                {{ $selesai->count() }} Data
+                {{ $selesai->total() }} Data
             </div>
         </div>
 
@@ -87,8 +91,9 @@
                         <tr>
                             {{-- NO --}}
                             <td class="number-column">
-                                {{ $loop->iteration }}
+                                {{ $selesai->firstItem() + $loop->index }}
                             </td>
+
 
                             {{-- NO KK --}}
                             <td>
@@ -136,7 +141,7 @@
                                     Menunggu Verifikasi
                                 </span>
                             </td>
-
+                            
                             {{-- TANGGAL PENGAJUAN --}}
                             <td>
                                 <div class="date-cell">
@@ -144,14 +149,9 @@
                                         ? $item->updated_at->format('d-m-Y')
                                         : '-'
                                     }}
-
-                                    @if($item->updated_at)
-                                        <small>
-                                            {{ $item->updated_at->format('H:i') }}
-                                        </small>
-                                    @endif
                                 </div>
                             </td>
+
 
                             {{-- AKSI --}}
                             <td>
@@ -185,11 +185,95 @@
 
             </table>
         </div>
+        {{-- PAGINATION --}}
+        <div class="pagination-wrapper">
+            <div class="pagination-info">
+                Menampilkan
+                <strong>{{ $selesai->firstItem() ?? 0 }}</strong>
+                sampai
+                <strong>{{ $selesai->lastItem() ?? 0 }}</strong>
+                dari <strong>{{ $selesai->total() }}</strong> data
+            </div>
+
+            <nav class="pagination-buttons" aria-label="Navigasi halaman kuisioner">
+                @if ($selesai->onFirstPage())
+                    <span class="page-btn disabled" aria-disabled="true">&lsaquo;</span>
+                @else
+                    <a href="{{ $selesai->previousPageUrl() }}" class="page-btn" aria-label="Halaman sebelumnya">
+                        &lsaquo;
+                    </a>
+                @endif
+
+                @for ($page = 1; $page <= $selesai->lastPage(); $page++)
+                    @if ($selesai->currentPage() === $page)
+                        <span class="page-btn active" aria-current="page">{{ $page }}</span>
+                    @else
+                        <a href="{{ $selesai->url($page) }}" class="page-btn">{{ $page }}</a>
+                    @endif
+                @endfor
+
+                @if ($selesai->hasMorePages())
+                    <a href="{{ $selesai->nextPageUrl() }}" class="page-btn" aria-label="Halaman berikutnya">
+                        &rsaquo;
+                    </a>
+                @else
+                    <span class="page-btn disabled" aria-disabled="true">&rsaquo;</span>
+                @endif
+            </nav>
+        </div>
     </div>
 </div>
 
 @push('styles')
 <style>
+    
+    .btn-kembali {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 18px;
+        background: #252A86;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 9px;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: background 0.2s ease;
+    }
+
+    .btn-kembali:hover {
+        background: #1b1f6b;
+        color: #fff;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-kembali {
+            align-self: flex-start;
+        }
+
+        .pagination-wrapper {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .pagination-buttons {
+            gap: 5px;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 9px;
+        }
+    }
+
     .kuisioner-selesai-page {
         width: 100%;
     }
@@ -331,6 +415,67 @@
         color: #78716c;
         font-size: 13px;
         line-height: 1.6;
+    }
+    
+    .pagination-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 22px;
+        border-top: 1px solid #e8ebf3;
+        background: #fff;
+    }
+
+    .pagination-info {
+        color: #737b8c;
+        font-size: 15px;
+    }
+
+    .pagination-info strong {
+        font-weight: 600;
+    }
+
+    .pagination-buttons {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #d5dced;
+        border-radius: 12px;
+        background: #fff;
+        color: #292f91;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .page-btn:hover {
+        background: #eef0ff;
+        color: #292f91;
+    }
+
+    .page-btn.active {
+        background: #292f91;
+        border-color: #292f91;
+        color: #fff;
+    }
+
+    .page-btn.disabled {
+        background: #f4f5f9;
+        color: #b7bdcc;
+        cursor: not-allowed;
     }
 
     /* MAIN CARD */

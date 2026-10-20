@@ -604,7 +604,7 @@ input[type="hidden"][name="longitude"] {
      ALERT
 ========================================================= --}}
 
-@if(session('warning'))
+@if(session('warning') && !session('missing_questions'))
 
     <div class="alert alert-warning">
         {{ session('warning') }}

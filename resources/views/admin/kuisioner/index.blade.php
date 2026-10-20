@@ -1143,15 +1143,9 @@
 
                              
                                 @php
-                                        $completedPart = (int) ($item->current_part ?? 1);
-
-                                        $completedPart = max(
-                                            1,
-                                            min(5, $completedPart)
-                                        );
-
-                                        $progressPercent = ($completedPart / 5) * 100;
-                                    @endphp
+                                    $completedPart = (int) ($item->completedPart ?? 1);
+                                    $progressPercent = (float) ($item->progressPercent ?? 20);
+                                @endphp
 
 
                                     <tr>

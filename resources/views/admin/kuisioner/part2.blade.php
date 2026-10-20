@@ -456,7 +456,7 @@
      WARNING
      ========================================================= --}}
 
-@if(session('warning'))
+@if(session('warning') && !session('missing_questions'))
     <div class="part2-alert part2-alert-error">
         {{ session('warning') }}
     </div>
@@ -812,15 +812,17 @@
                     </div>
 
                     <input
-                        type="number"
+                        type="text"
                         name="sewa_bulanan"
+                        id="sewa_bulanan"
                         class="part2-input"
-                        min="50000"
-                        value="{{ old('sewa_bulanan', $dataPart2->kepemilikan_bangunan ?? '') == 'Kontrak/Sewa' ? ($dataPart2->harga_sewa_kontrak ?? '') : '' }}"
+                        inputmode="numeric"
+                        value="{{ old('sewa_bulanan', ($dataPart2->kepemilikan_bangunan ?? '') == 'Kontrak/Sewa' ? ($dataPart2->harga_sewa_kontrak ?? '') : '') }}"
                         placeholder="Minimal Rp50.000"
+                        oninput="formatRupiah(this)"
                     >
 
-                </div>
+                    </div>
 
 
                 {{-- BEBAS SEWA --}}
@@ -1666,7 +1668,21 @@
         }
 
     });
+    
+    function formatRupiah(input) {
+        let angka = input.value.replace(/\D/g, '');
 
+        input.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    // Format nilai yang sudah tersimpan ketika halaman dibuka
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputSewa = document.getElementById('sewa_bulanan');
+
+        if (inputSewa && inputSewa.value !== '') {
+            formatRupiah(inputSewa);
+        }
+    });
 </script>
 
 @endsection

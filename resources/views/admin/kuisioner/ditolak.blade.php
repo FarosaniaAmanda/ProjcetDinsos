@@ -24,7 +24,7 @@
 
     <section class="status-summary">
         <span>Jumlah Kuisioner Ditolak</span>
-        <strong>{{ $kuisioner->count() }}</strong>
+        <strong>{{ $kuisioner->total() }}</strong>
     </section>
 
     <section class="status-list-card">
@@ -33,7 +33,7 @@
                 <h2>Daftar Responden Ditolak</h2>
                 <p></p>
             </div>
-            <span>{{ $kuisioner->count() }} Data</span>
+            <span>{{ $kuisioner->total() }} Data</span>
         </div>
 
         <div class="status-table-wrapper">
@@ -47,6 +47,7 @@
                         <th>Alamat</th>
                         <th>Kecamatan</th>
                         <th>Kelurahan</th>
+                        <th>Alasan Penolakan</th>
                         <th>Tanggal Pembaruan</th>
                         <th>Aksi</th>
                     </tr>
@@ -54,13 +55,14 @@
                 <tbody>
                     @forelse ($kuisioner as $item)
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $kuisioner->firstItem() + $loop->index }}</td>
                             <td>{{ $item->no_kk ?: ($item->keluarga_data?->no_kk ?: '-') }}</td>
                             <td>{{ $item->nik ?: ($item->keluarga_data?->nik ?: '-') }}</td>
                             <td>{{ $item->nama_kepala_keluarga ?: ($item->keluarga_data?->nama_lengkap ?: '-') }}</td>
                             <td>{{ $item->alamat_lengkap ?: ($item->keluarga_data?->alamat_lengkap ?: '-') }}</td>
                             <td>{{ $item->kecamatan ?: '-' }}</td>
                             <td>{{ $item->kelurahan ?: '-' }}</td>
+                            <td>{{ $item->alasan_penolakan ?: 'Alasan penolakan belum tersedia.' }}</td>
                             <td>{{ $item->updated_at?->format('d-m-Y H:i') ?: '-' }}</td>
                             <td>
                                 <form method="POST" action="{{ route('kuisioner.rejected.edit', ['id' => $item->id]) }}">
@@ -71,7 +73,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="status-empty" colspan="9">
+                            <td class="status-empty" colspan="10">
                                 <strong>Belum Ada Kuisioner Ditolak</strong>
                                 <span>Kuisioner yang berstatus ditolak akan muncul di halaman ini.</span>
                             </td>
@@ -80,10 +82,125 @@
                 </tbody>
             </table>
         </div>
+        {{-- PAGINATION --}}
+        <div class="status-pagination">
+            <div class="pagination-info">
+                Menampilkan
+                <strong>{{ $kuisioner->firstItem() ?? 0 }}</strong>
+                sampai
+                <strong>{{ $kuisioner->lastItem() ?? 0 }}</strong>
+                dari <strong>{{ $kuisioner->total() }}</strong> data
+            </div>
+
+            <div class="pagination-buttons">
+                {{-- Tombol sebelumnya --}}
+                @if ($kuisioner->onFirstPage())
+                    <span class="page-btn disabled">‹</span>
+                @else
+                    <a href="{{ $kuisioner->previousPageUrl() }}"
+                    class="page-btn">‹</a>
+                @endif
+
+                {{-- Nomor halaman --}}
+                @for ($page = 1; $page <= $kuisioner->lastPage(); $page++)
+                    <a href="{{ $kuisioner->url($page) }}"
+                    class="page-btn {{ $kuisioner->currentPage() == $page ? 'active' : '' }}">
+                        {{ $page }}
+                    </a>
+                @endfor
+
+                {{-- Tombol berikutnya --}}
+                @if ($kuisioner->hasMorePages())
+                    <a href="{{ $kuisioner->nextPageUrl() }}"
+                    class="page-btn">›</a>
+                @else
+                    <span class="page-btn disabled">›</span>
+                @endif
+            </div>
+        </div>
     </section>
 </div>
 
 <style>
+    
+    
+    .status-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 20px 22px;
+        border-top: 1px solid #e8ebf3;
+        background: #fff;
+    }
+
+    .pagination-info {
+        color: #737b8c;
+        font-size: 15px;
+    }
+
+    .pagination-info strong {
+        font-weight: 600;
+    }
+
+    .pagination-buttons {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .page-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 42px;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #d5dced;
+        border-radius: 12px;
+        background: #fff;
+        color: #292f91;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s;
+    }
+
+    .page-btn:hover {
+        background: #eef0ff;
+        color: #292f91;
+    }
+
+    .page-btn.active {
+        background: #292f91;
+        border-color: #292f91;
+        color: #fff;
+    }
+
+    .page-btn.disabled {
+        background: #f4f5f9;
+        color: #b7bdcc;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 600px) {
+        .status-pagination {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .pagination-buttons {
+            gap: 5px;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0 9px;
+        }
+    }
     .status-questionnaire-page { min-height: calc(100vh - 70px); padding: 24px 28px 40px; background: #f5f7fb; color: #27305e; }
     .status-page-header, .status-list-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .status-header-actions { display: flex; flex-shrink: 0; flex-wrap: wrap; gap: 8px; }
