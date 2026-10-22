@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
 use App\Models\KeluargaAnggota;
 use App\Models\KeluargaPart1;
+use App\Models\KeluargaPeriode;
+use App\Models\Periode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class RespondenController extends Controller
 {
@@ -17,6 +21,12 @@ class RespondenController extends Controller
      */
     public function index(Request $request)
     {
+        $periodeTerpilih = $this->getSelectedPeriode();
+
+        if (! $periodeTerpilih) {
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
+
         $search = $request->query('search');
         $search = is_string($search) ? trim($search) : '';
 
@@ -50,6 +60,8 @@ class RespondenController extends Controller
             ->paginate(5)
             ->withQueryString();
 
+        $statusPeriode = strtolower(trim((string) $periodeTerpilih->status_periode));
+
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
             ->get();
@@ -71,6 +83,11 @@ class RespondenController extends Controller
 
             $keluarga->jml_keluarga =
                 $keluarga->anggota->count();
+
+            $keluarga->status_periode =
+                $statusPeriode === 'aktif'
+                    ? 'aktif'
+                    : 'nonaktif';
         }
 
         return view(
@@ -87,6 +104,10 @@ class RespondenController extends Controller
      */
     public function create()
     {
+        if (! $this->getSelectedPeriode()) {
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
+
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
             ->get();
@@ -98,10 +119,66 @@ class RespondenController extends Controller
     }
 
     /**
+     * Memeriksa duplikasi Nomor KK atau NIK untuk notifikasi langsung di form.
+     * Route: POST /responden/cek-duplikat
+     */
+    public function cekDuplikat(Request $request)
+    {
+        $request->validate([
+            'jenis' => ['required', 'in:kk,nik'],
+            'nomor' => ['required', 'digits:16'],
+            'ignore_id' => ['nullable', 'integer'],
+        ]);
+
+        $jenis = $request->input('jenis');
+        $nomor = (string) $request->input('nomor');
+        $ignoreId = $request->filled('ignore_id') ? (int) $request->input('ignore_id') : null;
+
+        if ($jenis === 'kk') {
+            $query = Keluarga::query()->where('no_kk', $nomor);
+            if ($ignoreId !== null) {
+                $query->where('id', '!=', $ignoreId);
+            }
+            $terdaftar = $query->exists();
+
+            return response()->json([
+                'exists' => $terdaftar,
+                'message' => $terdaftar ? 'Nomor KK sudah terdaftar.' : '',
+            ]);
+        }
+
+        $queryKeluarga = Keluarga::query()->where('nik', $nomor);
+        if ($ignoreId !== null) {
+            $queryKeluarga->where('id', '!=', $ignoreId);
+        }
+        $terdaftar = $queryKeluarga->exists();
+
+        if (! $terdaftar) {
+            $queryAnggota = KeluargaAnggota::query()->where('nik', $nomor);
+            if ($ignoreId !== null) {
+                $keluargaSaatIni = Keluarga::find($ignoreId);
+                if ($keluargaSaatIni) {
+                    $queryAnggota->where('keluarga_kode', '!=', $keluargaSaatIni->kode);
+                }
+            }
+            $terdaftar = $queryAnggota->exists();
+        }
+
+        return response()->json([
+            'exists' => $terdaftar,
+            'message' => $terdaftar ? 'NIK sudah terdaftar.' : '',
+        ]);
+    }
+
+    /**
      * Menyimpan data responden baru.
      */
     public function store(Request $request)
     {
+        if (! $this->getSelectedPeriode()) {
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Samakan nomor KK
@@ -136,6 +213,7 @@ class RespondenController extends Controller
             'nomor_kk' => [
                 'required',
                 'digits:16',
+                'unique:keluargas,no_kk',
             ],
 
             'nik_kepala_keluarga' => [
@@ -231,7 +309,14 @@ class RespondenController extends Controller
                 'string',
                 'max:100',
             ],
+        ], [
+            'nomor_kk.unique' => 'Nomor KK sudah terdaftar. Data responden tidak dapat disimpan.',
+            'nomor_kk.digits' => 'Nomor KK harus terdiri dari 16 digit.',
+            'nik_kepala_keluarga.digits' => 'NIK harus terdiri dari 16 digit.',
+            'anggota.*.nik.digits' => 'NIK anggota harus terdiri dari 16 digit.',
         ]);
+
+        $this->validasiNIKUnik($request);
 
         DB::transaction(function () use ($request) {
 
@@ -292,6 +377,8 @@ class RespondenController extends Controller
                 'kode_pos' => $request->kode_pos,
 
                 'alamat_lengkap' => $alamatLengkap,
+
+                'tanggal_entri' => now()->toDateString(),
 
                 'created_by' => $createdBy,
             ]);
@@ -374,6 +461,10 @@ class RespondenController extends Controller
      */
     public function edit($id)
     {
+        if (! $this->getSelectedPeriode()) {
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
+
         $keluarga =
             Keluarga::with([
                 'anggota',
@@ -398,6 +489,12 @@ class RespondenController extends Controller
      */
     public function editData($id)
     {
+        if (! $this->getSelectedPeriode()) {
+            return response()->json([
+                'message' => 'Pilih periode sebelum mengedit data responden.',
+            ], 409);
+        }
+
         $keluarga =
             Keluarga::with('anggota')
                 ->findOrFail($id);
@@ -548,7 +645,13 @@ class RespondenController extends Controller
                 )
                 ->values();
 
+        $dataKuisioner = $this->getKuisionerUntukKeluarga($keluarga);
+        $anggotaTerkunci = $this->isAnggotaTerkunci($dataKuisioner?->status);
+
         return response()->json([
+            'anggota_terkunci' => $anggotaTerkunci,
+            'anggota_penambahan_terkunci' => $this->isPenambahanAnggotaTerkunci($dataKuisioner?->status),
+            'status_kuisioner' => $dataKuisioner->status ?? null,
             'id' => $keluarga->id,
 
             'kode' => $keluarga->kode,
@@ -661,6 +764,9 @@ class RespondenController extends Controller
         Request $request,
         $id
     ) {
+        if (! $this->getSelectedPeriode()) {
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -696,6 +802,7 @@ class RespondenController extends Controller
             'nomor_kk' => [
                 'required',
                 'digits:16',
+                Rule::unique('keluargas', 'no_kk')->ignore($id),
             ],
 
             'nik_kepala_keluarga' => [
@@ -792,6 +899,8 @@ class RespondenController extends Controller
                 'max:100',
             ],
         ]);
+
+        $this->validasiNIKUnik($request, (int) $id);
 
         DB::transaction(function () use (
             $request,
@@ -919,51 +1028,69 @@ foreach ($request->input('anggota', []) as $anggota) {
             foreach (
                 $request->input('anggota', []) as $anggota
             ) {
-
-                $statusKeluarga =
-                    $anggota['status_keluarga']
-                    ?? '';
-
-                /*
-                |--------------------------------------------------------------------------
-                | Jika status = Lainnya
-                |--------------------------------------------------------------------------
-                */
-
-                if ($statusKeluarga === 'Lainnya') {
-
-                    $customStatus =
-                        trim(
-                            (string) (
-                                $anggota[
-                                    'status_keluarga_lainnya'
-                                ] ?? ''
-                            )
-                        );
-
-                    $statusKeluarga =
-                        $customStatus !== ''
-                            ? $customStatus
-                            : 'Lainnya';
-                }
-
-                KeluargaAnggota::create([
-                    'kode' => 'ANG-'.
-                        strtoupper(
-                            Str::random(10)
-                        ),
-
-                    'keluarga_kode' => $keluarga->kode,
-
-                    'nik' => $anggota['nik'],
-
-                    'nama_lengkap' => $anggota['nama_lengkap'],
-
-                    'status_keluarga' => $statusKeluarga,
-
-                    'created_by' => $updatedBy,
+                throw ValidationException::withMessages([
+                    'anggota' => 'Anggota baru tidak dapat ditambahkan karena kuisioner sedang menunggu verifikasi atau telah disetujui.',
                 ]);
             }
+
+            if (! $anggotaTerkunci) {
+                $idAnggotaDikirim = collect($anggotaMasuk)
+                    ->pluck('id')
+                    ->filter()
+                    ->map(fn ($idAnggota) => (int) $idAnggota)
+                    ->values()
+                    ->all();
+
+                $keluarga->anggota()
+                    ->where('status_keluarga', '!=', 'Kepala Keluarga')
+                    ->when(
+                        ! empty($idAnggotaDikirim),
+                        fn ($query) => $query->whereNotIn('id', $idAnggotaDikirim),
+                        fn ($query) => $query
+                    )
+                    ->delete();
+            }
+
+            foreach ($anggotaMasuk as $anggota) {
+                $statusKeluarga = $anggota['status_keluarga'] ?? '';
+
+                if ($statusKeluarga === 'Lainnya') {
+                    $customStatus = trim((string) ($anggota['status_keluarga_lainnya'] ?? ''));
+                    $statusKeluarga = $customStatus !== '' ? $customStatus : 'Lainnya';
+                }
+
+                $dataAnggota = [
+                    'nik' => $anggota['nik'],
+                    'nama_lengkap' => $anggota['nama_lengkap'],
+                    'status_keluarga' => $statusKeluarga,
+                    'updated_by' => $updatedBy,
+                ];
+
+                if (! empty($anggota['id'])) {
+                    $anggotaLama = $keluarga->anggota()
+                        ->where('id', $anggota['id'])
+                        ->first();
+
+                    // ID harus milik keluarga yang sedang diedit.
+                    if ($anggotaLama) {
+                        $anggotaLama->update($dataAnggota);
+
+                        continue;
+                    }
+
+                    // Jangan izinkan ID anggota keluarga lain digunakan.
+                    throw ValidationException::withMessages([
+                        'anggota' => 'Data anggota tidak sesuai dengan keluarga yang sedang diedit.',
+                    ]);
+                }
+
+                KeluargaAnggota::create(array_merge($dataAnggota, [
+                    'kode' => 'ANG-'.strtoupper(Str::random(10)),
+                    'keluarga_kode' => $keluarga->kode,
+                    'created_by' => $updatedBy,
+                ]));
+            }
+
         });
 
         return redirect()
@@ -975,10 +1102,131 @@ foreach ($request->input('anggota', []) as $anggota) {
     }
 
     /**
+     * Memastikan NIK kepala keluarga dan seluruh anggota tidak duplikat
+     * dengan data keluarga lain maupun antaranggota dalam satu pengiriman.
+     */
+    private function validasiNIKUnik(Request $request, ?int $ignoreFamilyId = null): void
+    {
+        $nikKepala = trim((string) $request->input('nik_kepala_keluarga', ''));
+        $anggota = $request->input('anggota', []);
+        $nikAnggota = collect($anggota)
+            ->pluck('nik')
+            ->map(fn ($nik) => trim((string) $nik))
+            ->filter()
+            ->values();
+
+        $semuaNik = collect([$nikKepala])->merge($nikAnggota)->filter();
+        if ($semuaNik->count() !== $semuaNik->unique()->count()) {
+            throw ValidationException::withMessages([
+                'nik_kepala_keluarga' => 'NIK kepala keluarga dan NIK anggota tidak boleh sama.',
+                'anggota' => 'Setiap NIK harus unik dan tidak boleh digunakan lebih dari satu kali.',
+            ]);
+        }
+
+        $queryKeluarga = Keluarga::query()->whereIn('nik', $semuaNik);
+        if ($ignoreFamilyId !== null) {
+            $keluargaSaatIni = Keluarga::find($ignoreFamilyId);
+            if ($keluargaSaatIni) {
+                $queryKeluarga->where('id', '!=', $ignoreFamilyId);
+            }
+        }
+        if ($queryKeluarga->exists()) {
+            throw ValidationException::withMessages([
+                'nik_kepala_keluarga' => 'NIK sudah digunakan sebagai NIK kepala keluarga lain.',
+                'anggota' => 'Salah satu NIK sudah digunakan oleh keluarga lain.',
+            ]);
+        }
+
+        $queryAnggota = KeluargaAnggota::query()->whereIn('nik', $semuaNik);
+        if ($ignoreFamilyId !== null) {
+            $keluargaSaatIni = Keluarga::find($ignoreFamilyId);
+            if ($keluargaSaatIni) {
+                $queryAnggota->where('keluarga_kode', '!=', $keluargaSaatIni->kode);
+            }
+        }
+        if ($queryAnggota->exists()) {
+            throw ValidationException::withMessages([
+                'nik_kepala_keluarga' => 'NIK sudah digunakan oleh anggota keluarga lain.',
+                'anggota' => 'Salah satu NIK sudah digunakan oleh anggota keluarga lain.',
+            ]);
+        }
+    }
+
+    private function isAnggotaTerkunci(?string $status): bool
+    {
+        // Anggota hanya boleh dihapus sebelum pendataan kuisioner dimulai.
+        // Draft maupun status setelah dikirim tetap mengunci penghapusan.
+        return trim((string) $status) !== '';
+    }
+
+    private function isPenambahanAnggotaTerkunci(?string $status): bool
+    {
+        return in_array(
+            strtolower(trim((string) $status)),
+            [
+                'menunggu_verifikasi',
+                'selesai',
+                'pending',
+                'approved',
+                'disetujui',
+            ],
+            true
+        );
+    }
+
+    private function getSelectedPeriode(): ?Periode
+    {
+        return Periode::query()->find(session('periode_id'));
+    }
+
+    private function getKuisionerUntukKeluarga(Keluarga $keluarga): ?KeluargaPart1
+    {
+        $periodeTerpilih = $this->getSelectedPeriode();
+
+        if ($periodeTerpilih) {
+            $kodeKeluargaPeriode = KeluargaPeriode::query()
+                ->where('keluarga_kode', $keluarga->kode)
+                ->where('periode_kode', $periodeTerpilih->kode)
+                ->value('kode');
+
+            if ($kodeKeluargaPeriode) {
+                return KeluargaPart1::query()
+                    ->where('keluarga_periode_kode', $kodeKeluargaPeriode)
+                    ->orderByDesc('id')
+                    ->first();
+            }
+
+            if (
+                KeluargaPeriode::query()
+                    ->where('keluarga_kode', $keluarga->kode)
+                    ->exists()
+            ) {
+                return null;
+            }
+        }
+
+        return KeluargaPart1::query()
+            ->where('keluarga_periode_kode', $keluarga->kode)
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    /**
      * Menghapus data responden.
      */
     public function destroy(Request $request, $id)
     {
+        if (! $this->getSelectedPeriode()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pilih periode sebelum menghapus data responden.',
+                ], 409);
+            }
+
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
+
         $keluarga =
             Keluarga::findOrFail($id);
 
@@ -1000,7 +1248,7 @@ foreach ($request->input('anggota', []) as $anggota) {
                 ->orderByDesc('id')
                 ->first();
 
-        if ($dataKuisioner) {
+        if ($dataKuisioner && $this->isAnggotaTerkunci($dataKuisioner->status)) {
             $status = strtolower(trim((string) ($dataKuisioner->status ?? '')));
 
             if ($status === 'draft') {
@@ -1058,6 +1306,12 @@ foreach ($request->input('anggota', []) as $anggota) {
      */
     public function detail($id)
     {
+        if (! $this->getSelectedPeriode()) {
+            return response()->json([
+                'message' => 'Pilih periode sebelum melihat data responden.',
+            ], 409);
+        }
+
         $keluarga =
             Keluarga::with('anggota')
                 ->findOrFail($id);

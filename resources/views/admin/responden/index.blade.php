@@ -8,10 +8,6 @@
 
 @push('styles')
 
-<link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
->
 
 <style>
 
@@ -486,6 +482,11 @@
 
 .btn-tambah-anggota-edit:hover {
     background: #1d226f;
+}
+
+.btn-tambah-anggota-edit:disabled {
+    cursor: not-allowed;
+    opacity: .55;
 }
 
 .anggota-card-new {
@@ -1316,7 +1317,7 @@ textarea.responden-form-control {
                         </th>
 
                         <th>
-                            Nama Anggota
+                            Nama Kepala Keluarga
                         </th>
 
                         <th>
@@ -1325,6 +1326,14 @@ textarea.responden-form-control {
 
                         <th>
                             Alamat Lengkap
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Tanggal Entry
                         </th>
 
                         <th>
@@ -1438,6 +1447,14 @@ textarea.responden-form-control {
                             </td>
 
                             <td>
+                                {{ $keluarga->status_periode === 'aktif' ? 'Aktif' : 'Non Aktif' }}
+                            </td>
+
+                            <td>
+                                {{ $keluarga->tanggal_entri?->format('d/m/Y') ?? '-' }}
+                            </td>
+
+                            <td>
                                 <div class="responden-action">
                                     <button type="button" class="responden-detail-btn" onclick="detailResponden({{ $keluarga->id }})">Detail</button>
 
@@ -1515,16 +1532,18 @@ textarea.responden-form-control {
                                         </div>
                                     @endif
                                 </td>
-                                <td>
-                                    <span style="font-size:10px;color:#aaa;">—</span>
-                                </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <span style="font-size:10px;color:#aaa;">—</span>
+                                    </td>
                             </tr>
 
                         @endforeach
 
                     @empty
                         <tr>
-                            <td colspan="8" class="responden-empty">
+                            <td colspan="10" class="responden-empty">
                                 <div class="responden-empty-icon"></div>
                                 <div class="responden-empty-title">
                                     Belum ada data responden
@@ -1553,12 +1572,12 @@ textarea.responden-form-control {
                             aria-label="Halaman sebelumnya"
                         >
                             <span aria-hidden="true">&lsaquo;</span>
-                            <span>Sebelumnya</span>
+                            <span></span>
                         </a>
                     @else
                         <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
                             <span aria-hidden="true">&lsaquo;</span>
-                            <span>Sebelumnya</span>
+                            <span> </span>
                         </span>
                     @endif
 
@@ -1591,12 +1610,12 @@ textarea.responden-form-control {
                             rel="next"
                             aria-label="Halaman berikutnya"
                         >
-                            <span>Berikutnya</span>
+                            <span> </span>
                             <span aria-hidden="true">&rsaquo;</span>
                         </a>
                     @else
                         <span class="responden-pagination-disabled responden-pagination-direction" aria-disabled="true">
-                            <span>Berikutnya</span>
+                            <span>B </span>
                             <span aria-hidden="true">&rsaquo;</span>
                         </span>
                     @endif
@@ -2565,6 +2584,7 @@ textarea.responden-form-control {
                         <button
                             type="button"
                             class="btn-tambah-anggota-edit"
+                            id="btnTambahAnggotaEdit"
                             onclick="tambahAnggotaEditBaru()"
                         >
                             <span style="font-size:15px;line-height:1;">+</span>
@@ -2685,7 +2705,24 @@ textarea.responden-form-control {
 
 @push('scripts')
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+window.initGoogleMaps = function () {
+    window.googleMapsReady = true;
+
+    const tambahModal = document.getElementById('modalTambahResponden');
+    const editModal = document.getElementById('modalEditResponden');
+
+    if (tambahModal && tambahModal.classList.contains('active')
+        && typeof window.initMapTambah === 'function') {
+        window.initMapTambah();
+    }
+    if (editModal && editModal.classList.contains('active')
+        && typeof window.initMapEdit === 'function') {
+        window.initMapEdit();
+    }
+};
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ urlencode(config('services.google_maps.api_key', env('GOOGLE_MAPS_API_KEY', ''))) }}&callback=initGoogleMaps"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -3079,6 +3116,7 @@ let mapTambah = null;
 let markerTambah = null;
 let mapEdit = null;
 let markerEdit = null;
+let detailRespondenMarker = null;
 
 let pendingTambah = null;
 let pendingEdit = null;
@@ -3095,49 +3133,44 @@ function formatKoordinat(lat, lng) {
 
 
 function setMarkerOnly(type, lat, lng) {
-
     const isTambah = type === 'tambah';
     const map = isTambah ? mapTambah : mapEdit;
 
-    if (!map) {
-        return;
-    }
+    if (!map || !window.google || !google.maps) return;
 
-    const latLng = [Number(lat), Number(lng)];
+    const position = { lat: Number(lat), lng: Number(lng) };
 
     if (isTambah) {
-
         if (markerTambah) {
-            markerTambah.setLatLng(latLng);
+            markerTambah.setPosition(position);
         } else {
-            markerTambah = L.marker(latLng, {
-                draggable: false
-            }).addTo(map);
-        }
-
-    } else {
-
-        if (markerEdit) {
-            markerEdit.setLatLng(latLng);
-        } else {
-            markerEdit = L.marker(latLng, {
-                draggable: true
-            }).addTo(map);
-
-            markerEdit.on('dragend', function () {
-                const position = markerEdit.getLatLng();
-                setPendingLocation(
-                    'edit',
-                    position.lat,
-                    position.lng
-                );
+            markerTambah = new google.maps.Marker({
+                position,
+                map,
+                draggable: false,
+                title: 'Lokasi rumah'
             });
         }
+    } else {
+        if (markerEdit) {
+            markerEdit.setPosition(position);
+        } else {
+            markerEdit = new google.maps.Marker({
+                position,
+                map,
+                draggable: true,
+                title: 'Lokasi rumah'
+            });
+            markerEdit.addListener('dragend', function (event) {
+                setPendingLocation('edit', event.latLng.lat(), event.latLng.lng());
+            });
+        }
+        markerEdit.setMap(map);
     }
 
-    map.setView(latLng, 17);
+    map.setCenter(position);
+    map.setZoom(17);
 }
-
 
 function setSavedLocation(type, value) {
 
@@ -3261,7 +3294,7 @@ function batalLokasi(type) {
             : markerEdit;
 
         if (marker) {
-            marker.remove();
+            marker.setMap(null);
 
             if (type === 'tambah') {
                 markerTambah = null;
@@ -3283,116 +3316,55 @@ function batalLokasi(type) {
 }
 
 
-function kunciInteraksiPeta(map) {
-
-    if (!map) {
-        return;
-    }
-
-    map.dragging.disable();
-    map.touchZoom.disable();
-    map.doubleClickZoom.disable();
-    map.scrollWheelZoom.disable();
-    map.boxZoom.disable();
-    map.keyboard.disable();
-
-    if (map.tap) {
-        map.tap.disable();
-    }
-
-    if (map.zoomControl) {
-        map.zoomControl.remove();
-    }
-}
-
-
 function initMapTambah() {
-
     const element = document.getElementById('mapTambah');
+    if (!element) return;
 
-    if (!element || typeof L === 'undefined') {
+    if (!window.googleMapsReady || !window.google || !google.maps) {
+        element.innerHTML = '<div class="responden-detail-map-empty">Peta Google Maps belum dapat dimuat. Periksa konfigurasi GOOGLE_MAPS_API_KEY.</div>';
         return;
     }
 
     if (!mapTambah) {
+        mapTambah = new google.maps.Map(element, {
+            center: { lat: DEFAULT_LAT, lng: DEFAULT_LNG },
+            zoom: 14,
+            mapTypeControl: true,
+            streetViewControl: false,
+            fullscreenControl: true,
+            clickableIcons: false
+        });
 
-        mapTambah = L.map('mapTambah', {
-            zoomControl: false,
-            dragging: false,
-            touchZoom: false,
-            doubleClickZoom: false,
-            scrollWheelZoom: false,
-            boxZoom: false,
-            keyboard: false
-        }).setView(
-            [DEFAULT_LAT, DEFAULT_LNG],
-            14
-        );
-
-        L.tileLayer(
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }
-        ).addTo(mapTambah);
-
-        kunciInteraksiPeta(mapTambah);
-
-        mapTambah.on('click', function (event) {
-            setPendingLocation(
-                'tambah',
-                event.latlng.lat,
-                event.latlng.lng
-            );
+        mapTambah.addListener('click', function (event) {
+            setPendingLocation('tambah', event.latLng.lat(), event.latLng.lng());
         });
     }
 
-    setTimeout(function () {
-        mapTambah.invalidateSize();
-    }, 100);
+    google.maps.event.trigger(mapTambah, 'resize');
+    if (markerTambah) markerTambah.setMap(mapTambah);
 }
 
-
 function initMapEdit(latitude = null, longitude = null) {
-
     const element = document.getElementById('mapEdit');
+    if (!element) return;
 
-    if (!element || typeof L === 'undefined') {
+    if (!window.googleMapsReady || !window.google || !google.maps) {
+        element.innerHTML = '<div class="responden-detail-map-empty">Peta Google Maps belum dapat dimuat. Periksa konfigurasi GOOGLE_MAPS_API_KEY.</div>';
         return;
     }
 
     if (!mapEdit) {
+        mapEdit = new google.maps.Map(element, {
+            center: { lat: DEFAULT_LAT, lng: DEFAULT_LNG },
+            zoom: 14,
+            mapTypeControl: true,
+            streetViewControl: false,
+            fullscreenControl: true,
+            clickableIcons: false
+        });
 
-        mapEdit = L.map('mapEdit', {
-            zoomControl: false,
-            dragging: false,
-            touchZoom: false,
-            doubleClickZoom: false,
-            scrollWheelZoom: false,
-            boxZoom: false,
-            keyboard: false
-        }).setView(
-            [DEFAULT_LAT, DEFAULT_LNG],
-            14
-        );
-
-        L.tileLayer(
-            'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap contributors'
-            }
-        ).addTo(mapEdit);
-
-        kunciInteraksiPeta(mapEdit);
-
-        mapEdit.on('click', function (event) {
-            setPendingLocation(
-                'edit',
-                event.latlng.lat,
-                event.latlng.lng
-            );
+        mapEdit.addListener('click', function (event) {
+            setPendingLocation('edit', event.latLng.lat(), event.latLng.lng());
         });
     }
 
@@ -3400,11 +3372,8 @@ function initMapEdit(latitude = null, longitude = null) {
         setMarkerOnly('edit', latitude, longitude);
     }
 
-    setTimeout(function () {
-        mapEdit.invalidateSize();
-    }, 100);
+    google.maps.event.trigger(mapEdit, 'resize');
 }
-
 
 function ambilLokasi(type, button) {
 
@@ -3471,11 +3440,12 @@ function ambilLokasi(type, button) {
 function tutupModalDetail() {
     const modal = document.getElementById('modalDetailResponden');
 
-    if (window.detailRespondenMap) {
-        window.detailRespondenMap.remove();
-        window.detailRespondenMap = null;
-        window.detailRespondenMapCoordinates = null;
+    if (window.detailRespondenMarker) {
+        window.detailRespondenMarker.setMap(null);
+        window.detailRespondenMarker = null;
     }
+    window.detailRespondenMap = null;
+    window.detailRespondenMapCoordinates = null;
 
     if (modal) {
         modal.classList.remove('active');
@@ -3485,30 +3455,32 @@ function tutupModalDetail() {
 }
 
 function tampilkanPetaDetailResponden(element, geo, koordinat) {
-    window.detailRespondenMap = L.map(element, {
-        zoomControl: true
-    }).setView(
-        [geo.lat, geo.lng],
-        17
-    );
+    if (!window.googleMapsReady || !window.google || !google.maps) {
+        element.innerHTML = '<div class="responden-detail-map-empty">Peta Google Maps belum dapat dimuat. Periksa konfigurasi GOOGLE_MAPS_API_KEY.</div>';
+        return;
+    }
+
+    window.detailRespondenMap = new google.maps.Map(element, {
+        center: { lat: Number(geo.lat), lng: Number(geo.lng) },
+        zoom: 17,
+        mapTypeControl: true,
+        streetViewControl: false,
+        fullscreenControl: true
+    });
 
     window.detailRespondenMapCoordinates = geo;
+    window.detailRespondenMarker = new google.maps.Marker({
+        position: { lat: Number(geo.lat), lng: Number(geo.lng) },
+        map: window.detailRespondenMap,
+        title: 'Lokasi Rumah'
+    });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(window.detailRespondenMap);
-
-    L.marker([geo.lat, geo.lng])
-        .addTo(window.detailRespondenMap)
-        .bindPopup(
-            '<strong>Lokasi Rumah</strong><br>' +
-            escapeHtml(koordinat ?? '')
-        )
-        .openPopup();
-
-    requestAnimationFrame(function () {
-        window.detailRespondenMap.invalidateSize();
+    const infoWindow = new google.maps.InfoWindow({
+        content: '<strong>Lokasi Rumah</strong><br>' + escapeHtml(koordinat ?? '')
+    });
+    infoWindow.open({
+        map: window.detailRespondenMap,
+        anchor: window.detailRespondenMarker
     });
 }
 
@@ -3539,11 +3511,12 @@ window.detailResponden = function (id) {
     document.body.style.overflow = 'hidden';
     body.scrollTop = 0;
 
-    if (window.detailRespondenMap) {
-        window.detailRespondenMap.remove();
-        window.detailRespondenMap = null;
-        window.detailRespondenMapCoordinates = null;
+    if (window.detailRespondenMarker) {
+        window.detailRespondenMarker.setMap(null);
+        window.detailRespondenMarker = null;
     }
+    window.detailRespondenMap = null;
+    window.detailRespondenMapCoordinates = null;
 
     body.innerHTML = `
         <div class="responden-section">
@@ -3713,6 +3686,8 @@ window.detailResponden = function (id) {
 
 let anggotaEditIndex = 0;
 let anggotaEditData = [];
+let anggotaEditTerkunci = false;
+let anggotaEditTambahTerkunci = false;
 
 
 window.editResponden = function (id) {
@@ -3770,6 +3745,24 @@ window.editResponden = function (id) {
                 loadKelurahan(data.kecamatan_id, 'edit_kelurahan', data.kelurahan_id);
             }
 
+            anggotaEditTerkunci = Boolean(data.anggota_terkunci);
+            anggotaEditTambahTerkunci = Boolean(data.anggota_penambahan_terkunci);
+            const infoEditAnggota = document.querySelector('.anggota-edit-info-text');
+            const tombolTambahAnggota = document.getElementById('btnTambahAnggotaEdit');
+
+            if (tombolTambahAnggota) {
+                tombolTambahAnggota.disabled = anggotaEditTambahTerkunci;
+            }
+
+            if (infoEditAnggota) {
+                if (anggotaEditTambahTerkunci) {
+                    infoEditAnggota.textContent = 'Kuisioner sedang menunggu verifikasi atau telah disetujui. Anggota tidak dapat ditambah atau dihapus.';
+                } else if (anggotaEditTerkunci) {
+                    infoEditAnggota.textContent = 'Kuisioner draft atau ditolak. Anggota terdaftar tidak dapat dihapus, tetapi anggota baru dapat ditambahkan.';
+                } else {
+                    infoEditAnggota.textContent = 'Anggota keluarga dapat ditambah atau dihapus selama pendataan kuisioner belum dimulai.';
+                }
+            }
             anggotaEditData = Array.isArray(data.anggota)
                 ? data.anggota.map(function (item) {
                     return {
@@ -3883,6 +3876,11 @@ function simpanInputAnggotaEditKeData() {
 
 function tambahAnggotaEditBaru() {
 
+    if (anggotaEditTambahTerkunci) {
+        tampilkanNotifikasi('Anggota tidak dapat ditambahkan karena kuisioner sedang menunggu verifikasi atau telah disetujui.', 'warning');
+        return;
+    }
+
     // Simpan semua input yang sedang diketik sebelum kartu dirender ulang.
     simpanInputAnggotaEditKeData();
 
@@ -3922,6 +3920,17 @@ function hapusAnggotaEdit(index) {
         return;
     }
 
+    if (anggotaEditTambahTerkunci) {
+        tampilkanNotifikasi('Anggota tidak dapat dihapus karena kuisioner sedang menunggu verifikasi atau telah disetujui.', 'warning');
+        return;
+    }
+
+    // Anggota terdaftar hanya dapat dihapus sebelum pendataan kuisioner dimulai.
+    if (item.id && anggotaEditTerkunci) {
+        alert('Anggota keluarga tidak dapat dihapus karena pendataan kuisioner sudah dimulai (draft atau sudah dikirim).');
+        return;
+    }
+
     const nama = item.nama_lengkap
         ? ' ' + item.nama_lengkap
         : '';
@@ -3950,6 +3959,7 @@ function tambahAnggotaEdit(data = null, isKepala = false) {
     const nik = data?.nik ?? '';
     const nama = data?.nama_lengkap ?? '';
     const status = data?.status_keluarga ?? (isKepala ? 'Kepala Keluarga' : '');
+    const bolehHapus = !anggotaEditTambahTerkunci && (!id || !anggotaEditTerkunci);
 
     const card = document.createElement('div');
     card.className = 'anggota-card' + (!id ? ' anggota-card-new' : '');
@@ -3967,16 +3977,16 @@ function tambahAnggotaEdit(data = null, isKepala = false) {
                 <span>${isKepala ? 'Kepala Keluarga' : 'Anggota Keluarga ' + nomor}</span>
                 ${!id && !isKepala ? '<span class="anggota-baru-badge">Anggota Baru</span>' : ''}
             </div>
-            ${!isKepala ? `
+            ${!isKepala && bolehHapus ? `
                 <button
                     type="button"
                     class="btn-hapus-anggota-baru"
                     onclick="hapusAnggotaEdit(${index})"
-                    title="Hapus anggota dari KK"
+                    title="${id ? 'Hapus anggota sebelum pendataan dimulai' : 'Hapus anggota baru yang belum disimpan'}"
                 >
                     Hapus
                 </button>
-            ` : ''}
+            ` : (!isKepala && id ? '<span class="anggota-baru-badge">Anggota Terdaftar</span>' : '')}
         </div>
 
         <div class="responden-form-grid">
@@ -4340,6 +4350,163 @@ document.addEventListener('keydown', function (event) {
         tutupModalDetail();
     }
 });
+
+// Tampilkan pesan validasi backend setelah form ditolak dan halaman dimuat ulang.
+@if ($errors->any())
+    document.addEventListener('DOMContentLoaded', function () {
+        const validationMessages = @json($errors->all());
+        if (validationMessages && validationMessages.length) {
+            alert(validationMessages.join('\n'));
+        }
+    });
+@endif
+
+// =========================================================
+// VALIDASI LANGSUNG NOMOR KK DAN NIK (TAMBAH + EDIT)
+// =========================================================
+(function () {
+    const checkUrl = @json(url('/responden/cek-duplikat'));
+    const csrfToken = @json(csrf_token());
+
+    function getIgnoreId(form) {
+        if (!form || form.id !== 'formEditResponden') return '';
+        const action = form.getAttribute('action') || '';
+        const match = action.match(/responden\/update\/(\d+)(?:\?.*)?$/);
+        if (match) return match[1];
+        const hidden = form.querySelector('[name="responden_id"], [name="id"]');
+        return hidden ? hidden.value : '';
+    }
+
+    function messageElement(input) {
+        let el = input.parentElement.querySelector('.duplicate-validation-message');
+        if (!el) {
+            el = document.createElement('div');
+            el.className = 'duplicate-validation-message';
+            el.style.cssText = 'font-size:12px;color:#dc2626;margin-top:5px;display:none;';
+            input.insertAdjacentElement('afterend', el);
+        }
+        return el;
+    }
+
+    function setStatus(input, message, duplicate) {
+        const el = messageElement(input);
+        el.textContent = message || '';
+        el.style.display = message ? 'block' : 'none';
+        input.dataset.duplicate = duplicate ? 'true' : 'false';
+        input.setAttribute('aria-invalid', duplicate ? 'true' : 'false');
+        input.style.borderColor = duplicate ? '#dc2626' : '';
+    }
+
+    async function checkInput(input) {
+        const value = (input.value || '').trim();
+        const form = input.closest('form');
+        const name = input.name || '';
+        const isKK = name === 'nomor_kk' || name === 'no_kk';
+        const isNIK = name === 'nik_kepala_keluarga' || /\[nik\]$/.test(name);
+        if (!isKK && !isNIK) return true;
+        if (!value || !/^\d{16}$/.test(value)) {
+            setStatus(input, '', false);
+            return true;
+        }
+
+        if (isNIK && form) {
+            const duplicateInForm = Array.from(form.querySelectorAll(
+                'input[name="nik_kepala_keluarga"], input[name$="[nik]"]'
+            )).some(function (otherInput) {
+                return otherInput !== input && otherInput.value.trim() === value;
+            });
+
+            if (duplicateInForm) {
+                setStatus(input, 'NIK sudah digunakan oleh anggota keluarga ini.', true);
+                return false;
+            }
+        }
+
+        const previousValue = value;
+        input.dataset.checking = 'true';
+        try {
+            const response = await fetch(checkUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    jenis: isKK ? 'kk' : 'nik',
+                    nomor: value,
+                    ignore_id: getIgnoreId(form) || null
+                })
+            });
+            if (!response.ok) throw new Error('Pemeriksaan gagal');
+            const result = await response.json();
+            if (input.value.trim() !== previousValue) return input.dataset.duplicate !== 'true';
+            setStatus(input, result.exists ? result.message : '', !!result.exists);
+            return !result.exists;
+        } catch (error) {
+            // Gagal memeriksa duplikasi: jangan izinkan form lanjut menyimpan.
+            setStatus(input, 'Nomor belum dapat diperiksa. Periksa koneksi atau route validasi, lalu coba lagi.', true);
+            return false;
+        } finally {
+            input.dataset.checking = 'false';
+        }
+    }
+
+    function attachInput(input) {
+        if (input.dataset.duplicateCheckAttached === 'true') return;
+        input.dataset.duplicateCheckAttached = 'true';
+        let timer;
+        input.addEventListener('input', function () {
+            clearTimeout(timer);
+            setStatus(input, '', false);
+            if (/^\d{16}$/.test(input.value.trim())) {
+                timer = setTimeout(() => checkInput(input), 350);
+            }
+        });
+        input.addEventListener('blur', function () {
+            if (/^\d{16}$/.test(input.value.trim())) checkInput(input);
+        });
+    }
+
+    function scanInputs(root) {
+        (root || document).querySelectorAll('input[name="nomor_kk"], input[name="no_kk"], input[name="nik_kepala_keluarga"], input[name$="[nik]"]').forEach(attachInput);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        scanInputs(document);
+        // Form tambah/edit: cek lagi sebelum submit agar hasil cek terbaru dipakai.
+        document.querySelectorAll('#modalTambahResponden form, #formEditResponden').forEach(function (form) {
+            form.addEventListener('submit', async function (event) {
+                if (form.dataset.duplicateSubmitApproved === 'true') {
+                    form.dataset.duplicateSubmitApproved = 'false';
+                    return;
+                }
+                const fields = Array.from(form.querySelectorAll('input[name="nomor_kk"], input[name="no_kk"], input[name="nik_kepala_keluarga"], input[name$="[nik]"]'))
+                    .filter(input => /^\d{16}$/.test(input.value.trim()));
+                if (!fields.length) return;
+                event.preventDefault();
+                const results = await Promise.all(fields.map(checkInput));
+                const duplicate = fields.find(input => input.dataset.duplicate === 'true');
+                if (duplicate || results.some(ok => !ok)) {
+                    if (duplicate) {
+                        duplicate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        duplicate.focus({ preventScroll: true });
+                    }
+                    alert(duplicate ? messageElement(duplicate).textContent : 'Periksa kembali Nomor KK dan NIK sebelum menyimpan.');
+                    return;
+                }
+                form.dataset.duplicateSubmitApproved = 'true';
+                if (typeof form.requestSubmit === 'function') form.requestSubmit();
+                else form.submit();
+            });
+        });
+
+        // Field anggota dapat dibuat secara dinamis; pantau penambahan input baru.
+        const observer = new MutationObserver(() => scanInputs(document));
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
+})();
 
 </script>
 
