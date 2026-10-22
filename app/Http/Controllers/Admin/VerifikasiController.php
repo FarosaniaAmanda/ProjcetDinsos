@@ -90,7 +90,27 @@ class VerifikasiController extends Controller
 
         $filteredData = collect(
             $this->getData($filteredQuery)
-        );
+        )
+            ->sort(function (array $a, array $b): int {
+                // Urutan status pada halaman Verifikasi:
+                // 1. Verifikasi (pending), 2. Disetujui, 3. Ditolak.
+                $statusOrder = [
+                    'pending' => 1,
+                    'approved' => 2,
+                    'rejected' => 3,
+                ];
+
+                $statusA = $statusOrder[$a['status'] ?? ''] ?? 99;
+                $statusB = $statusOrder[$b['status'] ?? ''] ?? 99;
+
+                if ($statusA !== $statusB) {
+                    return $statusA <=> $statusB;
+                }
+
+                // Untuk status yang sama, data terbaru tetap ditampilkan lebih dulu.
+                return (int) ($b['id'] ?? 0) <=> (int) ($a['id'] ?? 0);
+            })
+            ->values();
 
         /*
         |--------------------------------------------------------------------------
@@ -2591,15 +2611,18 @@ class VerifikasiController extends Controller
             |--------------------------------------------------------------------------
             */
 
-            $part5Data =
-                KeluargaPart5::where(
-                    'keluarga_periode_kode',
-                    $kode
-                )
-                    ->get()
-                    ->keyBy(
-                        'keluarga_anggota_kode'
-                    );
+            $part5Rows = KeluargaPart5::query()
+                ->where('keluarga_periode_kode', $kode)
+                ->get();
+
+            /*
+             * Index data Part 5 dengan kode anggota yang dinormalisasi.
+             * Ini menghindari data tidak ditemukan hanya karena perbedaan
+             * tipe nilai/spasi pada kode anggota saat collection di-keyBy.
+             */
+            $part5Data = $part5Rows->keyBy(
+                fn ($row) => trim((string) $row->keluarga_anggota_kode)
+            );
 
             /*
             |--------------------------------------------------------------------------
@@ -2611,20 +2634,89 @@ class VerifikasiController extends Controller
                 $members as $member
             ) {
 
-                $memberCode =
-                    (string) (
-                        $member->kode ?? ''
-                    );
+                $memberCode = trim((string) ($member->kode ?? ''));
 
-                $part5Members[] =
-                    $this->buildFamilyMemberQuestionnaire(
-                        $member,
-                        $part5Data->get(
-                            $memberCode
-                        )
-                    );
+                // Cari berdasarkan kode anggota + periode yang sedang ditampilkan.
+                $part5 = $memberCode !== ''
+                    ? $part5Data->get($memberCode)
+                    : null;
+
+                // Fallback query langsung jika indeks collection tidak menemukan row.
+                if (! $part5 && $memberCode !== '') {
+                    $part5 = KeluargaPart5::query()
+                        ->where('keluarga_periode_kode', $kode)
+                        ->where('keluarga_anggota_kode', $memberCode)
+                        ->first();
+                }
+
+                $part5Members[] = $this->buildFamilyMemberQuestionnaire(
+                    $member,
+                    $part5
+                );
             }
         }
+
+        
+/*
+|--------------------------------------------------------------------------
+| HUBUNGKAN JAWABAN PART 5 LAMA KE ANGGOTA AKTIF
+|--------------------------------------------------------------------------
+| Perbarui card anggota yang sudah dibuat, bukan menambahkan card baru.
+|--------------------------------------------------------------------------
+*/
+
+$kodeAnggotaAktif = $members
+    ->pluck('kode')
+    ->map(fn ($value) => trim((string) $value))
+    ->filter()
+    ->values();
+
+$part5Lama = $part5Rows
+    ->filter(function ($row) use ($kodeAnggotaAktif) {
+        $kodeLama = trim((string) $row->keluarga_anggota_kode);
+
+        return $kodeLama !== ''
+            && ! $kodeAnggotaAktif->contains($kodeLama);
+    })
+    ->sortBy('id')
+    ->values();
+
+$anggotaTanpaJawaban = $members
+    ->filter(function ($member) use ($part5Rows) {
+        $kode = trim((string) $member->kode);
+
+        return ! $part5Rows->contains(
+            fn ($row) =>
+                trim((string) $row->keluarga_anggota_kode) === $kode
+        );
+    })
+    ->values();
+
+if (
+    $part5Lama->isNotEmpty()
+    && $part5Lama->count() === $anggotaTanpaJawaban->count()
+) {
+    foreach ($anggotaTanpaJawaban as $index => $member) {
+        $rowLama = $part5Lama->get($index);
+
+        // Cari card anggota yang sudah dibuat sebelumnya.
+        foreach ($part5Members as $key => $existingMember) {
+            if (
+                trim((string) ($existingMember['kode'] ?? ''))
+                === trim((string) $member->kode)
+            ) {
+                // Perbarui jawaban pada card tersebut, tanpa menambah card.
+                $part5Members[$key] =
+                    $this->buildFamilyMemberQuestionnaire(
+                        $member,
+                        $rowLama
+                    );
+
+                break;
+            }
+        }
+    }
+}
 
         /*
         |--------------------------------------------------------------------------
@@ -3181,34 +3273,48 @@ class VerifikasiController extends Controller
         );
 
         /*
-        |--------------------------------------------------------------------------
-        | DATA PART 5 ANGGOTA
-        |--------------------------------------------------------------------------
-        */
+|--------------------------------------------------------------------------
+| DATA PART 5 ANGGOTA
+|--------------------------------------------------------------------------
+*/
 
-        $part5 =
-            KeluargaPart5::query()
-                ->where(
-                    'keluarga_periode_kode',
-                    $item->keluarga_periode_kode
-                )
-                ->where(
-                    'keluarga_anggota_kode',
-                    $member->kode
-                )
-                ->first();
+$part5 = KeluargaPart5::query()
+    ->where('keluarga_periode_kode', $item->keluarga_periode_kode)
+    ->where('keluarga_anggota_kode', $member->kode)
+    ->first();
 
-        /*
-        |--------------------------------------------------------------------------
-        | BUILD DATA DETAIL
-        |--------------------------------------------------------------------------
-        */
+/*
+|--------------------------------------------------------------------------
+| FALLBACK: CARI DATA PART 5 YANG KODENYA SUDAH TIDAK COCOK
+|--------------------------------------------------------------------------
+*/
 
-        $memberData =
-            $this->buildFamilyMemberQuestionnaire(
-                $member,
-                $part5
-            );
+if (! $part5) {
+    $part5 = KeluargaPart5::query()
+        ->where('keluarga_periode_kode', $item->keluarga_periode_kode)
+        ->whereNotNull('keluarga_anggota_kode')
+        ->where('keluarga_anggota_kode', '!=', '')
+        ->orderBy('id')
+        ->get()
+        ->first(function ($row) use ($member) {
+            // Hanya mengambil data yang belum terhubung
+            // ke kode anggota aktif.
+            return ! KeluargaAnggota::query()
+                ->where('kode', $row->keluarga_anggota_kode)
+                ->exists();
+        });
+}
+
+/*
+|--------------------------------------------------------------------------
+| BUILD DATA DETAIL
+|--------------------------------------------------------------------------
+*/
+
+$memberData = $this->buildFamilyMemberQuestionnaire(
+    $member,
+    $part5
+);
 
         /*
         |--------------------------------------------------------------------------

@@ -1144,7 +1144,7 @@
         border: 1px solid #dfe1e8; 
         border-radius: 8px; 
         padding: 0 11px; 
-        font-size: 12px; 
+        font-size: 14px; 
         background: #fff; 
         color: #333; 
         outline: none; 
@@ -1651,7 +1651,7 @@
     margin-bottom: 3px; 
  
     color: #858b99; 
-    font-size: 10px; 
+    font-size: 14px; 
     font-weight: 600; 
 } 
  
@@ -1659,7 +1659,7 @@
     display: block; 
  
     color: #252A86; 
-    font-size: 12px; 
+    font-size: 16px; 
     font-weight: 700; 
 } 
  
@@ -1706,7 +1706,7 @@
  
     color: #555d70; 
  
-    font-size: 11px; 
+    font-size: 14px; 
     font-weight: 700; 
  
     text-align: left; 
@@ -1721,7 +1721,7 @@
  
     color: #454b59; 
  
-    font-size: 12px; 
+    font-size: 14px; 
  
     border-bottom: 1px solid #edf0f4; 
  
@@ -2641,7 +2641,7 @@
 .verification-form-group label { 
     display: block; 
     margin-bottom: 6px; 
-    font-size: 11px; 
+    font-size: 15px; 
     font-weight: 600; 
     color: #424858; 
 } 
@@ -2655,7 +2655,7 @@
     outline: none; 
     background: #fff; 
     color: #343949; 
-    font-size: 12px; 
+    font-size: 14px; 
 } 
  
 .verification-form-group select:focus { 
@@ -2676,7 +2676,7 @@
     padding: 0 15px; 
     border: 0; 
     border-radius: 8px; 
-    font-size: 11px; 
+    font-size: 14px; 
     font-weight: 700; 
     cursor: pointer; 
     transition: .18s ease; 
@@ -3007,13 +3007,13 @@
     }
 
     .verification-action-section .verification-section-heading h3 {
-        font-size: 15px;
+        font-size: 18px;
         line-height: 1.35;
         margin-bottom: 5px;
     }
 
     .verification-action-section .verification-section-heading p {
-        font-size: 12px;
+        font-size: 14px;
         line-height: 1.55;
         margin-bottom: 12px;
     }
@@ -3625,7 +3625,7 @@
 
     color: #555d70;
 
-    font-size: 12px;
+    font-size: 14px;
 
     font-weight: 700;
 
@@ -3640,7 +3640,7 @@
 
 .family-members-section
 .family-members-inline-table td {
-    padding: 12px;
+    padding: 14px;
 
     color: #454b59;
 
@@ -3798,6 +3798,863 @@
         justify-content: center;
     }
 }
+
+
+
+/* =====================================================
+   PERBAIKAN DETAIL VERIFIKASI - TIPOGRAFI & RESPONSIVE
+   Hanya mengubah tampilan; alur verifikasi tetap.
+===================================================== */
+.verification-summary-card,
+.verification-info-item,
+.questionnaire-part,
+.questionnaire-question,
+.questionnaire-part5-question {
+    color: #30343b;
+}
+
+.verification-summary-label,
+.verification-info-item span {
+    color: #626975 !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+}
+
+.verification-summary-card strong,
+.verification-info-item strong {
+    color: #292d33 !important;
+    font-size: 14px !important;
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+.questionnaire-part-title strong,
+.questionnaire-part5-panel-header strong,
+.questionnaire-part5-answer-member h4 {
+    color: #30343b !important;
+    font-weight: 700;
+}
+
+.questionnaire-part-title span,
+.questionnaire-part5-panel-header span,
+.questionnaire-part5-member-relation,
+.questionnaire-part5-member-nik {
+    color: #626975 !important;
+}
+
+.questionnaire-question-text,
+.questionnaire-answer,
+.questionnaire-part5-question-text,
+.questionnaire-part5-answer-value {
+    color: #30343b !important;
+    font-size: 14px !important;
+    line-height: 1.6;
+}
+
+.questionnaire-answer-label,
+.questionnaire-part5-answer-label {
+    color: #626975 !important;
+    font-size: 12px !important;
+}
+
+/* Kartu ringkasan dan info tidak menyempit di layar kecil */
+@media (max-width: 600px) {
+    .verification-summary-grid,
+    .verification-info-grid,
+    .verification-modal-grid,
+    .questionnaire-parts,
+    .questionnaire-sidebar {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .verification-summary-card,
+    .verification-info-item,
+    .questionnaire-part {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .verification-summary-label,
+    .verification-summary-card strong,
+    .verification-info-item span,
+    .verification-info-item strong {
+        font-size: 14px !important;
+    }
+
+    .questionnaire-part-header {
+        min-height: 60px;
+    }
+}
+
+/* Part 5: kartu anggota berjajar horizontal, jawaban berada di bawah */
+.questionnaire-part5-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch;
+    gap: 14px !important;
+}
+
+.questionnaire-part5-members,
+.questionnaire-part5-answer {
+    width: 100% !important;
+    min-width: 0;
+}
+
+.questionnaire-part5-member-list {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch;
+    gap: 10px !important;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 10px !important;
+    scroll-snap-type: x proximity;
+}
+
+.questionnaire-part5-member-card,
+.questionnaire-part5-member-card:last-child {
+    flex: 0 0 210px;
+    width: 210px !important;
+    min-width: 210px;
+    min-height: 84px;
+    margin: 0 !important;
+    border: 1px solid #e0e3e9;
+    border-radius: 11px;
+    scroll-snap-align: start;
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+/* Warna pastel bergantian untuk membedakan anggota */
+.questionnaire-part5-member-card:nth-child(5n + 1) { background: #fff0f5 !important; border-color: #f4c8d8; }
+.questionnaire-part5-member-card:nth-child(5n + 2) { background: #fff8d9 !important; border-color: #f0df9b; }
+.questionnaire-part5-member-card:nth-child(5n + 3) { background: #f1eaff !important; border-color: #d7c6f4; }
+.questionnaire-part5-member-card:nth-child(5n + 4) { background: #e8f4ff !important; border-color: #c4def5; }
+.questionnaire-part5-member-card:nth-child(5n) { background: #e9f8ed !important; border-color: #c5e8ce; }
+
+.questionnaire-part5-member-card.is-selected {
+    border: 2px solid #414752 !important;
+    box-shadow: 0 0 0 3px rgba(65, 71, 82, .13) !important;
+    transform: translateY(-2px);
+}
+
+.questionnaire-part5-member-card.is-selected .questionnaire-part5-member-name {
+    color: #20242a !important;
+}
+
+.questionnaire-part5-member-avatar {
+    background: rgba(255,255,255,.75) !important;
+    color: #3d424b !important;
+}
+
+.questionnaire-part5-answer-body {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.questionnaire-part5-answer-member h4 {
+    font-size: 16px !important;
+}
+
+.questionnaire-part5-question-text,
+.questionnaire-part5-answer-value {
+    font-size: 14px !important;
+}
+
+@media (max-width: 600px) {
+    .questionnaire-part5-member-card,
+    .questionnaire-part5-member-card:last-child {
+        flex-basis: 175px;
+        width: 175px !important;
+        min-width: 175px;
+        padding: 10px !important;
+    }
+
+    .questionnaire-part5-member-name {
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        font-size: 13px !important;
+    }
+
+    .questionnaire-part5-answer-body {
+        padding: 11px !important;
+    }
+}
+
+
+
+/* =====================================================
+   PERBAIKAN LANJUTAN DETAIL VERIFIKASI
+   Hanya font detail, sidebar kuisioner, dan susunan kartu Part 5
+===================================================== */
+/* Ukuran teks informasi responden dan nama kepala keluarga */
+.verification-summary-label,
+.verification-summary-card strong,
+.verification-info-item span,
+.verification-info-item strong,
+#modalNama,
+#modalSummaryNama {
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+.verification-summary-label,
+.verification-info-item span {
+    font-weight: 600 !important;
+}
+
+.verification-summary-card strong,
+.verification-info-item strong,
+#modalNama,
+#modalSummaryNama {
+    font-weight: 700 !important;
+}
+
+/* Sidebar daftar Part kuisioner */
+.questionnaire-sidebar-title {
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+    font-weight: 800 !important;
+}
+
+.questionnaire-part-number {
+    font-size: 13px !important;
+}
+
+.questionnaire-part-title strong {
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    font-weight: 700 !important;
+}
+
+.questionnaire-part-title span {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+}
+
+.questionnaire-content-kicker {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+}
+
+.questionnaire-content-title {
+    font-size: 17px !important;
+    line-height: 1.4 !important;
+}
+
+.questionnaire-content-count {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+}
+
+/* Kartu anggota: Nama, status, lalu NIK dalam susunan vertikal */
+.questionnaire-part5-member-card .questionnaire-part5-member-top {
+    align-items: flex-start !important;
+}
+
+.questionnaire-part5-member-card .questionnaire-part5-member-main {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    min-width: 0 !important;
+    gap: 3px !important;
+}
+
+.questionnaire-part5-member-card .questionnaire-part5-member-name,
+.questionnaire-part5-member-card .questionnaire-part5-member-relation {
+    display: block !important;
+    width: 100% !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+}
+
+.questionnaire-part5-member-card .questionnaire-part5-member-name {
+    color: #292d35 !important;
+    font-weight: 700 !important;
+}
+
+.questionnaire-part5-member-card .questionnaire-part5-member-relation {
+    margin-top: 0 !important;
+    color: #626976 !important;
+    font-weight: 500 !important;
+}
+
+.questionnaire-part5-member-card .questionnaire-part5-member-nik {
+    margin-top: 7px !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Font isi jawaban Part 5 disamakan dan dibuat nyaman dibaca */
+.questionnaire-part5-panel-header strong {
+    font-size: 15px !important;
+}
+
+.questionnaire-part5-panel-header span {
+    font-size: 13px !important;
+}
+
+.questionnaire-part5-answer-member h4 {
+    font-size: 16px !important;
+    line-height: 1.45 !important;
+}
+
+.questionnaire-part5-answer-member p,
+.questionnaire-part5-answer-count,
+.questionnaire-part5-question-number,
+.questionnaire-part5-question-text,
+.questionnaire-part5-answer-label,
+.questionnaire-part5-answer-value {
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+}
+
+@media (max-width: 600px) {
+    .questionnaire-part-title strong,
+    .questionnaire-part-title span,
+    .questionnaire-part5-member-card .questionnaire-part5-member-name,
+    .questionnaire-part5-member-card .questionnaire-part5-member-relation,
+    .questionnaire-part5-member-card .questionnaire-part5-member-nik,
+    .questionnaire-part5-question-text,
+    .questionnaire-part5-answer-value {
+        font-size: 14px !important;
+    }
+
+    .questionnaire-content-title {
+        font-size: 16px !important;
+    }
+}
+
+
+
+/* =========================================================
+   HASIL KUISIONER - LAYOUT RINGKAS
+   Detail ditampilkan dalam grid agar halaman tidak terlalu panjang.
+   ========================================================= */
+.questionnaire-parts {
+    grid-template-columns: 250px minmax(0, 1fr) !important;
+    align-items: start;
+    gap: 16px !important;
+    min-height: 0;
+}
+
+.questionnaire-sidebar {
+    position: sticky;
+    top: 16px;
+    align-self: start;
+}
+
+.questionnaire-content-panel {
+    min-width: 0;
+}
+
+.questionnaire-content-header {
+    padding: 16px 20px !important;
+    background: #fff !important;
+}
+
+.questionnaire-content-title {
+    font-size: 20px !important;
+    line-height: 1.35;
+}
+
+.questionnaire-content-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px !important;
+    max-height: 620px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.questionnaire-content-body > .questionnaire-question {
+    min-width: 0;
+    margin: 0 !important;
+    padding: 14px 15px;
+    height: fit-content;
+}
+
+.questionnaire-content-body > .questionnaire-question + .questionnaire-question {
+    margin-top: 0 !important;
+}
+
+.questionnaire-question-number {
+    margin-bottom: 6px !important;
+}
+
+.questionnaire-question-text {
+    margin-bottom: 8px !important;
+    line-height: 1.5 !important;
+}
+
+.questionnaire-answer {
+    min-height: 36px;
+    padding: 9px 11px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.questionnaire-content-body > .questionnaire-empty {
+    grid-column: 1 / -1;
+}
+
+/* Foto rumah berjajar tiga kolom, seperti tampilan contoh. */
+.questionnaire-content-body.is-photo-part {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.questionnaire-content-body.is-photo-part > .questionnaire-question {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-question-text {
+    margin-bottom: 8px !important;
+    font-size: 13px;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-answer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-answer img {
+    display: block;
+    width: 100%;
+    height: 220px;
+    max-width: none;
+    max-height: 220px;
+    margin: 0;
+    object-fit: cover;
+    border: 1px solid #e3e6ef;
+    border-radius: 9px;
+    background: #f5f7fb;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-image-caption {
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #30364a;
+    text-align: left;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-image-link {
+    align-self: flex-start;
+    margin-top: 2px;
+}
+
+/* Peta menggunakan lebar penuh agar koordinat dan marker tetap terbaca. */
+.questionnaire-content-body.is-map-part > .questionnaire-question:has(.questionnaire-answer-map),
+.questionnaire-content-body > .questionnaire-question:has(.questionnaire-answer-map) {
+    grid-column: 1 / -1;
+}
+
+.questionnaire-map-container {
+    height: 230px !important;
+    min-height: 230px !important;
+}
+
+/* Jawaban anggota tetap berada di panel yang sama dan lebih rapat. */
+.questionnaire-part5-layout {
+    gap: 12px !important;
+}
+
+.questionnaire-part5-panel-header {
+    padding: 11px 13px !important;
+}
+
+.questionnaire-part5-member-list {
+    padding: 8px !important;
+}
+
+.questionnaire-part5-answer-body {
+    padding: 10px !important;
+}
+
+.questionnaire-part5-question {
+    padding: 10px 12px !important;
+    margin-bottom: 8px !important;
+}
+
+/* Laptop/tablet: tetap dua kolom untuk data, dua kolom foto. */
+@media (max-width: 1100px) {
+    .questionnaire-parts {
+        grid-template-columns: 210px minmax(0, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    .questionnaire-content-body.is-photo-part {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .questionnaire-content-body.is-photo-part .questionnaire-answer img {
+        height: 200px;
+        max-height: 200px;
+    }
+}
+
+/* HP: menu dan isi bertumpuk, kartu tidak terpotong. */
+@media (max-width: 700px) {
+    .questionnaire-parts {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .questionnaire-sidebar {
+        position: static;
+    }
+
+    .questionnaire-content-header {
+        padding: 13px 14px !important;
+    }
+
+    .questionnaire-content-title {
+        font-size: 17px !important;
+    }
+
+    .questionnaire-content-body,
+    .questionnaire-content-body.is-photo-part {
+        grid-template-columns: minmax(0, 1fr);
+        max-height: 65vh;
+        padding: 12px !important;
+        gap: 10px;
+    }
+
+    .questionnaire-content-body.is-photo-part .questionnaire-answer img {
+        height: 220px;
+        max-height: 220px;
+    }
+}
+
+
+
+/* PERBAIKAN PART 5:
+   Card anggota berwarna berada di atas dengan ukuran lebih ringkas.
+   Hasil jawaban berada di bawah, memakai grid dua kolom seperti Part 1-4. */
+.questionnaire-content-body > .questionnaire-part5-layout {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout > .questionnaire-part5-members,
+.questionnaire-content-body > .questionnaire-part5-layout > .questionnaire-part5-answer {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Header panel dibuat lebih ringkas. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-panel-header {
+    padding: 10px 13px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-panel-header strong {
+    font-size: 13px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-panel-header span {
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+}
+
+/* Card anggota berada di atas dalam grid ringkas.
+   Jika anggota banyak, card membungkus ke baris berikutnya. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 9px !important;
+    box-sizing: border-box !important;
+}
+
+/* Ukuran card anggota diperkecil tanpa menghilangkan warna masing-masing. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card,
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card:last-child {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 76px !important;
+    padding: 9px 10px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-top {
+    gap: 7px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-avatar {
+    flex-basis: 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 10px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-name {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-relation {
+    font-size: 10px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-nik {
+    margin-top: 4px !important;
+    font-size: 9px !important;
+    line-height: 1.4 !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Warna pastel tiap anggota dipertahankan. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card:nth-child(5n + 1) {
+    background: #fff0f5 !important;
+    border-color: #f4c8d8 !important;
+}
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card:nth-child(5n + 2) {
+    background: #fff8d9 !important;
+    border-color: #f0df9b !important;
+}
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card:nth-child(5n + 3) {
+    background: #f1eaff !important;
+    border-color: #d7c6f4 !important;
+}
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card:nth-child(5n + 4) {
+    background: #e8f4ff !important;
+    border-color: #c4def5 !important;
+}
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card:nth-child(5n) {
+    background: #e9f8ed !important;
+    border-color: #c5e8ce !important;
+}
+
+/* Penanda anggota aktif tidak menimpa warna card. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-card.is-selected {
+    outline: 2px solid #252a86 !important;
+    outline-offset: 1px !important;
+    box-shadow: 0 0 0 2px rgba(37, 42, 134, .08) !important;
+}
+
+/* Hasil jawaban di bawah daftar anggota, lebar penuh. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer {
+    overflow: hidden !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-body {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    gap: 9px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    max-height: 600px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+}
+
+/* Identitas anggota dan pesan kosong tetap selebar dua kolom. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-member,
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-empty {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-member {
+    margin: 0 0 2px !important;
+    padding-bottom: 10px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-member h4 {
+    font-size: 14px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-count {
+    font-size: 10px !important;
+    padding: 5px 8px !important;
+}
+
+/* Kartu pertanyaan lebih kecil dan disusun kiri-kanan secara berurutan. */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 10px 11px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question-number {
+    font-size: 9px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question-text {
+    margin-top: 3px !important;
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-label {
+    margin-top: 7px !important;
+    font-size: 9px !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-value {
+    margin-top: 3px !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+    overflow-wrap: anywhere !important;
+}
+
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-image {
+    max-width: 100% !important;
+    max-height: 220px !important;
+}
+
+@media (max-width: 900px) {
+    .questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-member-list {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+        max-height: 500px !important;
+        padding: 8px !important;
+    }
+
+    .questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-member,
+    .questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-empty {
+        grid-column: 1 !important;
+    }
+}
+
+/* Card pertanyaan Part 5 */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question {
+    padding: 14px 15px !important;
+    margin: 0 !important;
+    border: 1px solid #e0e5ee !important;
+    border-radius: 13px !important;
+    background: #fff !important;
+    box-shadow: 0 3px 10px rgba(31, 45, 80, .045) !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Label nomor pertanyaan */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question-number {
+    display: inline-flex !important;
+    width: fit-content !important;
+    padding: 6px 10px !important;
+    margin-bottom: 8px !important;
+    border-radius: 8px !important;
+    background: #eef0f4 !important;
+    color: #657084 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: .35px !important;
+    text-transform: uppercase !important;
+}
+
+/* Teks pertanyaan */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question-text {
+    margin: 0 !important;
+    color: #263247 !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Label jawaban responden */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-label {
+    margin: 10px 0 5px !important;
+    color: #667085 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    letter-spacing: .45px !important;
+    text-transform: uppercase !important;
+}
+
+/* Kotak jawaban dengan aksen biru sian */
+.questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-answer-value {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 10px 12px !important;
+    border: 0 !important;
+    border-left: 3px solid #48b8dc !important;
+    border-radius: 9px !important;
+    background: #f3f7f9 !important;
+    color: #263247 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.55 !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+}
+
+/* Tampilan HP */
+@media (max-width: 600px) {
+    .questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question {
+        padding: 12px !important;
+    }
+
+    .questionnaire-content-body > .questionnaire-part5-layout .questionnaire-part5-question-text {
+        font-size: 12px !important;
+    }
+}
+
 
 </style>
 @endpush 
@@ -4707,8 +5564,8 @@
                     <div class="family-members-inline">
                         <div class="family-members-inline-header">
                             <div class="family-members-inline-title">
-                                <h4>Anggota dalam Kartu Keluarga</h4>
-                                <p id="familyMembersCardCount">0 orang (termasuk kepala keluarga)</p>
+                                <h4>Anggota Dalam Kartu Keluarga</h4>
+                               
                             </div>
                             <div class="family-members-inline-summary">
                                 <span>Kepala Keluarga</span>
@@ -5631,6 +6488,33 @@ if (searchSuggestions) {
             .replace(/'/g, '&#039;'); 
  
     } 
+
+
+    /* Format jawaban nominal uang hanya untuk tampilan. */
+    function formatRupiahAnswer(questionText, answer) {
+        const label = String(questionText || '').toLowerCase();
+        const original = String(answer ?? '').trim();
+
+        if (!original) return original;
+
+        const isMoneyQuestion = /pengeluaran|pendapatan|penghasilan|gaji|upah|biaya|uang|nominal|sewa|per bulan|per tahun|penghasilan utama|rata-rata pendapatan/i.test(label);
+        if (!isMoneyQuestion) return original;
+
+        const cleaned = original
+            .replace(/^rp\.?\s*/i, '')
+            .replace(/\s/g, '')
+            .replace(/\./g, '')
+            .replace(/,/g, '');
+
+        if (!/^\d+$/.test(cleaned)) return original;
+
+        const amount = Number(cleaned);
+        if (!Number.isFinite(amount)) return original;
+
+        return 'Rp.' + new Intl.NumberFormat('id-ID', {
+            maximumFractionDigits: 0
+        }).format(amount);
+    }
  
  
     function parseFamilyMembers(raw) {
@@ -6216,6 +7100,7 @@ function normalizeQuestion(question, index) {
                 const members = part.members;
                 contentCount.textContent = `${members.length} anggota keluarga`;
                 contentBody.innerHTML = '';
+                contentBody.classList.remove('is-photo-part', 'is-map-part');
 
                 const layout = document.createElement('div');
                 layout.className = 'questionnaire-part5-layout';
@@ -6428,6 +7313,20 @@ function normalizeQuestion(question, index) {
 
             contentBody.innerHTML = '';
 
+            const partQuestions = Array.isArray(part.questions) ? part.questions : [];
+            const hasQuestionPhotos = partQuestions.some(function (question) {
+                return (
+                    String(question.type || '').toLowerCase() === 'image' &&
+                    String(question.imageUrl || '').trim() !== ''
+                );
+            });
+            const hasQuestionMap = partQuestions.some(function (question) {
+                return String(question.type || '').toLowerCase() === 'map';
+            });
+
+            contentBody.classList.toggle('is-photo-part', hasQuestionPhotos);
+            contentBody.classList.toggle('is-map-part', hasQuestionMap);
+
             if (!part.questions.length) {
                 contentBody.innerHTML = `
                     <div class="questionnaire-empty">
@@ -6466,7 +7365,7 @@ function normalizeQuestion(question, index) {
                     );
 
                 const answerText =
-                    String(question.answer ?? '').trim();
+                    formatRupiahAnswer(questionText, question.answer);
 
                 const questionNumberElement =
                     document.createElement('div');

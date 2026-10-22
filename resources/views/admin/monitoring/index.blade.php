@@ -1332,23 +1332,30 @@ color: #7652C8;
         line-height: 1.35;
     }
 
-    .monitoring-questionnaire-part-arrow {
-        width: 30px;
-        height: 30px;
-        flex: 0 0 30px;
-        border-radius: 8px;
-        background: #252A86;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #ffffff;
-        transition: transform .2s ease;
-    }
+    
+.monitoring-questionnaire-part-arrow {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border: 1px solid #dfe3ec;
+    border-radius: 8px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #252A86;
+    transition: background .18s ease, color .18s ease,
+                border-color .18s ease, transform .2s ease;
+}
 
-    .monitoring-questionnaire-part-header.active
-    .monitoring-questionnaire-part-arrow {
-        transform: rotate(180deg);
-    }
+.monitoring-questionnaire-part-header.active
+.monitoring-questionnaire-part-arrow {
+    background: #252A86;
+    border-color: #252A86;
+    color: #ffffff;
+    transform: rotate(180deg);
+}
+
 
     .monitoring-questionnaire-content-panel {
         min-width: 0;
@@ -1410,6 +1417,30 @@ color: #7652C8;
         font-size: 12px;
         line-height: 1.55;
     }
+    
+/* Ukuran foto pada detail Monitoring */
+.monitoring-questionnaire-content-body.is-photo-part {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    align-items: start !important;
+}
+
+.monitoring-questionnaire-content-body.is-photo-part img {
+    display: block !important;
+    width: 100% !important;
+    height: 200px !important;
+    max-height: 200px !important;
+    object-fit: cover !important;
+    border-radius: 9px !important;
+}
+
+@media (max-width: 700px) {
+    .monitoring-questionnaire-content-body.is-photo-part {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
 
     .monitoring-question-item {
         border: 1px solid #e7eaf0;
@@ -2256,6 +2287,413 @@ color: #7652C8;
         justify-content: center;
     }
 }
+
+
+/* =========================================================
+   DETAIL MONITORING — 
+========================================================= */
+
+/* Kartu pertanyaan Part 1-4 dan Foto Rumah: grid dua kolom. */
+.monitoring-questionnaire-content-body {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-content: start !important;
+    align-items: start !important;
+    gap: 10px !important;
+}
+
+.monitoring-questionnaire-content-body > .monitoring-question-item {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 13px 14px !important;
+    border: 1px solid #e0e5ee !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    box-shadow: 0 3px 10px rgba(31, 45, 80, .045) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+/* Label nomor pertanyaan. */
+.monitoring-questionnaire-content-body > .monitoring-question-item .monitoring-question-number {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: fit-content !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 24px !important;
+    margin: 0 0 8px !important;
+    padding: 5px 9px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: #eef0f4 !important;
+    color: #657084 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+    letter-spacing: .3px !important;
+}
+
+/* Judul pertanyaan. */
+.monitoring-questionnaire-content-body > .monitoring-question-item .monitoring-question-text {
+    margin: 0 0 10px !important;
+    color: #263247 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Label jawaban responden. */
+.monitoring-questionnaire-content-body > .monitoring-question-item .monitoring-answer-label {
+    margin: 8px 0 5px !important;
+    color: #667085 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    line-height: 1.4 !important;
+    letter-spacing: .4px !important;
+}
+
+/* Jawaban menggunakan latar abu muda dan aksen sian seperti Verifikasi. */
+.monitoring-questionnaire-content-body > .monitoring-question-item .monitoring-answer-value {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 10px 12px !important;
+    border: 0 !important;
+    border-left: 3px solid #48b8dc !important;
+    border-radius: 9px !important;
+    background: #f3f7f9 !important;
+    color: #263247 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.55 !important;
+    overflow-wrap: anywhere !important;
+    white-space: pre-wrap !important;
+    box-sizing: border-box !important;
+}
+
+.monitoring-questionnaire-content-body > .monitoring-question-item .monitoring-answer-value.is-empty {
+    color: #929baa !important;
+    font-style: italic !important;
+}
+
+/* Peta dan jawaban geotagging menggunakan lebar penuh. */
+.monitoring-questionnaire-content-body > .monitoring-question-item:has(.questionnaire-answer-map),
+.monitoring-questionnaire-content-body > .monitoring-question-item:has(.questionnaire-map-container),
+.monitoring-questionnaire-content-body > .monitoring-question-item:has(.monitoring-map) {
+    grid-column: 1 / -1 !important;
+}
+
+/* Part 5: daftar anggota di atas, hasil jawaban di bawah. */
+.monitoring-questionnaire-content-body > .monitoring-questionnaire-members-layout {
+    grid-column: 1 / -1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-members-panel,
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-members-heading {
+    padding: 11px 14px !important;
+    gap: 3px !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-members-heading strong {
+    color: #263247 !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-members-heading span {
+    color: #7b8190 !important;
+    font-size: 11px !important;
+    line-height: 1.45 !important;
+}
+
+/* Card anggota ringkas, tetap berwarna dan tidak terpotong. */
+.monitoring-questionnaire-content-body .monitoring-questionnaire-members-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 9px !important;
+    box-sizing: border-box !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 76px !important;
+    margin: 0 !important;
+    padding: 9px 10px !important;
+    border: 1px solid #e7eaf0 !important;
+    border-radius: 11px !important;
+    color: #263247 !important;
+    text-align: left !important;
+    box-sizing: border-box !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    transition: outline .15s ease, box-shadow .15s ease !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:nth-child(5n + 1) {
+    background: #fff0f5 !important;
+    border-color: #f4c8d8 !important;
+}
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:nth-child(5n + 2) {
+    background: #fff8d9 !important;
+    border-color: #f0df9b !important;
+}
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:nth-child(5n + 3) {
+    background: #f1eaff !important;
+    border-color: #d7c6f4 !important;
+}
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:nth-child(5n + 4) {
+    background: #e8f4ff !important;
+    border-color: #c4def5 !important;
+}
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:nth-child(5n) {
+    background: #e9f8ed !important;
+    border-color: #c5e8ce !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:hover,
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card.is-selected {
+    color: #263247 !important;
+    outline: 2px solid #252a86 !important;
+    outline-offset: 1px !important;
+    box-shadow: 0 0 0 2px rgba(37, 42, 134, .08) !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-avatar {
+    display: grid !important;
+    flex: 0 0 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+    place-items: center !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, .78) !important;
+    color: #374151 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-info {
+    display: grid !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    gap: 4px !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-info strong {
+    display: block !important;
+    color: #263247 !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    line-height: 1.4 !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-info span {
+    color: #657084 !important;
+    font-size: 11px !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-info small {
+    color: #657084 !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Hasil jawaban anggota dibuat dua kolom seperti Part 1-4. */
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    gap: 9px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    max-height: 600px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-summary,
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body > .monitoring-questionnaire-placeholder {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-summary {
+    margin: 0 0 2px !important;
+    padding: 10px 12px !important;
+    border: 1px solid #e1e4f3 !important;
+    border-radius: 9px !important;
+    background: #f4f5ff !important;
+    color: #252a86 !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
+}
+
+/* Card pertanyaan Part 5 memakai gaya visual yang sama dengan Part sebelumnya. */
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body > .monitoring-question-item {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    border: 1px solid #e0e5ee !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+    box-shadow: 0 3px 10px rgba(31, 45, 80, .045) !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body .monitoring-question-number {
+    display: inline-flex !important;
+    width: fit-content !important;
+    min-width: 0 !important;
+    height: auto !important;
+    margin: 0 0 7px !important;
+    padding: 5px 9px !important;
+    border-radius: 8px !important;
+    background: #eef0f4 !important;
+    color: #657084 !important;
+    font-size: 10px !important;
+    line-height: 1.35 !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body .monitoring-question-text {
+    margin: 0 0 9px !important;
+    color: #263247 !important;
+    font-size: 12px !important;
+    font-weight: 750 !important;
+    line-height: 1.5 !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body .monitoring-answer-label {
+    margin: 8px 0 5px !important;
+    color: #667085 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body .monitoring-answer-value {
+    padding: 9px 11px !important;
+    border: 0 !important;
+    border-left: 3px solid #48b8dc !important;
+    border-radius: 9px !important;
+    background: #f3f7f9 !important;
+    color: #263247 !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
+    box-sizing: border-box !important;
+}
+
+/* Foto rumah: gambar tetap dapat dibuka dan tidak meluber. */
+.monitoring-questionnaire-content-body .monitoring-images {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-image-card {
+    min-width: 0 !important;
+    border-radius: 10px !important;
+    overflow: hidden !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-image {
+    width: 100% !important;
+    height: 150px !important;
+    object-fit: cover !important;
+}
+
+/* Responsif */
+@media (max-width: 900px) {
+    .monitoring-questionnaire-content-body .monitoring-questionnaire-members-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .monitoring-questionnaire-content-body .monitoring-images {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .monitoring-questionnaire-content-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 9px !important;
+        max-height: 420px !important;
+    }
+
+    .monitoring-questionnaire-content-body > .monitoring-question-item,
+    .monitoring-questionnaire-content-body > .monitoring-questionnaire-members-layout,
+    .monitoring-questionnaire-content-body > .monitoring-question-item:has(.questionnaire-answer-map),
+    .monitoring-questionnaire-content-body > .monitoring-question-item:has(.questionnaire-map-container),
+    .monitoring-questionnaire-content-body > .monitoring-question-item:has(.monitoring-map) {
+        grid-column: 1 !important;
+    }
+
+    .monitoring-questionnaire-content-body .monitoring-questionnaire-members-list {
+        grid-template-columns: minmax(0, 1fr) !important;
+        max-height: none !important;
+    }
+
+    .monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+        max-height: 500px !important;
+    }
+
+    .monitoring-questionnaire-content-body .monitoring-questionnaire-member-summary,
+    .monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body > .monitoring-questionnaire-placeholder {
+        grid-column: 1 !important;
+    }
+
+    .monitoring-questionnaire-content-body .monitoring-images {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
 
 </style>
 
@@ -3695,17 +4133,29 @@ if (searchInput) {
                     partMatch
                         ? parseInt(partMatch[1], 10)
                         : index + 1;
-                const partTitle =
-                    item.title ||
-                    item.judul ||
-                    item.nama ||
-                    item.part_title ||
-                    item.section_title ||
-                    (partMatch
-                        ? String(rawPart).replace(/^(?:part|bagian)?\s*\d+\s*[-:–]?\s*/i, '').trim()
-                        : '');
-                const partName =
-                    `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
+                
+
+                const rawPartTitle =
+    item.title ||
+    item.judul ||
+    item.nama ||
+    item.part_title ||
+    item.section_title ||
+    (partMatch
+        ? String(rawPart).replace(
+            /^(?:part|bagian)?\s*\d+\s*[-:–—]?\s*/i,
+            ''
+        ).trim()
+        : '');
+
+const partTitle = String(rawPartTitle)
+    .replace(/^(?:part|bagian)?\s*\d+\s*[-:–—]?\s*/i, '')
+    .replace(/^[\s\-:–—]+/, '')
+    .trim();
+
+const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
+
+
 
                 if (Array.isArray(item.members)) {
                     result.push({
@@ -4320,19 +4770,22 @@ if (searchInput) {
                             const partNumber =
                                 getPartNumber(partName, partIndex);
 
-                            let cleanTitle =
-                                String(partName)
+                                                        
+                                let cleanTitle = String(partName)
                                     .replace(
                                         /^part\s*\d+\s*[-:–]?\s*/i,
                                         ''
-                                    );
+                                    )
+                                    .replace(/^[\s\-:–—]+/, '')
+                                    .trim();
 
-                            if (
-                                cleanTitle.toLowerCase() ===
-                                ('part ' + partNumber).toLowerCase()
-                            ) {
-                                cleanTitle = '';
-                            }
+                                if (
+                                    cleanTitle.toLowerCase() ===
+                                    ('part ' + partNumber).toLowerCase()
+                                ) {
+                                    cleanTitle = '';
+                                }
+
 
                             return `
                                 <div class="monitoring-questionnaire-part">

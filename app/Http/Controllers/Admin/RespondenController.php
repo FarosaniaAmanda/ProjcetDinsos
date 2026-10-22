@@ -868,15 +868,48 @@ class RespondenController extends Controller
                 ]);
 
             /*
-            |--------------------------------------------------------------------------
-            | Hapus anggota lama
-            |--------------------------------------------------------------------------
-            */
+|--------------------------------------------------------------------------
+| Perbarui anggota tanpa menghapus data lama
+|--------------------------------------------------------------------------
+*/
 
-            $keluarga
-                ->anggota()
-                ->delete();
+foreach ($request->input('anggota', []) as $anggota) {
+    $statusKeluarga = trim(
+        (string) ($anggota['status_keluarga'] ?? '')
+    );
 
+    if ($statusKeluarga === 'Lainnya') {
+        $statusLainnya = trim(
+            (string) ($anggota['status_keluarga_lainnya'] ?? '')
+        );
+
+        if ($statusLainnya !== '') {
+            $statusKeluarga = $statusLainnya;
+        }
+    }
+
+    $anggotaLama = \App\Models\KeluargaAnggota::query()
+        ->where('keluarga_kode', $keluarga->kode)
+        ->where('nik', $anggota['nik'] ?? '')
+        ->first();
+
+    if ($anggotaLama) {
+        // Anggota sudah ada: perbarui datanya tanpa mengganti kode.
+        $anggotaLama->update([
+            'nama_lengkap' => $anggota['nama_lengkap'],
+            'status_keluarga' => $statusKeluarga,
+        ]);
+    } else {
+        // Anggota baru: buat data baru.
+        \App\Models\KeluargaAnggota::create([
+            'kode' => 'ANG-' . strtoupper(\Illuminate\Support\Str::random(10)),
+            'keluarga_kode' => $keluarga->kode,
+            'nik' => $anggota['nik'],
+            'nama_lengkap' => $anggota['nama_lengkap'],
+            'status_keluarga' => $statusKeluarga,
+        ]);
+    }
+}
             /*
             |--------------------------------------------------------------------------
             | Simpan anggota terbaru
