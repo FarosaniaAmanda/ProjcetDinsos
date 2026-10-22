@@ -7,7 +7,7 @@
 @endif
 
 @push('styles')
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
 <style>
 
@@ -1032,6 +1032,54 @@ textarea.responden-form-control {
     z-index: 1;
 }
 
+.responden-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 11px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.responden-status-badge.aktif {
+    color: #166534;
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+}
+
+.responden-status-badge.nonaktif {
+    color: #b91c1c;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+}
+
+.responden-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 12px;
+    margin-bottom: 12px;
+    border: 1px solid #dcdfea;
+    border-radius: 7px;
+    background: #fff;
+    color: #555;
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.responden-back-btn:hover {
+    background: #f7f7fa;
+    border-color: #252A86;
+    color: #252A86;
+}
+
 .geotagging-info {
     display: flex;
     align-items: center;
@@ -1206,6 +1254,11 @@ textarea.responden-form-control {
     <div class="responden-page-header">
 
         <div>
+
+            <button type="button" class="responden-back-btn" onclick="window.history.back()">
+                <span aria-hidden="true">←</span>
+                Kembali
+            </button>
 
             <div class="responden-page-label">
                 ADMIN
@@ -1447,7 +1500,9 @@ textarea.responden-form-control {
                             </td>
 
                             <td>
-                                {{ $keluarga->status_periode === 'aktif' ? 'Aktif' : 'Non Aktif' }}
+                                <span class="responden-status-badge {{ $keluarga->status_periode === 'aktif' ? 'aktif' : 'nonaktif' }}">
+                                    {{ $keluarga->status_periode === 'aktif' ? 'Aktif' : 'Non Aktif' }}
+                                </span>
                             </td>
 
                             <td>
@@ -2705,24 +2760,7 @@ textarea.responden-form-control {
 
 @push('scripts')
 
-<script>
-window.initGoogleMaps = function () {
-    window.googleMapsReady = true;
-
-    const tambahModal = document.getElementById('modalTambahResponden');
-    const editModal = document.getElementById('modalEditResponden');
-
-    if (tambahModal && tambahModal.classList.contains('active')
-        && typeof window.initMapTambah === 'function') {
-        window.initMapTambah();
-    }
-    if (editModal && editModal.classList.contains('active')
-        && typeof window.initMapEdit === 'function') {
-        window.initMapEdit();
-    }
-};
-</script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ urlencode(config('services.google_maps.api_key', env('GOOGLE_MAPS_API_KEY', ''))) }}&callback=initGoogleMaps"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -3136,40 +3174,40 @@ function setMarkerOnly(type, lat, lng) {
     const isTambah = type === 'tambah';
     const map = isTambah ? mapTambah : mapEdit;
 
-    if (!map || !window.google || !google.maps) return;
+    if (!map || !window.L) return;
 
-    const position = { lat: Number(lat), lng: Number(lng) };
+    const position = [Number(lat), Number(lng)];
 
     if (isTambah) {
         if (markerTambah) {
-            markerTambah.setPosition(position);
+            markerTambah.setLatLng(position);
         } else {
-            markerTambah = new google.maps.Marker({
-                position,
-                map,
+            markerTambah = L.marker(position, {
                 draggable: false,
                 title: 'Lokasi rumah'
-            });
+            }).addTo(map);
         }
     } else {
         if (markerEdit) {
-            markerEdit.setPosition(position);
+            markerEdit.setLatLng(position);
         } else {
-            markerEdit = new google.maps.Marker({
-                position,
-                map,
+            markerEdit = L.marker(position, {
                 draggable: true,
                 title: 'Lokasi rumah'
-            });
-            markerEdit.addListener('dragend', function (event) {
-                setPendingLocation('edit', event.latLng.lat(), event.latLng.lng());
+            }).addTo(map);
+
+            markerEdit.on('dragend', function (event) {
+                const titik = event.target.getLatLng();
+                setPendingLocation('edit', titik.lat, titik.lng);
             });
         }
-        markerEdit.setMap(map);
+
+        if (!map.hasLayer(markerEdit)) {
+            markerEdit.addTo(map);
+        }
     }
 
-    map.setCenter(position);
-    map.setZoom(17);
+    map.setView(position, 17);
 }
 
 function setSavedLocation(type, value) {
@@ -3294,7 +3332,7 @@ function batalLokasi(type) {
             : markerEdit;
 
         if (marker) {
-            marker.setMap(null);
+            marker.remove();
 
             if (type === 'tambah') {
                 markerTambah = null;
@@ -3318,53 +3356,42 @@ function batalLokasi(type) {
 
 function initMapTambah() {
     const element = document.getElementById('mapTambah');
-    if (!element) return;
-
-    if (!window.googleMapsReady || !window.google || !google.maps) {
-        element.innerHTML = '<div class="responden-detail-map-empty">Peta Google Maps belum dapat dimuat. Periksa konfigurasi GOOGLE_MAPS_API_KEY.</div>';
-        return;
-    }
+    if (!element || !window.L) return;
 
     if (!mapTambah) {
-        mapTambah = new google.maps.Map(element, {
-            center: { lat: DEFAULT_LAT, lng: DEFAULT_LNG },
-            zoom: 14,
-            mapTypeControl: true,
-            streetViewControl: false,
-            fullscreenControl: true,
-            clickableIcons: false
-        });
+        mapTambah = L.map(element).setView([DEFAULT_LAT, DEFAULT_LNG], 14);
 
-        mapTambah.addListener('click', function (event) {
-            setPendingLocation('tambah', event.latLng.lat(), event.latLng.lng());
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+        }).addTo(mapTambah);
+
+        mapTambah.on('click', function (event) {
+            setPendingLocation('tambah', event.latlng.lat, event.latlng.lng);
         });
     }
 
-    google.maps.event.trigger(mapTambah, 'resize');
-    if (markerTambah) markerTambah.setMap(mapTambah);
+    setTimeout(function () {
+        if (mapTambah) mapTambah.invalidateSize();
+    }, 100);
+
+    if (markerTambah) markerTambah.addTo(mapTambah);
 }
 
 function initMapEdit(latitude = null, longitude = null) {
     const element = document.getElementById('mapEdit');
-    if (!element) return;
-
-    if (!window.googleMapsReady || !window.google || !google.maps) {
-        element.innerHTML = '<div class="responden-detail-map-empty">Peta Google Maps belum dapat dimuat. Periksa konfigurasi GOOGLE_MAPS_API_KEY.</div>';
-        return;
-    }
+    if (!element || !window.L) return;
 
     if (!mapEdit) {
-        mapEdit = new google.maps.Map(element, {
-            center: { lat: DEFAULT_LAT, lng: DEFAULT_LNG },
-            zoom: 14,
-            mapTypeControl: true,
-            streetViewControl: false,
-            fullscreenControl: true,
-            clickableIcons: false
-        });
+        mapEdit = L.map(element).setView([DEFAULT_LAT, DEFAULT_LNG], 14);
 
-        mapEdit.addListener('click', function (event) {
-            setPendingLocation('edit', event.latLng.lat(), event.latLng.lng());
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+        }).addTo(mapEdit);
+
+        mapEdit.on('click', function (event) {
+            setPendingLocation('edit', event.latlng.lat, event.latlng.lng);
         });
     }
 
@@ -3372,7 +3399,9 @@ function initMapEdit(latitude = null, longitude = null) {
         setMarkerOnly('edit', latitude, longitude);
     }
 
-    google.maps.event.trigger(mapEdit, 'resize');
+    setTimeout(function () {
+        if (mapEdit) mapEdit.invalidateSize();
+    }, 100);
 }
 
 function ambilLokasi(type, button) {
@@ -3440,11 +3469,11 @@ function ambilLokasi(type, button) {
 function tutupModalDetail() {
     const modal = document.getElementById('modalDetailResponden');
 
-    if (window.detailRespondenMarker) {
-        window.detailRespondenMarker.setMap(null);
-        window.detailRespondenMarker = null;
+    if (window.detailRespondenMap) {
+        window.detailRespondenMap.remove();
+        window.detailRespondenMap = null;
     }
-    window.detailRespondenMap = null;
+    window.detailRespondenMarker = null;
     window.detailRespondenMapCoordinates = null;
 
     if (modal) {
@@ -3455,33 +3484,41 @@ function tutupModalDetail() {
 }
 
 function tampilkanPetaDetailResponden(element, geo, koordinat) {
-    if (!window.googleMapsReady || !window.google || !google.maps) {
-        element.innerHTML = '<div class="responden-detail-map-empty">Peta Google Maps belum dapat dimuat. Periksa konfigurasi GOOGLE_MAPS_API_KEY.</div>';
+    if (!window.L) {
+        element.innerHTML = '<div class="responden-detail-map-empty">Peta belum dapat dimuat. Periksa koneksi internet.</div>';
         return;
     }
 
-    window.detailRespondenMap = new google.maps.Map(element, {
-        center: { lat: Number(geo.lat), lng: Number(geo.lng) },
-        zoom: 17,
-        mapTypeControl: true,
-        streetViewControl: false,
-        fullscreenControl: true
-    });
+    if (window.detailRespondenMap) {
+        window.detailRespondenMap.remove();
+        window.detailRespondenMap = null;
+    }
+
+    window.detailRespondenMap = L.map(element).setView(
+        [Number(geo.lat), Number(geo.lng)],
+        17
+    );
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
+    }).addTo(window.detailRespondenMap);
 
     window.detailRespondenMapCoordinates = geo;
-    window.detailRespondenMarker = new google.maps.Marker({
-        position: { lat: Number(geo.lat), lng: Number(geo.lng) },
-        map: window.detailRespondenMap,
-        title: 'Lokasi Rumah'
-    });
+    window.detailRespondenMarker = L.marker(
+        [Number(geo.lat), Number(geo.lng)],
+        { title: 'Lokasi Rumah' }
+    ).addTo(window.detailRespondenMap);
 
-    const infoWindow = new google.maps.InfoWindow({
-        content: '<strong>Lokasi Rumah</strong><br>' + escapeHtml(koordinat ?? '')
-    });
-    infoWindow.open({
-        map: window.detailRespondenMap,
-        anchor: window.detailRespondenMarker
-    });
+    window.detailRespondenMarker.bindPopup(
+        '<strong>Lokasi Rumah</strong><br>' + escapeHtml(koordinat ?? '')
+    ).openPopup();
+
+    setTimeout(function () {
+        if (window.detailRespondenMap) {
+            window.detailRespondenMap.invalidateSize();
+        }
+    }, 100);
 }
 
 function bersihkanAlamatDetail(alamat) {
@@ -3511,11 +3548,11 @@ window.detailResponden = function (id) {
     document.body.style.overflow = 'hidden';
     body.scrollTop = 0;
 
-    if (window.detailRespondenMarker) {
-        window.detailRespondenMarker.setMap(null);
-        window.detailRespondenMarker = null;
+    if (window.detailRespondenMap) {
+        window.detailRespondenMap.remove();
+        window.detailRespondenMap = null;
     }
-    window.detailRespondenMap = null;
+    window.detailRespondenMarker = null;
     window.detailRespondenMapCoordinates = null;
 
     body.innerHTML = `
@@ -4267,8 +4304,86 @@ function parseGeotangging(value) {
 
 
 /* =========================================================
-   SEARCH
+   SEARCH LANGSUNG (TANPA ENTER)
 ========================================================= */
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('searchRespondenForm');
+    const input = document.getElementById('searchResponden');
+    const tableBody = document.getElementById('respondenTableBody');
+    const paginationAwal = document.querySelector('.responden-pagination');
+
+    if (!form || !input || !tableBody) return;
+
+    let searchTimer = null;
+    let requestController = null;
+
+    async function muatHasil(url, ubahRiwayat = true) {
+        if (requestController) requestController.abort();
+        requestController = new AbortController();
+
+        try {
+            const response = await fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: requestController.signal
+            });
+            if (!response.ok) throw new Error('Gagal memuat hasil pencarian.');
+
+            const html = await response.text();
+            const dokumen = new DOMParser().parseFromString(html, 'text/html');
+            const bodyBaru = dokumen.querySelector('#respondenTableBody');
+            const paginationBaru = dokumen.querySelector('.responden-pagination');
+            const bodyLama = document.getElementById('respondenTableBody');
+            const paginationLama = document.querySelector('.responden-pagination');
+
+            if (bodyBaru && bodyLama) bodyLama.innerHTML = bodyBaru.innerHTML;
+            if (paginationLama && paginationBaru) {
+                paginationLama.innerHTML = paginationBaru.innerHTML;
+            } else if (paginationLama && !paginationBaru) {
+                paginationLama.remove();
+            } else if (!paginationLama && paginationBaru) {
+                const panel = document.querySelector('.responden-panel');
+                if (panel) panel.appendChild(paginationBaru);
+            }
+
+            if (ubahRiwayat) history.replaceState({}, '', url);
+        } catch (error) {
+            if (error.name !== 'AbortError') console.error(error);
+        }
+    }
+
+    input.addEventListener('input', function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(function () {
+            const url = new URL(form.action, window.location.origin);
+            const nilai = input.value.trim();
+            if (nilai) url.searchParams.set('search', nilai);
+            else url.searchParams.delete('search');
+            // Pencarian baru selalu dimulai dari halaman pertama.
+            url.searchParams.delete('page');
+            muatHasil(url.toString());
+        }, 300);
+    });
+
+    // Klik pagination tetap memuat hasil tanpa refresh seluruh halaman.
+    document.addEventListener('click', function (event) {
+        const link = event.target.closest('.responden-pagination a');
+        if (!link) return;
+        event.preventDefault();
+        muatHasil(link.href);
+    });
+
+    // Form tetap dapat digunakan dengan Enter sebagai alternatif.
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        clearTimeout(searchTimer);
+        const url = new URL(form.action, window.location.origin);
+        const nilai = input.value.trim();
+        if (nilai) url.searchParams.set('search', nilai);
+        else url.searchParams.delete('search');
+        url.searchParams.delete('page');
+        muatHasil(url.toString());
+    });
+});
 
 /* =========================================================
    ESCAPE HTML

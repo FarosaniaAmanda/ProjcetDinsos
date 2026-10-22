@@ -1707,6 +1707,915 @@
         justify-content: center;
     }
 }
+
+/* Detail Laporan follows the verification modal's information and questionnaire layout. */
+.laporan-modal {
+    width: min(1250px, calc(100vw - 40px));
+    flex: 0 0 min(1250px, calc(100vw - 40px));
+    max-height: calc(100vh - 40px);
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+}
+
+.laporan-modal-header {
+    padding: 18px 20px;
+    align-items: flex-start;
+    border-bottom-color: #e8e9ef;
+}
+
+.laporan-modal-header h2 {
+    margin: 0;
+    color: #252a86;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.laporan-modal-header p {
+    margin: 4px 0 0;
+    color: #888;
+    font-size: 11px;
+}
+
+.laporan-modal-close {
+    display: flex;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 7px;
+    background: #f3f4f8;
+    color: #666;
+}
+
+.laporan-modal-close:hover {
+    background: #252a86;
+    color: #fff;
+}
+
+.laporan-modal-body {
+    padding: 18px 20px 22px;
+    max-height: calc(100vh - 125px);
+    scrollbar-width: thin;
+}
+
+.laporan-modal-summary {
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.laporan-summary-box {
+    padding: 13px 14px;
+    border-color: #e7e9f1;
+    border-radius: 10px;
+    background: #f8f9fc;
+}
+
+.laporan-summary-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #7b8192;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .35px;
+}
+
+.laporan-summary-value {
+    display: block;
+    margin: 4px 0 0;
+    color: #263238;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.laporan-summary-value.status-approved {
+    color: #24723c;
+    background: #eaf8ef;
+    border: 1px solid #bce5c9;
+}
+
+.laporan-summary-value.status-rejected {
+    color: #a53636;
+    background: #fdecec;
+    border: 1px solid #f2c4c4;
+}
+
+.laporan-info-section,
+.laporan-detail-data-section {
+    margin: 0 0 16px;
+    padding: 16px;
+    border: 1px solid #e7e9f1;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.laporan-info-title,
+.laporan-detail-data-heading {
+    margin: 0 0 13px;
+    color: #252a86;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.laporan-info-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.laporan-info-item {
+    padding: 11px 12px;
+    border-color: #edf0f5;
+    border-radius: 9px;
+    background: #fafbfc;
+}
+
+.laporan-info-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #6b7280;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.laporan-info-value {
+    display: block;
+    overflow: hidden;
+    color: #263238;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+    text-overflow: ellipsis;
+}
+
+.laporan-info-value.laporan-detail-status {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1.2;
+    overflow: visible;
+}
+
+.laporan-info-value.status-approved {
+    color: #24723c;
+    background: #eaf8ef;
+    border: 1px solid #bce5c9;
+}
+
+.laporan-info-value.status-rejected {
+    color: #a53636;
+    background: #fdecec;
+    border: 1px solid #f2c4c4;
+}
+
+.laporan-questionnaire-description {
+    margin: -7px 0 13px;
+    color: #7d8392;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.laporan-detail-data-section:has(#laporanQuestionnaireTotal) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.laporan-detail-data-section:has(#laporanQuestionnaireTotal) > .laporan-detail-data-heading,
+.laporan-detail-data-section:has(#laporanQuestionnaireTotal) > .laporan-questionnaire-description {
+    grid-column: 1;
+}
+
+.laporan-detail-data-section:has(#laporanQuestionnaireTotal) > #laporanQuestionnaireTotal {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
+}
+
+.laporan-detail-data-section:has(#laporanQuestionnaireTotal) > #modalQuestionnaireContent {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
+.laporan-detail-data-heading {
+    font-size: 15px;
+}
+
+.laporan-members-table-wrap {
+    border-color: #e3e6ef;
+    border-radius: 9px;
+}
+
+.laporan-members-table {
+    min-width: 500px;
+}
+
+.laporan-members-table th {
+    padding: 11px 13px;
+    background: #f1f3ff;
+    font-size: 11px;
+}
+
+.laporan-members-table td {
+    padding: 11px 13px;
+    font-size: 12px;
+}
+
+.questionnaire-total,
+.questionnaire-content-count,
+.questionnaire-part5-answer-count {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #eef0ff;
+    color: #252a86;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.questionnaire-parts {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+}
+
+.questionnaire-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid #e3e6ef;
+    border-radius: 12px;
+    background: #f8f9fc;
+}
+
+.questionnaire-sidebar-title {
+    padding: 6px 8px 9px;
+    color: #5c6272;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+}
+
+.questionnaire-part {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: 10px;
+}
+
+.questionnaire-part-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 64px;
+    padding: 10px 11px;
+    border: 1px solid #e3e6ef;
+    border-radius: 10px;
+    background: #fff;
+    color: #303545;
+    text-align: left;
+    cursor: pointer;
+}
+
+.questionnaire-part-header:hover,
+.questionnaire-part.is-active .questionnaire-part-header {
+    border-color: #252a86;
+    background: #eef0ff;
+}
+
+.questionnaire-part-number {
+    display: flex;
+    flex: 0 0 34px;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: #eef0f5;
+    color: #555b6b;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.questionnaire-part.is-active .questionnaire-part-number,
+.questionnaire-part.is-active .questionnaire-part-chevron {
+    background: #252a86;
+    color: #fff;
+}
+
+.questionnaire-part-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.questionnaire-part-title strong,
+.questionnaire-part-title span {
+    display: block;
+}
+
+.questionnaire-part-title strong {
+    overflow: hidden;
+    color: #303545;
+    font-size: 12px;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+}
+
+.questionnaire-part.is-active .questionnaire-part-title strong {
+    color: #252a86;
+}
+
+.questionnaire-part-title span {
+    margin-top: 3px;
+    color: #858b99;
+    font-size: 10px;
+}
+
+.questionnaire-part-chevron {
+    display: flex;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #f1f2f6;
+    color: #777d8c;
+}
+
+.questionnaire-part.is-active .questionnaire-part-chevron {
+    transform: rotate(180deg);
+}
+
+.questionnaire-part-body {
+    display: none;
+}
+
+.questionnaire-content-panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #e3e6ef;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.questionnaire-content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 15px 17px;
+    border-bottom: 1px solid #e7e9f0;
+    background: #fafbfe;
+}
+
+.questionnaire-content-heading {
+    min-width: 0;
+}
+
+.questionnaire-content-kicker {
+    display: block;
+    margin-bottom: 3px;
+    color: #7c8291;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+}
+
+.questionnaire-content-title {
+    margin: 0;
+    color: #252a86;
+    font-size: 15px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
+.questionnaire-content-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 10px;
+    padding: 15px;
+    max-height: 520px;
+    overflow-y: auto;
+    background: #fff;
+}
+
+.questionnaire-question {
+    min-width: 0;
+    padding: 15px;
+    border: 1px solid #e5e7ee;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 7px rgba(30, 35, 60, .03);
+}
+
+.questionnaire-question-number {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #f0f1f5;
+    color: #666c7a;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .35px;
+}
+
+.questionnaire-question-text {
+    margin-bottom: 12px;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.65;
+    overflow-wrap: anywhere;
+}
+
+.questionnaire-answer-label {
+    margin-bottom: 5px;
+    color: #656b79;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.questionnaire-answer {
+    min-height: 42px;
+    padding: 10px 12px;
+    border-left: 3px solid #55b5d5;
+    border-radius: 7px;
+    background: #f5f8fa;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.questionnaire-answer.is-empty {
+    border-left-color: #f5c928;
+    background: #fff9e8;
+    color: #8a6a20;
+}
+
+.questionnaire-content-body.is-photo-part {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.questionnaire-content-body.is-photo-part > .questionnaire-question {
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    min-width: 0;
+    height: fit-content;
+    padding: 10px;
+    overflow: hidden;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-question-text {
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-answer-image {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    gap: 6px;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.questionnaire-content-body.is-photo-part .questionnaire-answer-image img {
+    display: block;
+    width: 100%;
+    flex: 0 0 220px;
+    height: 220px;
+    max-height: 220px;
+    margin: 0;
+    border: 1px solid #e3e6ef;
+    border-radius: 9px;
+    background: #f5f7fb;
+    object-fit: cover;
+}
+
+.questionnaire-image-caption {
+    margin-top: 2px;
+    color: #30364a;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.questionnaire-image-link,
+.questionnaire-part5-image-link {
+    align-self: flex-start;
+    display: inline-flex;
+    justify-content: center;
+    margin-top: 2px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    background: #eef0ff;
+    color: #252a86;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.questionnaire-image-link:hover,
+.questionnaire-part5-image-link:hover {
+    background: #252a86;
+    color: #fff;
+}
+
+.questionnaire-part1-map-section {
+    grid-column: 1 / -1;
+    margin-top: 0;
+    padding: 12px;
+    border: 1px solid #e3e6ef;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.questionnaire-part1-map-title {
+    margin-bottom: 10px;
+    color: #252a86;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.questionnaire-part1-map-container {
+    height: 230px;
+    overflow: hidden;
+    border: 1px solid #dfe3ee;
+    border-radius: 9px;
+}
+
+.questionnaire-part1-map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.questionnaire-part1-coordinate {
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+.questionnaire-empty,
+.laporan-detail-loading,
+.laporan-detail-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    padding: 25px;
+    border: 1px dashed #dfe2eb;
+    border-radius: 10px;
+    background: #fafbfc;
+    color: #7b8190;
+    text-align: center;
+}
+
+.questionnaire-empty strong,
+.laporan-detail-empty strong {
+    color: #4a5060;
+    font-size: 13px;
+}
+
+.questionnaire-empty span,
+.laporan-detail-empty span {
+    max-width: 400px;
+    margin-top: 5px;
+    color: #8a90a0;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.questionnaire-part5-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 270px) minmax(0, 1fr);
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+}
+
+.questionnaire-part5-members,
+.questionnaire-part5-answer {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid #e4e7ef;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.questionnaire-part5-panel-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e8eaf0;
+    background: #fafbfe;
+}
+
+.questionnaire-part5-panel-header strong {
+    display: block;
+    color: #252a86;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.questionnaire-part5-panel-header span {
+    display: block;
+    margin-top: 3px;
+    color: #858b99;
+    font-size: 10.5px;
+    line-height: 1.45;
+}
+
+.questionnaire-part5-member-list {
+    max-height: 560px;
+    overflow-y: auto;
+    padding: 7px;
+}
+
+.questionnaire-part5-member-card {
+    display: block;
+    width: 100%;
+    margin: 0 0 6px;
+    padding: 9px 10px;
+    border: 1px solid #e5e8f0;
+    border-radius: 10px;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+}
+
+.questionnaire-part5-member-card:hover {
+    border-color: #cfd5f5;
+    background: #fafbff;
+}
+
+.questionnaire-part5-member-card.is-selected {
+    border-color: #252a86;
+    background: #f2f3ff;
+}
+
+.questionnaire-part5-member-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.questionnaire-part5-member-avatar {
+    display: flex;
+    flex: 0 0 30px;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #eef0ff;
+    color: #252a86;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.questionnaire-part5-member-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.questionnaire-part5-member-name {
+    overflow: hidden;
+    color: #303545;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.questionnaire-part5-member-relation {
+    display: block;
+    margin-top: 2px;
+    color: #7b8190;
+    font-size: 10px;
+}
+
+.questionnaire-part5-member-nik {
+    display: block;
+    margin-top: 5px;
+    color: #858b99;
+    font-size: 9px;
+    word-break: break-all;
+}
+
+.questionnaire-part5-answer-body {
+    max-height: 560px;
+    overflow-y: auto;
+    padding: 14px;
+}
+
+.questionnaire-part5-answer-member {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    padding-bottom: 13px;
+    margin-bottom: 13px;
+    border-bottom: 1px solid #e8eaf0;
+}
+
+.questionnaire-part5-answer-member h4 {
+    margin: 0;
+    color: #252a86;
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.questionnaire-part5-answer-member p {
+    margin: 4px 0 0;
+    color: #777e8d;
+    font-size: 10.5px;
+    line-height: 1.5;
+}
+
+.questionnaire-part5-question {
+    padding: 12px 13px;
+    margin-bottom: 9px;
+    border: 1px solid #e7e9f0;
+    border-radius: 10px;
+}
+
+.questionnaire-part5-question-number,
+.questionnaire-part5-answer-label {
+    color: #858b99;
+    font-size: 9px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.questionnaire-part5-question-text {
+    margin-top: 4px;
+    color: #303545;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.questionnaire-part5-answer-label {
+    margin-top: 9px;
+}
+
+.questionnaire-part5-answer-value {
+    margin-top: 4px;
+    color: #454b59;
+    font-size: 12px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.questionnaire-part5-image {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    max-height: 320px;
+    margin-top: 9px;
+    border: 1px solid #e3e5eb;
+    border-radius: 9px;
+    background: #f8f9fc;
+    object-fit: contain;
+}
+
+.questionnaire-part5-image-link {
+    margin-top: 7px;
+    padding: 6px 9px;
+    font-size: 10px;
+}
+
+@media (max-width: 900px) {
+    .laporan-info-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .questionnaire-parts {
+        grid-template-columns: 190px minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .questionnaire-part5-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .questionnaire-content-body.is-photo-part {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .laporan-modal {
+        width: calc(100vw - 20px);
+        flex-basis: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        border-radius: 12px;
+    }
+
+    .laporan-modal-header {
+        padding: 15px 16px;
+    }
+
+    .laporan-modal-body {
+        padding: 15px;
+        max-height: calc(100vh - 115px);
+    }
+
+    .laporan-info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .laporan-detail-data-section {
+        padding: 14px;
+    }
+
+    .laporan-detail-data-section:has(#laporanQuestionnaireTotal) {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .questionnaire-parts,
+    .questionnaire-content-body.is-photo-part {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .questionnaire-sidebar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .questionnaire-sidebar-title {
+        grid-column: 1 / -1;
+    }
+
+    .questionnaire-part-header {
+        min-height: 56px;
+        padding: 10px 12px;
+    }
+
+    .questionnaire-content-body {
+        max-height: 65vh;
+        padding: 12px;
+    }
+
+    .questionnaire-content-header {
+        padding: 13px 14px;
+    }
+
+    .questionnaire-content-title {
+        font-size: 14px;
+    }
+
+    .laporan-modal-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .laporan-modal-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 400px) {
+    .laporan-info-grid,
+    .questionnaire-sidebar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .questionnaire-sidebar-title {
+        grid-column: 1;
+    }
+
+    .laporan-summary-box {
+        padding: 13px 14px;
+    }
+}
 </style>
 
 <div class="laporan-page"> 
@@ -2290,13 +3199,13 @@
  
             <div> 
  
-                <h2 id="laporanDetailTitle"> 
-                    Detail Data Keluarga 
+                <h2 id="laporanDetailTitle">
+                    Detail Data Pendataan
                 </h2> 
  
-                <p> 
-                    Informasi lengkap pendataan satu keluarga 
-                </p> 
+                <p>
+                    Periksa informasi responden dan jawaban kuisioner.
+                </p>
  
             </div> 
  
@@ -2329,46 +3238,31 @@
  
                 <div class="laporan-summary-box"> 
  
-                    <div class="laporan-summary-label"> 
-                        Nama Kepala Keluarga 
-                    </div> 
+                    <span class="laporan-summary-label">
+                        Nama Responden
+                    </span>
  
-                    <div 
-                        class="laporan-summary-value" 
-                        id="modalNamaSummary" 
-                    > 
-                        - 
-                    </div> 
+                    <strong class="laporan-summary-value" id="modalNamaSummary">-</strong>
  
                 </div> 
  
                 <div class="laporan-summary-box"> 
  
-                    <div class="laporan-summary-label"> 
-                        Nomor KK 
-                    </div> 
+                    <span class="laporan-summary-label">
+                        Nomor KK
+                    </span>
  
-                    <div 
-                        class="laporan-summary-value" 
-                        id="modalKkSummary" 
-                    > 
-                        - 
-                    </div> 
+                    <strong class="laporan-summary-value" id="modalKkSummary">-</strong>
  
                 </div> 
  
                 <div class="laporan-summary-box"> 
  
-                    <div class="laporan-summary-label"> 
-                        Status Pendataan 
-                    </div> 
+                    <span class="laporan-summary-label">
+                        Status Pendataan
+                    </span>
  
-                    <div 
-                        class="laporan-summary-value" 
-                        id="modalStatusSummary" 
-                    > 
-                        - 
-                    </div> 
+                    <strong class="laporan-summary-value" id="modalStatusSummary">-</strong>
  
                 </div> 
  
@@ -2380,67 +3274,67 @@
                 <p class="laporan-rejection-reason-text" id="laporanRejectionReasonText">-</p>
             </section>
 
-            <div class="laporan-info-section"> 
+            <section class="laporan-detail-data-section laporan-info-section">
  
-                <div class="laporan-info-title"> 
-                    Informasi Pendataan 
-                </div> 
+                <div class="laporan-detail-data-heading">
+                    Informasi Responden
+                </div>
  
                 <div class="laporan-info-grid"> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Nomor KK</div> 
-                        <div class="laporan-info-value" id="modalNoKk">-</div> 
+                        <span class="laporan-info-label">No. KK</span>
+                        <strong class="laporan-info-value" id="modalNoKk">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">NIK</div> 
-                        <div class="laporan-info-value" id="modalNik">-</div> 
+                        <span class="laporan-info-label">NIK</span>
+                        <strong class="laporan-info-value" id="modalNik">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Nama Kepala Keluarga</div> 
-                        <div class="laporan-info-value" id="modalNama">-</div> 
+                        <span class="laporan-info-label">Nama Kepala Keluarga</span>
+                        <strong class="laporan-info-value" id="modalNama">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Jumlah Anggota</div> 
-                        <div class="laporan-info-value" id="modalJumlahAnggota">-</div> 
+                        <span class="laporan-info-label">Jumlah Anggota Keluarga</span>
+                        <strong class="laporan-info-value" id="modalJumlahAnggota">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Wilayah</div> 
-                        <div class="laporan-info-value" id="modalWilayah">-</div> 
+                        <span class="laporan-info-label">Wilayah</span>
+                        <strong class="laporan-info-value" id="modalWilayah">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Periode</div> 
-                        <div class="laporan-info-value" id="modalPeriode">-</div> 
+                        <span class="laporan-info-label">Periode Pendataan</span>
+                        <strong class="laporan-info-value" id="modalPeriode">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Tanggal Pendataan</div> 
-                        <div class="laporan-info-value" id="modalTanggal">-</div> 
+                        <span class="laporan-info-label">Tanggal Pendataan</span>
+                        <strong class="laporan-info-value" id="modalTanggal">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Status</div> 
-                        <div class="laporan-info-value" id="modalStatus">-</div> 
+                        <span class="laporan-info-label">Status Saat Ini</span>
+                        <strong class="laporan-info-value" id="modalStatus">-</strong>
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <div class="laporan-info-label">Kelengkapan Data</div> 
-                        <div class="laporan-info-value" id="modalComplete">-</div> 
-                    </div> 
+                        <span class="laporan-info-label">Kelengkapan Data</span>
+                        <strong class="laporan-info-value" id="modalComplete">-</strong>
+                    </div>
  
                 </div> 
  
-            </div> 
+            </section>
  
             <section class="laporan-detail-data-section"> 
  
-                <div class="laporan-detail-data-heading"> 
-                    Anggota Keluarga 
+                <div class="laporan-detail-data-heading">
+                    Anggota dalam Kartu Keluarga
                 </div> 
  
                 <div id="modalMembersContent" class="laporan-detail-loading"> 
@@ -2451,9 +3345,17 @@
  
             <section class="laporan-detail-data-section"> 
  
-                <div class="laporan-detail-data-heading"> 
-                    Hasil Kuisioner 
+                <div class="laporan-detail-data-heading">
+                    Hasil Kuisioner
                 </div> 
+
+                <p class="laporan-questionnaire-description">
+                    Pilih bagian kuisioner di sebelah kiri untuk melihat pertanyaan dan jawaban responden.
+                </p>
+
+                <div class="questionnaire-total" id="laporanQuestionnaireTotal">
+                    0 Part
+                </div>
  
                 <div id="modalQuestionnaireContent" class="laporan-detail-loading"> 
                     Memuat hasil kuisioner... 
@@ -2937,134 +3839,182 @@ const modalNoKk = document.getElementById(
                 : []; 
  
             if (questions.length === 0) { 
- 
-                return ` 
-                    <div class="laporan-detail-empty"> 
-                        Belum ada jawaban pada bagian ini. 
-                    </div> 
-                `; 
-            } 
- 
-            return ` 
-                <table class="laporan-question-table"> 
- 
-                    <thead> 
-                        <tr> 
- 
-                            <th style="width:45%;"> 
-                                Pertanyaan 
-                            </th> 
- 
-                            <th> 
-                                Jawaban 
-                            </th> 
- 
-                        </tr> 
-                    </thead> 
- 
-                    <tbody> 
- 
-                        ${questions.map(function (question) { 
- 
-                            const label = cleanPart1ResultLabel(
-                                question.question ||
-                                question.text ||
-                                question.pertanyaan ||
-                                'Pertanyaan'
-                            ); 
- 
-                            const answer = 
-                                reportAnswerText(question); 
- 
-                            const imageUrl = 
-                                question.imageUrl || 
-                                question.image_url || 
-                                question.url || 
-                                question.path || 
-                                ( 
-                                    question.type === 'image' 
-                                        ? answer 
-                                        : '' 
-                                ); 
- 
-                            const safeImageUrl = 
-                                /^(https?:\/\/|\/storage\/|storage\/|\/uploads\/|uploads\/)/i 
-                                    .test(imageUrl); 
- 
-                            const isImage = 
-                                safeImageUrl && 
-                                ( 
-                                    question.type === 'image' || 
-                                    question.imageUrl || 
-                                    question.image_url || 
-                                    question.url || 
-                                    question.path 
-                                ); 
- 
-                            return ` 
-                                <tr> 
- 
-                                    <td> 
-                                        ${escapeHtml(label)} 
-                                    </td> 
- 
-                                    <td> 
- 
-                                        ${ 
-                                            isImage 
-                                                ? ` 
-                                                    <a 
-                                                        href="${escapeHtml(imageUrl)}" 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer" 
-                                                    > 
-                                                        <img 
-                                                            src="${escapeHtml(imageUrl)}" 
-                                                            class="laporan-answer-image" 
-                                                            alt="Foto jawaban" 
-                                                            onerror="this.style.display='none';" 
-                                                        > 
- 
-                                                        <span class="laporan-answer-image-link"> 
-                                                            Lihat foto 
-                                                        </span> 
-                                                    </a> 
-                                                  ` 
- 
-                                                : safeImageUrl 
-                                                    ? ` 
-                                                        <a 
-                                                            href="${escapeHtml(imageUrl)}" 
-                                                            target="_blank" 
-                                                            rel="noopener noreferrer" 
-                                                            class="laporan-answer-image-link" 
-                                                        > 
-                                                            Lihat file 
-                                                        </a> 
-                                                      ` 
- 
-                                                    : escapeHtml(answer) 
-                                        } 
- 
-                                    </td> 
- 
-                                </tr> 
-                            `; 
- 
-                        }).join('')} 
- 
-                    </tbody> 
- 
-                </table>
 
+                return `
+                    <div class="questionnaire-empty">
+                        <strong>Belum Ada Pertanyaan</strong>
+                        <span>Pertanyaan untuk bagian ini belum tersedia.</span>
+                    </div>
+                `;
+            }
+
+            return `
+                ${questions.map(function (question, index) {
+                    const label = cleanPart1ResultLabel(
+                        question.text ||
+                        question.question ||
+                        question.pertanyaan ||
+                        `Pertanyaan ${index + 1}`
+                    );
+                    const answer = reportAnswerText(question);
+                    const type = String(question.type || '').toLowerCase();
+                    const imageUrl = String(question.imageUrl || '').trim();
+                    const safeImageUrl =
+                        /^(https?:\/\/|\/storage\/|storage\/|\/uploads\/|uploads\/)/i.test(imageUrl);
+                    const isImage = type === 'image' && safeImageUrl;
+                    const isLocation = type === 'map';
+
+                    return `
+                        <div class="questionnaire-question${isImage ? ' questionnaire-photo-question' : ''}${isLocation ? ' questionnaire-location-question' : ''}">
+                            <div class="questionnaire-question-number">${isLocation ? 'LOKASI RUMAH' : `PERTANYAAN ${escapeHtml(question.number || index + 1)}`}</div>
+                            <div class="questionnaire-question-text">${escapeHtml(label)}</div>
+                            <div class="questionnaire-answer-label">${isLocation ? 'Koordinat dan peta' : 'Jawaban Responden'}</div>
+                            ${isImage
+                                ? `
+                                    <div class="questionnaire-answer questionnaire-answer-image">
+                                        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(question.imageName || label)}" loading="lazy" onerror="this.closest('.questionnaire-answer').textContent='Gambar tidak dapat ditampilkan.'">
+                                        <a class="questionnaire-image-link" href="${escapeHtml(imageUrl)}" target="_blank" rel="noopener noreferrer">Buka gambar</a>
+                                    </div>
+                                `
+                                : `<div class="questionnaire-answer${answer.trim() ? '' : ' is-empty'}">${escapeHtml(answer.trim() ? answer : 'Belum diisi')}</div>`
+                            }
+                        </div>
+                    `;
+                }).join('')}
                 ${
-                    String(part.part || '').trim() === '1' ||
-                    String(part.part || '').trim().toLowerCase() === 'part 1'
+                    String(part.number || part.part || '').trim() === '1' ||
+                    String(part.number || part.part || '').trim().toLowerCase() === 'part 1'
                         ? renderPart1GeotagMap()
                         : ''
                 }
             `;
         } 
+
+        function renderPart5(part, contentBody) {
+            const members = Array.isArray(part.members) ? part.members : [];
+            contentBody.classList.remove('is-photo-part', 'is-map-part');
+            contentBody.innerHTML = `
+                <div class="questionnaire-part5-layout">
+                    <section class="questionnaire-part5-members">
+                        <div class="questionnaire-part5-panel-header">
+                            <strong>Anggota Keluarga</strong>
+                            <span>Pilih anggota untuk melihat hasil jawaban di sebelah kanan.</span>
+                        </div>
+                        <div class="questionnaire-part5-member-list"></div>
+                    </section>
+                    <section class="questionnaire-part5-answer">
+                        <div class="questionnaire-part5-panel-header">
+                            <strong>Hasil Jawaban Anggota</strong>
+                            <span>Detail jawaban tampil di halaman yang sama.</span>
+                        </div>
+                        <div class="questionnaire-part5-answer-body">
+                            <div class="questionnaire-part5-answer-empty">
+                                <strong>Pilih Anggota</strong>
+                                <span>Klik salah satu anggota di sebelah kiri untuk menampilkan seluruh jawaban.</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            `;
+
+            const memberList = contentBody.querySelector('.questionnaire-part5-member-list');
+            const answerBody = contentBody.querySelector('.questionnaire-part5-answer-body');
+
+            if (!members.length) {
+                memberList.innerHTML = `
+                    <div class="questionnaire-part5-answer-empty">
+                        <strong>Belum Ada Anggota Keluarga</strong>
+                        <span>Data jawaban anggota keluarga belum tersedia.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            members.forEach(function (member) {
+                const name = String(member.nama || member.nama_lengkap || '-');
+                const relation = String(member.status_keluarga || member.status || '-');
+                const nik = String(member.nik || '-');
+                const initial = name.trim() ? name.trim().charAt(0).toUpperCase() : '?';
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'questionnaire-part5-member-card';
+                button.innerHTML = `
+                    <span class="questionnaire-part5-member-top">
+                        <span class="questionnaire-part5-member-avatar">${escapeHtml(initial)}</span>
+                        <span class="questionnaire-part5-member-main">
+                            <span class="questionnaire-part5-member-name">${escapeHtml(name)}</span>
+                            <span class="questionnaire-part5-member-relation">${escapeHtml(relation)}</span>
+                        </span>
+                    </span>
+                    <span class="questionnaire-part5-member-nik">NIK: ${escapeHtml(nik)}</span>
+                `;
+
+                button.addEventListener('click', function () {
+                    memberList.querySelectorAll('.questionnaire-part5-member-card').forEach(function (other) {
+                        other.classList.remove('is-selected');
+                    });
+                    button.classList.add('is-selected');
+
+                    const questions = Array.isArray(member.questions)
+                        ? member.questions
+                        : [];
+                    const usableQuestions = questions
+                        .map(function (question, index) {
+                            return normalizeQuestion(question, index);
+                        })
+                        .filter(function (question) {
+                            return question.text.trim().toLowerCase() !== 'data part 5';
+                        });
+
+                    answerBody.innerHTML = `
+                        <div class="questionnaire-part5-answer-member">
+                            <div>
+                                <h4>${escapeHtml(name)}</h4>
+                                <p>NIK: ${escapeHtml(nik)} &nbsp;•&nbsp; ${escapeHtml(relation)}</p>
+                            </div>
+                            <span class="questionnaire-part5-answer-count">${usableQuestions.length} jawaban</span>
+                        </div>
+                    `;
+
+                    if (!usableQuestions.length) {
+                        answerBody.insertAdjacentHTML('beforeend', `
+                            <div class="questionnaire-part5-answer-empty">
+                                <strong>Jawaban Belum Tersedia</strong>
+                                <span>Belum ada pertanyaan atau jawaban yang tersimpan untuk anggota ini.</span>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    usableQuestions.forEach(function (question, index) {
+                        const answer = question.answer.trim();
+                        const imageUrl = String(question.imageUrl || '').trim();
+                        const safeImageUrl =
+                            /^(https?:\/\/|\/storage\/|storage\/|\/uploads\/|uploads\/)/i.test(imageUrl);
+                        const isImage = question.type === 'image' && safeImageUrl;
+                        answerBody.insertAdjacentHTML('beforeend', `
+                            <div class="questionnaire-part5-question">
+                                <div class="questionnaire-part5-question-number">Pertanyaan ${index + 1}</div>
+                                <div class="questionnaire-part5-question-text">${escapeHtml(question.text || `Pertanyaan ${index + 1}`)}</div>
+                                <div class="questionnaire-part5-answer-label">Jawaban</div>
+                                ${isImage
+                                    ? `
+                                        <div class="questionnaire-part5-answer-value questionnaire-part5-image-answer">
+                                            <img class="questionnaire-part5-image" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(question.imageName || question.text)}" loading="lazy">
+                                            ${question.imageName ? `<div class="questionnaire-image-caption">${escapeHtml(question.imageName)}</div>` : ''}
+                                            <a class="questionnaire-part5-image-link" href="${escapeHtml(imageUrl)}" target="_blank" rel="noopener noreferrer">Buka gambar</a>
+                                        </div>
+                                    `
+                                    : `<div class="questionnaire-part5-answer-value${answer ? '' : ' is-empty'}">${escapeHtml(answer || 'Belum diisi')}</div>`
+                                }
+                            </div>
+                        `);
+                    });
+                });
+
+                memberList.appendChild(button);
+            });
+        }
  
         /* =====================================================
            PETA GEOTAGGING KHUSUS PART 1
@@ -3152,136 +4102,121 @@ const modalNoKk = document.getElementById(
            HTML PART KIRI + JAWABAN KANAN
         ===================================================== */ 
  
-        modalQuestionnaireContent.innerHTML = ` 
- 
-            <div class="laporan-questionnaire-layout"> 
- 
-                <div class="laporan-question-list"> 
- 
-                    ${parts.map(function (part, index) { 
- 
-                        return ` 
-                            <button 
-                                type="button" 
-                                class="laporan-question-part-btn ${index === 0 ? 'active' : ''}" 
-                                data-part-index="${index}" 
-                            > 
- 
-                                Part ${escapeHtml( 
-                                    part.part || index + 1 
-                                )} 
- 
-                                ${ 
-                                    part.title 
-                                        ? ` — ${escapeHtml(part.title)}` 
-                                        : '' 
-                                } 
- 
-                            </button> 
-                        `; 
- 
-                    }).join('')} 
- 
-                </div> 
- 
-                <div class="laporan-question-answer"> 
- 
-                    <div 
-                        class="laporan-question-answer-title" 
-                        id="laporanQuestionAnswerTitle" 
-                    > 
- 
-                        Part ${escapeHtml( 
-                            firstPart.part || 1 
-                        )} 
- 
-                        ${ 
-                            firstPart.title 
-                                ? ` — ${escapeHtml(firstPart.title)}` 
-                                : '' 
-                        } 
- 
-                    </div> 
- 
-                    <div 
-                        class="laporan-question-answer-body" 
-                        id="laporanQuestionAnswerBody" 
-                    > 
- 
-                        ${renderQuestions(firstPart)} 
- 
-                    </div> 
- 
-                </div> 
- 
-            </div> 
-        `; 
- 
-        const partButtons = 
-            modalQuestionnaireContent.querySelectorAll( 
-                '.laporan-question-part-btn' 
-            ); 
- 
-        const answerTitle = 
-            modalQuestionnaireContent.querySelector( 
-                '#laporanQuestionAnswerTitle' 
-            ); 
- 
-        const answerBody = 
-            modalQuestionnaireContent.querySelector( 
-                '#laporanQuestionAnswerBody' 
-            ); 
- 
-        /* ===================================================== 
-           KLIK PART 
-        ===================================================== */ 
- 
-        partButtons.forEach(function (button) { 
- 
-            button.addEventListener('click', function () { 
- 
-                const index = 
-                    Number(this.dataset.partIndex); 
- 
-                const selectedPart = 
-                    parts[index]; 
- 
-                if (!selectedPart) { 
-                    return; 
-                } 
- 
-                partButtons.forEach(function (item) { 
-                    item.classList.remove('active'); 
-                }); 
- 
-                this.classList.add('active'); 
- 
-                if (answerTitle) { 
- 
-                    answerTitle.innerHTML = ` 
- 
-                        Part ${escapeHtml( 
-                            selectedPart.part || index + 1 
-                        )} 
- 
-                        ${ 
-                            selectedPart.title 
-                                ? ` — ${escapeHtml(selectedPart.title)}` 
-                                : '' 
-                        } 
- 
-                    `; 
-                } 
- 
-                if (answerBody) { 
- 
-                    answerBody.innerHTML = 
-                        renderQuestions(selectedPart); 
-                } 
- 
-            }); 
- 
-        }); 
+        const questionnaireTotal = document.getElementById('laporanQuestionnaireTotal');
+        if (questionnaireTotal) {
+            questionnaireTotal.textContent = `${parts.length} Part`;
+        }
+
+        modalQuestionnaireContent.innerHTML = `
+            <div class="questionnaire-parts">
+                <div class="questionnaire-sidebar">
+                    <div class="questionnaire-sidebar-title">Bagian Kuisioner</div>
+                    ${parts.map(function (part, index) {
+                        const questionCount = Array.isArray(part.questions)
+                            ? part.questions.filter(function (question) {
+                                return String(question.type || '').toLowerCase() !== 'map';
+                            }).length
+                            : 0;
+                        const countText = Array.isArray(part.members)
+                            ? `${part.members.length} anggota`
+                            : `${questionCount} pertanyaan`;
+
+                        return `
+                            <div class="questionnaire-part${index === 0 ? ' is-active' : ''}">
+                                <button type="button" class="questionnaire-part-header" aria-expanded="${index === 0 ? 'true' : 'false'}">
+                                    <span class="questionnaire-part-number">${escapeHtml(part.number || index + 1)}</span>
+                                    <span class="questionnaire-part-title">
+                                        <strong>${escapeHtml(part.title || `Part ${part.number || index + 1}`)}</strong>
+                                        <span>${escapeHtml(countText)}</span>
+                                    </span>
+                                    <span class="questionnaire-part-chevron">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </span>
+                                </button>
+                                <div class="questionnaire-part-body"></div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="questionnaire-content-panel">
+                    <div class="questionnaire-content-header">
+                        <div class="questionnaire-content-heading">
+                            <span class="questionnaire-content-kicker">Bagian Terpilih</span>
+                            <h4 class="questionnaire-content-title">Pilih bagian kuisioner</h4>
+                        </div>
+                        <span class="questionnaire-content-count">0 Pertanyaan</span>
+                    </div>
+                    <div class="questionnaire-content-body">
+                        <div class="questionnaire-empty">
+                            <strong>Pilih Bagian Kuisioner</strong>
+                            <span>Pilih salah satu bagian di sebelah kiri untuk melihat pertanyaan dan jawaban responden.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const sidebar = modalQuestionnaireContent.querySelector('.questionnaire-sidebar');
+        const contentTitle = modalQuestionnaireContent.querySelector('.questionnaire-content-title');
+        const contentCount = modalQuestionnaireContent.querySelector('.questionnaire-content-count');
+        const contentBody = modalQuestionnaireContent.querySelector('.questionnaire-content-body');
+
+        modalQuestionnaireContent.querySelectorAll('.questionnaire-part-header').forEach(function (button, index) {
+            button.addEventListener('click', function () {
+                const partWrapper = button.closest('.questionnaire-part');
+                const selectedPart = parts[index];
+
+                if (partWrapper.classList.contains('is-active')) {
+                    partWrapper.classList.remove('is-active');
+                    button.setAttribute('aria-expanded', 'false');
+                    contentTitle.textContent = 'Pilih bagian kuisioner';
+                    contentCount.textContent = '0 Pertanyaan';
+                    contentBody.classList.remove('is-photo-part', 'is-map-part');
+                    contentBody.innerHTML = `
+                        <div class="questionnaire-empty">
+                            <strong>Belum Ada Bagian Dipilih</strong>
+                            <span>Pilih salah satu bagian kuisioner di sebelah kiri untuk melihat pertanyaan dan jawaban responden.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                sidebar.querySelectorAll('.questionnaire-part').forEach(function (partElement) {
+                    partElement.classList.remove('is-active');
+                    partElement.querySelector('.questionnaire-part-header').setAttribute('aria-expanded', 'false');
+                });
+
+                partWrapper.classList.add('is-active');
+                button.setAttribute('aria-expanded', 'true');
+                contentTitle.textContent = `Part ${selectedPart.number || index + 1} — ${selectedPart.title || ''}`.trim();
+
+                if (Array.isArray(selectedPart.members)) {
+                    contentCount.textContent = `${selectedPart.members.length} anggota keluarga`;
+                    renderPart5(selectedPart, contentBody);
+                    return;
+                }
+
+                const questions = Array.isArray(selectedPart.questions) ? selectedPart.questions : [];
+                const photoPart = questions.some(function (question) {
+                    return question.type === 'image' && Boolean(String(question.imageUrl || '').trim());
+                });
+                const mapPart = questions.some(function (question) {
+                    return question.type === 'map';
+                });
+                const questionCount = questions.filter(function (question) {
+                    return question.type !== 'map';
+                }).length;
+
+                contentCount.textContent = `${questionCount} Pertanyaan`;
+                contentBody.classList.toggle('is-photo-part', photoPart);
+                contentBody.classList.toggle('is-map-part', mapPart);
+                contentBody.innerHTML = renderQuestions(selectedPart);
+            });
+        });
+
+        modalQuestionnaireContent.querySelector('.questionnaire-part-header')?.click();
     } 
  
     /* ===================================================== 
