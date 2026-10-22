@@ -976,7 +976,6 @@ class RespondenController extends Controller
                     'updated_at' => now(),
                 ]);
 
-<<<<<<< Updated upstream
             /*
 |--------------------------------------------------------------------------
 | Perbarui anggota tanpa menghapus data lama
@@ -1028,19 +1027,6 @@ foreach ($request->input('anggota', []) as $anggota) {
 
             foreach (
                 $request->input('anggota', []) as $anggota
-=======
-            // Anggota boleh dihapus hanya jika pendataan kuisioner belum dimulai.
-            // Draft maupun kuisioner yang sudah dikirim mengunci penghapusan.
-            $dataKuisioner = $this->getKuisionerUntukKeluarga($keluarga);
-            $anggotaTerkunci = $this->isAnggotaTerkunci($dataKuisioner?->status);
-            $anggotaMasuk = $request->input('anggota', []);
-
-            if (
-                $this->isPenambahanAnggotaTerkunci($dataKuisioner?->status)
-                && collect($anggotaMasuk)->contains(
-                    fn (array $anggota): bool => empty($anggota['id'])
-                )
->>>>>>> Stashed changes
             ) {
                 throw ValidationException::withMessages([
                     'anggota' => 'Anggota baru tidak dapat ditambahkan karena kuisioner sedang menunggu verifikasi atau telah disetujui.',
