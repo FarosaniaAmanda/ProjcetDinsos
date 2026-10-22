@@ -698,13 +698,13 @@ color: #7652C8;
     .monitoring-modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.52);
+        background: rgba(15, 18, 45, 0.55);
         display: none;
         align-items: center;
         justify-content: center;
-        padding: 10px;
-        z-index: 3000;
-        backdrop-filter: blur(3px);
+        padding: 20px;
+        z-index: 2000;
+        backdrop-filter: blur(2px);
     }
 
     .monitoring-modal-overlay.active {
@@ -734,10 +734,10 @@ color: #7652C8;
     }
 
     .monitoring-modal-header {
-        padding: 16px 20px;
-        border-bottom: 1px solid #e5e7eb;
+        padding: 18px 20px;
+        border-bottom: 1px solid #e8e9ef;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 15px;
         background: #ffffff;
@@ -752,16 +752,16 @@ color: #7652C8;
     }
 
     .monitoring-modal-header-left p {
-        margin: 5px 0 0;
-        font-size: 14px;
-        color: #7b7f87;
+        margin: 4px 0 0;
+        font-size: 11px;
+        color: #888;
     }
 
     .monitoring-modal-close {
-        width: 42px;
-        height: 42px;
+        width: 32px;
+        height: 32px;
         border: none;
-        border-radius: 11px;
+        border-radius: 7px;
         background: #f3f4f8;
         color: #666b73;
         display: flex;
@@ -809,15 +809,18 @@ color: #7652C8;
     }
 
     .monitoring-detail-summary-label {
-        color: #64748b;
-        font-size: 10px;
-        font-weight: 600;
+        display: block;
         margin-bottom: 5px;
+        color: #7b8192;
+        font-size: 14px;
+        line-height: 1.5;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: .35px;
     }
 
     .monitoring-detail-summary-value {
+        display: block;
         color: #263238;
         font-size: 14px;
         font-weight: 700;
@@ -832,7 +835,7 @@ color: #7652C8;
         justify-content: center;
         width: fit-content;
         max-width: 100%;
-        padding: 6px 10px;
+        padding: 5px 9px;
         border: 1px solid #dcdde2;
         border-radius: 999px;
         background: #f0f0f2;
@@ -860,7 +863,7 @@ color: #7652C8;
     .monitoring-summary-status.status-pending,
     .monitoring-detail-value.status-value.status-pending {
         border-color: #f1dfaa;
-        background: #fff7d6;
+        background: #fff4db;
         color: #9a6a00;
     }
 
@@ -901,6 +904,35 @@ color: #7652C8;
         color: #252A86;
         font-size: 15px;
         font-weight: 700;
+    }
+
+    .monitoring-detail-section-title h3 {
+        margin: 0;
+        color: #252A86;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .monitoring-questionnaire-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 13px;
+    }
+
+    .monitoring-questionnaire-heading h3 {
+        margin: 0;
+        color: #252A86;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    .monitoring-questionnaire-heading p {
+        margin: 4px 0 0;
+        color: #7d8392;
+        font-size: 11px;
+        line-height: 1.5;
     }
 
     .monitoring-detail-section-subtitle {
@@ -953,9 +985,8 @@ color: #7652C8;
     }
 
     .monitoring-detail-item {
-        position: relative;
+        min-width: 0;
         padding: 11px 12px;
-        min-height: 0;
         border: 1px solid #edf0f5;
         border-radius: 9px;
         background: #fafbfc;
@@ -963,19 +994,28 @@ color: #7652C8;
     }
 
     .monitoring-detail-label {
-        color: #6b7280;
-        font-size: 10px;
-        line-height: 1.4;
+        display: block;
+        color: #6B7280;
+        font-size: 14px;
+        line-height: 1.5;
         margin-bottom: 5px;
         font-weight: 600;
     }
 
     .monitoring-detail-value {
+        display: block;
+        overflow: hidden;
         color: #263238;
-        font-size: 13px;
-        line-height: 1.4;
+        font-size: 14px;
+        line-height: 1.5;
         font-weight: 700;
-        word-break: break-word;
+        text-overflow: ellipsis;
+    }
+
+    .monitoring-detail-item .status-value {
+        display: inline-flex;
+        overflow: visible;
+        text-overflow: clip;
     }
 
     .monitoring-members-section {
@@ -983,36 +1023,40 @@ color: #7652C8;
     }
 
     .monitoring-members-section .monitoring-members-family-summary {
-        display: flex;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: center;
-        justify-content: space-between;
-        gap: 14px;
+        gap: 4px 14px;
         min-width: 0;
         margin-bottom: 14px;
-        padding: 10px 12px;
+        padding: 12px 14px;
         border: 1px solid #e2e6f4;
-        border-radius: 9px;
+        border-radius: 10px;
         background: #f7f8fd;
         text-align: left;
     }
 
     .monitoring-members-section .monitoring-members-family-summary-label {
+        grid-column: 1 / -1;
         margin: 0;
-        color: #73798a;
-        font-size: 11px;
+        color: #7b8192;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .3px;
     }
 
     .monitoring-members-section .monitoring-members-family-summary-name {
-        margin-top: 4px;
+        margin-top: 0;
         color: #263238;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 700;
     }
 
     .monitoring-members-section .monitoring-members-family-summary-count {
         flex: 0 0 auto;
         color: #73798a;
-        font-size: 11px;
+        font-size: 12px;
     }
 
     /* =====================================================
@@ -1140,31 +1184,31 @@ color: #7652C8;
 
 
     .monitoring-members-family-summary {
-        min-width: 178px;
-        padding: 12px 15px;
-        border: 1px solid #dfe3ee;
-        border-radius: 12px;
-        background: #f8f9ff;
+        min-width: 135px;
+        padding: 9px 12px;
+        border: 1px solid #e2e6f4;
+        border-radius: 9px;
+        background: #f7f8fd;
         text-align: right;
     }
 
     .monitoring-members-family-summary-label {
-        color: #6b7280;
-        font-size: 11px;
+        color: #858b99;
+        font-size: 14px;
         font-weight: 600;
     }
 
     .monitoring-members-family-summary-name {
-        margin-top: 5px;
-        color: #263238;
-        font-size: 15px;
+        margin-top: 0;
+        color: #252a86;
+        font-size: 16px;
         font-weight: 700;
     }
 
     .monitoring-members-family-summary-count {
-        margin-top: 3px;
-        color: #7b8190;
-        font-size: 12px;
+        margin-top: 2px;
+        color: #6b7280;
+        font-size: 10px;
     }
 
     .monitoring-members-popover-body {
@@ -1172,41 +1216,45 @@ color: #7652C8;
     }
 
     .monitoring-members-table-wrap {
-        border: 1px solid #e0e4ec;
-        border-radius: 12px;
-        overflow: hidden;
+        width: 100%;
         overflow-x: auto;
+        border: 1px solid #e7e9f1;
+        border-radius: 12px;
     }
 
     .monitoring-members-table {
         width: 100%;
-        min-width: 560px;
+        min-width: 500px;
         border-collapse: collapse;
         background: #ffffff;
     }
 
     .monitoring-members-table th {
         padding: 13px 15px;
-        background: #f3f5f9;
-        color: #5f6878;
+        background: #f1f3ff;
+        color: #4b5563;
         font-size: 12px;
         font-weight: 700;
         text-align: left;
         white-space: nowrap;
-        border-bottom: 1px solid #dfe3eb;
+        border-bottom: 1px solid #e1e4ef;
     }
 
     .monitoring-members-table td {
         padding: 14px 15px;
-        color: #374151;
+        color: #475569;
         font-size: 13px;
         font-weight: 500;
-        border-bottom: 1px solid #eef1f5;
+        border-bottom: 1px solid #eef1f6;
         vertical-align: middle;
     }
 
     .monitoring-members-table tbody tr:last-child td {
         border-bottom: none;
+    }
+
+    .monitoring-members-table tbody tr:hover {
+        background: #fafbff;
     }
 
     .monitoring-members-empty {
@@ -1217,13 +1265,13 @@ color: #7652C8;
 
     .monitoring-members-empty strong {
         display: block;
-        margin-bottom: 6px;
-        color: #263238;
+        margin-bottom: 5px;
+        color: #252A86;
         font-size: 14px;
     }
 
     .monitoring-members-empty span {
-        color: #7b8190;
+        color: #64748b;
         font-size: 12px;
     }
 
@@ -1232,39 +1280,48 @@ color: #7652C8;
     ===================================================== */
 
     .monitoring-questionnaire-wrapper {
-        padding: 0 20px 20px;
+        padding: 0;
     }
 
     .monitoring-questionnaire-master {
         display: grid;
         grid-template-columns: 250px minmax(0, 1fr);
-        gap: 18px;
-        align-items: stretch;
+        gap: 16px;
+        min-height: 430px;
+        align-items: start;
     }
 
     .monitoring-questionnaire-sidebar {
-        border: 1px solid #e0e4ec;
+        position: sticky;
+        top: 16px;
+        align-self: start;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border: 1px solid #e3e6ef;
         border-radius: 12px;
-        background: #f8f9fd;
-        padding: 14px;
+        background: #f8f9fc;
+        padding: 10px;
         min-width: 0;
     }
 
     .monitoring-questionnaire-sidebar-title {
-        margin: 2px 10px 12px;
-        color: #667085;
-        font-size: 12px;
+        padding: 6px 8px 9px;
+        margin: 0;
+        color: #5c6272;
+        font-size: 15px;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: .05em;
+        letter-spacing: .6px;
     }
 
     .monitoring-questionnaire-part {
-        margin-bottom: 9px;
-        border: 1px solid #dfe3ec;
-        border-radius: 12px;
+        width: 100%;
+        margin-bottom: 0;
+        border: 1px solid transparent;
+        border-radius: 10px;
         overflow: hidden;
-        background: #ffffff;
+        background: transparent;
     }
 
     .monitoring-questionnaire-part:last-child {
@@ -1273,43 +1330,65 @@ color: #7652C8;
 
     .monitoring-questionnaire-part-header {
         width: 100%;
-        border: none;
+        min-height: 64px;
+        border: 1px solid #e3e6ef;
+        border-radius: 10px;
         background: #ffffff;
-        color: #252A86;
-        padding: 11px 12px;
+        color: #303545;
+        padding: 10px 11px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 9px;
+        gap: 10px;
         cursor: pointer;
         text-align: left;
-        transition: .18s ease;
+        transition: background .2s ease, border-color .2s ease, transform .15s ease;
     }
 
-    .monitoring-questionnaire-part-header:hover,
+    .monitoring-questionnaire-part-header:hover {
+        background: #f3f5ff;
+        border-color: #cdd2f2;
+    }
+
+    .monitoring-questionnaire-part-header:active {
+        transform: scale(.99);
+    }
+
+    .monitoring-questionnaire-part.is-active .monitoring-questionnaire-part-header,
     .monitoring-questionnaire-part-header.active {
         background: #eef0ff;
+        border-color: #252A86;
+        box-shadow: 0 3px 10px rgba(37, 42, 134, .08);
     }
 
     .monitoring-questionnaire-part-left {
         display: flex;
         align-items: center;
+        flex: 1;
         gap: 10px;
         min-width: 0;
     }
 
     .monitoring-questionnaire-part-number {
-        width: 36px;
-        height: 36px;
-        flex: 0 0 36px;
-        border-radius: 10px;
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #eef0ff;
-        color: #252A86;
-        font-size: 14px;
+        background: #eef0f5;
+        color: #555b6b;
+        font-size: 13px;
         font-weight: 800;
+    }
+
+    .monitoring-questionnaire-part-header.active
+    .monitoring-questionnaire-part-number,
+    .monitoring-questionnaire-part.is-active
+    .monitoring-questionnaire-part-number {
+        background: #252A86;
+        color: #ffffff;
     }
 
     .monitoring-questionnaire-part-header.active
@@ -1319,31 +1398,35 @@ color: #7652C8;
     }
 
     .monitoring-questionnaire-part-title {
-        color: #263238;
-        font-size: 12px;
-        line-height: 1.35;
+        color: #303545;
+        font-size: 14px;
+        line-height: 1.45;
         font-weight: 700;
+    }
+
+    .monitoring-questionnaire-part.is-active .monitoring-questionnaire-part-title {
+        color: #252A86;
     }
 
     .monitoring-questionnaire-part-meta {
         margin-top: 3px;
-        color: #8a93a3;
-        font-size: 10px;
-        line-height: 1.35;
+        color: #858b99;
+        font-size: 13px;
+        line-height: 1.45;
     }
 
     
 .monitoring-questionnaire-part-arrow {
-    width: 30px;
-    height: 30px;
-    flex: 0 0 30px;
-    border: 1px solid #dfe3ec;
-    border-radius: 8px;
-    background: #ffffff;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    border: 0;
+    border-radius: 6px;
+    background: #f1f2f6;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #252A86;
+    color: #777d8c;
     transition: background .18s ease, color .18s ease,
                 border-color .18s ease, transform .2s ease;
 }
@@ -1351,47 +1434,70 @@ color: #7652C8;
 .monitoring-questionnaire-part-header.active
 .monitoring-questionnaire-part-arrow {
     background: #252A86;
-    border-color: #252A86;
     color: #ffffff;
     transform: rotate(180deg);
 }
 
+.monitoring-questionnaire-part.is-active
+.monitoring-questionnaire-part-arrow {
+    background: #252A86;
+    color: #ffffff;
+    transform: rotate(180deg);
+}
 
     .monitoring-questionnaire-content-panel {
         min-width: 0;
-        border: 1px solid #e0e4ec;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e3e6ef;
         border-radius: 12px;
         background: #ffffff;
         overflow: hidden;
     }
 
     .monitoring-questionnaire-content-header {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 15px;
         padding: 16px 20px;
-        border-bottom: 1px solid #e7eaf0;
+        border-bottom: 1px solid #e7e9f0;
         background: #ffffff;
     }
 
     .monitoring-questionnaire-content-eyebrow {
-        margin-bottom: 5px;
-        color: #7b8190;
-        font-size: 10px;
+        display: block;
+        margin-bottom: 3px;
+        color: #7c8291;
+        font-size: 13px;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: .06em;
+        letter-spacing: .7px;
     }
 
     .monitoring-questionnaire-content-title {
         margin: 0;
         color: #252A86;
-        font-size: 19px;
+        font-size: 20px;
         line-height: 1.35;
-        font-weight: 700;
+        font-weight: 800;
     }
 
     .monitoring-questionnaire-content-body {
-        padding: 15px;
-        max-height: 480px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-content: start;
+        align-items: stretch;
+        gap: 12px;
+        padding: 16px;
+        max-height: 620px;
         overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .monitoring-questionnaire-placeholder {
@@ -1421,7 +1527,7 @@ color: #7652C8;
 /* Ukuran foto pada detail Monitoring */
 .monitoring-questionnaire-content-body.is-photo-part {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 12px !important;
     align-items: start !important;
 }
@@ -1443,11 +1549,12 @@ color: #7652C8;
 
 
     .monitoring-question-item {
-        border: 1px solid #e7eaf0;
-        border-radius: 11px;
+        border: 1px solid #e5e7ee;
+        border-radius: 10px;
         padding: 14px 15px;
-        margin-bottom: 10px;
+        margin: 0;
         background: #ffffff;
+        box-shadow: 0 2px 7px rgba(30, 35, 60, .03);
     }
 
     .monitoring-question-item:last-child {
@@ -1737,8 +1844,8 @@ color: #7652C8;
 
     .monitoring-questionnaire-part1 .questionnaire-map-container {
         width: 100%;
-        height: 330px;
-        min-height: 260px;
+        height: 230px;
+        min-height: 230px;
         border: 1px solid #dfe3eb;
         border-radius: 9px;
         overflow: hidden;
@@ -1807,7 +1914,7 @@ color: #7652C8;
     .monitoring-images {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 12px;
+        gap: 10px;
     }
 
     .monitoring-image-card {
@@ -1835,16 +1942,16 @@ color: #7652C8;
     .monitoring-questionnaire-total {
         flex: 0 0 auto;
         padding: 6px 10px;
-        border: 1px solid #e1e4f3;
         border-radius: 999px;
-        background: #f4f5ff;
+        background: #eef0ff;
         color: #252A86;
-        font-size: 11px;
-        font-weight: 800;
+        font-size: 13px;
+        line-height: 1.5;
+        font-weight: 700;
     }
 
     .monitoring-image {
-        height: 150px;
+        height: 220px;
         object-fit: cover;
         background: #f1f5f9;
     }
@@ -1861,27 +1968,14 @@ color: #7652C8;
        RESPONSIVE DETAIL
     ===================================================== */
 
-    @media (max-width: 1000px) {
+    @media (max-width: 900px) {
         .monitoring-detail-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .monitoring-questionnaire-master {
-            grid-template-columns: 1fr;
-        }
-
-        .monitoring-questionnaire-sidebar {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px;
-        }
-
-        .monitoring-questionnaire-sidebar-title {
-            grid-column: 1 / -1;
-        }
-
-        .monitoring-questionnaire-part {
-            margin-bottom: 0;
+            grid-template-columns: 190px minmax(0, 1fr);
+            gap: 10px;
         }
 
         .monitoring-members-popover {
@@ -1890,15 +1984,32 @@ color: #7652C8;
         }
     }
 
+    @media (max-width: 650px) {
+        .monitoring-questionnaire-master {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .monitoring-questionnaire-sidebar {
+            position: static;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .monitoring-questionnaire-sidebar-title {
+            grid-column: 1 / -1;
+        }
+    }
+
     @media (max-width: 700px) {
         .monitoring-modal-overlay {
-            padding: 8px;
+            padding: 10px;
         }
 
         .monitoring-modal {
-            width: 100%;
-            max-height: calc(100vh - 16px);
-            border-radius: 14px;
+            width: calc(100vw - 40px);
+            max-height: calc(100vh - 20px);
+            border-radius: 12px;
         }
 
         .monitoring-modal-header {
@@ -1906,16 +2017,16 @@ color: #7652C8;
         }
 
         .monitoring-modal-header-left h2 {
-            font-size: 21px;
+            font-size: 19px;
         }
 
         .monitoring-modal-header-left p {
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .monitoring-modal-body {
-            padding: 15px;
-            max-height: calc(100vh - 90px);
+            padding: 14px;
+            max-height: calc(100vh - 105px);
         }
 
         .monitoring-detail-summary {
@@ -1925,31 +2036,32 @@ color: #7652C8;
 
         .monitoring-detail-grid {
             grid-template-columns: 1fr;
-            padding: 0 15px 15px;
+            padding: 0;
         }
 
         .monitoring-detail-section-title {
-            padding: 14px 15px 7px;
+            padding: 0;
         }
 
         .monitoring-detail-section-subtitle {
-            padding: 0 15px 12px;
+            padding: 0;
         }
 
         .monitoring-questionnaire-wrapper {
-            padding: 0 15px 15px;
+            padding: 0;
         }
 
         .monitoring-questionnaire-sidebar {
-            display: block;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .monitoring-questionnaire-part {
-            margin-bottom: 8px;
+            margin-bottom: 0;
         }
 
         .monitoring-questionnaire-content-body {
-            max-height: 420px;
+            max-height: 65vh;
         }
 
         .monitoring-questionnaire-members-layout {
@@ -2079,18 +2191,13 @@ color: #7652C8;
             max-width: 100%;
         }
 
-        .monitoring-modal-overlay {
-            padding: 10px;
-        }
-
         .monitoring-modal {
-            border-radius: 14px;
-
-            max-height: calc(100vh - 20px);
+            border-radius: 12px;
+            max-height: calc(100vh - 24px);
         }
 
         .monitoring-modal-body {
-            padding: 15px;
+            padding: 14px;
         }
 
         .monitoring-detail-grid {
@@ -2104,8 +2211,45 @@ color: #7652C8;
         .monitoring-detail-summary {
             grid-template-columns: 1fr;
         }
+
+        .monitoring-questionnaire-heading {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .monitoring-questionnaire-total {
+            align-self: flex-start;
+        }
+
+        .monitoring-detail-section {
+            padding: 14px;
+        }
     }
 
+    @media (max-width: 480px) {
+        .monitoring-modal-overlay {
+            padding: 7px;
+        }
+
+        .monitoring-modal {
+            max-height: calc(100vh - 14px);
+            border-radius: 10px;
+        }
+
+        .monitoring-modal-header {
+            padding: 13px 14px;
+        }
+
+        .monitoring-modal-body {
+            max-height: calc(100vh - 94px);
+            padding: 10px;
+        }
+
+        .monitoring-detail-section {
+            padding: 11px;
+            margin-bottom: 10px;
+        }
+    }
 /* =====================================================
    FINAL RESPONSIVE DETAIL MONITORING
 ===================================================== */
@@ -2147,7 +2291,7 @@ color: #7652C8;
         padding-right: 4px;
     }
     .monitoring-modal-header-left h2 {
-        font-size: 20px;
+        font-size: 19px;
     }
     .monitoring-modal-header-left p {
         line-height: 1.55;
@@ -2195,20 +2339,24 @@ color: #7652C8;
         -webkit-overflow-scrolling: touch;
     }
     .monitoring-members-table {
-        min-width: 560px;
+        min-width: 500px;
     }
     .monitoring-questionnaire-part-header {
         min-height: 54px;
     }
     .monitoring-questionnaire-content-title {
-        font-size: 17px;
+        font-size: 16px;
         overflow-wrap: anywhere;
+    }
+
+    .monitoring-questionnaire-content-body.is-photo-part {
+        grid-template-columns: minmax(0, 1fr) !important;
     }
 }
 @media (max-width: 380px) {
-    .monitoring-modal-overlay { padding: 6px; }
-    .monitoring-modal { max-height: calc(100vh - 12px); }
-    .monitoring-modal-body { padding: 12px; }
+    .monitoring-modal-overlay { padding: 7px; }
+    .monitoring-modal { max-height: calc(100vh - 14px); }
+    .monitoring-modal-body { padding: 10px; }
     .monitoring-members-popover {
         width: calc(100vw - 16px);
         max-width: calc(100vw - 16px);
@@ -2293,7 +2441,7 @@ color: #7652C8;
    DETAIL MONITORING — 
 ========================================================= */
 
-/* Kartu pertanyaan Part 1-4 dan Foto Rumah: grid dua kolom. */
+/* Kartu pertanyaan Part 1-4 menggunakan grid dua kolom. */
 .monitoring-questionnaire-content-body {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -2302,15 +2450,19 @@ color: #7652C8;
     gap: 10px !important;
 }
 
+.monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
 .monitoring-questionnaire-content-body > .monitoring-question-item {
     width: 100% !important;
     min-width: 0 !important;
     margin: 0 !important;
-    padding: 13px 14px !important;
-    border: 1px solid #e0e5ee !important;
-    border-radius: 12px !important;
+    padding: 14px 15px !important;
+    border: 1px solid #e5e7ee !important;
+    border-radius: 10px !important;
     background: #ffffff !important;
-    box-shadow: 0 3px 10px rgba(31, 45, 80, .045) !important;
+    box-shadow: 0 2px 7px rgba(30, 35, 60, .03) !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
 }
@@ -2330,7 +2482,7 @@ color: #7652C8;
     border-radius: 8px !important;
     background: #eef0f4 !important;
     color: #657084 !important;
-    font-size: 10px !important;
+    font-size: 9px !important;
     font-weight: 800 !important;
     line-height: 1.35 !important;
     letter-spacing: .3px !important;
@@ -2368,7 +2520,7 @@ color: #7652C8;
     border-radius: 9px !important;
     background: #f3f7f9 !important;
     color: #263247 !important;
-    font-size: 12px !important;
+    font-size: 13px !important;
     font-weight: 400 !important;
     line-height: 1.55 !important;
     overflow-wrap: anywhere !important;
@@ -2411,34 +2563,36 @@ color: #7652C8;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-members-heading {
-    padding: 11px 14px !important;
+    padding: 11px 13px !important;
     gap: 3px !important;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-members-heading strong {
-    color: #263247 !important;
+    color: #252A86 !important;
     font-size: 13px !important;
-    font-weight: 750 !important;
+    font-weight: 800 !important;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-members-heading span {
-    color: #7b8190 !important;
-    font-size: 11px !important;
-    line-height: 1.45 !important;
+    color: #858b99 !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
 }
 
 /* Card anggota ringkas, tetap berwarna dan tidak terpotong. */
 .monitoring-questionnaire-content-body .monitoring-questionnaire-members-list {
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    display: flex !important;
+    flex-direction: row !important;
     align-items: stretch !important;
-    gap: 8px !important;
+    gap: 10px !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
     max-height: none !important;
-    overflow: visible !important;
-    padding: 9px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 10px !important;
+    scroll-snap-type: x proximity;
     box-sizing: border-box !important;
 }
 
@@ -2446,10 +2600,11 @@ color: #7652C8;
     display: flex !important;
     align-items: flex-start !important;
     gap: 8px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    min-height: 76px !important;
+    flex: 0 0 210px !important;
+    width: 210px !important;
+    min-width: 210px !important;
+    max-width: 210px !important;
+    min-height: 84px !important;
     margin: 0 !important;
     padding: 9px 10px !important;
     border: 1px solid #e7eaf0 !important;
@@ -2460,6 +2615,7 @@ color: #7652C8;
     white-space: normal !important;
     overflow-wrap: anywhere !important;
     transition: outline .15s ease, box-shadow .15s ease !important;
+    scroll-snap-align: start;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:nth-child(5n + 1) {
@@ -2486,9 +2642,19 @@ color: #7652C8;
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-card:hover,
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-card.is-selected {
     color: #263247 !important;
-    outline: 2px solid #252a86 !important;
-    outline-offset: 1px !important;
-    box-shadow: 0 0 0 2px rgba(37, 42, 134, .08) !important;
+    border-color: #252A86 !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 1px rgba(37, 42, 134, .06) !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card.is-selected {
+    border: 2px solid #414752 !important;
+    box-shadow: 0 0 0 3px rgba(65, 71, 82, .13) !important;
+    transform: translateY(-2px);
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-card.is-selected .monitoring-questionnaire-member-info strong {
+    color: #20242a !important;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-avatar {
@@ -2514,9 +2680,9 @@ color: #7652C8;
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-info strong {
     display: block !important;
     color: #263247 !important;
-    font-size: 12px !important;
-    font-weight: 750 !important;
-    line-height: 1.4 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.45 !important;
     overflow: visible !important;
     white-space: normal !important;
     text-overflow: clip !important;
@@ -2524,14 +2690,44 @@ color: #7652C8;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-info span {
-    color: #657084 !important;
-    font-size: 11px !important;
+    color: #626976 !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+    overflow-wrap: anywhere !important;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-info small {
-    color: #657084 !important;
-    font-size: 10px !important;
-    line-height: 1.4 !important;
+    color: #858b99 !important;
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-members-heading strong {
+    color: #20242a !important;
+    font-size: 13px !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-summary {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    color: #20242a !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-summary strong {
+    color: #20242a !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.45 !important;
+    overflow-wrap: anywhere !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-questionnaire-member-summary span {
+    color: #626976 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    line-height: 1.45 !important;
     overflow-wrap: anywhere !important;
 }
 
@@ -2544,9 +2740,8 @@ color: #7652C8;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    max-height: 600px !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
+    max-height: none !important;
+    overflow: visible !important;
     padding: 10px !important;
     box-sizing: border-box !important;
 }
@@ -2566,9 +2761,9 @@ color: #7652C8;
     border-radius: 9px !important;
     background: #f4f5ff !important;
     color: #252a86 !important;
-    font-size: 12px !important;
-    font-weight: 750 !important;
-    line-height: 1.5 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 1.55 !important;
     overflow-wrap: anywhere !important;
 }
 
@@ -2577,11 +2772,11 @@ color: #7652C8;
     width: 100% !important;
     min-width: 0 !important;
     margin: 0 !important;
-    padding: 12px !important;
-    border: 1px solid #e0e5ee !important;
-    border-radius: 12px !important;
+    padding: 14px 15px !important;
+    border: 1px solid #e5e7ee !important;
+    border-radius: 10px !important;
     background: #ffffff !important;
-    box-shadow: 0 3px 10px rgba(31, 45, 80, .045) !important;
+    box-shadow: 0 2px 7px rgba(30, 35, 60, .03) !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
 }
@@ -2596,16 +2791,16 @@ color: #7652C8;
     border-radius: 8px !important;
     background: #eef0f4 !important;
     color: #657084 !important;
-    font-size: 10px !important;
+    font-size: 9px !important;
     line-height: 1.35 !important;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body .monitoring-question-text {
     margin: 0 0 9px !important;
     color: #263247 !important;
-    font-size: 12px !important;
+    font-size: 14px !important;
     font-weight: 750 !important;
-    line-height: 1.5 !important;
+    line-height: 1.55 !important;
 }
 
 .monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body .monitoring-answer-label {
@@ -2622,8 +2817,8 @@ color: #7652C8;
     border-radius: 9px !important;
     background: #f3f7f9 !important;
     color: #263247 !important;
-    font-size: 12px !important;
-    line-height: 1.5 !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
     overflow-wrap: anywhere !important;
     box-sizing: border-box !important;
 }
@@ -2636,6 +2831,10 @@ color: #7652C8;
     gap: 10px !important;
 }
 
+.monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part > .monitoring-question-item .monitoring-images {
+    grid-template-columns: minmax(0, 1fr) !important;
+}
+
 .monitoring-questionnaire-content-body .monitoring-image-card {
     min-width: 0 !important;
     border-radius: 10px !important;
@@ -2644,26 +2843,53 @@ color: #7652C8;
 
 .monitoring-questionnaire-content-body .monitoring-image {
     width: 100% !important;
-    height: 150px !important;
+    height: 220px !important;
     object-fit: cover !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-image-open-link {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 2px 8px 8px !important;
+    padding: 7px 10px !important;
+    border-radius: 7px !important;
+    background: #eef0ff !important;
+    color: #252a86 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+
+.monitoring-questionnaire-content-body .monitoring-image-open-link:hover {
+    background: #252a86 !important;
+    color: #ffffff !important;
 }
 
 /* Responsif */
 @media (max-width: 900px) {
-    .monitoring-questionnaire-content-body .monitoring-questionnaire-members-list {
+    .monitoring-questionnaire-content-body .monitoring-images {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 
-    .monitoring-questionnaire-content-body .monitoring-images {
+    .monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .monitoring-questionnaire-content-body.is-photo-part {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .monitoring-questionnaire-content-body {
         grid-template-columns: minmax(0, 1fr) !important;
         gap: 9px !important;
-        max-height: 420px !important;
+        max-height: 65vh !important;
+    }
+
+    .monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part {
+        grid-template-columns: minmax(0, 1fr) !important;
     }
 
     .monitoring-questionnaire-content-body > .monitoring-question-item,
@@ -2675,13 +2901,16 @@ color: #7652C8;
     }
 
     .monitoring-questionnaire-content-body .monitoring-questionnaire-members-list {
-        grid-template-columns: minmax(0, 1fr) !important;
+        flex-direction: row !important;
         max-height: none !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
     }
 
     .monitoring-questionnaire-content-body .monitoring-questionnaire-member-answers-body {
         grid-template-columns: minmax(0, 1fr) !important;
-        max-height: 500px !important;
+        max-height: none !important;
+        overflow: visible !important;
     }
 
     .monitoring-questionnaire-content-body .monitoring-questionnaire-member-summary,
@@ -2691,6 +2920,18 @@ color: #7652C8;
 
     .monitoring-questionnaire-content-body .monitoring-images {
         grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .monitoring-questionnaire-content-body .monitoring-questionnaire-member-card {
+        flex-basis: 175px !important;
+        width: 175px !important;
+        min-width: 175px !important;
+        max-width: 175px !important;
+        padding: 10px !important;
+    }
+
+    .monitoring-questionnaire-content-body .monitoring-questionnaire-member-info strong {
+        font-size: 14px !important;
     }
 }
 
@@ -3245,8 +3486,8 @@ color: #7652C8;
                 aria-label="Tutup detail"
             >
                 <svg
-                    width="20"
-                    height="20"
+                    width="17"
+                    height="17"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -3271,12 +3512,12 @@ color: #7652C8;
                         Nama Responden
                     </div>
 
-                    <div
+                    <strong
                         class="monitoring-detail-summary-value"
                         id="detailNamaSummary"
                     >
                         -
-                    </div>
+                    </strong>
                 </div>
 
                 <div class="monitoring-detail-summary-card">
@@ -3284,12 +3525,12 @@ color: #7652C8;
                         Nomor KK
                     </div>
 
-                    <div
+                    <strong
                         class="monitoring-detail-summary-value"
                         id="detailKkSummary"
                     >
                         -
-                    </div>
+                    </strong>
                 </div>
 
                 <div class="monitoring-detail-summary-card">
@@ -3297,12 +3538,12 @@ color: #7652C8;
                         Status Pendataan
                     </div>
 
-                    <div
+                    <strong
                         class="monitoring-detail-summary-value monitoring-summary-status"
                         id="detailStatusSummary"
                     >
                         -
-                    </div>
+                    </strong>
                 </div>
 
             </div>
@@ -3320,160 +3561,138 @@ color: #7652C8;
             <section class="monitoring-detail-section">
 
                 <div class="monitoring-detail-section-title">
-                    Informasi Responden
+                    <h3>Informasi Responden</h3>
                 </div>
 
                 <div class="monitoring-detail-grid">
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            No. KK
-                        </div>
+                        <span class="monitoring-detail-label">No. KK</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailNoKk"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            NIK
-                        </div>
+                        <span class="monitoring-detail-label">NIK</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailNik"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Nama Kepala Keluarga
-                        </div>
+                        <span class="monitoring-detail-label">Nama Kepala Keluarga</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailNama"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
 
                     <div class="monitoring-detail-item monitoring-member-item">
 
-                        <div class="monitoring-detail-label">
-                            Jumlah Anggota Keluarga
-                        </div>
+                        <span class="monitoring-detail-label">Jumlah Anggota Keluarga</span>
 
-                        <span
+                        <strong
                             class="monitoring-detail-value"
                             id="detailJumlahAnggota"
                         >
                             0 Orang
-                        </span>
+                        </strong>
 
                     </div>
 
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Wilayah
-                        </div>
+                        <span class="monitoring-detail-label">Wilayah</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailWilayah"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Petugas
-                        </div>
+                        <span class="monitoring-detail-label">Petugas</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailPetugas"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Tanggal Pendataan
-                        </div>
+                        <span class="monitoring-detail-label">Tanggal Pendataan</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailTanggal"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Status Saat Ini
-                        </div>
+                        <span class="monitoring-detail-label">Status Saat Ini</span>
 
-                        <div
-                            class="monitoring-detail-value status-value"
+                        <strong
+                            class="monitoring-detail-value status-value status-current"
                             id="detailStatus"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Periode Pendataan
-                        </div>
+                        <span class="monitoring-detail-label">Periode Pendataan</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailPeriode"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Kode Periode
-                        </div>
+                        <span class="monitoring-detail-label">Kode Periode</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailPeriodeKode"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
                     <div class="monitoring-detail-item">
-                        <div class="monitoring-detail-label">
-                            Tanggal Periode
-                        </div>
+                        <span class="monitoring-detail-label">Tanggal Periode</span>
 
-                        <div
+                        <strong
                             class="monitoring-detail-value"
                             id="detailPeriodeTanggal"
                         >
                             -
-                        </div>
+                        </strong>
                     </div>
 
                 </div>
@@ -3484,15 +3703,11 @@ color: #7652C8;
             <section class="monitoring-detail-section monitoring-members-section">
 
                 <div class="monitoring-detail-section-title">
-                    Anggota dalam Kartu Keluarga
+                    <h3>Anggota dalam Kartu Keluarga</h3>
                 </div>
 
                 <div class="monitoring-members-family-summary">
-                    <div
-                        class="monitoring-members-family-summary-label"
-                    >
-                        Kepala Keluarga
-                    </div>
+                    <span class="monitoring-members-family-summary-label">Kepala Keluarga</span>
 
                     <div
                         class="monitoring-members-family-summary-name"
@@ -3505,7 +3720,7 @@ color: #7652C8;
                         class="monitoring-members-family-summary-count"
                         id="membersFamilyCount"
                     >
-                        0 orang (termasuk kepala keluarga)
+                        0 orang
                     </div>
                 </div>
 
@@ -3542,13 +3757,11 @@ color: #7652C8;
 
                 <div class="monitoring-questionnaire-heading">
                     <div>
-                        <div class="monitoring-detail-section-title">
-                            Hasil Kuisioner
-                        </div>
+                        <h3>Hasil Kuisioner</h3>
 
-                        <div class="monitoring-detail-section-subtitle">
+                        <p class="monitoring-detail-section-subtitle">
                             Pilih bagian kuisioner di sebelah kiri untuk melihat pertanyaan dan jawaban responden.
-                        </div>
+                        </p>
                     </div>
 
                     <div class="monitoring-questionnaire-total" id="monitoringQuestionnaireTotal">
@@ -4398,6 +4611,41 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
     }
 
 
+    function formatRupiahAnswer(questionText, answer) {
+        const original = String(answer ?? '').trim();
+
+        if (!original) {
+            return original;
+        }
+
+        const isMoneyQuestion =
+            /pengeluaran|pendapatan|penghasilan|gaji|upah|biaya|uang|nominal|sewa|per bulan|per tahun|penghasilan utama|rata-rata pendapatan/i.test(questionText);
+
+        if (!isMoneyQuestion) {
+            return original;
+        }
+
+        const cleaned = original
+            .replace(/^rp\.?\s*/i, '')
+            .replace(/\s/g, '')
+            .replace(/\./g, '')
+            .replace(/,/g, '');
+
+        if (!/^\d+$/.test(cleaned)) {
+            return original;
+        }
+
+        const amount = Number(cleaned);
+        if (!Number.isFinite(amount)) {
+            return original;
+        }
+
+        return 'Rp.' + new Intl.NumberFormat('id-ID', {
+            maximumFractionDigits: 0
+        }).format(amount);
+    }
+
+
     function renderQuestionAnswer(item, answerElement, usePart1MapStyle = false) {
         if (item.type === 'map' && usePart1MapStyle) {
             renderPart1MapAnswer(item, answerElement);
@@ -4501,16 +4749,11 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
                             ('Foto ' + (index + 1));
                         const url =
                             escapeHtml(image.url);
-                        const isDataImage =
-                            /^data:image\//i.test(image.url);
 
                         return `
                             <div class="monitoring-image-card">
-                                ${isDataImage
-                                    ? `<img class="monitoring-image" src="${url}" alt="${escapeHtml(imageName)}" loading="lazy">`
-                                    : `<a class="monitoring-image-link" href="${url}" target="_blank" rel="noopener noreferrer"><img class="monitoring-image" src="${url}" alt="${escapeHtml(imageName)}" loading="lazy"></a>`
-                                }
-                                <div class="monitoring-image-name">${escapeHtml(imageName)}</div>
+                                <img class="monitoring-image" src="${url}" alt="${escapeHtml(imageName)}" loading="lazy">
+                                <a class="monitoring-image-open-link" href="${url}" target="_blank" rel="noopener noreferrer">Buka Gambar</a>
                             </div>
                         `;
                     }).join('')}
@@ -4520,12 +4763,17 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
             return;
         }
 
-        answerElement.textContent =
-            item.answer.trim() === ''
-                ? 'Belum diisi'
+        const answerText =
+            getPartNumber(item.part, 0) === 3
+                ? formatRupiahAnswer(item.question, item.answer)
                 : item.answer;
 
-        if (item.answer.trim() === '') {
+        answerElement.textContent =
+            answerText.trim() === ''
+                ? 'Belum diisi'
+                : answerText;
+
+        if (answerText.trim() === '') {
             answerElement.classList.add('is-empty');
         }
     }
@@ -4597,8 +4845,7 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
                 <span class="monitoring-questionnaire-member-avatar">${escapeHtml(initial)}</span>
                 <span class="monitoring-questionnaire-member-info">
                     <strong>${escapeHtml(name)}</strong>
-                    <span>${escapeHtml(relation)}</span>
-                    <small>NIK: ${escapeHtml(nik)}</small>
+                    <span>NIK: ${escapeHtml(nik)} · ${escapeHtml(relation)}</span>
                 </span>
             `;
 
@@ -4628,7 +4875,11 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
 
                 const memberHeading = document.createElement('div');
                 memberHeading.className = 'monitoring-questionnaire-member-summary';
-                memberHeading.textContent = `${name} · NIK: ${nik} · ${relation}`;
+                const memberName = document.createElement('strong');
+                memberName.textContent = name;
+                const memberDetails = document.createElement('span');
+                memberDetails.textContent = `NIK: ${nik} · ${relation}`;
+                memberHeading.append(memberName, memberDetails);
                 answersBody.appendChild(memberHeading);
 
                 if (usableQuestions.length === 0) {
@@ -4932,6 +5183,7 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
                         'Pilih Bagian Kuisioner';
 
                     selectedBody.classList.remove('monitoring-questionnaire-part1');
+                    selectedBody.classList.remove('monitoring-questionnaire-photo-part');
 
                     selectedBody.innerHTML = `
                         <div class="monitoring-questionnaire-placeholder">
@@ -4973,11 +5225,15 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
                     'monitoring-questionnaire-part1',
                     partNumber === 1
                 );
+                selectedBody.classList.toggle(
+                    'monitoring-questionnaire-photo-part',
+                    partNumber === 6
+                );
 
                 let cleanTitle =
                     String(partName)
                         .replace(
-                            /^part\s*\d+\s*[-:–]?\s*/i,
+                            /^part\s*\d+\s*[-:–—]?\s*/i,
                             ''
                         );
 
@@ -5173,7 +5429,7 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
         if (familyCount) {
             familyCount.textContent =
                 (count || members.length || 0) +
-                ' orang (termasuk kepala keluarga)';
+                ' orang';
         }
 
         if (members.length === 0) {
