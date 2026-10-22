@@ -1210,6 +1210,161 @@ color: #7652C8;
         color: #6b7280;
         font-size: 10px;
     }
+    
+
+.monitoring-members-section .monitoring-members-family-summary {
+    margin-left: auto;
+    flex: 0 0 auto;
+    width: fit-content;
+    max-width: 320px;
+    box-sizing: border-box;
+    padding: 13px 18px;
+    border: 1px solid #e1e5f5;
+    border-radius: 12px;
+    background: #f8f9fc;
+    text-align: right;
+}
+
+.monitoring-members-section .monitoring-detail-section-title {
+    margin: 0;
+}
+
+.monitoring-members-section > .monitoring-detail-section-title {
+    flex: 1;
+}
+
+.monitoring-members-section .monitoring-members-family-summary-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #858b9b;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.monitoring-members-section .monitoring-members-family-summary-name {
+    color: #252A86;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.monitoring-members-section .monitoring-members-family-summary-count {
+    margin-top: 3px;
+    color: #858b9b;
+    font-size: 11px;
+}
+
+/* Header judul kiri + card Kepala Keluarga kanan */
+.monitoring-members-section > .monitoring-detail-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+/* Part 5 dan Part 6: card jawaban lebih ringkas */
+#monitoringQuestionnaireContent .monitoring-question-card,
+#monitoringQuestionnaireContent .monitoring-answer-card {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* Part 6: grid foto rumah */
+#monitoringQuestionnaireContent .monitoring-photo-grid,
+#monitoringQuestionnaireContent .questionnaire-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+}
+
+#monitoringQuestionnaireContent .monitoring-photo-card,
+#monitoringQuestionnaireContent .questionnaire-photo-card {
+    min-width: 0;
+    height: auto;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #e2e6f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+#monitoringQuestionnaireContent .monitoring-photo-card img,
+#monitoringQuestionnaireContent .questionnaire-photo-card img {
+    display: block;
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 9px;
+}
+
+#monitoringQuestionnaireContent .monitoring-photo-card .filename,
+#monitoringQuestionnaireContent .questionnaire-photo-card .filename {
+    display: none;
+}
+
+#monitoringQuestionnaireContent .monitoring-photo-card a,
+#monitoringQuestionnaireContent .questionnaire-photo-card a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #eef0ff;
+    color: #252A86;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+/* Responsif */
+@media (max-width: 900px) {
+    #monitoringQuestionnaireContent .monitoring-photo-grid,
+    #monitoringQuestionnaireContent .questionnaire-photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+
+@media (max-width: 600px) {
+    #monitoringQuestionnaireContent .monitoring-photo-grid,
+    #monitoringQuestionnaireContent .questionnaire-photo-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #monitoringQuestionnaireContent .monitoring-photo-card img,
+    #monitoringQuestionnaireContent .questionnaire-photo-card img {
+        height: 210px;
+    }
+}
+
+
+@media (max-width: 600px) {
+    .monitoring-members-section > .monitoring-detail-section-title {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .monitoring-members-section .monitoring-members-family-summary {
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
+        text-align: left;
+    }
+
+    #monitoringQuestionnaireContent .monitoring-photo-grid,
+    #monitoringQuestionnaireContent .questionnaire-photo-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    #monitoringQuestionnaireContent .monitoring-photo-card img,
+    #monitoringQuestionnaireContent .questionnaire-photo-card img {
+        height: 210px;
+    }
+}
+
 
     .monitoring-members-popover-body {
         padding: 18px 22px 22px;
@@ -2454,17 +2609,22 @@ color: #7652C8;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
-.monitoring-questionnaire-content-body > .monitoring-question-item {
+/* Card pertanyaan Part 6 — disamakan dengan Verifikasi */
+.monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part
+> .monitoring-question-item {
     width: 100% !important;
     min-width: 0 !important;
+    height: fit-content !important;
+    min-height: 0 !important;
     margin: 0 !important;
-    padding: 14px 15px !important;
-    border: 1px solid #e5e7ee !important;
-    border-radius: 10px !important;
+    padding: 12px !important;
+    border: 1px solid #e2e6f0 !important;
+    border-radius: 12px !important;
     background: #ffffff !important;
     box-shadow: 0 2px 7px rgba(30, 35, 60, .03) !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
+    align-self: start !important;
 }
 
 /* Label nomor pertanyaan. */
@@ -2586,13 +2746,10 @@ color: #7652C8;
     align-items: stretch !important;
     gap: 10px !important;
     width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
     max-height: none !important;
-    overflow-x: auto !important;
+    overflow-x: hidden !important;
     overflow-y: hidden !important;
     padding: 10px !important;
-    scroll-snap-type: x proximity;
     box-sizing: border-box !important;
 }
 
@@ -2600,19 +2757,11 @@ color: #7652C8;
     display: flex !important;
     align-items: flex-start !important;
     gap: 8px !important;
-    flex: 0 0 210px !important;
-    width: 210px !important;
-    min-width: 210px !important;
-    max-width: 210px !important;
-    min-height: 84px !important;
-    margin: 0 !important;
-    padding: 9px 10px !important;
-    border: 1px solid #e7eaf0 !important;
-    border-radius: 11px !important;
-    color: #263247 !important;
-    text-align: left !important;
+    flex: 0 0 32% !important;
+    width: 32% !important;
+    min-width: 0 !important;
+    padding: 12px !important;
     box-sizing: border-box !important;
-    white-space: normal !important;
     overflow-wrap: anywhere !important;
     transition: outline .15s ease, box-shadow .15s ease !important;
     scroll-snap-align: start;
@@ -2935,6 +3084,112 @@ color: #7652C8;
     }
 }
 
+/* Part 6: Grid foto rumah - Desktop */
+#monitoringQuestionnaireContent .monitoring-photo-grid,
+#monitoringQuestionnaireContent .questionnaire-photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+}
+
+/* Tablet: 2 kolom */
+@media (max-width: 900px) {
+    #monitoringQuestionnaireContent .monitoring-photo-grid,
+    #monitoringQuestionnaireContent .questionnaire-photo-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* HP: 1 kolom */
+@media (max-width: 600px) {
+    #monitoringQuestionnaireContent .monitoring-photo-grid,
+    #monitoringQuestionnaireContent .questionnaire-photo-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+
+.monitoring-members-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 12px;
+    border: 1px solid #e1e5f2;
+    border-radius: 12px;
+    background: #f7f8fc;
+}
+
+.monitoring-members-heading h3 {
+    margin: 0;
+        transform: translateY(-1px);
+}
+
+.monitoring-members-heading .monitoring-members-family-summary {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .monitoring-members-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .monitoring-members-heading .monitoring-members-family-summary {
+        max-width: 100%;
+    }
+}
+
+
+/* Tombol di bawah foto */
+.monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part
+.monitoring-image-open-link {
+    display: inline-flex !important;
+    margin: 10px 0 0 !important;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    background: #eef0ff !important;
+    color: #252a86 !important;
+    font-size: 12px !important;
+    text-decoration: none !important;
+}
+/* Memendekkan card luar Part 6 */
+.monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part
+> .monitoring-question-item {
+    height: auto !important;
+    min-height: 0 !important;
+    align-self: start !important;
+}
+
+/* Hilangkan latar dan garis biru pada area jawaban Part 6 */
+#monitoringQuestionnaireContent .monitoring-questionnaire-photo-part
+.monitoring-answer-value {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+/* Hilangkan card di belakang nomor pertanyaan dan judul foto */
+#monitoringQuestionnaireContent .monitoring-questionnaire-photo-part
+> .monitoring-question-item {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+}
+
+/* Hilangkan latar tambahan pada area jawaban responden */
+#monitoringQuestionnaireContent .monitoring-questionnaire-photo-part
+.monitoring-answer-label {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
 
 </style>
 
@@ -3699,58 +3954,59 @@ color: #7652C8;
 
             </section>
 
-            {{-- DETAIL ANGGOTA KELUARGA --}}
-            <section class="monitoring-detail-section monitoring-members-section">
 
-                <div class="monitoring-detail-section-title">
-                    <h3>Anggota dalam Kartu Keluarga</h3>
-                </div>
+{{-- DETAIL ANGGOTA KELUARGA --}}
+<section class="monitoring-detail-section monitoring-members-section">
 
-                <div class="monitoring-members-family-summary">
-                    <span class="monitoring-members-family-summary-label">Kepala Keluarga</span>
+    <div class="monitoring-detail-section-title monitoring-members-heading">
+        <h3>Anggota Dalam Kartu Keluarga</h3>
 
-                    <div
-                        class="monitoring-members-family-summary-name"
-                        id="membersFamilyHead"
-                    >
-                        -
-                    </div>
+        <div class="monitoring-members-family-summary">
+            <span class="monitoring-members-family-summary-label">
+                Kepala Keluarga
+            </span>
 
-                    <div
-                        class="monitoring-members-family-summary-count"
-                        id="membersFamilyCount"
-                    >
-                        0 orang
-                    </div>
-                </div>
+            <div
+                class="monitoring-members-family-summary-name"
+                id="membersFamilyHead"
+            >-</div>
 
-                <div class="monitoring-members-table-wrap">
-                    <table class="monitoring-members-table">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>NIK</th>
-                                <th>Nama Lengkap</th>
-                                <th>Status Keluarga</th>
-                            </tr>
-                        </thead>
+            <div
+                class="monitoring-members-family-summary-count"
+                id="membersFamilyCount"
+            >0 orang</div>
+        </div>
+    </div>
 
-                        <tbody id="monitoringMembersTableBody">
-                            <tr>
-                                <td colspan="4">
-                                    <div class="monitoring-members-empty">
-                                        <strong>Detail anggota belum tersedia</strong>
-                                        <span>
-                                            Data anggota keluarga untuk KK ini belum ditemukan.
-                                        </span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+    <div class="monitoring-members-table-wrap">
+        <table class="monitoring-members-table">
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>NIK</th>
+                    <th>Nama Lengkap</th>
+                    <th>Status Keluarga</th>
+                </tr>
+            </thead>
 
-            </section>
+            <tbody id="monitoringMembersTableBody">
+                <tr>
+                    <td colspan="4">
+                        <div class="monitoring-members-empty">
+                            <strong>Detail anggota belum tersedia</strong>
+                            <span>
+                                Data anggota keluarga untuk KK ini belum ditemukan.
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+
 
             {{-- HASIL KUISIONER --}}
             <section class="monitoring-detail-section questionnaire-section">
