@@ -174,6 +174,33 @@
         text-decoration: none !important;
     }
 
+    .status-card:focus-visible {
+        outline: 3px solid currentColor;
+        outline-offset: 3px;
+    }
+
+    .status-detail {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 11px;
+        padding: 5px 9px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        background: #FFFFFF;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1.2;
+        transition:
+            background-color .2s ease,
+            transform .2s ease;
+    }
+
+    .status-card:hover .status-detail {
+        background: color-mix(in srgb, currentColor 8%, #FFFFFF);
+        transform: translateX(2px);
+    }
+
     /* =========================================================
        WARNA CARD
     ========================================================= */
@@ -976,12 +1003,14 @@
                         {{ $belumDidataCount ?? 0 }}
                     </div>
 
+                    <span class="status-detail" aria-hidden="true">Lihat Detail <span>→</span></span>
+
                 </div>
             </a>
 
 
             {{-- DRAFT --}}
-            <div class="status-card draft-card">
+            <a href="#draft-section" class="status-card draft-card">
                 <div>
 
                     <h2 class="status-title">
@@ -992,8 +1021,10 @@
                         {{ $draftCount ?? 0 }}
                     </div>
 
+                    <span class="status-detail" aria-hidden="true">Lihat Detail <span>→</span></span>
+
                 </div>
-            </div>
+            </a>
 
 
             {{-- MENUNGGU VERIFIKASI --}}
@@ -1010,6 +1041,8 @@
                     <div class="status-count">
                         {{ $submitCount ?? 0 }}
                     </div>
+
+                    <span class="status-detail" aria-hidden="true">Lihat Detail <span>→</span></span>
 
                 </div>
             </a>
@@ -1030,6 +1063,8 @@
                         {{ $ditolakCount ?? 0 }}
                     </div>
 
+                    <span class="status-detail" aria-hidden="true">Lihat Detail <span>→</span></span>
+
                 </div>
             </a>
 
@@ -1049,6 +1084,8 @@
                         {{ $diterimaCount ?? 0 }}
                     </div>
 
+                    <span class="status-detail" aria-hidden="true">Lihat Detail <span>→</span></span>
+
                 </div>
             </a>
 
@@ -1059,7 +1096,7 @@
              DRAFT KUISIONER
         ====================================================== --}}
 
-        <div class="draft-section">
+        <div class="draft-section" id="draft-section">
 
         <div class="draft-heading">
             <div>

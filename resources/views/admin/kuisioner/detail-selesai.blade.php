@@ -1020,7 +1020,7 @@
                                     }
                                 @endphp
                                 <div class="answer-item">
-                                    <div class="answer-label">{{ ucwords(str_replace(['_', '-'], ' ', $field)) }}</div>
+                                    <div class="answer-label">{{ ucwords(str_replace(['_', '-'], ' ', preg_replace('/^is[_-]/i', '', $field))) }}</div>
                                     <div class="answer-value">
                                         @if(is_array($value))
                                             {{ implode(', ', $value) }}
@@ -1171,7 +1171,7 @@
                                     <div class="answer-item">
 
                                         <div class="answer-label">
-                                            {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                            {{ ucwords(str_replace(['_', '-'], ' ', preg_replace('/^is[_-]/i', '', $field))) }}
                                         </div>
 
                                         <div class="answer-value">
@@ -1193,6 +1193,8 @@
                                                         '0' => 'Tidak',
                                                         default => $value,
                                                     };
+                                                } elseif ($field === 'harga_sewa_kontrak' && is_numeric($value)) {
+                                                    $displayValue = 'Rp ' . number_format((float) $value, 0, ',', '.');
                                                 }
                                             @endphp
 
@@ -1324,6 +1326,23 @@
                                                         $displayValue = 'Ada';
                                                     }
                                                 }
+
+                                                if (
+                                                    in_array($field, [
+                                                        'pengeluaran_listrik_bulanan',
+                                                        'pengeluaran_pulsa_bulanan',
+                                                        'pengeluaran_internet_bulanan',
+                                                        'pengeluaran_makan_mingguan',
+                                                        'pengeluaran_nonmakan_bulanan',
+                                                        'pengeluaran_nonmakan_tahunan',
+                                                        'total_pendapatan_kerja',
+                                                        'total_pendapatan_usaha',
+                                                        'total_pendapatan_lainnya',
+                                                    ], true)
+                                                    && is_numeric($displayValue)
+                                                ) {
+                                                    $displayValue = 'Rp ' . number_format((float) $displayValue, 0, ',', '.');
+                                                }
                                             @endphp
 
                                             @if(is_array($value))
@@ -1424,7 +1443,7 @@
                                             <div class="answer-item">
 
                                                 <div class="answer-label">
-                                                    {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                                    {{ ucwords(str_replace(['_', '-'], ' ', preg_replace('/^is[_-]/i', '', $field))) }}
                                                 </div>
 
                                                 <div class="answer-value">
@@ -1608,7 +1627,7 @@
                                             <div class="answer-item">
 
                                                 <div class="answer-label">
-                                                    {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                                    {{ ucwords(str_replace(['_', '-'], ' ', preg_replace('/^is[_-]/i', '', $field))) }}
                                                 </div>
 
                                                 <div class="answer-value">
@@ -1683,7 +1702,7 @@
                                                         <div class="answer-item">
 
                                                             <div class="answer-label">
-                                                                {{ ucwords(str_replace(['_', '-'], ' ', $field)) }}
+                                                                {{ ucwords(str_replace(['_', '-'], ' ', preg_replace('/^is[_-]/i', '', $field))) }}
                                                             </div>
 
                                                             <div class="answer-value">

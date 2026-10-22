@@ -383,7 +383,7 @@
 
                     <tr>
                         <td colspan="6" class="part5-empty">
-                            Belum ada anggota keluarga yang tersedia.
+                            Tidak Memiliki Anggota Keluarga yang Terdaftar.
                         </td>
                     </tr>
 

@@ -160,6 +160,25 @@
         font-size: 13px;
     }
 
+    .part2-currency-input {
+        position: relative;
+    }
+
+    .part2-currency-prefix {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        color: #626A80;
+        font-size: 14px;
+        font-weight: 600;
+        transform: translateY(-50%);
+        pointer-events: none;
+    }
+
+    .part2-currency-input .part2-input {
+        padding-left: 42px;
+    }
+
     /* =========================================================
        CONDITIONAL
        ========================================================= */
@@ -811,16 +830,19 @@
                         Besaran sewa rumah per bulan
                     </div>
 
-                    <input
-                        type="text"
-                        name="sewa_bulanan"
-                        id="sewa_bulanan"
-                        class="part2-input"
-                        inputmode="numeric"
-                        value="{{ old('sewa_bulanan', ($dataPart2->kepemilikan_bangunan ?? '') == 'Kontrak/Sewa' ? ($dataPart2->harga_sewa_kontrak ?? '') : '') }}"
-                        placeholder="Minimal Rp50.000"
-                        oninput="formatRupiah(this)"
-                    >
+                    <div class="part2-currency-input">
+                        <span class="part2-currency-prefix">Rp</span>
+                        <input
+                            type="text"
+                            name="sewa_bulanan"
+                            id="sewa_bulanan"
+                            class="part2-input"
+                            inputmode="numeric"
+                            value="{{ old('sewa_bulanan', ($dataPart2->kepemilikan_bangunan ?? '') == 'Kontrak/Sewa' ? ($dataPart2->harga_sewa_kontrak ?? '') : '') }}"
+                            placeholder="Minimal 50.000"
+                            oninput="formatRupiah(this)"
+                        >
+                    </div>
 
                     </div>
 
@@ -836,14 +858,21 @@
                         Perkiraan nilai sewa rumah per bulan
                     </div>
 
-                    <input
-                        type="number"
-                        name="perkiraan_sewa"
-                        class="part2-input"
-                        min="50000"
-                        value="{{ old('perkiraan_sewa', $dataPart2->kepemilikan_bangunan ?? '') == 'Bebas Sewa' ? ($dataPart2->harga_sewa_kontrak ?? '') : '' }}"
-                        placeholder="Minimal Rp50.000"
-                    >
+                    <div class="part2-currency-input">
+                        <span class="part2-currency-prefix">Rp</span>
+                        <input
+                            type="text"
+                            name="perkiraan_sewa"
+                            id="perkiraan_sewa"
+                            class="part2-input"
+                            inputmode="numeric"
+                            pattern="[0-9.]*"
+                            data-minimum="50000"
+                            value="{{ old('perkiraan_sewa', $dataPart2->kepemilikan_bangunan ?? '') == 'Bebas Sewa' ? ($dataPart2->harga_sewa_kontrak ?? '') : '' }}"
+                            placeholder="Minimal 50.000"
+                            oninput="formatRupiah(this); validateMinimumRupiah(this)"
+                        >
+                    </div>
 
                 </div>
 
@@ -1675,12 +1704,47 @@
         input.value = angka.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
+    function validateMinimumRupiah(input) {
+        const angka = Number(input.value.replace(/\D/g, ''));
+        const minimum = Number(input.dataset.minimum);
+
+        input.setCustomValidity(
+            input.value !== '' && angka < minimum
+                ? 'Nilai minimal Rp 50.000.'
+                : ''
+        );
+    }
+
     // Format nilai yang sudah tersimpan ketika halaman dibuka
     document.addEventListener('DOMContentLoaded', function () {
         const inputSewa = document.getElementById('sewa_bulanan');
+        const inputPerkiraanSewa = document.getElementById('perkiraan_sewa');
 
         if (inputSewa && inputSewa.value !== '') {
             formatRupiah(inputSewa);
+        }
+
+        if (inputPerkiraanSewa && inputPerkiraanSewa.value !== '') {
+            formatRupiah(inputPerkiraanSewa);
+            validateMinimumRupiah(inputPerkiraanSewa);
+        }
+
+        let form = null;
+
+        if (inputSewa) {
+            form = inputSewa.closest('form');
+        } else if (inputPerkiraanSewa) {
+            form = inputPerkiraanSewa.closest('form');
+        }
+
+        if (form) {
+            form.addEventListener('submit', function () {
+                [inputSewa, inputPerkiraanSewa].forEach(function (input) {
+                    if (input) {
+                        input.value = input.value.replace(/\./g, '');
+                    }
+                });
+            });
         }
     });
 </script>

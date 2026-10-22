@@ -2410,7 +2410,7 @@ foreach ($drafts as $draft) {
 
         $jumlahSelesai = count(array_filter($statusPart5));
 
-        $semuaAnggotaSelesai = $jumlahAnggota > 0
+        $semuaAnggotaSelesai = $jumlahAnggota === 0
             && $jumlahSelesai === $jumlahAnggota;
 
         return view(
@@ -2796,22 +2796,20 @@ foreach ($drafts as $draft) {
         $firstRouteParameters = [];
 
         $addMissing = function (
-            int $part,
-            string $question,
-            string $route,
-            array $parameters = []
-        ) use (
-            &$missingQuestions,
-            &$firstRoute,
-            &$firstRouteParameters
-        ): void {
-            $missingQuestions[] = 'Part '.$part.' — '.$question;
+        int $part,
+        string $question,
+        string $route,
+        array $routeParameters = []
+    ) use (&$missingQuestions, &$firstRoute, &$firstRouteParameters): void {
+        $question = preg_replace('/^(\d+)\.\s*/', '$1: ', $question);
 
-            if ($firstRoute === null) {
-                $firstRoute = $route;
-                $firstRouteParameters = $parameters;
-            }
-        };
+        $missingQuestions[] = 'Part '.$part.'  Pertanyaan No. '.$question;
+
+        if ($firstRoute === null) {
+            $firstRoute = $route;
+            $firstRouteParameters = $routeParameters;
+        }
+    };
 
         $isAnswered = static function (mixed $value): bool {
             return $value !== null
@@ -2862,7 +2860,7 @@ foreach ($drafts as $draft) {
                 $keluarga?->status_keluarga
             ),
             '4. Nomor KK' => $firstAnswered($draft->no_kk, $keluarga?->no_kk),
-            '5. Jumlah anggota keluarga' => $jumlahAnggota > 0 ? $jumlahAnggota : null,
+            '5. Jumlah anggota keluarga' => $jumlahAnggota,
             '6. Provinsi' => $firstAnswered($draft->provinsi, 'Jawa Timur'),
             '7. Kabupaten/Kota' => $firstAnswered($draft->daerah, 'Kota Pasuruan'),
             '8. Kecamatan' => $kecamatan,
@@ -3075,14 +3073,6 @@ foreach ($drafts as $draft) {
             'is_disabilitas_wicara' => '67. Disabilitas sensorik wicara',
         ];
 
-        if ($anggotaList->isEmpty()) {
-            $addMissing(
-                5,
-                'Data anggota keluarga belum tersedia',
-                'kuisioner.part5'
-            );
-        }
-
         foreach ($anggotaList as $anggota) {
             $answer = $dataPart5->get($anggota->kode);
             $namaAnggota = $anggota->nama_lengkap;
@@ -3234,7 +3224,7 @@ foreach ($drafts as $draft) {
         array $missingQuestions,
         int $part
     ): array {
-        $partPrefix = 'Part '.$part.' — ';
+        $partPrefix = 'Part '.$part.'  Pertanyaan No. ';
 
         return array_values(array_filter(
             $missingQuestions,
@@ -3837,7 +3827,7 @@ foreach ($drafts as $draft) {
             ->whereIn('keluarga_anggota_kode', $kodeAnggota)
             ->count();
 
-        if ($jumlahAnggota === 0 || $jumlahAnggotaTerdata < $jumlahAnggota) {
+        if ($jumlahAnggota > 0 && $jumlahAnggotaTerdata < $jumlahAnggota) {
             return redirect()
                 ->route('kuisioner.part5')
                 ->with(
