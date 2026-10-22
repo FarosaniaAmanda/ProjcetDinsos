@@ -1225,7 +1225,7 @@
             ================================================== -->
 
             <a
-                href="{{ route('responden.index') }}"
+                href="{{ route('periode.pilih', ['tujuan' => 'responden.index']) }}"
                 class="menu-link {{ request()->is('responden*') ? 'active' : '' }}"
             >
 

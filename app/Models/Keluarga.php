@@ -19,10 +19,15 @@ class Keluarga extends Model
         'kelurahan_id',
         'kode_pos',
         'alamat_lengkap',
+        'tanggal_entri',
         'rt',
         'rw',
         'created_by',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'tanggal_entri' => 'date',
     ];
 
     public function anggota(): HasMany

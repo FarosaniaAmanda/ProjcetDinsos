@@ -263,6 +263,9 @@ Route::get('/responden/tambah', [RespondenController::class, 'create'])
 Route::post('/responden/simpan', [RespondenController::class, 'store'])
     ->name('responden.store');
 
+Route::post('/responden/cek-duplikat', [RespondenController::class, 'cekDuplikat'])
+    ->name('responden.cekDuplikat');
+
 Route::get('/responden/edit/{id}', [RespondenController::class, 'edit'])
     ->name('responden.edit');
 

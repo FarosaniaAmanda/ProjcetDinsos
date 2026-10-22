@@ -399,7 +399,11 @@
                 <h2>Pilih Periode</h2>
 
                 <p>
-                    Pilih periode pendataan yang sedang aktif.
+                    @if($tujuan === 'responden.index')
+                        Pilih periode pendataan.
+                    @else
+                        Pilih periode pendataan yang sedang aktif.
+                    @endif
                 </p>
 
             </div>
@@ -429,12 +433,13 @@
                         @php
                             $status = strtolower(trim($periode->status ?? ''));
                             $isAktif = $status === 'aktif';
+                            $semuaStatusDapatDipilih = $tujuan === 'responden.index';
                         @endphp
 
 
-                        @if($isAktif)
+                        @if($isAktif || $semuaStatusDapatDipilih)
 
-                            {{-- PERIODE AKTIF --}}
+                            {{-- Periode aktif selalu dapat dipilih; Responden juga menerima status lain. --}}
                             <form
                                 action="{{ route('periode.set') }}"
                                 method="POST"
@@ -478,9 +483,23 @@
 
                                             </div>
 
-                                            <span class="periode-status periode-status-aktif">
-                                                Aktif
-                                            </span>
+                                            @if($isAktif)
+                                                <span class="periode-status periode-status-aktif">
+                                                    Aktif
+                                                </span>
+                                            @elseif($status === 'akan datang')
+                                                <span class="periode-status periode-status-akan-datang">
+                                                    Akan Datang
+                                                </span>
+                                            @elseif($status === 'selesai')
+                                                <span class="periode-status periode-status-selesai">
+                                                    Selesai
+                                                </span>
+                                            @else
+                                                <span class="periode-status periode-status-selesai">
+                                                    Tidak Aktif
+                                                </span>
+                                            @endif
 
                                         </div>
 

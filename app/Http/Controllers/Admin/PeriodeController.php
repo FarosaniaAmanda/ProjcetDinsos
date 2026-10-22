@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Periode;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class PeriodeController extends Controller
 {
@@ -184,6 +185,7 @@ class PeriodeController extends Controller
 
         $tujuanYangDiizinkan = [
             'kuisioner.index',
+            'responden.index',
             'verifikasi.index',
             'monitoring.index',
             'laporan.index',
@@ -235,13 +237,22 @@ class PeriodeController extends Controller
             'tujuan' => [
                 'required',
                 'string',
-                'in:kuisioner.index,verifikasi.index,monitoring.index,laporan.index',
+                'in:kuisioner.index,responden.index,verifikasi.index,monitoring.index,laporan.index',
             ],
         ]);
 
         $periode = Periode::findOrFail(
             $request->periode_id
         );
+
+        if (
+            $request->tujuan !== 'responden.index'
+            && strtolower(trim((string) $periode->status_periode)) !== 'aktif'
+        ) {
+            throw ValidationException::withMessages([
+                'periode_id' => 'Menu ini hanya dapat dibuka menggunakan periode berstatus Aktif.',
+            ]);
+        }
 
         /*
         |--------------------------------------------------------------------------
