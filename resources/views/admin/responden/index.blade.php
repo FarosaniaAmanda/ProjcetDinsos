@@ -3783,7 +3783,22 @@ window.editResponden = function (id) {
             }
 
             anggotaEditTerkunci = Boolean(data.anggota_terkunci);
-            anggotaEditTambahTerkunci = Boolean(data.anggota_penambahan_terkunci);
+            const statusKuisionerEdit = String(data.status_kuisioner ?? '')
+                .trim()
+                .toLowerCase()
+                .replace(/[\s\-/]+/g, '_');
+            // Izinkan penambahan untuk semua variasi status Draft/Ditolak,
+            // misalnya draft_belum_submit atau kuisioner_draft. Status lain
+            // tetap terkunci, termasuk Menunggu Verifikasi dan Disetujui.
+            const statusBolehTambahAnggota =
+                statusKuisionerEdit === ''
+                || statusKuisionerEdit.includes('draft')
+                || statusKuisionerEdit.includes('ditolak')
+                || statusKuisionerEdit.includes('rejected');
+
+            // Status aktual menjadi acuan utama agar flag lama dari backend
+            // tidak keliru mengunci Draft. Backend tetap memvalidasi saat simpan.
+            anggotaEditTambahTerkunci = !statusBolehTambahAnggota;
             const infoEditAnggota = document.querySelector('.anggota-edit-info-text');
             const tombolTambahAnggota = document.getElementById('btnTambahAnggotaEdit');
 
@@ -3793,9 +3808,9 @@ window.editResponden = function (id) {
 
             if (infoEditAnggota) {
                 if (anggotaEditTambahTerkunci) {
-                    infoEditAnggota.textContent = 'Kuisioner sedang menunggu verifikasi atau telah disetujui. Anggota tidak dapat ditambah atau dihapus.';
+                    infoEditAnggota.textContent = 'Kuisioner Menunggu Verifikasi, sudah disubmit, atau Disetujui. Anggota tidak dapat ditambah atau dihapus.';
                 } else if (anggotaEditTerkunci) {
-                    infoEditAnggota.textContent = 'Kuisioner draft atau ditolak. Anggota terdaftar tidak dapat dihapus, tetapi anggota baru dapat ditambahkan.';
+                    infoEditAnggota.textContent = 'Kuisioner berstatus Draft atau Ditolak. Anggota baru boleh ditambahkan, tetapi anggota terdaftar tidak dapat dihapus.';
                 } else {
                     infoEditAnggota.textContent = 'Anggota keluarga dapat ditambah atau dihapus selama pendataan kuisioner belum dimulai.';
                 }
@@ -3957,14 +3972,13 @@ function hapusAnggotaEdit(index) {
         return;
     }
 
-    if (anggotaEditTambahTerkunci) {
-        tampilkanNotifikasi('Anggota tidak dapat dihapus karena kuisioner sedang menunggu verifikasi atau telah disetujui.', 'warning');
+    if (item.id) {
+        tampilkanNotifikasi('Anggota yang sudah terdaftar tidak dapat dihapus.', 'warning');
         return;
     }
 
-    // Anggota terdaftar hanya dapat dihapus sebelum pendataan kuisioner dimulai.
-    if (item.id && anggotaEditTerkunci) {
-        alert('Anggota keluarga tidak dapat dihapus karena pendataan kuisioner sudah dimulai (draft atau sudah dikirim).');
+    if (anggotaEditTambahTerkunci) {
+        tampilkanNotifikasi('Anggota baru tidak dapat ditambahkan atau dihapus pada status Menunggu Verifikasi atau Disetujui.', 'warning');
         return;
     }
 
@@ -3996,7 +4010,7 @@ function tambahAnggotaEdit(data = null, isKepala = false) {
     const nik = data?.nik ?? '';
     const nama = data?.nama_lengkap ?? '';
     const status = data?.status_keluarga ?? (isKepala ? 'Kepala Keluarga' : '');
-    const bolehHapus = !anggotaEditTambahTerkunci && (!id || !anggotaEditTerkunci);
+    const bolehHapus = !id && !anggotaEditTambahTerkunci;
 
     const card = document.createElement('div');
     card.className = 'anggota-card' + (!id ? ' anggota-card-new' : '');
