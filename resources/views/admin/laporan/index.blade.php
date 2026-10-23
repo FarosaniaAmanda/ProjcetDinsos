@@ -2122,6 +2122,7 @@
     box-shadow: 0 2px 7px rgba(30, 35, 60, .03);
 }
 
+
 .questionnaire-question-number {
     display: inline-flex;
     align-items: center;
@@ -2311,205 +2312,337 @@
     line-height: 1.5;
 }
 
+
+
+/* =====================================================
+   PART 5 LAPORAN
+   Card anggota di atas, jawaban di bawah
+===================================================== */
+
 .questionnaire-part5-layout {
-    display: grid;
-    grid-template-columns: minmax(220px, 270px) minmax(0, 1fr);
-    gap: 14px;
-    width: 100%;
-    min-width: 0;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 
 .questionnaire-part5-members,
 .questionnaire-part5-answer {
-    min-width: 0;
+    display: block !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    border: 1px solid #e0e5f1 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-sizing: border-box !important;
     overflow: hidden;
-    border: 1px solid #e4e7ef;
-    border-radius: 12px;
-    background: #fff;
 }
 
+/* Header panel */
 .questionnaire-part5-panel-header {
-    padding: 14px 16px;
-    border-bottom: 1px solid #e8eaf0;
-    background: #fafbfe;
+    display: block !important;
+    padding: 13px 15px !important;
+    border-bottom: 1px solid #e5e9f2 !important;
+    background: #fafbfe !important;
 }
 
 .questionnaire-part5-panel-header strong {
-    display: block;
-    color: #252a86;
-    font-size: 13px;
-    font-weight: 800;
+    display: block !important;
+    color: #252a86 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
 }
 
 .questionnaire-part5-panel-header span {
-    display: block;
-    margin-top: 3px;
-    color: #858b99;
-    font-size: 10.5px;
-    line-height: 1.45;
+    display: block !important;
+    margin-top: 4px !important;
+    color: #7b8395 !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
 }
 
+/* Card anggota berjajar di bagian atas */
 .questionnaire-part5-member-list {
-    max-height: 560px;
-    overflow-y: auto;
-    padding: 7px;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
 }
 
-.questionnaire-part5-member-card {
-    display: block;
-    width: 100%;
-    margin: 0 0 6px;
-    padding: 9px 10px;
-    border: 1px solid #e5e8f0;
-    border-radius: 10px;
-    background: #fff;
-    text-align: left;
+/* Bentuk dan ukuran setiap card */
+.questionnaire-part5-member-card,
+.questionnaire-part5-member-card:last-child {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 84px !important;
+    margin: 0 !important;
+    padding: 11px !important;
+    border: 1px solid #e0e5f1 !important;
+    border-radius: 11px !important;
+    text-align: left !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
     cursor: pointer;
+    transition: border-color .18s ease, box-shadow .18s ease;
 }
 
+/* Warna berbeda untuk masing-masing anggota */
+.questionnaire-part5-member-card:nth-child(5n + 1) {
+    background: #fff0f5 !important;
+    border-color: #f4c8d8 !important;
+}
+
+.questionnaire-part5-member-card:nth-child(5n + 2) {
+    background: #fff8d9 !important;
+    border-color: #f0df9b !important;
+}
+
+.questionnaire-part5-member-card:nth-child(5n + 3) {
+    background: #f1eaff !important;
+    border-color: #d7c6f4 !important;
+}
+
+.questionnaire-part5-member-card:nth-child(5n + 4) {
+    background: #e8f4ff !important;
+    border-color: #c4def5 !important;
+}
+
+.questionnaire-part5-member-card:nth-child(5n) {
+    background: #e9f8ed !important;
+    border-color: #c5e8ce !important;
+}
+
+/* Hover tidak menghapus warna dasar card */
 .questionnaire-part5-member-card:hover {
-    border-color: #cfd5f5;
-    background: #fafbff;
+    filter: brightness(.98);
 }
 
+/* Card anggota terpilih */
 .questionnaire-part5-member-card.is-selected {
-    border-color: #252a86;
-    background: #f2f3ff;
+    outline: 2px solid #252a86 !important;
+    outline-offset: 1px !important;
+    box-shadow: 0 0 0 3px rgba(37, 42, 134, .10) !important;
 }
 
+/* Informasi anggota di dalam card */
 .questionnaire-part5-member-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
 }
 
 .questionnaire-part5-member-avatar {
-    display: flex;
-    flex: 0 0 30px;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: #eef0ff;
-    color: #252a86;
-    font-size: 11px;
-    font-weight: 800;
+    display: flex !important;
+    flex: 0 0 32px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 9px !important;
+    background: rgba(255, 255, 255, .8) !important;
+    color: #252a86 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
 }
 
 .questionnaire-part5-member-main {
-    flex: 1;
-    min-width: 0;
+    flex: 1 !important;
+    min-width: 0 !important;
 }
 
 .questionnaire-part5-member-name {
-    overflow: hidden;
-    color: #303545;
-    font-size: 12px;
-    font-weight: 800;
-    line-height: 1.35;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: block !important;
+    color: #303548 !important;
+    font-size: 13px !important;
+    font-weight: 750 !important;
+    line-height: 1.4 !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
 }
 
 .questionnaire-part5-member-relation {
-    display: block;
-    margin-top: 2px;
-    color: #7b8190;
-    font-size: 10px;
+    display: block !important;
+    margin-top: 3px !important;
+    color: #626b7d !important;
+    font-size: 11px !important;
 }
 
 .questionnaire-part5-member-nik {
-    display: block;
-    margin-top: 5px;
-    color: #858b99;
-    font-size: 9px;
-    word-break: break-all;
+    display: block !important;
+    margin-top: 7px !important;
+    color: #626b7d !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
 }
 
+/* Panel jawaban anggota di bawah */
 .questionnaire-part5-answer-body {
-    max-height: 560px;
-    overflow-y: auto;
-    padding: 14px;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 14px !important;
+    box-sizing: border-box !important;
+}
+
+.questionnaire-part5-answer-member,
+.questionnaire-part5-answer-empty {
+    grid-column: 1 / -1 !important;
+    min-width: 0 !important;
 }
 
 .questionnaire-part5-answer-member {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 14px;
-    padding-bottom: 13px;
-    margin-bottom: 13px;
-    border-bottom: 1px solid #e8eaf0;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #e5e9f2 !important;
 }
 
 .questionnaire-part5-answer-member h4 {
-    margin: 0;
-    color: #252a86;
-    font-size: 16px;
-    line-height: 1.35;
+    margin: 0 !important;
+    color: #303548 !important;
+    font-size: 15px !important;
+    font-weight: 800 !important;
 }
 
 .questionnaire-part5-answer-member p {
-    margin: 4px 0 0;
-    color: #777e8d;
-    font-size: 10.5px;
-    line-height: 1.5;
+    margin: 5px 0 0 !important;
+    color: #737c8f !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
 }
 
+.questionnaire-part5-answer-count {
+    flex-shrink: 0 !important;
+    padding: 6px 10px !important;
+    border-radius: 20px !important;
+    background: #eef0ff !important;
+    color: #252a86 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+/* Card pertanyaan dan jawaban */
 .questionnaire-part5-question {
-    padding: 12px 13px;
-    margin-bottom: 9px;
-    border: 1px solid #e7e9f0;
-    border-radius: 10px;
+    min-width: 0 !important;
+    padding: 14px !important;
+    border: 1px solid #dfe5f1 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-sizing: border-box !important;
 }
 
-.questionnaire-part5-question-number,
-.questionnaire-part5-answer-label {
-    color: #858b99;
-    font-size: 9px;
-    font-weight: 800;
+.questionnaire-part5-question-number {
+    display: inline-block !important;
+    margin-bottom: 10px !important;
+    padding: 6px 9px !important;
+    border-radius: 7px !important;
+    background: #eef0f5 !important;
+    color: #647087 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
     text-transform: uppercase;
-    letter-spacing: .4px;
 }
 
 .questionnaire-part5-question-text {
-    margin-top: 4px;
-    color: #303545;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.5;
+    margin-bottom: 12px !important;
+    color: #303548 !important;
+    font-size: 14px !important;
+    font-weight: 650 !important;
+    line-height: 1.5 !important;
+    overflow-wrap: anywhere !important;
 }
 
 .questionnaire-part5-answer-label {
-    margin-top: 9px;
+    margin-bottom: 7px !important;
+    color: #647087 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
 }
 
 .questionnaire-part5-answer-value {
-    margin-top: 4px;
-    color: #454b59;
-    font-size: 12px;
-    line-height: 1.55;
-    overflow-wrap: anywhere;
+    min-width: 0 !important;
+    padding: 11px 12px !important;
+    border-left: 3px solid #55b5d5 !important;
+    border-radius: 9px !important;
+    background: #f2f6f9 !important;
+    color: #354154 !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+}
+
+.questionnaire-part5-answer-value.is-empty {
+    color: #858b99 !important;
+    font-style: italic;
+}
+
+/* Foto jawaban */
+.questionnaire-part5-image-answer {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
 }
 
 .questionnaire-part5-image {
-    display: block;
-    width: 100%;
-    max-width: 480px;
-    max-height: 320px;
-    margin-top: 9px;
-    border: 1px solid #e3e5eb;
-    border-radius: 9px;
-    background: #f8f9fc;
-    object-fit: contain;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 320px !important;
+    object-fit: contain !important;
+    border-radius: 8px !important;
 }
 
-.questionnaire-part5-image-link {
-    margin-top: 7px;
-    padding: 6px 9px;
-    font-size: 10px;
+/* Tampilan tablet dan HP */
+@media (max-width: 700px) {
+    .questionnaire-part5-member-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .questionnaire-part5-answer-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .questionnaire-part5-answer-member,
+    .questionnaire-part5-answer-empty {
+        grid-column: 1 !important;
+    }
 }
+
+@media (max-width: 450px) {
+    .questionnaire-part5-member-list {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    .questionnaire-part5-answer-body {
+        padding: 10px !important;
+    }
+}
+
 
 @media (max-width: 900px) {
     .laporan-info-grid {
@@ -2616,6 +2749,803 @@
         padding: 13px 14px;
     }
 }
+
+
+/* =========================================================
+   FINAL VISUAL ALIGNMENT: DETAIL LAPORAN = DETAIL VERIFIKASI
+   Override terakhir agar aturan CSS sebelumnya tidak menimpa.
+   Tidak mengubah data, ID, event handler, atau logika JavaScript.
+========================================================= */
+.laporan-modal {
+    position: relative;
+    width: min(1250px, calc(100vw - 40px));
+    max-width: 1250px;
+    max-height: calc(100vh - 40px);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.laporan-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 18px 20px;
+    border-bottom: 1px solid #e8e9ef;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.laporan-modal-header h2 {
+    margin: 0;
+    color: #252a86;
+    font-size: 19px;
+    line-height: 1.35;
+    font-weight: 700;
+}
+
+.laporan-modal-header p {
+    margin: 4px 0 0;
+    color: #888;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.laporan-modal-close {
+    display: flex;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 7px;
+    background: #f3f4f8;
+    color: #666;
+    cursor: pointer;
+}
+
+.laporan-modal-close:hover {
+    background: #252a86;
+    color: #fff;
+}
+
+.laporan-modal-body {
+    padding: 18px 20px 22px;
+    max-height: calc(100vh - 125px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    box-sizing: border-box;
+}
+
+/* Tiga kartu ringkasan utama */
+.laporan-modal-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 0 0 16px;
+}
+
+.laporan-summary-box {
+    min-width: 0;
+    padding: 13px 14px;
+    border: 1px solid #e7e9f1;
+    border-radius: 10px;
+    background: #f8f9fc;
+    box-sizing: border-box;
+}
+
+.laporan-summary-label {
+    display: block;
+    margin: 0 0 5px;
+    color: #7b8192;
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .35px;
+}
+
+.laporan-summary-value {
+    display: block;
+    margin: 4px 0 0;
+    color: #263238;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+/* Badge status ringkasan dan status pada informasi responden */
+.laporan-summary-value.laporan-detail-status,
+.laporan-info-value.laporan-detail-status {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    padding: 5px 9px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 700;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    box-sizing: border-box;
+}
+
+.laporan-detail-status.status-approved {
+    color: #24723c;
+    background: #eaf8ef;
+    border-color: #bce5c9;
+}
+
+.laporan-detail-status.status-rejected {
+    color: #a53636;
+    background: #fdecec;
+    border-color: #f2c4c4;
+}
+
+.laporan-detail-status.status-pending {
+    color: #9a6a00;
+    background: #fff7df;
+    border-color: #f0dfa5;
+}
+
+.laporan-detail-status.status-draft {
+    color: #666b75;
+    background: #f1f2f5;
+    border-color: #dfe1e7;
+}
+
+/* Panel informasi dan kartu-kartu responden */
+.laporan-info-section,
+.laporan-detail-data-section {
+    min-width: 0;
+    margin: 0 0 16px;
+    padding: 16px;
+    border: 1px solid #e7e9f1;
+    border-radius: 12px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.laporan-info-title,
+.laporan-detail-data-heading {
+    margin: 0 0 13px;
+    color: #252a86;
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 700;
+}
+
+.laporan-info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 9px;
+    min-width: 0;
+}
+
+.laporan-info-item {
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid #edf0f5;
+    border-radius: 9px;
+    background: #fafbfc;
+    box-sizing: border-box;
+}
+
+.laporan-info-label {
+    display: block;
+    margin: 0 0 5px;
+    color: #6b7280;
+    font-size: 10px;
+    line-height: 1.4;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.laporan-info-value {
+    display: block;
+    min-width: 0;
+    margin: 0;
+    color: #263238;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* Kuesioner Part 1–6: seragamkan panel, navigasi part, pertanyaan, dan jawaban */
+.laporan-questionnaire-layout {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+    align-items: stretch;
+}
+
+.laporan-question-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.laporan-question-part-btn {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid #e3e6ef;
+    border-radius: 9px;
+    background: #f8f9fc;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 600;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.laporan-question-part-btn.active {
+    border-color: #252a86;
+    background: #252a86;
+    color: #fff;
+}
+
+.laporan-question-answer {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid #e3e6ef;
+    border-radius: 12px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.laporan-question-answer-title {
+    margin: 0 0 13px;
+    padding: 0 0 10px;
+    border-bottom: 1px solid #e8ebf3;
+    color: #252a86;
+    font-size: 15px;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+.laporan-question-answer-body {
+    width: 100%;
+    min-width: 0;
+    color: #263238;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.laporan-question-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.laporan-question-table th {
+    padding: 11px 13px;
+    border-bottom: 1px solid #e2e6f0;
+    background: #f1f3ff;
+    color: #4b5563;
+    font-size: 11px;
+    line-height: 1.45;
+    font-weight: 700;
+    text-align: left;
+}
+
+.laporan-question-table td {
+    padding: 11px 13px;
+    border-bottom: 1px solid #edf0f5;
+    color: #263238;
+    font-size: 12px;
+    line-height: 1.5;
+    vertical-align: top;
+}
+
+.laporan-questionnaire-description {
+    margin: -7px 0 13px;
+    color: #7d8392;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.laporan-members-table-wrap {
+    border: 1px solid #e3e6ef;
+    border-radius: 9px;
+    overflow-x: auto;
+}
+
+.laporan-members-table th {
+    padding: 11px 13px;
+    background: #f1f3ff;
+    font-size: 11px;
+}
+
+.laporan-members-table td {
+    padding: 11px 13px;
+    font-size: 12px;
+}
+
+@media (max-width: 900px) {
+    .laporan-questionnaire-layout {
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: 12px;
+    }
+    .laporan-info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .laporan-modal {
+        width: calc(100vw - 20px);
+        max-height: calc(100vh - 20px);
+        border-radius: 12px;
+    }
+    .laporan-modal-header {
+        padding: 15px 16px;
+    }
+    .laporan-modal-header h2 {
+        font-size: 18px;
+    }
+    .laporan-modal-body {
+        max-height: calc(100vh - 105px);
+        padding: 15px 16px 16px;
+    }
+    .laporan-modal-summary {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .laporan-info-section,
+    .laporan-detail-data-section {
+        padding: 12px;
+        margin-bottom: 10px;
+    }
+    .laporan-info-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .laporan-questionnaire-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+    .laporan-question-list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .laporan-question-answer {
+        padding: 11px;
+    }
+}
+
+/* Header Anggota Kartu Keluarga - mengikuti Verifikasi */
+.laporan-members-section {
+    padding: 18px;
+    border: 1px solid #e2e6f0;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.laporan-members-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 18px 20px;
+    border: 1px solid #e0e5f1;
+    border-radius: 13px;
+    background: #f7f8fc;
+}
+
+.laporan-members-header h3 {
+    margin: 0;
+    color: #252a86;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.laporan-head-family {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 9px 13px;
+    border: 1px solid #dfe4f4;
+    border-radius: 10px;
+    background: #f7f8ff;
+    text-align: right;
+}
+
+.laporan-head-family span {
+    color: #858b99;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.laporan-head-family strong {
+    color: #252a86;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.laporan-members-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e0e5f1;
+    border-radius: 12px;
+}
+
+.laporan-members-table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+    background: #fff;
+}
+
+.laporan-members-table th {
+    padding: 12px 14px;
+    background: #f1f3f9;
+    color: #4b5563;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: left;
+    border-bottom: 1px solid #e0e5f1;
+}
+
+.laporan-members-table td {
+    padding: 13px 14px;
+    color: #475569;
+    font-size: 13px;
+    border-bottom: 1px solid #e9edf5;
+}
+
+.laporan-members-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.laporan-members-table tbody tr:hover {
+    background: #fafbff;
+}
+
+@media (max-width: 600px) {
+    .laporan-members-header {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .laporan-members-header h3 {
+        font-size: 17px;
+    }
+
+    .laporan-head-family {
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
+/* ==================================================
+   HASIL KUISIONER LAPORAN: CARD 2 KOLOM
+   Digunakan untuk Part 1 sampai Part 4
+================================================== */
+
+/* Susun card pertanyaan kiri-kanan */
+#modalQuestionnaireContent .questionnaire-content-body {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    align-items: start;
+}
+
+/* Setiap pertanyaan menjadi card */
+#modalQuestionnaireContent .questionnaire-question {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    align-self: start;
+    box-sizing: border-box;
+}
+
+/* Jawaban boleh memanjang, tetapi tidak merusak kolom */
+#modalQuestionnaireContent .questionnaire-answer {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Foto dan pertanyaan lokasi memakai lebar penuh */
+#modalQuestionnaireContent .questionnaire-question.questionnaire-photo-question,
+#modalQuestionnaireContent .questionnaire-question.questionnaire-location-question {
+    grid-column: 1 / -1;
+}
+
+/* Pesan kosong juga memenuhi area */
+#modalQuestionnaireContent .questionnaire-content-body > .questionnaire-empty {
+    grid-column: 1 / -1;
+}
+
+/* Layar kecil: kembali menjadi satu kolom */
+@media (max-width: 700px) {
+    #modalQuestionnaireContent .questionnaire-content-body {
+        grid-template-columns: 1fr;
+    }
+
+    #modalQuestionnaireContent .questionnaire-question.questionnaire-photo-question,
+    #modalQuestionnaireContent .questionnaire-question.questionnaire-location-question {
+        grid-column: auto;
+    }
+}
+
+
+/* FIX FINAL PART 5 LAPORAN */
+#modalQuestionnaireContent .questionnaire-part5-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    gap: 14px !important;
+    box-sizing: border-box !important;
+}
+
+#modalQuestionnaireContent .questionnaire-part5-members,
+#modalQuestionnaireContent .questionnaire-part5-answer {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* Panel daftar anggota */
+#modalQuestionnaireContent .questionnaire-part5-member-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+}
+
+/* Ukuran card anggota */
+#modalQuestionnaireContent .questionnaire-part5-member-card {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    min-height: 96px !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+}
+
+/* Nama anggota jangan terpotong */
+#modalQuestionnaireContent .questionnaire-part5-member-name {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: anywhere !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+}
+
+/* Panel jawaban memenuhi lebar yang sama */
+#modalQuestionnaireContent .questionnaire-part5-answer-body {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-items: start !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 14px !important;
+    box-sizing: border-box !important;
+}
+
+/* Informasi anggota terpilih memenuhi satu baris */
+#modalQuestionnaireContent .questionnaire-part5-answer-member,
+#modalQuestionnaireContent .questionnaire-part5-answer-empty {
+    grid-column: 1 / -1 !important;
+}
+
+/* Kartu pertanyaan dan jawaban */
+#modalQuestionnaireContent .questionnaire-part5-question {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Tampilan tablet dan HP */
+@media (max-width: 700px) {
+    #modalQuestionnaireContent .questionnaire-part5-member-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #modalQuestionnaireContent .questionnaire-part5-answer-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    #modalQuestionnaireContent .questionnaire-part5-answer-member,
+    #modalQuestionnaireContent .questionnaire-part5-answer-empty {
+        grid-column: 1 !important;
+    }
+}
+
+@media (max-width: 450px) {
+    #modalQuestionnaireContent .questionnaire-part5-member-list {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
+/* FIX UTAMA: PART 5 HARUS MEMAKAI SELURUH KOLOM KONTEN */
+#modalQuestionnaireContent .questionnaire-content-body > .questionnaire-part5-layout {
+    grid-column: 1 / -1 !important;
+    justify-self: stretch !important;
+    align-self: stretch !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+    gap: 14px !important;
+    box-sizing: border-box !important;
+}
+
+/* Panel anggota dan jawaban sama-sama selebar konten */
+#modalQuestionnaireContent .questionnaire-part5-layout > .questionnaire-part5-members,
+#modalQuestionnaireContent .questionnaire-part5-layout > .questionnaire-part5-answer {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 0 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Tiga card anggota membagi lebar secara merata */
+#modalQuestionnaireContent .questionnaire-part5-layout .questionnaire-part5-member-list {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    gap: 10px !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+}
+
+/* Jawaban menggunakan seluruh lebar panel */
+#modalQuestionnaireContent .questionnaire-part5-layout .questionnaire-part5-answer-body {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    gap: 12px !important;
+    padding: 14px !important;
+    box-sizing: border-box !important;
+}
+
+/* Identitas anggota terpilih memenuhi satu baris */
+#modalQuestionnaireContent .questionnaire-part5-answer-member,
+#modalQuestionnaireContent .questionnaire-part5-answer-empty {
+    grid-column: 1 / -1 !important;
+}
+
+@media (max-width: 700px) {
+    #modalQuestionnaireContent .questionnaire-part5-layout .questionnaire-part5-member-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    #modalQuestionnaireContent .questionnaire-part5-layout .questionnaire-part5-answer-body {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
+@media (max-width: 450px) {
+    #modalQuestionnaireContent .questionnaire-part5-layout .questionnaire-part5-member-list {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
+
+/* ==================================================
+   PERBAIKAN PART 6 FOTO RUMAH - HALAMAN LAPORAN
+   3 CARD SEJAJAR SEPERTI HALAMAN VERIFIKASI
+================================================== */
+
+/* Paksa Part 6 menggunakan 3 kolom */
+#modalQuestionnaireContent .questionnaire-content-body.is-photo-part {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: stretch !important;
+    gap: 14px !important;
+}
+
+/* Card foto tidak boleh memenuhi satu baris */
+#modalQuestionnaireContent .questionnaire-content-body.is-photo-part
+.questionnaire-question.questionnaire-photo-question {
+    grid-column: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 100% !important;
+    padding: 12px !important;
+    border: 1px solid #e2e6f2 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    box-sizing: border-box !important;
+}
+
+/* Foto memiliki ukuran seragam */
+#modalQuestionnaireContent .questionnaire-content-body.is-photo-part
+.questionnaire-answer-image img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    max-height: none !important;
+    object-fit: cover !important;
+    border-radius: 9px !important;
+}
+
+/* Area foto mengikuti lebar card */
+#modalQuestionnaireContent .questionnaire-content-body.is-photo-part
+.questionnaire-answer-image {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    width: 100% !important;
+}
+
+/* Tablet: 2 card per baris */
+@media (max-width: 900px) {
+    #modalQuestionnaireContent .questionnaire-content-body.is-photo-part {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+/* HP: 1 card per baris */
+@media (max-width: 600px) {
+    #modalQuestionnaireContent .questionnaire-content-body.is-photo-part {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+}
+
+
+
 </style>
 
 <div class="laporan-page"> 
@@ -3308,10 +4238,10 @@
                     </div> 
  
                     <div class="laporan-info-item"> 
-                        <span class="laporan-info-label">Periode Pendataan</span>
-                        <strong class="laporan-info-value" id="modalPeriode">-</strong>
-                    </div> 
- 
+                        <span class="laporan-info-label">Petugas</span>
+                        <strong class="laporan-info-value" id="modalPetugasLaporan">-</strong>
+                    </div>
+
                     <div class="laporan-info-item"> 
                         <span class="laporan-info-label">Tanggal Pendataan</span>
                         <strong class="laporan-info-value" id="modalTanggal">-</strong>
@@ -3320,28 +4250,44 @@
                     <div class="laporan-info-item"> 
                         <span class="laporan-info-label">Status Saat Ini</span>
                         <strong class="laporan-info-value" id="modalStatus">-</strong>
-                    </div> 
- 
-                    <div class="laporan-info-item"> 
-                        <span class="laporan-info-label">Kelengkapan Data</span>
-                        <strong class="laporan-info-value" id="modalComplete">-</strong>
                     </div>
+
+                    <div class="laporan-info-item"> 
+                        <span class="laporan-info-label">Periode Pendataan</span>
+                        <strong class="laporan-info-value" id="modalPeriode">-</strong>
+                    </div>
+
+                    <div class="laporan-info-item"> 
+                        <span class="laporan-info-label">Kode Periode</span>
+                        <strong class="laporan-info-value" id="modalKodePeriodeLaporan">-</strong>
+                    </div>
+
+                    <div class="laporan-info-item"> 
+                        <span class="laporan-info-label">Tanggal Periode</span>
+                        <strong class="laporan-info-value" id="modalTanggalPeriodeLaporan">-</strong>
+                    </div>
+
  
                 </div> 
  
             </section>
  
-            <section class="laporan-detail-data-section"> 
- 
-                <div class="laporan-detail-data-heading">
-                    Anggota dalam Kartu Keluarga
-                </div> 
- 
-                <div id="modalMembersContent" class="laporan-detail-loading"> 
-                    Memuat data anggota keluarga... 
-                </div> 
- 
-            </section> 
+            <section class="laporan-detail-data-section laporan-members-section">
+
+    <div class="laporan-members-header">
+        <h3>Anggota Dalam Kartu Keluarga</h3>
+
+        <div class="laporan-head-family">
+            <span>Kepala Keluarga</span>
+            <strong id="modalFamilyHeadName">-</strong>
+        </div>
+    </div>
+
+    <div id="modalMembersContent" class="laporan-detail-loading">
+        Memuat data anggota keluarga...
+    </div>
+
+</section>
  
             <section class="laporan-detail-data-section"> 
  
@@ -3682,6 +4628,10 @@ const modalNoKk = document.getElementById(
     const modalWilayah = document.getElementById( 
         'modalWilayah' 
     ); 
+
+    const modalPetugasLaporan = document.getElementById('modalPetugasLaporan');
+    const modalKodePeriodeLaporan = document.getElementById('modalKodePeriodeLaporan');
+    const modalTanggalPeriodeLaporan = document.getElementById('modalTanggalPeriodeLaporan');
  
     const modalPeriode = document.getElementById( 
         'modalPeriode' 
@@ -3738,6 +4688,12 @@ const modalNoKk = document.getElementById(
         } 
  
         modalMembersContent.className = 'laporan-members-table-wrap'; 
+        const familyHeadName = document.getElementById('modalFamilyHeadName');
+const modalHeadName = document.getElementById('modalNama');
+
+if (familyHeadName && modalHeadName) {
+    familyHeadName.textContent = modalHeadName.textContent.trim() || '-';
+}
  
         modalMembersContent.innerHTML = ` 
             <table class="laporan-members-table"> 
@@ -3801,6 +4757,24 @@ const modalNoKk = document.getElementById(
  
         return String(answer || 'Belum diisi'); 
     } 
+
+    function formatRupiahPart3(value) {
+    const original = String(value ?? '').trim();
+
+    if (!original) return original;
+
+    const angka = original
+        .replace(/^rp\.?\s*/i, '')
+        .replace(/\s/g, '')
+        .replace(/\./g, '')
+        .replace(/,/g, '');
+
+    if (!/^\d+$/.test(angka)) return original;
+
+    return 'Rp.' + new Intl.NumberFormat('id-ID', {
+        maximumFractionDigits: 0
+    }).format(Number(angka));
+}
  
     /* ===================================================== 
        QUESTIONNAIRE 
@@ -3856,7 +4830,15 @@ const modalNoKk = document.getElementById(
                         question.pertanyaan ||
                         `Pertanyaan ${index + 1}`
                     );
-                    const answer = reportAnswerText(question);
+                    let answer = reportAnswerText(question);
+
+                    const partNumber = String(part.number || part.part || '')
+                        .replace(/part/ig, '')
+                        .trim();
+
+                    if (partNumber === '3') {
+                        answer = formatRupiahPart3(answer);
+}
                     const type = String(question.type || '').toLowerCase();
                     const imageUrl = String(question.imageUrl || '').trim();
                     const safeImageUrl =
@@ -3894,6 +4876,7 @@ const modalNoKk = document.getElementById(
             const members = Array.isArray(part.members) ? part.members : [];
             contentBody.classList.remove('is-photo-part', 'is-map-part');
             contentBody.innerHTML = `
+
                 <div class="questionnaire-part5-layout">
                     <section class="questionnaire-part5-members">
                         <div class="questionnaire-part5-panel-header">
@@ -3955,16 +4938,56 @@ const modalNoKk = document.getElementById(
                     });
                     button.classList.add('is-selected');
 
-                    const questions = Array.isArray(member.questions)
-                        ? member.questions
-                        : [];
-                    const usableQuestions = questions
-                        .map(function (question, index) {
-                            return normalizeQuestion(question, index);
-                        })
-                        .filter(function (question) {
-                            return question.text.trim().toLowerCase() !== 'data part 5';
-                        });
+                   
+const questions = Array.isArray(member.questions)
+    ? member.questions
+    : [];
+
+const usableQuestions = questions
+    .map(function (question, index) {
+        const item = question && typeof question === 'object'
+            ? question
+            : {};
+
+        return {
+            number: item.number ?? index + 1,
+
+            text: String(
+                item.text ??
+                item.question ??
+                item.pertanyaan ??
+                item.label ??
+                `Pertanyaan ${index + 1}`
+            ).trim(),
+
+            answer: String(
+                item.answer ??
+                item.jawaban ??
+                item.value ??
+                ''
+            ).trim(),
+
+            type: String(
+                item.type ?? 'text'
+            ).toLowerCase(),
+
+            imageUrl: String(
+                item.imageUrl ??
+                item.image_url ??
+                ''
+            ).trim(),
+
+            imageName: String(
+                item.imageName ??
+                item.image_name ??
+                ''
+            ).trim()
+        };
+    })
+    .filter(function (question) {
+        return question.text.toLowerCase() !== 'data part 5';
+    });
+
 
                     answerBody.innerHTML = `
                         <div class="questionnaire-part5-answer-member">
@@ -4287,6 +5310,16 @@ const modalNoKk = document.getElementById(
             modalWilayah.textContent = 
                 data.wilayah || '-'; 
         } 
+
+        if (modalPetugasLaporan) {
+            modalPetugasLaporan.textContent = data.petugas || '-';
+        }
+        if (modalKodePeriodeLaporan) {
+            modalKodePeriodeLaporan.textContent = data.kodePeriode || data.periodeKode || '-';
+        }
+        if (modalTanggalPeriodeLaporan) {
+            modalTanggalPeriodeLaporan.textContent = data.tanggalPeriode || data.periodeTanggal || '-';
+        }
  
         if (modalPeriode) { 
             modalPeriode.textContent = 
@@ -4366,6 +5399,18 @@ const modalNoKk = document.getElementById(
             const payload = await response.json(); 
  
             const item = payload.data; 
+
+            if (modalPetugasLaporan) {
+                modalPetugasLaporan.textContent = item.petugas || item.nama_petugas || item.user_name || item.created_by_name || '-';
+            }
+            if (modalKodePeriodeLaporan) {
+                modalKodePeriodeLaporan.textContent = item.kode_periode || item.periode_kode || item.kodePeriode || '-';
+            }
+            if (modalTanggalPeriodeLaporan) {
+                const mulai = item.tanggal_mulai_periode || item.periode_mulai || item.tanggal_mulai;
+                const selesai = item.tanggal_selesai_periode || item.periode_selesai || item.tanggal_selesai;
+                modalTanggalPeriodeLaporan.textContent = item.tanggal_periode || item.periode_tanggal || item.tanggalPeriode || (mulai && selesai ? `${mulai} - ${selesai}` : '-');
+            }
  
             if ( 
                 !item || 

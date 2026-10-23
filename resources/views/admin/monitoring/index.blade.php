@@ -3856,18 +3856,7 @@ color: #7652C8;
                     </div>
 
 
-                    <div class="monitoring-detail-item monitoring-member-item">
-
-                        <span class="monitoring-detail-label">Jumlah Anggota Keluarga</span>
-
-                        <strong
-                            class="monitoring-detail-value"
-                            id="detailJumlahAnggota"
-                        >
-                            0 Orang
-                        </strong>
-
-                    </div>
+                   
 
 
                     <div class="monitoring-detail-item">
