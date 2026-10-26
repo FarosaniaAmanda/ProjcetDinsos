@@ -35,52 +35,237 @@ class DashboardController extends Controller
         'belum diproses',
     ];
 
-    public function index(): View
+    public function index(\Illuminate\Http\Request $request): View
     {
         $hasKeluargasTable = Schema::hasTable('keluargas');
         $hasPeriodesTable = Schema::hasTable('periodes');
         $hasKecamatanTable = Schema::hasTable('kecamatans');
+        $hasKelurahanTable = Schema::hasTable('kelurahans');
         $hasPart1Table = Schema::hasTable('part1_keluarga');
+        $hasKeluargaPeriodesTable = Schema::hasTable('keluarga_periodes');
 
-        // Total data keluarga/responden
-        $totalResponden = $hasKeluargasTable ? Keluarga::count() : 0;
-
-        // Jumlah periode aktif
-        $periodeAktif = $hasPeriodesTable
-            ? Periode::where('status_periode', 'Aktif')->count()
-            : 0;
-
-        // Rekap periode tetap dipertahankan
-        $rekapPeriode = $hasPeriodesTable
+        $periodeOptions = $hasPeriodesTable
             ? Periode::orderByDesc('id')->get()
             : collect();
 
-        // Data yang masuk hari ini
-        $dataMasukHariIni = $hasKeluargasTable
-            ? Keluarga::whereDate('created_at', today())->count()
+        $selectedPeriodKode = trim((string) $request->query('periode_kode', ''));
+
+        if (
+            $selectedPeriodKode !== ''
+            && ! $periodeOptions->contains(
+                fn ($periode) => (string) $periode->kode === $selectedPeriodKode
+            )
+        ) {
+            $selectedPeriodKode = '';
+        }
+
+        $periodeAktif = $hasPeriodesTable
+            ? Periode::whereRaw('LOWER(TRIM(status_periode)) = ?', ['aktif'])->count()
             : 0;
 
-        // Grafik persebaran kecamatan dari database
-        $persebaranKecamatan = $hasKecamatanTable && $hasKeluargasTable
-            ? DB::table('kecamatans')
+        /*
+        |--------------------------------------------------------------------------
+        | Total Responden Mengikuti Periode yang Dipilih
+        |--------------------------------------------------------------------------
+        */
+        $keluargaQuery = Keluarga::query();
+
+        if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
+            $keluargaQuery->whereIn(
+                'keluargas.kode',
+                DB::table('keluarga_periodes')
+                    ->where('periode_kode', $selectedPeriodKode)
+                    ->select('keluarga_kode')
+            );
+        }
+
+        $totalResponden = $hasKeluargasTable
+            ? $keluargaQuery->count()
+            : 0;
+
+        $dataMasukQuery = Keluarga::query();
+
+        if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
+            $dataMasukQuery->whereIn(
+                'keluargas.kode',
+                DB::table('keluarga_periodes')
+                    ->where('periode_kode', $selectedPeriodKode)
+                    ->select('keluarga_kode')
+            );
+        }
+
+        $dataMasukHariIni = $hasKeluargasTable
+            ? $dataMasukQuery->whereDate('created_at', today())->count()
+            : 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Rekap Setiap Periode
+        |--------------------------------------------------------------------------
+        */
+        $rekapPeriode = $periodeOptions->map(function ($periode) use (
+            $hasKeluargaPeriodesTable,
+            $hasPart1Table
+        ) {
+            $totalPeriode = 0;
+            $jumlahDisetujuiPeriode = 0;
+            $jumlahDitolakPeriode = 0;
+            $jumlahMenungguPeriode = 0;
+
+            if ($hasKeluargaPeriodesTable) {
+                // Total responden unik yang benar-benar terhubung ke periode ini.
+                $totalPeriode = DB::table('keluarga_periodes')
+                    ->where('periode_kode', $periode->kode)
+                    ->whereNotNull('keluarga_kode')
+                    ->distinct()
+                    ->count('keluarga_kode');
+
+                if ($hasPart1Table) {
+                    // Cocokkan data Part 1 dengan kode keluarga (KLG-...) atau
+                    // kode relasi periode (KLP-...). Di database, Part 1 bisa
+                    // menyimpan kode keluarga, bukan kode relasi periode.
+                    $jumlahDisetujuiPeriode = $this->linkedVerificationQuery(
+                        (string) $periode->kode
+                    )
+                        ->whereIn(
+                            new Expression('LOWER(TRIM(part1_keluarga.status))'),
+                            self::APPROVED_STATUSES
+                        )
+                        ->count();
+
+                    $jumlahDitolakPeriode = $this->linkedVerificationQuery(
+                        (string) $periode->kode
+                    )
+                        ->whereIn(
+                            new Expression('LOWER(TRIM(part1_keluarga.status))'),
+                            self::REJECTED_STATUSES
+                        )
+                        ->count();
+
+                    $jumlahMenungguPeriode = $this->pendingVerificationQuery(
+                        (string) $periode->kode
+                    )->count();
+                }
+            }
+
+            // Setiap status ditampilkan terpisah agar tidak tercampur.
+            $periode->setAttribute('total_responden', $totalPeriode);
+            $periode->setAttribute('jumlah_disetujui', $jumlahDisetujuiPeriode);
+            $periode->setAttribute('jumlah_menunggu_verifikasi', $jumlahMenungguPeriode);
+            $periode->setAttribute('jumlah_ditolak', $jumlahDitolakPeriode);
+
+            return $periode;
+        });
+
+        // Jika filter periode dipilih, tabel rekap menampilkan periode yang sama.
+        if ($selectedPeriodKode !== '') {
+            $rekapPeriode = $rekapPeriode
+                ->filter(fn ($periode) => (string) $periode->kode === $selectedPeriodKode)
+                ->values();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Persebaran Responden per Kecamatan
+        |--------------------------------------------------------------------------
+        */
+        if ($hasKecamatanTable && $hasKeluargasTable) {
+            // Kecamatan selalu ditampilkan dalam urutan yang sama, meskipun
+            // kecamatan tertentu tidak memiliki responden pada periode terpilih.
+            $kecamatanQuery = DB::table('kecamatans')
                 ->leftJoin(
                     'keluargas',
                     'keluargas.kecamatan_id',
                     '=',
                     'kecamatans.kecamatan_id'
-                )
+                );
+
+            if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
+                // Filter periode diletakkan pada kondisi LEFT JOIN, bukan WHERE,
+                // supaya kecamatan dengan jumlah 0 tetap ikut dikirim ke grafik.
+                $kecamatanQuery->leftJoin('keluarga_periodes', function ($join) use ($selectedPeriodKode) {
+                    $join->on('keluarga_periodes.keluarga_kode', '=', 'keluargas.kode')
+                        ->where('keluarga_periodes.periode_kode', '=', $selectedPeriodKode);
+                });
+
+                $totalRespondenKecamatan = DB::raw(
+                    'COUNT(DISTINCT CASE WHEN keluarga_periodes.kode IS NOT NULL THEN keluargas.id ELSE NULL END) as total_responden'
+                );
+            } else {
+                $totalRespondenKecamatan = DB::raw(
+                    'COUNT(DISTINCT keluargas.id) as total_responden'
+                );
+            }
+
+            $persebaranKecamatan = $kecamatanQuery
                 ->select(
+                    'kecamatans.kecamatan_id',
                     'kecamatans.deskripsi as nama_kecamatan',
-                    DB::raw('COUNT(keluargas.id) as total_responden')
+                    $totalRespondenKecamatan
                 )
                 ->groupBy(
                     'kecamatans.kecamatan_id',
                     'kecamatans.deskripsi'
                 )
                 ->orderBy('kecamatans.deskripsi')
-                ->get()
-            : collect();
+                ->get();
+        } else {
+            $persebaranKecamatan = collect();
+        }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Persebaran Responden per Kelurahan
+        |--------------------------------------------------------------------------
+        */
+        if ($hasKelurahanTable && $hasKecamatanTable && $hasKeluargasTable) {
+            $kelurahanQuery = DB::table('kelurahans')
+                ->join(
+                    'kecamatans',
+                    'kecamatans.kecamatan_id',
+                    '=',
+                    'kelurahans.kecamatan_id'
+                )
+                ->leftJoin(
+                    'keluargas',
+                    'keluargas.kelurahan_id',
+                    '=',
+                    'kelurahans.kelurahan_id'
+                );
+
+            if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
+                $kelurahanQuery->join(
+                    'keluarga_periodes',
+                    'keluarga_periodes.keluarga_kode',
+                    '=',
+                    'keluargas.kode'
+                )->where('keluarga_periodes.periode_kode', $selectedPeriodKode);
+            }
+
+            $persebaranKelurahan = $kelurahanQuery
+                ->select(
+                    'kelurahans.kelurahan_id',
+                    'kelurahans.deskripsi as nama_kelurahan',
+                    'kecamatans.deskripsi as nama_kecamatan',
+                    DB::raw('COUNT(DISTINCT keluargas.id) as total_responden')
+                )
+                ->groupBy(
+                    'kelurahans.kelurahan_id',
+                    'kelurahans.deskripsi',
+                    'kecamatans.deskripsi'
+                )
+                ->orderBy('kecamatans.deskripsi')
+                ->orderBy('kelurahans.deskripsi')
+                ->get();
+        } else {
+            $persebaranKelurahan = collect();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Status Verifikasi Mengikuti Periode yang Dipilih
+        |--------------------------------------------------------------------------
+        */
         if (! $hasPart1Table) {
             $kuisionerTerakhir = new LengthAwarePaginator([], 0, 5);
 
@@ -88,8 +273,11 @@ class DashboardController extends Controller
                 'totalResponden',
                 'periodeAktif',
                 'rekapPeriode',
+                'periodeOptions',
+                'selectedPeriodKode',
                 'dataMasukHariIni',
                 'persebaranKecamatan',
+                'persebaranKelurahan',
                 'kuisionerTerakhir'
             ) + [
                 'jumlahDisetujui' => 0,
@@ -98,27 +286,24 @@ class DashboardController extends Controller
             ]);
         }
 
-        // Jumlah data yang disetujui
-        $jumlahDisetujui = $this->linkedVerificationQuery()
+        $jumlahDisetujui = $this->linkedVerificationQuery($selectedPeriodKode)
             ->whereIn(
                 new Expression('LOWER(TRIM(part1_keluarga.status))'),
                 self::APPROVED_STATUSES
             )
             ->count();
 
-        // Jumlah data yang ditolak
-        $jumlahDitolak = $this->linkedVerificationQuery()
+        $jumlahDitolak = $this->linkedVerificationQuery($selectedPeriodKode)
             ->whereIn(
                 new Expression('LOWER(TRIM(part1_keluarga.status))'),
                 self::REJECTED_STATUSES
             )
             ->count();
 
-        // Jumlah data yang menunggu verifikasi
-        $jumlahMenungguVerifikasi = $this->pendingVerificationQuery()
-            ->count();
+        $jumlahMenungguVerifikasi = $this->pendingVerificationQuery(
+            $selectedPeriodKode
+        )->count();
 
-        // Mengambil nama responden untuk daftar kuisioner terakhir
         $namaRespondenQuery = Keluarga::query()
             ->select('nama_lengkap')
             ->where(function (Builder $query): void {
@@ -134,58 +319,16 @@ class DashboardController extends Controller
             })
             ->limit(1);
 
-        // Daftar kuisioner terakhir tetap menggunakan pagination
-        $kuisionerTerakhir = $this->linkedVerificationQuery()
+        $kuisionerTerakhir = $this->pendingVerificationQuery($selectedPeriodKode)
             ->select('part1_keluarga.*')
             ->selectSub($namaRespondenQuery, 'nama_responden')
             ->latest('part1_keluarga.updated_at')
             ->paginate(5)
             ->withQueryString();
 
-        $currentPageIds = $kuisionerTerakhir
-            ->getCollection()
-            ->modelKeys();
-
-        $pendingIds = $currentPageIds === []
-            ? []
-            : $this->pendingVerificationQuery()
-                ->whereIn('part1_keluarga.id', $currentPageIds)
-                ->pluck('part1_keluarga.id')
-                ->all();
-
         $kuisionerTerakhir->getCollection()->each(
-            function (KeluargaPart1 $item) use ($pendingIds): void {
-                $rawStatus = strtolower(trim((string) $item->status));
-
-                $status = match (true) {
-                    in_array(
-                        $rawStatus,
-                        self::APPROVED_STATUSES,
-                        true
-                    ) => 'approved',
-
-                    in_array(
-                        $rawStatus,
-                        self::REJECTED_STATUSES,
-                        true
-                    ) => 'rejected',
-
-                    in_array(
-                        $rawStatus,
-                        self::NOT_PROCESSED_STATUSES,
-                        true
-                    ) => 'not_processed',
-
-                    in_array(
-                        $item->getKey(),
-                        $pendingIds,
-                        true
-                    ) => 'pending',
-
-                    default => 'draft',
-                };
-
-                $item->setAttribute('status_verifikasi', $status);
+            function (KeluargaPart1 $item): void {
+                $item->setAttribute('status_verifikasi', 'pending');
             }
         );
 
@@ -193,8 +336,11 @@ class DashboardController extends Controller
             'totalResponden',
             'periodeAktif',
             'rekapPeriode',
+            'periodeOptions',
+            'selectedPeriodKode',
             'dataMasukHariIni',
             'persebaranKecamatan',
+            'persebaranKelurahan',
             'jumlahDisetujui',
             'jumlahMenungguVerifikasi',
             'jumlahDitolak',
@@ -202,59 +348,138 @@ class DashboardController extends Controller
         ));
     }
 
-    private function linkedVerificationQuery(): Builder
+    /*
+    |--------------------------------------------------------------------------
+    | Query Data yang Sudah Terhubung dengan Keluarga
+    |--------------------------------------------------------------------------
+    */
+
+    private function linkedVerificationQuery(?string $selectedPeriodKode = null): Builder
     {
-        return KeluargaPart1::query()
+        $query = KeluargaPart1::query()
             ->where(function (Builder $query): void {
                 $query
+                    // Format data yang tersimpan saat ini: KLG-... di Part 1.
                     ->whereIn(
-                        'keluarga_periode_kode',
+                        'part1_keluarga.keluarga_periode_kode',
                         Keluarga::query()->select('kode')
                     )
+                    // Sebagian data lama mungkin menyimpan kode relasi KLP-...
                     ->orWhereIn(
-                        'no_kk',
+                        'part1_keluarga.keluarga_periode_kode',
+                        DB::table('keluarga_periodes')->select('kode')
+                    )
+                    ->orWhereIn(
+                        'part1_keluarga.keluarga_periode_kode',
+                        DB::table('keluarga_periodes')->select('keluarga_kode')
+                    )
+                    ->orWhereIn(
+                        'part1_keluarga.no_kk',
                         Keluarga::query()
                             ->whereNotNull('no_kk')
                             ->select('no_kk')
                     );
             });
-    }
 
-    private function pendingVerificationQuery(): Builder
-    {
-        $query = $this->linkedVerificationQuery()
-            ->where(function (Builder $query): void {
-                $query
-                    ->whereNull('part1_keluarga.status')
-                    ->orWhereNotIn(
-                        new Expression(
-                            'LOWER(TRIM(part1_keluarga.status))'
-                        ),
-                        array_merge(
-                            self::APPROVED_STATUSES,
-                            self::REJECTED_STATUSES,
-                            self::NOT_PROCESSED_STATUSES
-                        )
-                    );
-            })
-            ->where(function (Builder $query): void {
-                $query
-                    ->whereRaw(
-                        'LOWER(TRIM(part1_keluarga.status)) = ?',
-                        ['selesai']
-                    )
-                    ->orWhere(function (Builder $completeQuery): void {
-                        $this->whereQuestionnaireComplete($completeQuery);
+        if ($selectedPeriodKode !== null && $selectedPeriodKode !== '') {
+            $query->whereExists(function (QueryBuilder $relationQuery) use ($selectedPeriodKode): void {
+                $relationQuery->selectRaw('1')
+                    ->from('keluarga_periodes as kp')
+                    ->where('kp.periode_kode', $selectedPeriodKode)
+                    ->where(function (QueryBuilder $matchQuery): void {
+                        $matchQuery
+                            ->whereColumn(
+                                'kp.keluarga_kode',
+                                'part1_keluarga.keluarga_periode_kode'
+                            )
+                            ->orWhereColumn(
+                                'kp.kode',
+                                'part1_keluarga.keluarga_periode_kode'
+                            )
+                            ->orWhereColumn(
+                                'kp.keluarga_kode',
+                                'part1_keluarga.no_kk'
+                            );
                     });
             });
+        }
 
         return $query;
     }
 
-    private function whereQuestionnaireComplete(Builder $query): void
+    /*
+    |--------------------------------------------------------------------------
+    | Query Data yang Menunggu Verifikasi
+    |--------------------------------------------------------------------------
+    */
+
+    private function pendingVerificationQuery(?string $selectedPeriodKode = null): Builder
     {
+        return $this->linkedVerificationQuery($selectedPeriodKode)
+            ->where(function (Builder $query): void {
+                // Status yang secara eksplisit sudah diajukan untuk verifikasi
+                // tetap dihitung meskipun penanda kelengkapan bagian belum sinkron.
+                $query->whereIn(
+                    new Expression('LOWER(TRIM(part1_keluarga.status))'),
+                    [
+                        'pending',
+                        'diajukan',
+                        'menunggu',
+                        'diperiksa',
+                        'menunggu verifikasi',
+                    ]
+                )
+                // Status kosong/selesai atau status lain hanya dihitung jika
+                // kuisioner memang sudah lengkap, dan bukan status final/awal.
+                ->orWhere(function (Builder $otherStatusQuery): void {
+                    $otherStatusQuery
+                        ->where(function (Builder $statusQuery): void {
+                            $statusQuery
+                                ->whereNull('part1_keluarga.status')
+                                ->orWhereNotIn(
+                                    new Expression('LOWER(TRIM(part1_keluarga.status))'),
+                                    array_merge(
+                                        self::APPROVED_STATUSES,
+                                        self::REJECTED_STATUSES,
+                                        self::NOT_PROCESSED_STATUSES,
+                                        [
+                                            'pending',
+                                            'diajukan',
+                                            'menunggu',
+                                            'diperiksa',
+                                            'menunggu verifikasi',
+                                        ]
+                                    )
+                                );
+                        })
+                        ->where(function (Builder $completeQuery): void {
+                            $completeQuery
+                                ->whereRaw(
+                                    'LOWER(TRIM(part1_keluarga.status)) = ?',
+                                    ['selesai']
+                                )
+                                ->orWhere(function (Builder $questionnaireQuery): void {
+                                    $this->whereQuestionnaireComplete(
+                                        $questionnaireQuery
+                                    );
+                                });
+                        });
+                });
+            });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Periksa Kelengkapan Kuisioner
+    |--------------------------------------------------------------------------
+    */
+
+    private function whereQuestionnaireComplete(
+        Builder $query
+    ): void {
         $query
             ->where('part1_keluarga.current_part', '>=', 5)
+
             ->whereExists(function (QueryBuilder $partQuery): void {
                 $partQuery->selectRaw('1')
                     ->from('part2_kondisi_rumahs')
@@ -263,6 +488,7 @@ class DashboardController extends Controller
                         'part1_keluarga.keluarga_periode_kode'
                     );
             })
+
             ->whereExists(function (QueryBuilder $partQuery): void {
                 $partQuery->selectRaw('1')
                     ->from('part3_keuangan_keluargas')
@@ -271,6 +497,7 @@ class DashboardController extends Controller
                         'part1_keluarga.keluarga_periode_kode'
                     );
             })
+
             ->whereExists(function (QueryBuilder $partQuery): void {
                 $partQuery->selectRaw('1')
                     ->from('part4_aset_keluargas')
@@ -279,9 +506,11 @@ class DashboardController extends Controller
                         'part1_keluarga.keluarga_periode_kode'
                     );
             })
+
             ->whereExists(function (QueryBuilder $familyQuery): void {
                 $this->addCompleteMembersSubquery($familyQuery);
             })
+
             ->whereExists(function (QueryBuilder $photoQuery): void {
                 $photoQuery->selectRaw('1')
                     ->from('part5_foto_rumahs')
@@ -292,12 +521,19 @@ class DashboardController extends Controller
             });
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Periksa Kelengkapan Data Anggota Keluarga
+    |--------------------------------------------------------------------------
+    */
+
     private function addCompleteMembersSubquery(
         QueryBuilder $familyQuery
     ): void {
         $familyQuery
             ->selectRaw('1')
             ->from('keluargas as complete_family')
+
             ->where(function (QueryBuilder $familyMatch): void {
                 $familyMatch
                     ->whereColumn(
@@ -309,6 +545,7 @@ class DashboardController extends Controller
                         'part1_keluarga.no_kk'
                     );
             })
+
             ->whereExists(function (QueryBuilder $memberQuery): void {
                 $memberQuery->selectRaw('1')
                     ->from('keluarga_anggotas as complete_member')
@@ -317,15 +554,18 @@ class DashboardController extends Controller
                         'complete_family.kode'
                     );
             })
+
             ->whereNotExists(
                 function (QueryBuilder $missingMemberQuery): void {
                     $missingMemberQuery
                         ->selectRaw('1')
                         ->from('keluarga_anggotas as missing_member')
+
                         ->whereColumn(
                             'missing_member.keluarga_kode',
                             'complete_family.kode'
                         )
+
                         ->whereNotExists(
                             function (QueryBuilder $part5Query): void {
                                 $part5Query
@@ -333,10 +573,12 @@ class DashboardController extends Controller
                                     ->from(
                                         'part5_anggota_keluargas as complete_part5'
                                     )
+
                                     ->whereColumn(
                                         'complete_part5.keluarga_anggota_kode',
                                         'missing_member.kode'
                                     )
+
                                     ->whereColumn(
                                         'complete_part5.keluarga_periode_kode',
                                         'part1_keluarga.keluarga_periode_kode'
