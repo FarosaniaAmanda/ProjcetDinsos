@@ -177,6 +177,115 @@ class VerifikasiControllerTest extends TestCase
         $this->assertSame('-7.657,112.899', $data[0]['geotangging']);
     }
 
+    public function test_selected_non_active_period_is_used_by_verification_monitoring_and_reports(): void
+    {
+        DB::table('periodes')->insert([
+            'kode' => 'PERIODE-AKTIF',
+            'nama' => 'Periode Aktif',
+            'tgl_awal' => '2026-01-01 00:00:00',
+            'tgl_akhir' => '2026-12-31 23:59:59',
+            'status_periode' => 'Aktif',
+        ]);
+        $periodeAkanDatangId = DB::table('periodes')->insertGetId([
+            'kode' => 'PERIODE-AKAN-DATANG',
+            'nama' => 'Periode Akan Datang',
+            'tgl_awal' => '2027-01-01 00:00:00',
+            'tgl_akhir' => '2027-12-31 23:59:59',
+            'status_periode' => 'Akan Datang',
+        ]);
+        $periodeSelesaiId = DB::table('periodes')->insertGetId([
+            'kode' => 'PERIODE-SELESAI',
+            'nama' => 'Periode Selesai',
+            'tgl_awal' => '2025-01-01 00:00:00',
+            'tgl_akhir' => '2025-12-31 23:59:59',
+            'status_periode' => 'Selesai',
+        ]);
+
+        DB::table('keluargas')->insert([
+            [
+                'kode' => 'KELUARGA-AKTIF',
+                'no_kk' => 'KK-AKTIF',
+                'nama_lengkap' => 'Responden Periode Aktif',
+            ],
+            [
+                'kode' => 'KELUARGA-AKAN-DATANG',
+                'no_kk' => 'KK-AKAN-DATANG',
+                'nama_lengkap' => 'Responden Periode Akan Datang',
+            ],
+            [
+                'kode' => 'KELUARGA-SELESAI',
+                'no_kk' => 'KK-SELESAI',
+                'nama_lengkap' => 'Responden Periode Selesai',
+            ],
+        ]);
+
+        DB::table('keluarga_periodes')->insert([
+            [
+                'kode' => 'KP-AKTIF',
+                'keluarga_kode' => 'KELUARGA-AKTIF',
+                'periode_kode' => 'PERIODE-AKTIF',
+            ],
+            [
+                'kode' => 'KP-AKAN-DATANG',
+                'keluarga_kode' => 'KELUARGA-AKAN-DATANG',
+                'periode_kode' => 'PERIODE-AKAN-DATANG',
+            ],
+            [
+                'kode' => 'KP-SELESAI',
+                'keluarga_kode' => 'KELUARGA-SELESAI',
+                'periode_kode' => 'PERIODE-SELESAI',
+            ],
+        ]);
+
+        DB::table('part1_keluarga')->insert([
+            [
+                'keluarga_periode_kode' => 'KP-AKTIF',
+                'no_kk' => 'KK-AKTIF',
+                'nama_kepala_keluarga' => 'Responden Periode Aktif',
+                'jml_keluarga' => '1',
+                'status' => 'approved',
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-AKAN-DATANG',
+                'no_kk' => 'KK-AKAN-DATANG',
+                'nama_kepala_keluarga' => 'Responden Periode Akan Datang',
+                'jml_keluarga' => '1',
+                'status' => 'approved',
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-SELESAI',
+                'no_kk' => 'KK-SELESAI',
+                'nama_kepala_keluarga' => 'Responden Periode Selesai',
+                'jml_keluarga' => '1',
+                'status' => 'approved',
+            ],
+        ]);
+
+        foreach ([
+            $periodeAkanDatangId => 'Responden Periode Akan Datang',
+            $periodeSelesaiId => 'Responden Periode Selesai',
+        ] as $periodeId => $expectedRespondent) {
+            session(['periode_id' => $periodeId]);
+
+            $verificationRows = (new TestableVerifikasiController)->verificationData();
+            $monitoringRows = (new TestableMonitoringController)->monitoringData();
+            $reportRows = (new TestableLaporanController)->reportRows();
+
+            $this->assertSame(
+                [$expectedRespondent],
+                collect($verificationRows)->pluck('nama')->all()
+            );
+            $this->assertSame(
+                [$expectedRespondent],
+                collect($monitoringRows)->pluck('nama')->all()
+            );
+            $this->assertSame(
+                [$expectedRespondent],
+                $reportRows->pluck('nama')->all()
+            );
+        }
+    }
+
     public function test_legacy_questionnaire_remains_visible_when_family_period_links_are_empty(): void
     {
         DB::table('periodes')->insert([
@@ -580,6 +689,11 @@ class TestableVerifikasiController extends VerifikasiController
 
 class TestableMonitoringController extends MonitoringController
 {
+    public function monitoringData(): array
+    {
+        return $this->getData()->all();
+    }
+
     public function monitoringDetailData(array $item): array
     {
         return $this->completeMonitoringData($item);

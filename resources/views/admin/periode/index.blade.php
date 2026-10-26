@@ -624,18 +624,18 @@
         }
 
         .akan-datang {
-            background: #eaf0ff;
-            color: #3656b3;
+            background: #FFF4DD;
+            color: #A66B00;
         }
 
         .aktif {
-            background: #e7f7ed;
-            color: #21864a;
+            background: #E8F8EE;
+            color: #21874B;
         }
 
         .selesai {
-            background: #fff6dc;
-            color: #a87900;
+            background: #FDEAEA;
+            color: #C0392B;
         }
 
 
@@ -1663,21 +1663,27 @@
 
                                     <td>
 
-                                        @if (strtolower($periode->status_periode) == 'aktif')
+                                        @if (strtolower(trim($periode->status_periode)) == 'aktif')
 
                                             <span class="status aktif">
                                                 Aktif
                                             </span>
 
-                                        @elseif (strtolower($periode->status_periode) == 'selesai')
+                                        @elseif (strtolower(trim($periode->status_periode)) == 'selesai')
 
                                             <span class="status selesai">
                                                 Selesai
                                             </span>
 
-                                        @else
+                                        @elseif (strtolower(trim($periode->status_periode)) == 'akan datang')
 
                                             <span class="status akan-datang">
+                                                {{ $periode->status_periode }}
+                                            </span>
+
+                                        @else
+
+                                            <span class="status selesai">
                                                 {{ $periode->status_periode }}
                                             </span>
 

@@ -216,10 +216,7 @@ class VerifikasiController extends Controller
     {
         $periodeTerpilih = Periode::query()->find(session('periode_id'));
 
-        if (
-            $periodeTerpilih &&
-            strtolower(trim((string) $periodeTerpilih->status_periode)) === 'aktif'
-        ) {
+        if ($periodeTerpilih) {
             return $periodeTerpilih;
         }
 
@@ -2656,7 +2653,7 @@ class VerifikasiController extends Controller
             }
         }
 
-        
+
 /*
 |--------------------------------------------------------------------------
 | HUBUNGKAN JAWABAN PART 5 LAMA KE ANGGOTA AKTIF
