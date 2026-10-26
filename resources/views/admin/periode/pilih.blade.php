@@ -399,7 +399,9 @@
                 <h2>Pilih Periode</h2>
 
                 <p>
-                    @if($tujuan === 'responden.index')
+                    @if(in_array($tujuan, ['verifikasi.index', 'monitoring.index', 'laporan.index'], true))
+                        Pilih periode pendataan yang ingin ditampilkan.
+                    @elseif($tujuan === 'responden.index')
                         Pilih periode pendataan.
                     @else
                         Pilih periode pendataan yang sedang aktif.
@@ -431,15 +433,19 @@
                     @foreach($periodes as $periode)
 
                         @php
-                            $status = strtolower(trim($periode->status ?? ''));
+                            $status = strtolower(trim((string) ($periode->status_periode ?? $periode->status ?? '')));
                             $isAktif = $status === 'aktif';
-                            $semuaStatusDapatDipilih = $tujuan === 'responden.index';
+                            $semuaStatusDapatDipilih = in_array(
+                                $tujuan,
+                                ['responden.index', 'verifikasi.index', 'monitoring.index', 'laporan.index'],
+                                true
+                            );
                         @endphp
 
 
                         @if($isAktif || $semuaStatusDapatDipilih)
 
-                            {{-- Periode aktif selalu dapat dipilih; Responden juga menerima status lain. --}}
+                            {{-- Periode aktif dapat dipilih semua menu; Responden, Verifikasi, Monitoring, dan Laporan menerima semua status. --}}
                             <form
                                 action="{{ route('periode.set') }}"
                                 method="POST"
@@ -511,7 +517,7 @@
 
                         @else
 
-                            {{-- PERIODE TIDAK AKTIF --}}
+                            {{-- PERIODE TIDAK AKTIF: tetap tidak dapat dipilih untuk Kuisioner. --}}
                             <button
                                 type="button"
                                 class="periode-option disabled"

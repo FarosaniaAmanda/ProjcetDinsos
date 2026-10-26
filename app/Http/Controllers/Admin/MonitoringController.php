@@ -18,9 +18,6 @@ class MonitoringController extends VerifikasiController
     | DATA MONITORING
     |--------------------------------------------------------------------------
     |
-    | Monitoring mengambil sumber data dari VerifikasiController.
-    |
-    | Monitoring menampilkan seluruh status data kuisioner.
     |
     */
     protected function getData(?Builder $query = null)

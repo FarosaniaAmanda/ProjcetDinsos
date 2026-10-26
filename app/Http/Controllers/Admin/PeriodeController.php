@@ -245,12 +245,45 @@ class PeriodeController extends Controller
             $request->periode_id
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Aturan pemilihan periode berdasarkan tujuan menu
+        |--------------------------------------------------------------------------
+        | Verifikasi, Monitoring, dan Laporan boleh menggunakan semua periode,
+        | baik Aktif, Akan Datang, Selesai, maupun Tidak Aktif.
+        | Responden tetap mengikuti aturan sebelumnya: semua status diperbolehkan.
+        | Kuisioner tetap hanya dapat menggunakan periode berstatus Aktif.
+        |--------------------------------------------------------------------------
+        */
+
+        $menuBebasPeriode = [
+            'responden.index',
+            'verifikasi.index',
+            'monitoring.index',
+            'laporan.index',
+        ];
+
+        $statusPeriode = strtolower(trim((string) $periode->status_periode));
+
         if (
-            $request->tujuan !== 'responden.index'
-            && strtolower(trim((string) $periode->status_periode)) !== 'aktif'
+            ! in_array($request->tujuan, $menuBebasPeriode, true)
+            && $statusPeriode !== 'aktif'
         ) {
             throw ValidationException::withMessages([
-                'periode_id' => 'Menu ini hanya dapat dibuka menggunakan periode berstatus Aktif.',
+                'periode_id' => 'Menu Kuisioner hanya dapat dibuka menggunakan periode berstatus Aktif.',
+            ]);
+        }
+
+        if ((int) session('periode_id') !== (int) $periode->id) {
+            session()->forget([
+                'draft_keluarga_id',
+                'selected_keluarga_kode',
+                'part1_selesai',
+                'part2_selesai',
+                'part3_selesai',
+                'part4_selesai',
+                'part5_selesai',
+                'editing_rejected_questionnaire',
             ]);
         }
 

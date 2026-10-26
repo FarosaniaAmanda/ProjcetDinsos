@@ -287,119 +287,123 @@ Route::get('/responden/kelurahan/{kecamatanId}', [RespondenController::class, 'g
 |--------------------------------------------------------------------------
 */
 
-Route::get('/kuisioner', [KuisionerController::class, 'index'])
-    ->name('kuisioner.index');
+Route::middleware('periode')->group(function () {
 
-Route::get('/kuisioner/pilih-responden', [KuisionerController::class, 'pilihResponden'])
-    ->name('kuisioner.pilih-responden');
+    Route::get('/kuisioner', [KuisionerController::class, 'index'])
+        ->name('kuisioner.index');
 
-Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
-    ->name('kuisioner.draft');
+    Route::get('/kuisioner/pilih-responden', [KuisionerController::class, 'pilihResponden'])
+        ->name('kuisioner.pilih-responden');
 
-Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
-    ->name('kuisioner.draft.resume');
+    Route::get('/kuisioner/draft', [KuisionerController::class, 'draft'])
+        ->name('kuisioner.draft');
 
-Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
-    ->name('kuisioner.selesai');
+    Route::get('/kuisioner/draft/{id}', [KuisionerController::class, 'resumeDraft'])
+        ->name('kuisioner.draft.resume');
 
-Route::get('/kuisioner/ditolak', [KuisionerController::class, 'ditolak'])
-    ->name('kuisioner.ditolak');
+    Route::get('/kuisioner/selesai', [KuisionerController::class, 'selesai'])
+        ->name('kuisioner.selesai');
 
-Route::get('/kuisioner/disetujui', [KuisionerController::class, 'disetujui'])
-    ->name('kuisioner.disetujui');
+    Route::get('/kuisioner/ditolak', [KuisionerController::class, 'ditolak'])
+        ->name('kuisioner.ditolak');
 
-Route::post('/kuisioner/ditolak/{id}/edit', [KuisionerController::class, 'editRejected'])
-    ->name('kuisioner.rejected.edit');
+    Route::get('/kuisioner/disetujui', [KuisionerController::class, 'disetujui'])
+        ->name('kuisioner.disetujui');
 
-/*
-|--------------------------------------------------------------------------
-| KUISIONER - PART 1
-|--------------------------------------------------------------------------
-*/
+    Route::post('/kuisioner/ditolak/{id}/edit', [KuisionerController::class, 'editRejected'])
+        ->name('kuisioner.rejected.edit');
 
-Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
-    ->name('kuisioner.part1');
+    /*
+    |--------------------------------------------------------------------------
+    | KUISIONER - PART 1
+    |--------------------------------------------------------------------------
+    */
 
-Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
-    ->name('kuisioner.part1.store');
+    Route::get('/kuisioner/part1', [KuisionerController::class, 'part1'])
+        ->name('kuisioner.part1');
 
-/*
-|--------------------------------------------------------------------------
-| KUISIONER - PART 2
-|--------------------------------------------------------------------------
-*/
+    Route::post('/kuisioner/part1', [KuisionerController::class, 'storePart1'])
+        ->name('kuisioner.part1.store');
 
-Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
-    ->name('kuisioner.part2');
+    /*
+    |--------------------------------------------------------------------------
+    | KUISIONER - PART 2
+    |--------------------------------------------------------------------------
+    */
 
-Route::post('/kuisioner/part2', [KuisionerController::class, 'storePart2'])
-    ->name('kuisioner.part2.store');
+    Route::get('/kuisioner/part2', [KuisionerController::class, 'part2'])
+        ->name('kuisioner.part2');
 
-/*
-|--------------------------------------------------------------------------
-| KUISIONER - PART 3
-|--------------------------------------------------------------------------
-*/
+    Route::post('/kuisioner/part2', [KuisionerController::class, 'storePart2'])
+        ->name('kuisioner.part2.store');
 
-Route::get('/kuisioner/part3', [KuisionerController::class, 'part3'])
-    ->name('kuisioner.part3');
+    /*
+    |--------------------------------------------------------------------------
+    | KUISIONER - PART 3
+    |--------------------------------------------------------------------------
+    */
 
-Route::post('/kuisioner/part3', [KuisionerController::class, 'storePart3'])
-    ->name('kuisioner.part3.store');
+    Route::get('/kuisioner/part3', [KuisionerController::class, 'part3'])
+        ->name('kuisioner.part3');
 
-/*
-|--------------------------------------------------------------------------
-| KUISIONER - PART 4
-|--------------------------------------------------------------------------
-*/
+    Route::post('/kuisioner/part3', [KuisionerController::class, 'storePart3'])
+        ->name('kuisioner.part3.store');
 
-Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
-    ->name('kuisioner.part4');
+    /*
+    |--------------------------------------------------------------------------
+    | KUISIONER - PART 4
+    |--------------------------------------------------------------------------
+    */
 
-Route::post('/kuisioner/part4', [KuisionerController::class, 'storePart4'])
-    ->name('kuisioner.part4.store');
+    Route::get('/kuisioner/part4', [KuisionerController::class, 'part4'])
+        ->name('kuisioner.part4');
 
-/*
-|--------------------------------------------------------------------------
-| KUISIONER - PART 5
-|--------------------------------------------------------------------------
-*/
+    Route::post('/kuisioner/part4', [KuisionerController::class, 'storePart4'])
+        ->name('kuisioner.part4.store');
 
-Route::get('/kuisioner/part5', [KuisionerController::class, 'part5'])
-    ->name('kuisioner.part5');
+    /*
+    |--------------------------------------------------------------------------
+    | KUISIONER - PART 5
+    |--------------------------------------------------------------------------
+    */
 
-Route::get('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'part5Anggota'])
-    ->name('kuisioner.part5.anggota');
+    Route::get('/kuisioner/part5', [KuisionerController::class, 'part5'])
+        ->name('kuisioner.part5');
 
-Route::post('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'storePart5Anggota'])
-    ->name('kuisioner.part5.anggota.store');
+    Route::get('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'part5Anggota'])
+        ->name('kuisioner.part5.anggota');
 
-Route::post('/kuisioner/part5/draft', [KuisionerController::class, 'simpanDraftPart5'])
-    ->name('kuisioner.part5.draft');
+    Route::post('/kuisioner/part5/anggota/{kode}', [KuisionerController::class, 'storePart5Anggota'])
+        ->name('kuisioner.part5.anggota.store');
 
-/*
-|--------------------------------------------------------------------------
-| KUISIONER - FOTO RUMAH
-|--------------------------------------------------------------------------
-*/
+    Route::post('/kuisioner/part5/draft', [KuisionerController::class, 'simpanDraftPart5'])
+        ->name('kuisioner.part5.draft');
 
-Route::get('/kuisioner/part5/foto', [KuisionerController::class, 'part5Foto'])
-    ->name('kuisioner.part5.foto');
+    /*
+    |--------------------------------------------------------------------------
+    | KUISIONER - FOTO RUMAH
+    |--------------------------------------------------------------------------
+    */
 
-Route::post('/kuisioner/part5/foto', [KuisionerController::class, 'storePart5Foto'])
-    ->name('kuisioner.part5.foto.store');
+    Route::get('/kuisioner/part5/foto', [KuisionerController::class, 'part5Foto'])
+        ->name('kuisioner.part5.foto');
 
-/*
-|--------------------------------------------------------------------------
-| SELESAIKAN KUISIONER
-|--------------------------------------------------------------------------
-*/
+    Route::post('/kuisioner/part5/foto', [KuisionerController::class, 'storePart5Foto'])
+        ->name('kuisioner.part5.foto.store');
 
-Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner'])
-    ->name('kuisioner.selesai.store');
+    /*
+    |--------------------------------------------------------------------------
+    | SELESAIKAN KUISIONER
+    |--------------------------------------------------------------------------
+    */
 
-Route::get('/kuisioner/selesai/{id}', [KuisionerController::class, 'detailSelesai'])
-    ->name('kuisioner.selesai.detail');
+    Route::post('/kuisioner/selesai', [KuisionerController::class, 'selesaiKuisioner'])
+        ->name('kuisioner.selesai.store');
+
+    Route::get('/kuisioner/selesai/{id}', [KuisionerController::class, 'detailSelesai'])
+        ->name('kuisioner.selesai.detail');
+
+});
 
 /*
 |--------------------------------------------------------------------------

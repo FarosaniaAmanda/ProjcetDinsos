@@ -3856,7 +3856,18 @@ color: #7652C8;
                     </div>
 
 
-                   
+                    <div class="monitoring-detail-item monitoring-member-item">
+
+                        <span class="monitoring-detail-label">Jumlah Anggota Keluarga</span>
+
+                        <strong
+                            class="monitoring-detail-value"
+                            id="detailJumlahAnggota"
+                        >
+                            0 Orang
+                        </strong>
+
+                    </div>
 
 
                     <div class="monitoring-detail-item">
@@ -5835,10 +5846,13 @@ const partName = `Part ${partNumber}${partTitle ? ' — ' + partTitle : ''}`;
         const jumlahAnggota =
             Number(button.dataset.jumlahAnggota || 0);
 
-        document.getElementById(
-            'detailJumlahAnggota'
-        ).textContent =
-            jumlahAnggota + ' Orang';
+      const detailJumlahAnggotaElement = document.getElementById('detailJumlahAnggota');
+
+if (detailJumlahAnggotaElement) {
+    detailJumlahAnggotaElement.textContent = jumlahAnggota + ' Orang';
+} else {
+    console.warn('Elemen detailJumlahAnggota tidak ditemukan pada modal Monitoring.');
+}
 
 
         document.getElementById(

@@ -11,6 +11,8 @@ use App\Models\KeluargaPart2;
 use App\Models\KeluargaPart3;
 use App\Models\KeluargaPart4;
 use App\Models\KeluargaPart5;
+use App\Models\KeluargaPeriode;
+use App\Models\Periode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +37,10 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $respondenCount = Keluarga::count();
+        $periodeRelations = $this->selectedPeriodRelationCodes();
+        $respondenCount = KeluargaPeriode::query()
+            ->where('periode_kode', $this->getSelectedPeriode()?->kode)
+            ->count();
 
         /*
         |--------------------------------------------------------------------------
@@ -54,15 +59,16 @@ class KuisionerController extends Controller
         ];
 
         $kodeSudahDidata = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $periodeRelations)
             ->whereIn('status', $statusSudahDidata)
             ->pluck('keluarga_periode_kode')
             ->unique()
             ->toArray();
 
-        $belumDidataCount = Keluarga::whereNotIn(
-            'kode',
-            $kodeSudahDidata
-        )->count();
+        $belumDidataCount = KeluargaPeriode::query()
+            ->where('periode_kode', $this->getSelectedPeriode()?->kode)
+            ->whereNotIn('kode', $kodeSudahDidata)
+            ->count();
 
         /*
         |--------------------------------------------------------------------------
@@ -70,7 +76,10 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $draftCount = KeluargaPart1::where('status', 'draft')->count();
+        $draftCount = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $periodeRelations)
+            ->where('status', 'draft')
+            ->count();
 
         /*
         |--------------------------------------------------------------------------
@@ -78,13 +87,18 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $selesaiCount = KeluargaPart1::where('status', 'selesai')->count();
+        $selesaiCount = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $periodeRelations)
+            ->where('status', 'selesai')
+            ->count();
 
         $ditolakCount = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $periodeRelations)
             ->whereIn('status', ['rejected', 'reject', 'ditolak'])
             ->count();
 
         $diterimaCount = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $periodeRelations)
             ->whereIn('status', ['approved', 'disetujui'])
             ->count();
 
@@ -97,6 +111,7 @@ class KuisionerController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $draftQuery = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $periodeRelations)
             ->where('status', 'draft');
 
         if ($search !== '') {
@@ -132,114 +147,115 @@ class KuisionerController extends Controller
 |--------------------------------------------------------------------------
 */
 
-foreach ($drafts as $draft) {
+        foreach ($drafts as $draft) {
 
-    // Progress awal berdasarkan Part yang sedang dikerjakan.
-    $completedPart = max(
-        1,
-        min(5, (int) ($draft->current_part ?? 1))
-    );
+            // Progress awal berdasarkan Part yang sedang dikerjakan.
+            $completedPart = max(
+                1,
+                min(5, (int) ($draft->current_part ?? 1))
+            );
 
-    // Status kelengkapan anggota dan foto.
-    $semuaAnggotaLengkap = false;
-    $semuaFotoLengkap = false;
+            // Status kelengkapan anggota dan foto.
+            $semuaAnggotaLengkap = false;
+            $semuaFotoLengkap = false;
 
-    // Periksa Part 5 jika keluarga sudah mencapai tahap tersebut.
-    if ((int) $draft->current_part >= 5) {
+            // Periksa Part 5 jika keluarga sudah mencapai tahap tersebut.
+            if ((int) $draft->current_part >= 5) {
 
-        /*
-        |--------------------------------------------------------------------------
-        | 1. PERIKSA SELURUH DATA ANGGOTA KELUARGA
-        |--------------------------------------------------------------------------
-        */
+                /*
+                |--------------------------------------------------------------------------
+                | 1. PERIKSA SELURUH DATA ANGGOTA KELUARGA
+                |--------------------------------------------------------------------------
+                */
 
-        $anggota = KeluargaAnggota::where(
-            'keluarga_kode',
-            $draft->keluarga_periode_kode
-        )->get();
+                $kodeKeluarga = $this->familyCodeForQuestionnaire(
+                    $draft->keluarga_periode_kode
+                );
+                $anggota = KeluargaAnggota::where(
+                    'keluarga_kode',
+                    $kodeKeluarga
+                )->get();
 
-        $kodeAnggota = $anggota->pluck('kode');
+                $kodeAnggota = $anggota->pluck('kode');
 
-        $dataPart5 = KeluargaPart5::where(
-            'keluarga_periode_kode',
-            $draft->keluarga_periode_kode
-        )
-            ->whereIn('keluarga_anggota_kode', $kodeAnggota)
-            ->get()
-            ->keyBy('keluarga_anggota_kode');
+                $dataPart5 = KeluargaPart5::where(
+                    'keluarga_periode_kode',
+                    $draft->keluarga_periode_kode
+                )
+                    ->whereIn('keluarga_anggota_kode', $kodeAnggota)
+                    ->get()
+                    ->keyBy('keluarga_anggota_kode');
 
-        $jumlahAnggota = $anggota->count();
+                $jumlahAnggota = $anggota->count();
 
-        $jumlahAnggotaLengkap = $anggota->filter(
-            function ($item) use ($dataPart5) {
+                $jumlahAnggotaLengkap = $anggota->filter(
+                    function ($item) use ($dataPart5) {
 
-                $data = $dataPart5->get($item->kode);
+                        $data = $dataPart5->get($item->kode);
 
-                return $data
-                    && $this->part5DataLengkap($data);
+                        return $data
+                            && $this->part5DataLengkap($data);
+                    }
+                )->count();
+
+                $semuaAnggotaLengkap = $jumlahAnggota > 0
+                    && $jumlahAnggotaLengkap === $jumlahAnggota;
+
+                /*
+                |--------------------------------------------------------------------------
+                | 2. PERIKSA TIGA FOTO RUMAH
+                |--------------------------------------------------------------------------
+                */
+
+                $jumlahFotoLengkap = KeluargaFotoRumah::where(
+                    'keluarga_periode_kode',
+                    $draft->keluarga_periode_kode
+                )
+                    ->whereIn('jenis_foto', [
+                        'tampak_depan',
+                        'ruang_tamu',
+                        'kamar_mandi',
+                    ])
+                    ->distinct()
+                    ->count('jenis_foto');
+
+                $semuaFotoLengkap = $jumlahFotoLengkap === 3;
+
+                /*
+                |--------------------------------------------------------------------------
+                | 3. TENTUKAN PROGRESS AKHIR
+                |--------------------------------------------------------------------------
+                */
+
+                if ($semuaAnggotaLengkap && $semuaFotoLengkap) {
+
+                    // Hanya kondisi ini yang boleh mencapai 100%.
+                    $completedPart = 5;
+                    $progressPercent = 100;
+
+                } elseif ($semuaAnggotaLengkap || $semuaFotoLengkap) {
+
+                    // Salah satu tahap Part 5 selesai: maksimal 90%.
+                    $completedPart = 4;
+                    $progressPercent = 90;
+
+                } else {
+
+                    // Kedua tahap Part 5 belum lengkap.
+                    $completedPart = 4;
+                    $progressPercent = 80;
+                }
+
+            } else {
+
+                // Part 1–4 tetap mengikuti progress sebelumnya.
+                $progressPercent = ($completedPart / 5) * 100;
             }
-        )->count();
 
-        $semuaAnggotaLengkap = $jumlahAnggota > 0
-            && $jumlahAnggotaLengkap === $jumlahAnggota;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | 2. PERIKSA TIGA FOTO RUMAH
-        |--------------------------------------------------------------------------
-        */
-
-        $jumlahFotoLengkap = KeluargaFotoRumah::where(
-            'keluarga_periode_kode',
-            $draft->keluarga_periode_kode
-        )
-            ->whereIn('jenis_foto', [
-                'tampak_depan',
-                'ruang_tamu',
-                'kamar_mandi',
-            ])
-            ->distinct()
-            ->count('jenis_foto');
-
-        $semuaFotoLengkap = $jumlahFotoLengkap === 3;
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | 3. TENTUKAN PROGRESS AKHIR
-        |--------------------------------------------------------------------------
-        */
-
-        if ($semuaAnggotaLengkap && $semuaFotoLengkap) {
-
-            // Hanya kondisi ini yang boleh mencapai 100%.
-            $completedPart = 5;
-            $progressPercent = 100;
-
-        } elseif ($semuaAnggotaLengkap || $semuaFotoLengkap) {
-
-            // Salah satu tahap Part 5 selesai: maksimal 90%.
-            $completedPart = 4;
-            $progressPercent = 90;
-
-        } else {
-
-            // Kedua tahap Part 5 belum lengkap.
-            $completedPart = 4;
-            $progressPercent = 80;
+            // Kirim nilai progress ke Blade.
+            $draft->completedPart = $completedPart;
+            $draft->progressPercent = $progressPercent;
         }
-
-        } else {
-
-            // Part 1–4 tetap mengikuti progress sebelumnya.
-            $progressPercent = ($completedPart / 5) * 100;
-        }
-
-        // Kirim nilai progress ke Blade.
-        $draft->completedPart = $completedPart;
-        $draft->progressPercent = $progressPercent;
-    }
 
         /*
         |--------------------------------------------------------------------------
@@ -278,7 +294,9 @@ foreach ($drafts as $draft) {
 
     public function draft()
     {
-        $drafts = KeluargaPart1::where('status', 'draft')
+        $drafts = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
+            ->where('status', 'draft')
             ->latest('id')
             ->get();
 
@@ -295,17 +313,17 @@ foreach ($drafts as $draft) {
 
     public function selesai()
     {
-        
-        $selesai = KeluargaPart1::where('status', 'selesai')
+
+        $selesai = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
+            ->where('status', 'selesai')
             ->orderByDesc('updated_at')
             ->paginate(10);
 
-
         foreach ($selesai as $item) {
-            $keluarga = Keluarga::where(
-                'kode',
+            $keluarga = $this->familyForQuestionnaire(
                 $item->keluarga_periode_kode
-            )->first();
+            );
 
             if (! $keluarga && $item->no_kk) {
                 $keluarga = Keluarga::where(
@@ -343,10 +361,10 @@ foreach ($drafts as $draft) {
         ]);
     }
 
-    
     public function ditolak(): View
     {
         $kuisioner = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
             ->whereIn('status', [
                 'rejected',
                 'reject',
@@ -372,7 +390,9 @@ foreach ($drafts as $draft) {
         $families = Keluarga::query()
             ->where(function ($query) use ($familyCodes, $familyNumbers) {
                 if ($familyCodes->isNotEmpty()) {
-                    $query->whereIn('kode', $familyCodes);
+                    $query->whereIn('kode', KeluargaPeriode::query()
+                        ->whereIn('kode', $familyCodes)
+                        ->select('keluarga_kode'));
                 }
 
                 if ($familyNumbers->isNotEmpty()) {
@@ -396,7 +416,7 @@ foreach ($drafts as $draft) {
 
         foreach ($kuisioner as $item) {
             $item->keluarga_data = $familiesByCode->get(
-                $item->keluarga_periode_kode
+                $this->familyCodeForQuestionnaire($item->keluarga_periode_kode)
             ) ?? $familiesByNumber->get($item->no_kk);
         }
 
@@ -408,6 +428,7 @@ foreach ($drafts as $draft) {
     public function disetujui(): View
     {
         $kuisioner = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
             ->whereIn('status', [
                 'approved',
                 'disetujui',
@@ -433,7 +454,9 @@ foreach ($drafts as $draft) {
         $families = Keluarga::query()
             ->where(function ($query) use ($familyCodes, $familyNumbers) {
                 if ($familyCodes->isNotEmpty()) {
-                    $query->whereIn('kode', $familyCodes);
+                    $query->whereIn('kode', KeluargaPeriode::query()
+                        ->whereIn('kode', $familyCodes)
+                        ->select('keluarga_kode'));
                 }
 
                 if ($familyNumbers->isNotEmpty()) {
@@ -458,7 +481,7 @@ foreach ($drafts as $draft) {
         // Hubungkan data keluarga dengan setiap kuisioner.
         foreach ($kuisioner as $item) {
             $item->keluarga_data = $familiesByCode->get(
-                $item->keluarga_periode_kode
+                $this->familyCodeForQuestionnaire($item->keluarga_periode_kode)
             ) ?? $familiesByNumber->get($item->no_kk);
         }
 
@@ -470,6 +493,7 @@ foreach ($drafts as $draft) {
     private function getQuestionnairesByStatus(array $statuses): EloquentCollection
     {
         $questionnaires = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
             ->whereIn('status', $statuses)
             ->orderByDesc('updated_at')
             ->orderByDesc('id')
@@ -488,7 +512,9 @@ foreach ($drafts as $draft) {
             ->values();
 
         $families = Keluarga::query()
-            ->whereIn('kode', $familyCodes)
+            ->whereIn('kode', KeluargaPeriode::query()
+                ->whereIn('kode', $familyCodes)
+                ->select('keluarga_kode'))
             ->orWhereIn('no_kk', $familyNumbers)
             ->get([
                 'kode',
@@ -502,7 +528,7 @@ foreach ($drafts as $draft) {
 
         foreach ($questionnaires as $questionnaire) {
             $questionnaire->keluarga_data = $familiesByCode->get(
-                $questionnaire->keluarga_periode_kode
+                $this->familyCodeForQuestionnaire($questionnaire->keluarga_periode_kode)
             ) ?? $familiesByNumber->get($questionnaire->no_kk);
         }
 
@@ -511,7 +537,9 @@ foreach ($drafts as $draft) {
 
     public function editRejected(int $id): RedirectResponse
     {
-        $questionnaire = KeluargaPart1::query()->findOrFail($id);
+        $questionnaire = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
+            ->findOrFail($id);
         $status = strtolower(trim((string) $questionnaire->status));
 
         if (! in_array($status, ['rejected', 'reject', 'ditolak'], true)) {
@@ -520,7 +548,8 @@ foreach ($drafts as $draft) {
                 ->with('error', 'Hanya kuisioner berstatus ditolak yang dapat diedit.');
         }
 
-        $familyCode = trim((string) $questionnaire->keluarga_periode_kode);
+        $familyRelationCode = trim((string) $questionnaire->keluarga_periode_kode);
+        $familyCode = $this->familyCodeForQuestionnaire($familyRelationCode);
         $familyExists = $familyCode !== ''
             && Keluarga::query()->where('kode', $familyCode)->exists();
 
@@ -531,7 +560,8 @@ foreach ($drafts as $draft) {
 
             if ($family) {
                 $familyCode = $family->kode;
-                $questionnaire->keluarga_periode_kode = $familyCode;
+                $familyRelationCode = $familyCode;
+                $questionnaire->keluarga_periode_kode = $familyRelationCode;
                 $questionnaire->save();
                 $familyExists = true;
             }
@@ -545,7 +575,7 @@ foreach ($drafts as $draft) {
 
         session([
             'draft_keluarga_id' => $questionnaire->id,
-            'selected_keluarga_kode' => $familyCode,
+            'selected_keluarga_kode' => $familyRelationCode,
             'editing_rejected_questionnaire' => true,
             'part1_selesai' => false,
             'part2_selesai' => false,
@@ -561,7 +591,8 @@ foreach ($drafts as $draft) {
 
     private function editableQuestionnaireQuery(): Builder
     {
-        $query = KeluargaPart1::query();
+        $query = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes());
 
         if (session('editing_rejected_questionnaire')) {
             return $query
@@ -572,6 +603,52 @@ foreach ($drafts as $draft) {
         return $query->where('status', 'draft');
     }
 
+    private function getSelectedPeriode(): ?Periode
+    {
+        return Periode::query()->find(session('periode_id'));
+    }
+
+    private function selectedPeriodRelationCodes(): Builder
+    {
+        return KeluargaPeriode::query()
+            ->where('periode_kode', $this->getSelectedPeriode()?->kode)
+            ->select('kode');
+    }
+
+    private function getFamilyPeriodForSelectedPeriod(string $familyOrRelationCode): ?KeluargaPeriode
+    {
+        $periode = $this->getSelectedPeriode();
+
+        if (! $periode) {
+            return null;
+        }
+
+        return KeluargaPeriode::query()
+            ->where('periode_kode', $periode->kode)
+            ->where(function ($query) use ($familyOrRelationCode) {
+                $query
+                    ->where('kode', $familyOrRelationCode)
+                    ->orWhere('keluarga_kode', $familyOrRelationCode);
+            })
+            ->first();
+    }
+
+    private function familyCodeForQuestionnaire(string $familyPeriodCode): string
+    {
+        return KeluargaPeriode::query()
+            ->where('kode', $familyPeriodCode)
+            ->value('keluarga_kode')
+            ?? $familyPeriodCode;
+    }
+
+    private function familyForQuestionnaire(string $familyPeriodCode): ?Keluarga
+    {
+        return Keluarga::query()
+            ->with('anggota')
+            ->where('kode', $this->familyCodeForQuestionnaire($familyPeriodCode))
+            ->first();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | PILIH RESPONDEN
@@ -579,6 +656,8 @@ foreach ($drafts as $draft) {
     */
     public function pilihResponden(Request $request)
     {
+        $periode = $this->getSelectedPeriode();
+
         // Rapikan spasi pencarian.
         $search = preg_replace(
             '/\s+/u',
@@ -595,7 +674,12 @@ foreach ($drafts as $draft) {
         | KODE KELUARGA YANG SUDAH MASUK KUISIONER
         |--------------------------------------------------------------------------
         */
+        $relations = KeluargaPeriode::query()
+            ->where('periode_kode', $periode->kode)
+            ->get(['kode', 'keluarga_kode']);
+
         $kodeSudahDipakai = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $relations->pluck('kode'))
             ->whereIn('status', [
                 'draft',
                 'selesai',
@@ -614,11 +698,16 @@ foreach ($drafts as $draft) {
         | RESPONDEN YANG BELUM DIDATA
         |--------------------------------------------------------------------------
         */
+        $keluargaSudahDipakai = $relations
+            ->whereIn('kode', $kodeSudahDipakai)
+            ->pluck('keluarga_kode');
+
         $responden = Keluarga::query()
+            ->whereIn('kode', $relations->pluck('keluarga_kode'))
             ->when(
-                ! empty($kodeSudahDipakai),
-                function ($query) use ($kodeSudahDipakai) {
-                    $query->whereNotIn('kode', $kodeSudahDipakai);
+                $keluargaSudahDipakai->isNotEmpty(),
+                function ($query) use ($keluargaSudahDipakai) {
+                    $query->whereNotIn('kode', $keluargaSudahDipakai);
                 }
             )
             ->when(
@@ -677,6 +766,10 @@ foreach ($drafts as $draft) {
     public function part1(Request $request)
     {
         $search = trim($request->get('search', ''));
+        $periode = $this->getSelectedPeriode();
+        $relations = KeluargaPeriode::query()
+            ->where('periode_kode', $periode->kode)
+            ->get(['kode', 'keluarga_kode']);
 
         /*
         |--------------------------------------------------------------------------
@@ -685,6 +778,7 @@ foreach ($drafts as $draft) {
         */
 
         $query = Keluarga::with('anggota')
+            ->whereIn('kode', $relations->pluck('keluarga_kode'))
             ->orderBy('id');
 
         if ($search !== '') {
@@ -707,7 +801,7 @@ foreach ($drafts as $draft) {
 
         $statusKeluarga = KeluargaPart1::whereIn(
             'keluarga_periode_kode',
-            $keluargas->pluck('kode')
+            $relations->pluck('kode')
         )
             ->orderByDesc('id')
             ->get()
@@ -720,7 +814,8 @@ foreach ($drafts as $draft) {
         */
 
         foreach ($keluargas as $keluarga) {
-            $part1 = $statusKeluarga->get($keluarga->kode);
+            $relation = $relations->firstWhere('keluarga_kode', $keluarga->kode);
+            $part1 = $statusKeluarga->get($relation?->kode);
 
             if (! $part1) {
                 // BELUM PERNAH MULAI
@@ -765,12 +860,12 @@ foreach ($drafts as $draft) {
         | JIKA MEMILIH KELUARGA
         |--------------------------------------------------------------------------
         */
-        $keluargaAktif = $request->get(
+        $kodeKeluargaTerpilih = $request->get(
             'keluarga',
             session('selected_keluarga_kode')
         );
 
-        if (! $keluargaAktif) {
+        if (! $kodeKeluargaTerpilih) {
             session()->forget([
                 'selected_keluarga_kode',
                 'draft_keluarga_id',
@@ -783,13 +878,12 @@ foreach ($drafts as $draft) {
             ]);
         }
 
-        if ($keluargaAktif) {
-
-            $selectedKeluarga = Keluarga::with('anggota')
-                ->where(
-                    'kode',
-                    $keluargaAktif
-                )
+        if ($kodeKeluargaTerpilih) {
+            $relation = $this->getFamilyPeriodForSelectedPeriod(
+                (string) $kodeKeluargaTerpilih
+            );
+            $selectedKeluarga = $relation?->keluarga()
+                ->with('anggota')
                 ->first();
 
             if ($selectedKeluarga) {
@@ -798,7 +892,7 @@ foreach ($drafts as $draft) {
 
                 $data = $this->editableQuestionnaireQuery()->where(
                     'keluarga_periode_kode',
-                    $selectedKeluarga->kode
+                    $relation->kode
                 )
                     ->latest('id')
                     ->first();
@@ -824,7 +918,7 @@ foreach ($drafts as $draft) {
                 }
 
                 session([
-                    'selected_keluarga_kode' => $selectedKeluarga->kode,
+                    'selected_keluarga_kode' => $relation->kode,
                 ]);
             }
         }
@@ -1004,11 +1098,11 @@ foreach ($drafts as $draft) {
         |--------------------------------------------------------------------------
         */
 
-        $keluargaKode =
+        $kodeKeluargaTerpilih =
             $validated['keluarga_kode']
             ?? session('selected_keluarga_kode');
 
-        if (! $keluargaKode) {
+        if (! $kodeKeluargaTerpilih) {
             return back()
                 ->withInput()
                 ->with(
@@ -1016,6 +1110,21 @@ foreach ($drafts as $draft) {
                     'Kode keluarga tidak ditemukan. Silakan pilih keluarga terlebih dahulu.'
                 );
         }
+
+        $relation = $this->getFamilyPeriodForSelectedPeriod(
+            (string) $kodeKeluargaTerpilih
+        );
+
+        if (! $relation) {
+            return back()
+                ->withInput()
+                ->with(
+                    'error',
+                    'Responden tidak terhubung dengan periode yang dipilih.'
+                );
+        }
+
+        $keluargaPeriodeKode = $relation->kode;
 
         /*
         |--------------------------------------------------------------------------
@@ -1025,7 +1134,7 @@ foreach ($drafts as $draft) {
 
         $draft = $this->editableQuestionnaireQuery()->where(
             'keluarga_periode_kode',
-            $keluargaKode
+            $keluargaPeriodeKode
         )
             ->latest('id')
             ->first();
@@ -1142,7 +1251,7 @@ foreach ($drafts as $draft) {
         */
 
         $draft->keluarga_periode_kode =
-            $keluargaKode;
+            $keluargaPeriodeKode;
 
         /*
         |--------------------------------------------------------------------------
@@ -1197,7 +1306,7 @@ foreach ($drafts as $draft) {
         session([
             'draft_keluarga_id' => $draft->id,
 
-            'selected_keluarga_kode' => $keluargaKode,
+            'selected_keluarga_kode' => $keluargaPeriodeKode,
 
             'part1_selesai' => false,
 
@@ -1391,7 +1500,7 @@ foreach ($drafts as $draft) {
                 (string) $request->input('sewa_bulanan', '')
             ),
         ]);
-        
+
         $validated = $request->validate([
 
             'jenis_bangunan' => [
@@ -2370,9 +2479,12 @@ foreach ($drafts as $draft) {
         |--------------------------------------------------------------------------
         */
 
+        $kodeKeluarga = $this->familyCodeForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
         $anggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )
             ->orderBy('id')
             ->get();
@@ -2484,9 +2596,12 @@ foreach ($drafts as $draft) {
         |--------------------------------------------------------------------------
         */
 
+        $kodeKeluarga = $this->familyCodeForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
         $anggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )
             ->where(
                 'kode',
@@ -2553,8 +2668,9 @@ foreach ($drafts as $draft) {
                 );
         }
 
-        $draft =
-            KeluargaPart1::find($draftId);
+        $draft = $this->editableQuestionnaireQuery()
+            ->whereKey($draftId)
+            ->first();
 
         if (! $draft) {
 
@@ -2572,9 +2688,12 @@ foreach ($drafts as $draft) {
         |--------------------------------------------------------------------------
         */
 
+        $kodeKeluarga = $this->familyCodeForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
         $anggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )
             ->where(
                 'kode',
@@ -2657,8 +2776,7 @@ foreach ($drafts as $draft) {
                     'max:255',
                 ],
 
-                'status_pekerjaan' =>
-                    'required_unless:pekerjaan_utama,Tidak Bekerja|string|max:255',
+                'status_pekerjaan' => 'required_unless:pekerjaan_utama,Tidak Bekerja|string|max:255',
 
                 'kepemilikan_rekening' => 'required|string|max:255',
                 'is_disabilitas_fisik' => 'required|in:0,1',
@@ -2690,59 +2808,59 @@ foreach ($drafts as $draft) {
 
         $data = [
 
-        'keluarga_periode_kode' => $draft->keluarga_periode_kode,
+            'keluarga_periode_kode' => $draft->keluarga_periode_kode,
 
-        'keluarga_anggota_kode' => $anggota->kode,
+            'keluarga_anggota_kode' => $anggota->kode,
 
-        'keberadaan' => $validated['keberadaan'],
+            'keberadaan' => $validated['keberadaan'],
 
-        'no_hp' => $validated['no_hp'] ?? null,
+            'no_hp' => $validated['no_hp'] ?? null,
 
-        'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
+            'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
 
-        'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
+            'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
 
-        'status_perkawinan' => $validated['status_perkawinan'] ?? null,
+            'status_perkawinan' => $validated['status_perkawinan'] ?? null,
 
-        'status_sekolah' => $validated['status_sekolah'] ?? null,
+            'status_sekolah' => $validated['status_sekolah'] ?? null,
 
-        'ijazah_tertinggi' => $validated['ijazah_tertinggi'] ?? null,
+            'ijazah_tertinggi' => $validated['ijazah_tertinggi'] ?? null,
 
-        'ijazah_lainnya' => ($validated['ijazah_tertinggi'] ?? null) === 'Lainnya'
-            ? ($validated['ijazah_lainnya'] ?? null)
-            : null,
+            'ijazah_lainnya' => ($validated['ijazah_tertinggi'] ?? null) === 'Lainnya'
+                ? ($validated['ijazah_lainnya'] ?? null)
+                : null,
 
-        'pekerjaan_utama' => $validated['pekerjaan_utama'] ?? null,
+            'pekerjaan_utama' => $validated['pekerjaan_utama'] ?? null,
 
-        'pekerjaan_lainnya' => $validated['pekerjaan_lainnya'] ?? null,
+            'pekerjaan_lainnya' => $validated['pekerjaan_lainnya'] ?? null,
 
-        'status_pekerjaan' => $validated['status_pekerjaan'] ?? null,
+            'status_pekerjaan' => $validated['status_pekerjaan'] ?? null,
 
-        'kepemilikan_rekening' => $validated['kepemilikan_rekening'] ?? null,
+            'kepemilikan_rekening' => $validated['kepemilikan_rekening'] ?? null,
 
-        'is_disabilitas_fisik' => $validated['is_disabilitas_fisik'] ?? null,
+            'is_disabilitas_fisik' => $validated['is_disabilitas_fisik'] ?? null,
 
-        'is_disabilitas_mental' => $validated['is_disabilitas_mental'] ?? null,
+            'is_disabilitas_mental' => $validated['is_disabilitas_mental'] ?? null,
 
-        'is_disabilitas_intelektual' => $validated['is_disabilitas_intelektual'] ?? null,
+            'is_disabilitas_intelektual' => $validated['is_disabilitas_intelektual'] ?? null,
 
-        'is_disabilitas_netra' => $validated['is_disabilitas_netra'] ?? null,
+            'is_disabilitas_netra' => $validated['is_disabilitas_netra'] ?? null,
 
-        'is_disabilitas_rungu' => $validated['is_disabilitas_rungu'] ?? null,
+            'is_disabilitas_rungu' => $validated['is_disabilitas_rungu'] ?? null,
 
-        'is_disabilitas_wicara' => $validated['is_disabilitas_wicara'] ?? null,
+            'is_disabilitas_wicara' => $validated['is_disabilitas_wicara'] ?? null,
 
-        'keluhan_kesehatan' => json_encode(
-            $validated['keluhan_kesehatan'] ?? [],
-            JSON_UNESCAPED_UNICODE
-        ),
+            'keluhan_kesehatan' => json_encode(
+                $validated['keluhan_kesehatan'] ?? [],
+                JSON_UNESCAPED_UNICODE
+            ),
 
-        'created_by' => auth()->id() ?? 'system',
+            'created_by' => auth()->id() ?? 'system',
 
-        'updated_by' => auth()->id() ?? 'system',
+            'updated_by' => auth()->id() ?? 'system',
 
-        'updated_at' => now(),
-    ];
+            'updated_at' => now(),
+        ];
 
         /*
         |--------------------------------------------------------------------------
@@ -2796,20 +2914,20 @@ foreach ($drafts as $draft) {
         $firstRouteParameters = [];
 
         $addMissing = function (
-        int $part,
-        string $question,
-        string $route,
-        array $routeParameters = []
-    ) use (&$missingQuestions, &$firstRoute, &$firstRouteParameters): void {
-        $question = preg_replace('/^(\d+)\.\s*/', '$1: ', $question);
+            int $part,
+            string $question,
+            string $route,
+            array $routeParameters = []
+        ) use (&$missingQuestions, &$firstRoute, &$firstRouteParameters): void {
+            $question = preg_replace('/^(\d+)\.\s*/', '$1: ', $question);
 
-        $missingQuestions[] = 'Part '.$part.'  Pertanyaan No. '.$question;
+            $missingQuestions[] = 'Part '.$part.'  Pertanyaan No. '.$question;
 
-        if ($firstRoute === null) {
-            $firstRoute = $route;
-            $firstRouteParameters = $routeParameters;
-        }
-    };
+            if ($firstRoute === null) {
+                $firstRoute = $route;
+                $firstRouteParameters = $routeParameters;
+            }
+        };
 
         $isAnswered = static function (mixed $value): bool {
             return $value !== null
@@ -2825,9 +2943,9 @@ foreach ($drafts as $draft) {
             return null;
         };
 
-        $keluarga = Keluarga::with('anggota')
-            ->where('kode', $draft->keluarga_periode_kode)
-            ->first();
+        $keluarga = $this->familyForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
 
         $kecamatan = $draft->kecamatan;
         if (! $isAnswered($kecamatan) && $keluarga?->kecamatan_id) {
@@ -2847,9 +2965,12 @@ foreach ($drafts as $draft) {
         $rw = trim((string) ($keluarga?->rw ?? ''));
         $rtRw = $rt !== '' || $rw !== '' ? $rt.' / '.$rw : null;
 
+        $kodeKeluarga = $this->familyCodeForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
         $jumlahAnggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )->count();
 
         $part1Questions = [
@@ -3045,9 +3166,12 @@ foreach ($drafts as $draft) {
             }
         }
 
+        $kodeKeluarga = $this->familyCodeForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
         $anggotaList = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )->orderBy('id')->get();
 
         $dataPart5 = KeluargaPart5::where(
@@ -3186,7 +3310,6 @@ foreach ($drafts as $draft) {
      *     route_parameters: array<string, string>
      * } $issues
      */
-        
     private function redirectToIncompleteQuestionnaire(array $issues): RedirectResponse
     {
         $route = $issues['route'] ?? 'kuisioner.part1';
@@ -3217,7 +3340,7 @@ foreach ($drafts as $draft) {
     }
 
     /**
-     * @param array<int, string> $missingQuestions
+     * @param  array<int, string>  $missingQuestions
      * @return array<int, string>
      */
     private function missingQuestionsForPart(
@@ -3236,7 +3359,7 @@ foreach ($drafts as $draft) {
     }
 
     /**
-     * @param array<int, string> $missingQuestions
+     * @param  array<int, string>  $missingQuestions
      */
     private function redirectToIncompletePart(
         int $part,
@@ -3254,7 +3377,7 @@ foreach ($drafts as $draft) {
         if (! $data) {
             return false;
         }
-        
+
         if (in_array($data->keberadaan, [
             'Meninggal',
             'Sudah Pisah kartu keluarga',
@@ -3408,8 +3531,9 @@ foreach ($drafts as $draft) {
         |--------------------------------------------------------------------------
         */
 
-        $draft =
-            KeluargaPart1::find($draftId);
+        $draft = $this->editableQuestionnaireQuery()
+            ->whereKey($draftId)
+            ->first();
 
         if (! $draft) {
 
@@ -3447,14 +3571,17 @@ foreach ($drafts as $draft) {
         |--------------------------------------------------------------------------
         */
 
+        $kodeKeluarga = $this->familyCodeForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
         $jumlahAnggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )->count();
 
         $kodeAnggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )->pluck('kode');
 
         $dataPart5 = KeluargaPart5::where(
@@ -3467,7 +3594,7 @@ foreach ($drafts as $draft) {
 
         $jumlahAnggotaSelesai = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )->get()->filter(function ($item) use ($dataPart5) {
             $data = $dataPart5->get($item->kode);
 
@@ -3798,8 +3925,9 @@ foreach ($drafts as $draft) {
                 );
         }
 
-        $draft =
-            KeluargaPart1::findOrFail($draftId);
+        $draft = $this->editableQuestionnaireQuery()
+            ->whereKey($draftId)
+            ->firstOrFail();
 
         $completionIssues = $this->questionnaireCompletionIssues(
             $draft,
@@ -3810,14 +3938,17 @@ foreach ($drafts as $draft) {
             return $this->redirectToIncompleteQuestionnaire($completionIssues);
         }
 
+        $kodeKeluarga = $this->familyCodeForQuestionnaire(
+            $draft->keluarga_periode_kode
+        );
         $jumlahAnggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )->count();
 
         $kodeAnggota = KeluargaAnggota::where(
             'keluarga_kode',
-            $draft->keluarga_periode_kode
+            $kodeKeluarga
         )->pluck('kode');
 
         $jumlahAnggotaTerdata = KeluargaPart5::where(
@@ -3879,7 +4010,9 @@ foreach ($drafts as $draft) {
 
     public function detailSelesai($id)
     {
-        $dataPart1 = KeluargaPart1::findOrFail($id);
+        $dataPart1 = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
+            ->findOrFail($id);
 
         if (! in_array($dataPart1->status, ['selesai', 'approved', 'disetujui'], true)) {
             return redirect()
@@ -3888,8 +4021,9 @@ foreach ($drafts as $draft) {
         }
 
         $keluargaKode = $dataPart1->keluarga_periode_kode;
+        $familyCode = $this->familyCodeForQuestionnaire($keluargaKode);
 
-        $keluarga = Keluarga::where('kode', $keluargaKode)->first();
+        $keluarga = Keluarga::where('kode', $familyCode)->first();
         if (! $keluarga && $dataPart1->no_kk) {
             $keluarga = Keluarga::where('no_kk', $dataPart1->no_kk)->first();
         }
@@ -3910,7 +4044,7 @@ foreach ($drafts as $draft) {
 
         // Jumlah anggota: utamakan jawaban Part 1, lalu hitung data anggota.
         // Kode anggota keluarga mengacu pada kode keluarga, bukan kode periode.
-        $kodeUntukAnggota = $keluarga->kode ?? $keluargaKode;
+        $kodeUntukAnggota = $keluarga?->kode ?? $familyCode;
         $jumlahAnggotaTambahan = $kodeUntukAnggota
             ? KeluargaAnggota::where('keluarga_kode', $kodeUntukAnggota)->count()
             : 0;
@@ -3980,7 +4114,7 @@ foreach ($drafts as $draft) {
         $dataPart2 = KeluargaPart2::where('keluarga_periode_kode', $keluargaKode)->first();
         $dataPart3 = KeluargaPart3::where('keluarga_periode_kode', $keluargaKode)->first();
         $dataPart4 = KeluargaPart4::where('keluarga_periode_kode', $keluargaKode)->get();
-        $anggota = KeluargaAnggota::where('keluarga_kode', $keluargaKode)
+        $anggota = KeluargaAnggota::where('keluarga_kode', $familyCode)
             ->orderBy('id')
             ->get();
         $dataPart5 = KeluargaPart5::where('keluarga_periode_kode', $keluargaKode)
@@ -4013,10 +4147,9 @@ foreach ($drafts as $draft) {
 
     public function resumeDraft($id)
     {
-        $draft = KeluargaPart1::where(
-            'id',
-            $id
-        )
+        $draft = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $this->selectedPeriodRelationCodes())
+            ->where('id', $id)
             ->where(
                 'status',
                 'draft'
