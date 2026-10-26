@@ -475,7 +475,7 @@ class RespondenWorkflowTest extends TestCase
 
     public function test_update_allows_existing_numbers_and_preserves_members_for_draft_questionnaire(): void
     {
-        $this->selectPeriod('Aktif');
+        $periodeId = $this->selectPeriod('Aktif');
         $familyId = DB::table('keluargas')->insertGetId([
             'kode' => 'KLG-DRAFT-TEST',
             'no_kk' => '3575090901850009',
@@ -496,31 +496,46 @@ class RespondenWorkflowTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KP-DRAFT-TEST',
+            'keluarga_kode' => 'KLG-DRAFT-TEST',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'status_kuisoner' => 'belum',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         DB::table('part1_keluarga')->insert([
-            'keluarga_periode_kode' => 'KLG-DRAFT-TEST',
+            'keluarga_periode_kode' => 'KP-DRAFT-TEST',
             'status' => 'draft',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        $this->put(route('responden.update', $familyId), [
-            'nomor_kk' => '3575090901850009',
-            'nik_kepala_keluarga' => '3575090901850010',
-            'nama_kepala_keluarga' => 'Kepala Keluarga Diperbarui',
-            'anggota' => [
-                [
-                    'id' => $memberId,
-                    'nik' => '3575090901850011',
-                    'nama_lengkap' => 'Anggota Lama',
-                    'status_keluarga' => 'Anak',
+        $this->withSession(['periode_id' => $periodeId])
+            ->getJson(route('responden.editData', $familyId))
+            ->assertJsonPath('status_kuisioner', 'draft')
+            ->assertJsonPath('anggota_terkunci', true)
+            ->assertJsonPath('anggota_penambahan_terkunci', false);
+
+        $this->withSession(['periode_id' => $periodeId])
+            ->put(route('responden.update', $familyId), [
+                'nomor_kk' => '3575090901850009',
+                'nik_kepala_keluarga' => '3575090901850010',
+                'nama_kepala_keluarga' => 'Kepala Keluarga Diperbarui',
+                'anggota' => [
+                    [
+                        'id' => $memberId,
+                        'nik' => '3575090901850011',
+                        'nama_lengkap' => 'Anggota Lama',
+                        'status_keluarga' => 'Anak',
+                    ],
+                    [
+                        'nik' => '3575090901850012',
+                        'nama_lengkap' => 'Anggota Baru',
+                        'status_keluarga' => 'Anak',
+                    ],
                 ],
-                [
-                    'nik' => '3575090901850012',
-                    'nama_lengkap' => 'Anggota Baru',
-                    'status_keluarga' => 'Anak',
-                ],
-            ],
-        ])->assertRedirect(route('responden.index'));
+            ])->assertRedirect(route('responden.index'));
 
         $this->assertDatabaseHas('keluargas', [
             'id' => $familyId,
@@ -537,6 +552,228 @@ class RespondenWorkflowTest extends TestCase
             'keluarga_kode' => 'KLG-DRAFT-TEST',
             'nik' => '3575090901850012',
             'nama_lengkap' => 'Anggota Baru',
+        ]);
+    }
+
+    public function test_update_allows_adding_members_when_draft_uses_legacy_family_code(): void
+    {
+        $periodeId = $this->selectPeriod('Aktif');
+        $familyId = DB::table('keluargas')->insertGetId([
+            'kode' => 'KLG-LEGACY-DRAFT',
+            'no_kk' => '3575090901850100',
+            'nik' => '3575090901850101',
+            'nama_lengkap' => 'Kepala Keluarga Draft',
+            'status_keluarga' => 'Kepala Keluarga',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $memberId = DB::table('keluarga_anggotas')->insertGetId([
+            'kode' => 'ANG-LEGACY-DRAFT',
+            'keluarga_kode' => 'KLG-LEGACY-DRAFT',
+            'nik' => '3575090901850102',
+            'nama_lengkap' => 'Anggota Terdaftar',
+            'status_keluarga' => 'Anak',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KP-LEGACY-DRAFT',
+            'keluarga_kode' => 'KLG-LEGACY-DRAFT',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'status_kuisoner' => 'belum',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('part1_keluarga')->insert([
+            'keluarga_periode_kode' => 'KLG-LEGACY-DRAFT',
+            'status' => 'draft',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->withSession(['periode_id' => $periodeId])
+            ->getJson(route('responden.editData', $familyId))
+            ->assertJsonPath('status_kuisioner', 'draft')
+            ->assertJsonPath('anggota_terkunci', true)
+            ->assertJsonPath('anggota_penambahan_terkunci', false);
+
+        $this->withSession(['periode_id' => $periodeId])
+            ->put(route('responden.update', $familyId), [
+                'nomor_kk' => '3575090901850100',
+                'nik_kepala_keluarga' => '3575090901850101',
+                'nama_kepala_keluarga' => 'Kepala Keluarga Draft',
+                'anggota' => [
+                    [
+                        'id' => $memberId,
+                        'nik' => '3575090901850102',
+                        'nama_lengkap' => 'Anggota Terdaftar',
+                        'status_keluarga' => 'Anak',
+                    ],
+                    [
+                        'nik' => '3575090901850103',
+                        'nama_lengkap' => 'Anggota Baru Draft',
+                        'status_keluarga' => 'Anak',
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('responden.index'));
+
+        $this->assertDatabaseHas('keluarga_anggotas', [
+            'id' => $memberId,
+            'keluarga_kode' => 'KLG-LEGACY-DRAFT',
+        ]);
+        $this->assertDatabaseHas('keluarga_anggotas', [
+            'keluarga_kode' => 'KLG-LEGACY-DRAFT',
+            'nik' => '3575090901850103',
+            'nama_lengkap' => 'Anggota Baru Draft',
+        ]);
+    }
+
+    public function test_update_uses_questionnaire_status_from_the_selected_period(): void
+    {
+        $periodeDraftId = DB::table('periodes')->insertGetId([
+            'kode' => 'PERIODE-DRAFT-SELECTED',
+            'nama' => 'Periode Draft',
+            'status_periode' => 'Aktif',
+        ]);
+        $periodeApprovedId = DB::table('periodes')->insertGetId([
+            'kode' => 'PERIODE-APPROVED-SELECTED',
+            'nama' => 'Periode Approved',
+            'status_periode' => 'Aktif',
+        ]);
+        $familyId = DB::table('keluargas')->insertGetId([
+            'kode' => 'KLG-MULTI-PERIOD-TEST',
+            'no_kk' => '3575090901880010',
+            'nik' => '3575090901880011',
+            'nama_lengkap' => 'Kepala Keluarga Periode',
+            'status_keluarga' => 'Kepala Keluarga',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $memberId = DB::table('keluarga_anggotas')->insertGetId([
+            'kode' => 'ANG-MULTI-PERIOD-TEST',
+            'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
+            'nik' => '3575090901880012',
+            'nama_lengkap' => 'Anggota Terdaftar',
+            'status_keluarga' => 'Anak',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('keluarga_periodes')->insert([
+            [
+                'kode' => 'KP-MULTI-PERIOD-DRAFT',
+                'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
+                'periode_kode' => 'PERIODE-DRAFT-SELECTED',
+                'status_kuisoner' => 'belum',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'KP-MULTI-PERIOD-APPROVED',
+                'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
+                'periode_kode' => 'PERIODE-APPROVED-SELECTED',
+                'status_kuisoner' => 'belum',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+        DB::table('part1_keluarga')->insert([
+            [
+                'keluarga_periode_kode' => 'KP-MULTI-PERIOD-DRAFT',
+                'status' => 'draft',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-MULTI-PERIOD-APPROVED',
+                'status' => 'approved',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $this->withSession(['periode_id' => $periodeDraftId])
+            ->getJson(route('responden.editData', $familyId))
+            ->assertJsonPath('status_kuisioner', 'draft')
+            ->assertJsonPath('anggota_penambahan_terkunci', false);
+
+        $this->withSession(['periode_id' => $periodeDraftId])
+            ->put(route('responden.update', $familyId), [
+                'nomor_kk' => '3575090901880010',
+                'nik_kepala_keluarga' => '3575090901880011',
+                'nama_kepala_keluarga' => 'Kepala Keluarga Periode',
+                'anggota' => [
+                    [
+                        'id' => $memberId,
+                        'nik' => '3575090901880012',
+                        'nama_lengkap' => 'Anggota Terdaftar',
+                        'status_keluarga' => 'Anak',
+                    ],
+                    [
+                        'nik' => '3575090901880013',
+                        'nama_lengkap' => 'Anggota Baru Draft',
+                        'status_keluarga' => 'Anak',
+                    ],
+                ],
+            ])
+            ->assertRedirect(route('responden.index'));
+
+        $this->withSession(['periode_id' => $periodeApprovedId])
+            ->getJson(route('responden.editData', $familyId))
+            ->assertJsonPath('status_kuisioner', 'approved')
+            ->assertJsonPath('anggota_penambahan_terkunci', true);
+
+        $this->withSession(['periode_id' => $periodeApprovedId])
+            ->put(route('responden.update', $familyId), [
+                'nomor_kk' => '3575090901880010',
+                'nik_kepala_keluarga' => '3575090901880011',
+                'nama_kepala_keluarga' => 'Kepala Keluarga Periode',
+                'anggota' => [],
+            ])
+            ->assertRedirect(route('responden.index'));
+
+        $this->assertDatabaseHas('keluarga_anggotas', [
+            'id' => $memberId,
+            'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
+        ]);
+
+        $this->withSession(['periode_id' => $periodeApprovedId])
+            ->put(route('responden.update', $familyId), [
+                'nomor_kk' => '3575090901880010',
+                'nik_kepala_keluarga' => '3575090901880011',
+                'nama_kepala_keluarga' => 'Kepala Keluarga Periode',
+                'anggota' => [
+                    [
+                        'id' => $memberId,
+                        'nik' => '3575090901880012',
+                        'nama_lengkap' => 'Anggota Terdaftar',
+                        'status_keluarga' => 'Anak',
+                    ],
+                    [
+                        'nik' => '3575090901880014',
+                        'nama_lengkap' => 'Anggota Baru Ditolak',
+                        'status_keluarga' => 'Anak',
+                    ],
+                ],
+            ])
+            ->assertSessionHasErrors('anggota');
+
+        $this->assertDatabaseHas('keluarga_anggotas', [
+            'id' => $memberId,
+            'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
+        ]);
+        $this->assertDatabaseHas('keluarga_anggotas', [
+            'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
+            'nik' => '3575090901880013',
+        ]);
+        $this->assertDatabaseMissing('keluarga_anggotas', [
+            'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
+            'nik' => '3575090901880014',
         ]);
     }
 
@@ -640,7 +877,7 @@ class RespondenWorkflowTest extends TestCase
         $this->withSession(['periode_id' => $periodeId]);
 
         foreach ([
-            'menunggu_verifikasi' => 'WAITING',
+            'Menunggu Verifikasi' => 'WAITING',
             'approved' => 'APPROVED',
         ] as $status => $suffix) {
             $familyCode = 'KLG-'.$suffix.'-TEST';

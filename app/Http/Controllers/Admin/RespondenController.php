@@ -36,7 +36,12 @@ class RespondenController extends Controller
                     ->where('status_keluarga', '!=', 'Kepala Keluarga')
                     ->orderBy('id');
             },
-        ]);
+        ])->whereIn('keluargas.kode', function ($subQuery) use ($periodeTerpilih) {
+            $subQuery
+                ->select('keluarga_kode')
+                ->from('keluarga_periodes')
+                ->where('periode_kode', $periodeTerpilih->kode);
+        });
 
         if ($search !== '') {
             $query->where(function ($query) use ($search) {
@@ -175,7 +180,9 @@ class RespondenController extends Controller
      */
     public function store(Request $request)
     {
-        if (! $this->getSelectedPeriode()) {
+        $periodeTerpilih = $this->getSelectedPeriode();
+
+        if (! $periodeTerpilih) {
             return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
         }
 
@@ -318,7 +325,7 @@ class RespondenController extends Controller
 
         $this->validasiNIKUnik($request);
 
-        DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request, $periodeTerpilih) {
 
             $createdBy =
                 auth()->user()?->name ?? 'admin';
@@ -381,6 +388,16 @@ class RespondenController extends Controller
                 'tanggal_entri' => now()->toDateString(),
 
                 'created_by' => $createdBy,
+            ]);
+
+            DB::table('keluarga_periodes')->insert([
+                'kode' => 'KLP-'.strtoupper(Str::random(10)),
+                'keluarga_kode' => $keluarga->kode,
+                'periode_kode' => $periodeTerpilih->kode,
+                'status_kuisoner' => 'belum',
+                'created_by' => $createdBy,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             // RT/RW berada langsung di tabel keluargas.
@@ -645,13 +662,13 @@ class RespondenController extends Controller
                 )
                 ->values();
 
-        $dataKuisioner = $this->getKuisionerUntukKeluarga($keluarga);
-        $anggotaTerkunci = $this->isAnggotaTerkunci($dataKuisioner?->status);
+        $statusKuisioner = $this->getStatusKuisionerUntukKeluarga($keluarga);
+        $anggotaTerkunci = $this->isAnggotaTerkunci($statusKuisioner);
 
         return response()->json([
             'anggota_terkunci' => $anggotaTerkunci,
-            'anggota_penambahan_terkunci' => $this->isPenambahanAnggotaTerkunci($dataKuisioner?->status),
-            'status_kuisioner' => $dataKuisioner->status ?? null,
+            'anggota_penambahan_terkunci' => $this->isPenambahanAnggotaTerkunci($statusKuisioner),
+            'status_kuisioner' => $statusKuisioner,
             'id' => $keluarga->id,
 
             'kode' => $keluarga->kode,
@@ -919,6 +936,10 @@ class RespondenController extends Controller
             $keluarga =
                 Keluarga::findOrFail($id);
 
+            $statusKuisioner = $this->getStatusKuisionerUntukKeluarga($keluarga);
+            $anggotaTerkunci = $this->isAnggotaTerkunci($statusKuisioner);
+            $anggotaMasuk = $request->input('anggota', []);
+
             /*
             |--------------------------------------------------------------------------
             | Cari NIK Kepala Keluarga
@@ -977,60 +998,19 @@ class RespondenController extends Controller
                 ]);
 
             /*
-|--------------------------------------------------------------------------
-| Perbarui anggota tanpa menghapus data lama
-|--------------------------------------------------------------------------
-*/
-
-foreach ($request->input('anggota', []) as $anggota) {
-    $statusKeluarga = trim(
-        (string) ($anggota['status_keluarga'] ?? '')
-    );
-
-    if ($statusKeluarga === 'Lainnya') {
-        $statusLainnya = trim(
-            (string) ($anggota['status_keluarga_lainnya'] ?? '')
-        );
-
-        if ($statusLainnya !== '') {
-            $statusKeluarga = $statusLainnya;
-        }
-    }
-
-    $anggotaLama = \App\Models\KeluargaAnggota::query()
-        ->where('keluarga_kode', $keluarga->kode)
-        ->where('nik', $anggota['nik'] ?? '')
-        ->first();
-
-    if ($anggotaLama) {
-        // Anggota sudah ada: perbarui datanya tanpa mengganti kode.
-        $anggotaLama->update([
-            'nama_lengkap' => $anggota['nama_lengkap'],
-            'status_keluarga' => $statusKeluarga,
-        ]);
-    } else {
-        // Anggota baru: buat data baru.
-        \App\Models\KeluargaAnggota::create([
-            'kode' => 'ANG-' . strtoupper(\Illuminate\Support\Str::random(10)),
-            'keluarga_kode' => $keluarga->kode,
-            'nik' => $anggota['nik'],
-            'nama_lengkap' => $anggota['nama_lengkap'],
-            'status_keluarga' => $statusKeluarga,
-        ]);
-    }
-}
-            /*
             |--------------------------------------------------------------------------
             | Simpan anggota terbaru
             |--------------------------------------------------------------------------
             */
 
-            foreach (
-                $request->input('anggota', []) as $anggota
-            ) {
-                throw ValidationException::withMessages([
-                    'anggota' => 'Anggota baru tidak dapat ditambahkan karena kuisioner sedang menunggu verifikasi atau telah disetujui.',
-                ]);
+            if ($this->isPenambahanAnggotaTerkunci($statusKuisioner)) {
+                foreach ($anggotaMasuk as $anggota) {
+                    if (empty($anggota['id'])) {
+                        throw ValidationException::withMessages([
+                            'anggota' => 'Anggota baru tidak dapat ditambahkan karena kuisioner sedang menunggu verifikasi atau telah disetujui.',
+                        ]);
+                    }
+                }
             }
 
             if (! $anggotaTerkunci) {
@@ -1152,26 +1132,86 @@ foreach ($request->input('anggota', []) as $anggota) {
         }
     }
 
+    private function normalisasiStatusKuisioner(?string $status): string
+    {
+        $status = strtolower(trim((string) $status));
+        $status = preg_replace('/[\s\-\/]+/u', '_', $status);
+
+        return trim((string) $status, '_');
+    }
+
     private function isAnggotaTerkunci(?string $status): bool
     {
-        // Anggota hanya boleh dihapus sebelum pendataan kuisioner dimulai.
-        // Draft maupun status setelah dikirim tetap mengunci penghapusan.
-        return trim((string) $status) !== '';
+        // Untuk semua status kuisioner yang sudah dimulai, anggota terdaftar
+        // tidak boleh dihapus. Status kosong/belum berarti kuisioner belum dimulai.
+        $status = $this->normalisasiStatusKuisioner($status);
+
+        return $status !== '' && ! in_array(
+            $status,
+            ['belum', 'belum_didata', 'not_processed', 'not_started'],
+            true
+        );
     }
 
     private function isPenambahanAnggotaTerkunci(?string $status): bool
     {
-        return in_array(
-            strtolower(trim((string) $status)),
-            [
-                'menunggu_verifikasi',
-                'selesai',
-                'pending',
-                'approved',
-                'disetujui',
-            ],
-            true
-        );
+        $status = $this->normalisasiStatusKuisioner($status);
+
+        // Draft dan Ditolak selalu boleh menambah anggota, termasuk jika nilai
+        // status memiliki awalan/akhiran tambahan dari proses aplikasi.
+        if (
+            $status === ''
+            || str_contains($status, 'draft')
+            || str_contains($status, 'ditolak')
+            || str_contains($status, 'rejected')
+        ) {
+            return false;
+        }
+
+        // Status Menunggu Verifikasi, Disetujui, Sudah Submit, dan status
+        // kuisioner lain yang telah diproses tetap terkunci.
+        return true;
+    }
+
+    /**
+     * Mengambil status kuisioner khusus untuk periode yang sedang dipilih.
+     * Jika Part 1 belum dibuat, gunakan status pada relasi keluarga-periode.
+     */
+    private function getStatusKuisionerUntukKeluarga(Keluarga $keluarga): ?string
+    {
+        $periodeTerpilih = $this->getSelectedPeriode();
+
+        if (! $periodeTerpilih) {
+            return null;
+        }
+
+        $keluargaPeriode = KeluargaPeriode::query()
+            ->where('keluarga_kode', $keluarga->kode)
+            ->where('periode_kode', $periodeTerpilih->kode)
+            ->first();
+
+        if (! $keluargaPeriode) {
+            return null;
+        }
+
+        $statusPart1 = KeluargaPart1::query()
+            ->where('keluarga_periode_kode', $keluargaPeriode->kode)
+            ->orderByDesc('id')
+            ->value('status');
+
+        if (
+            ! $statusPart1
+            && KeluargaPeriode::query()
+                ->where('keluarga_kode', $keluarga->kode)
+                ->count() === 1
+        ) {
+            $statusPart1 = KeluargaPart1::query()
+                ->where('keluarga_periode_kode', $keluarga->kode)
+                ->orderByDesc('id')
+                ->value('status');
+        }
+
+        return $statusPart1 ?: ($keluargaPeriode->status_kuisoner ?? null);
     }
 
     private function getSelectedPeriode(): ?Periode
