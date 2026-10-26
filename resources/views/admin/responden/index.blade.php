@@ -3072,7 +3072,16 @@ function syncJumlahAnggotaTambah() {
         return;
     }
 
-    let jumlahBaru = parseInt(input.value) || 0;
+    // Pertahankan data saat pengguna mengosongkan input untuk mengganti jumlah.
+    if (input.value.trim() === '') {
+        return;
+    }
+
+    let jumlahBaru = parseInt(input.value, 10);
+
+    if (Number.isNaN(jumlahBaru)) {
+        return;
+    }
 
     if (jumlahBaru < 0) {
         jumlahBaru = 0;
@@ -3086,11 +3095,13 @@ function syncJumlahAnggotaTambah() {
 
     let jumlahSekarang = container.querySelectorAll('.anggota-card').length;
 
+    // Saat jumlah bertambah, tambahkan kolom baru tanpa merender ulang kolom lama.
     while (jumlahSekarang < jumlahBaru) {
         tambahAnggota(false, null, false);
         jumlahSekarang++;
     }
 
+    // Saat jumlah dikurangi, hapus kolom dari urutan paling akhir.
     while (jumlahSekarang > jumlahBaru) {
         const cards = container.querySelectorAll('.anggota-card');
         const lastCard = cards[cards.length - 1];
@@ -3103,10 +3114,10 @@ function syncJumlahAnggotaTambah() {
         jumlahSekarang--;
     }
 
+    // Perbarui indeks field tanpa mengubah nilai input yang sudah diisi.
     const cards = container.querySelectorAll('.anggota-card');
 
     cards.forEach(function (card, cardIndex) {
-
         card.dataset.index = cardIndex;
 
         const number = card.querySelector('.anggota-number');
@@ -3120,14 +3131,20 @@ function syncJumlahAnggotaTambah() {
             title.textContent = 'Anggota Keluarga ' + (cardIndex + 1);
         }
 
-        card.querySelectorAll('[name^=\"anggota[\"]').forEach(function (field) {
-            field.name = field.name.replace(/^anggota\[\d+\]/, 'anggota[' + cardIndex + ']');
+        card.querySelectorAll('[name^="anggota["]').forEach(function (field) {
+            field.name = field.name.replace(
+                /^anggota\[\d+\]/,
+                'anggota[' + cardIndex + ']'
+            );
         });
 
         const removeButton = card.querySelector('.btn-hapus-anggota-baru');
 
         if (removeButton) {
-            removeButton.setAttribute('onclick', 'hapusAnggotaTambah(' + cardIndex + ')');
+            removeButton.setAttribute(
+                'onclick',
+                'hapusAnggotaTambah(' + cardIndex + ')'
+            );
         }
     });
 
@@ -3787,11 +3804,11 @@ window.editResponden = function (id) {
                 .trim()
                 .toLowerCase()
                 .replace(/[\s\-/]+/g, '_');
-            // Izinkan penambahan untuk semua variasi status Draft/Ditolak,
-            // misalnya draft_belum_submit atau kuisioner_draft. Status lain
-            // tetap terkunci, termasuk Menunggu Verifikasi dan Disetujui.
+            // Responden yang belum memulai pendataan juga boleh menambah anggota.
+            // Draft dan Ditolak tetap boleh; status verifikasi/submitted/disetujui terkunci.
             const statusBolehTambahAnggota =
                 statusKuisionerEdit === ''
+                || ['belum', 'belum_didata', 'not_processed', 'not_started'].includes(statusKuisionerEdit)
                 || statusKuisionerEdit.includes('draft')
                 || statusKuisionerEdit.includes('ditolak')
                 || statusKuisionerEdit.includes('rejected');

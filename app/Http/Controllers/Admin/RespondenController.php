@@ -1157,10 +1157,11 @@ class RespondenController extends Controller
     {
         $status = $this->normalisasiStatusKuisioner($status);
 
-        // Draft dan Ditolak selalu boleh menambah anggota, termasuk jika nilai
-        // status memiliki awalan/akhiran tambahan dari proses aplikasi.
+        // Responden yang belum memulai pendataan kuisioner boleh menambah
+        // anggota. Draft dan Ditolak juga tetap boleh menambah anggota.
         if (
             $status === ''
+            || in_array($status, ['belum', 'belum_didata', 'not_processed', 'not_started'], true)
             || str_contains($status, 'draft')
             || str_contains($status, 'ditolak')
             || str_contains($status, 'rejected')
