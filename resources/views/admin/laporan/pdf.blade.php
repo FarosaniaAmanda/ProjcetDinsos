@@ -91,14 +91,28 @@
         .map-coordinates {
             font-family: Helvetica, sans-serif;
             font-size: 9px;
-            color: #475569;
+            color: #000000;
             margin-top: 3px;
+        }
+
+        .pdf-leaflet-map {
+            display: block;
+            width: 100%;
+            max-width: 520px;
+            height: auto;
+            margin: 8px auto 5px;
+            border: 1px solid #dfe3ed;
+        }
+
+        .currency-answer {
+            font-weight: normal;
+            color: #000000;
         }
 
         .map-link {
             display: inline-block;
             margin-top: 5px;
-            color: #252a86;
+            color: #000000;
             text-decoration: none;
             font-size: 9px;
         }
@@ -382,6 +396,192 @@
                             }
                         }
 
+                        /*
+                        |------------------------------------------------------------------
+                        | GAMBAR PETA STATIS UNTUK PDF
+                        |------------------------------------------------------------------
+                        | PDF Dompdf tidak menjalankan JavaScript Leaflet. Jadi peta
+                        | Leaflet ditampilkan sebagai gambar peta OpenStreetMap statis
+                        | berdasarkan koordinat, lalu dikonversi menjadi base64.
+                        */
+                        $pdfMapImageSource = '';
+                        $mapValue = trim($answer);
+                        $mapCoordinates = null;
+
+                        if (
+                            $isMapAnswer
+                            && preg_match('/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/', $mapValue, $coordinateMatch)
+                        ) {
+                            $latitude = (float) $coordinateMatch[1];
+                            $longitude = (float) $coordinateMatch[2];
+
+                            if (
+                                $latitude >= -90 && $latitude <= 90
+                                && $longitude >= -180 && $longitude <= 180
+                            ) {
+                                $mapCoordinates = [$latitude, $longitude];
+
+                                /*
+                                 * Susun gambar peta dari tile OpenStreetMap.
+                                 * Cara ini menghasilkan peta jalan/bangunan seperti Leaflet
+                                 * di halaman web, tanpa bergantung pada layanan static-map.
+                                 */
+                                try {
+                                    if (
+                                        function_exists('imagecreatetruecolor')
+                                        && function_exists('imagecreatefromstring')
+                                        && function_exists('imagecopy')
+                                        && function_exists('imagecrop')
+                                    ) {
+                                        $zoom = 17;
+                                        $tileSize = 256;
+                                        $mapWidth = 800;
+                                        $mapHeight = 420;
+                                        $worldSize = $tileSize * (2 ** $zoom);
+                                        $safeLatitude = max(-85.05112878, min(85.05112878, $latitude));
+                                        $centerPixelX = (($longitude + 180) / 360) * $worldSize;
+                                        $latRadians = deg2rad($safeLatitude);
+                                        $centerPixelY = (1 - log(tan($latRadians) + (1 / cos($latRadians))) / M_PI) / 2 * $worldSize;
+
+                                        $tileStartX = (int) floor(($centerPixelX - ($mapWidth / 2)) / $tileSize);
+                                        $tileStartY = (int) floor(($centerPixelY - ($mapHeight / 2)) / $tileSize);
+                                        $tileEndX = (int) floor(($centerPixelX + ($mapWidth / 2)) / $tileSize);
+                                        $tileEndY = (int) floor(($centerPixelY + ($mapHeight / 2)) / $tileSize);
+
+                                        $tileColumns = $tileEndX - $tileStartX + 1;
+                                        $tileRows = $tileEndY - $tileStartY + 1;
+                                        $tileCanvas = imagecreatetruecolor($tileColumns * $tileSize, $tileRows * $tileSize);
+                                        $background = imagecolorallocate($tileCanvas, 242, 242, 242);
+                                        imagefill($tileCanvas, 0, 0, $background);
+                                        $allTilesLoaded = true;
+
+                                        for ($tileX = $tileStartX; $tileX <= $tileEndX; $tileX++) {
+                                            for ($tileY = $tileStartY; $tileY <= $tileEndY; $tileY++) {
+                                                $wrappedX = (($tileX % (2 ** $zoom)) + (2 ** $zoom)) % (2 ** $zoom);
+                                                $tileUrl = 'https://tile.openstreetmap.org/' . $zoom . '/' . $wrappedX . '/' . $tileY . '.png';
+                                                $tileBinary = false;
+
+                                                if (function_exists('curl_init')) {
+                                                    $tileCurl = curl_init($tileUrl);
+                                                    curl_setopt_array($tileCurl, [
+                                                        CURLOPT_RETURNTRANSFER => true,
+                                                        CURLOPT_FOLLOWLOCATION => true,
+                                                        CURLOPT_CONNECTTIMEOUT => 5,
+                                                        CURLOPT_TIMEOUT => 10,
+                                                        CURLOPT_USERAGENT => 'DinsosPasuruanPDF/1.0 (map image in report)',
+                                                        CURLOPT_HTTPHEADER => ['Accept: image/png'],
+                                                        CURLOPT_SSL_VERIFYPEER => true,
+                                                        CURLOPT_SSL_VERIFYHOST => 2,
+                                                    ]);
+                                                    $tileResponse = curl_exec($tileCurl);
+                                                    $tileStatus = (int) curl_getinfo($tileCurl, CURLINFO_HTTP_CODE);
+                                                    curl_close($tileCurl);
+                                                    if ($tileResponse !== false && $tileStatus === 200) {
+                                                        $tileBinary = $tileResponse;
+                                                    }
+                                                } else {
+                                                    $tileContext = stream_context_create([
+                                                        'http' => [
+                                                            'timeout' => 10,
+                                                            'user_agent' => 'DinsosPasuruanPDF/1.0 (map image in report)',
+                                                        ],
+                                                        'ssl' => ['verify_peer' => true, 'verify_peer_name' => true],
+                                                    ]);
+                                                    $tileResponse = @file_get_contents($tileUrl, false, $tileContext);
+                                                    if ($tileResponse !== false) {
+                                                        $tileBinary = $tileResponse;
+                                                    }
+                                                }
+
+                                                $tileImage = is_string($tileBinary) ? @imagecreatefromstring($tileBinary) : false;
+                                                if ($tileImage === false) {
+                                                    $allTilesLoaded = false;
+                                                    continue;
+                                                }
+
+                                                imagecopy(
+                                                    $tileCanvas,
+                                                    $tileImage,
+                                                    ($tileX - $tileStartX) * $tileSize,
+                                                    ($tileY - $tileStartY) * $tileSize,
+                                                    0,
+                                                    0,
+                                                    $tileSize,
+                                                    $tileSize
+                                                );
+                                                imagedestroy($tileImage);
+                                            }
+                                        }
+
+                                        if ($allTilesLoaded) {
+                                            $cropX = (int) round($centerPixelX - ($tileStartX * $tileSize) - ($mapWidth / 2));
+                                            $cropY = (int) round($centerPixelY - ($tileStartY * $tileSize) - ($mapHeight / 2));
+                                            $cropX = max(0, min(imagesx($tileCanvas) - $mapWidth, $cropX));
+                                            $cropY = max(0, min(imagesy($tileCanvas) - $mapHeight, $cropY));
+                                            $mapImage = imagecrop($tileCanvas, [
+                                                'x' => $cropX,
+                                                'y' => $cropY,
+                                                'width' => $mapWidth,
+                                                'height' => $mapHeight,
+                                            ]);
+
+                                            if ($mapImage !== false) {
+                                                // Penanda biru seperti marker pada peta Leaflet di halaman web.
+                                                $pinBlue = imagecolorallocate($mapImage, 35, 133, 205);
+                                                $pinDark = imagecolorallocate($mapImage, 25, 93, 155);
+                                                imagefilledellipse($mapImage, 400, 202, 25, 25, $pinDark);
+                                                imagefilledellipse($mapImage, 400, 201, 19, 19, $pinBlue);
+                                                imagefilledellipse($mapImage, 400, 201, 7, 7, imagecolorallocate($mapImage, 255, 255, 255));
+                                                imagefilledpolygon($mapImage, [390, 207, 410, 207, 400, 226], $pinDark);
+
+                                                // Atribusi wajib untuk peta OpenStreetMap.
+                                                $attributionColor = imagecolorallocate($mapImage, 45, 45, 45);
+                                                $attributionBg = imagecolorallocatealpha($mapImage, 255, 255, 255, 20);
+                                                imagefilledrectangle($mapImage, 570, 398, 797, 418, $attributionBg);
+                                                imagestring($mapImage, 2, 575, 402, '(c) OpenStreetMap contributors', $attributionColor);
+
+                                                ob_start();
+                                                imagepng($mapImage);
+                                                $mapBinary = ob_get_clean();
+                                                if (is_string($mapBinary) && $mapBinary !== '') {
+                                                    $pdfMapImageSource = 'data:image/png;base64,' . base64_encode($mapBinary);
+                                                }
+                                                imagedestroy($mapImage);
+                                            }
+                                        }
+
+                                        imagedestroy($tileCanvas);
+                                    }
+                                } catch (\Throwable $mapException) {
+                                    $pdfMapImageSource = '';
+                                }
+                            }
+                        }
+
+                        /*
+                        | Format nominal Part 3 menjadi Rupiah.
+                        | Format diterapkan pada pertanyaan yang jelas berkaitan
+                        | dengan nominal uang agar angka biasa tidak ikut berubah.
+                        */
+                        $isCurrencyQuestion = (string) $partNumber === '3'
+                            && preg_match(
+                                '/rupiah|pendapatan|penghasilan|pengeluaran|biaya|harga|upah|gaji|nominal|nilai bantuan|jumlah bantuan|penghasilan|uang/i',
+                                (string) $questionText
+                            );
+
+                        if ($isCurrencyQuestion && $answer !== '') {
+                            $numericAnswer = trim($answer);
+                            $numericAnswer = preg_replace('/^Rp\\.?\\s*/iu', '', $numericAnswer);
+                            $numericAnswer = str_replace([' ', '.'], '', $numericAnswer);
+                            $numericAnswer = str_replace(',', '.', $numericAnswer);
+
+                            if (is_numeric($numericAnswer)) {
+                                $amount = (float) $numericAnswer;
+                                $formattedAmount = number_format($amount, 0, ',', '.');
+                                $answer = 'Rp ' . $formattedAmount;
+                            }
+                        }
+
                         $displayAnswer =
                             $answer !== ''
                                 ? $answer
@@ -414,25 +614,41 @@
 
                             @elseif($isMapAnswer)
 
-                                @php
-                                    $mapValue = trim($answer);
-                                @endphp
-
                                 <div class="map-answer">
-                                    <strong>Titik lokasi pendataan</strong>
+                                    <strong>Lokasi Rumah / Geotagging</strong>
 
                                     @if($mapValue !== '')
-                                        <div class="map-coordinates">
-                                            Koordinat: {{ $mapValue }}
-                                        </div>
+                                        @if($mapCoordinates !== null)
+                                            @if($pdfMapImageSource !== '')
+                                                <img
+                                                    src="{{ $pdfMapImageSource }}"
+                                                    class="pdf-leaflet-map"
+                                                    alt="Peta lokasi rumah berdasarkan koordinat"
+                                                >
+                                            @else
+                                                <div class="map-coordinates">
+                                                    Gambar peta tidak dapat dimuat. Koordinat lokasi tetap tersedia di bawah.
+                                                </div>
+                                            @endif
 
-                                        @if(preg_match('/^-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?$/', $mapValue))
+                                            <div class="map-coordinates">
+                                                Koordinat: {{ $mapCoordinates[0] }}, {{ $mapCoordinates[1] }}
+                                            </div>
+
                                             @php
-                                                $mapUrl = 'https://www.google.com/maps?q=' . rawurlencode($mapValue);
+                                                $mapUrl = 'https://www.openstreetmap.org/?mlat='
+                                                    . rawurlencode((string) $mapCoordinates[0])
+                                                    . '&mlon=' . rawurlencode((string) $mapCoordinates[1])
+                                                    . '#map=16/' . rawurlencode((string) $mapCoordinates[0])
+                                                    . '/' . rawurlencode((string) $mapCoordinates[1]);
                                             @endphp
                                             <a class="map-link" href="{{ $mapUrl }}">
-                                                Lihat lokasi di Google Maps
+                                                Lihat lokasi di OpenStreetMap
                                             </a>
+                                        @else
+                                            <div class="map-coordinates">
+                                                Format koordinat tidak valid: {{ $mapValue }}
+                                            </div>
                                         @endif
                                     @else
                                         <div class="map-coordinates">
@@ -442,7 +658,11 @@
                                 </div>
 
                             @else
-                                {{ $displayAnswer }}
+                                @if($isCurrencyQuestion && $answer !== '')
+                                    <span class="currency-answer">{{ $displayAnswer }}</span>
+                                @else
+                                    {{ $displayAnswer }}
+                                @endif
                             @endif
                         </td>
                     </tr>

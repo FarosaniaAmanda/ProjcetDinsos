@@ -8,6 +8,8 @@
     $data = $laporan ?? collect();
 @endphp
  
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
  <style>
 
 /* Kartu alasan penolakan pada Detail Laporan */
@@ -1434,48 +1436,94 @@
    PETA GEOTAGGING PART 1
    ============================================================ */
 
+
 .laporan-part1-map-section {
-    margin-top: 18px;
-    padding: 16px;
+    grid-column: 1 / -1;
+    display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin-top: 12px;
+    padding: 12px;
     background: #f8fafc;
     border: 1px solid #e2e6f0;
     border-radius: 12px;
+    box-sizing: border-box;
 }
 
 .laporan-part1-map-title {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     color: #252a86;
     font-size: 14px;
     line-height: 1.4;
     font-weight: 700;
 }
 
-.laporan-part1-map-container {
+.laporan-part1-map-card {
+    display: block;
     width: 100%;
-    height: 320px;
+    max-width: none;
+    min-width: 0;
+    padding: 10px;
+    background: #f5f8fa;
+    border: 1px solid #e2e6f0;
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+.laporan-part1-map-container {
+    display: block;
+    width: 100%;
+    height: 260px;
+    min-width: 0;
     overflow: hidden;
     border: 1px solid #dfe3ee;
     border-radius: 10px;
     background: #eef2f7;
+    box-sizing: border-box;
 }
 
-.laporan-part1-map-container iframe {
-    display: block;
+.laporan-part1-map-container .leaflet-container {
     width: 100%;
     height: 100%;
-    border: 0;
 }
 
 .laporan-part1-coordinate {
-    margin-top: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px 12px;
     color: #64748b;
+    background: #fff;
+    border: 1px solid #dfe3ee;
+    border-radius: 8px;
     font-size: 12px;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
 }
 
 .laporan-part1-coordinate strong {
     color: #334155;
 }
+
+.laporan-part1-map-link {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 9px 12px;
+    background: #eef0ff;
+    border-radius: 8px;
+    color: #252a86;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+    .laporan-part1-map-container {
+        height: 220px;
+    }
+}
+
 
 
 /* ============================================================
@@ -3274,6 +3322,12 @@
     grid-column: 1 / -1;
 }
 
+#modalQuestionnaireContent .laporan-part1-map-section {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+}
+
 /* Pesan kosong juga memenuhi area */
 #modalQuestionnaireContent .questionnaire-content-body > .questionnaire-empty {
     grid-column: 1 / -1;
@@ -4352,6 +4406,8 @@
  
 </div> 
  
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script> 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -5044,6 +5100,41 @@ const usableQuestions = questions
            Peta ditampilkan di dalam Hasil Kuisioner Part 1.
         ===================================================== */
 
+        function initLaporanPart1Maps(container) {
+            if (typeof L === 'undefined') {
+                console.error('Leaflet belum dimuat.');
+                return;
+            }
+
+            container.querySelectorAll('.laporan-part1-map-container').forEach(function (element) {
+                if (element.dataset.mapInitialized === 'true') {
+                    return;
+                }
+
+                const lat = Number(element.dataset.lat);
+                const lng = Number(element.dataset.lng);
+
+                if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                    element.textContent = 'Koordinat lokasi tidak valid.';
+                    return;
+                }
+
+                const map = L.map(element, { scrollWheelZoom: false }).setView([lat, lng], 17);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(map);
+
+                L.marker([lat, lng]).addTo(map).bindPopup('Titik Lokasi Responden');
+                element.dataset.mapInitialized = 'true';
+
+                requestAnimationFrame(function () {
+                    map.invalidateSize();
+                });
+            });
+        }
+
         function renderPart1GeotagMap() {
 
             const source = item || {};
@@ -5091,34 +5182,50 @@ const usableQuestions = questions
                 `;
             }
 
-            const mapUrl =
-                'https://www.google.com/maps?q=' +
-                encodeURIComponent(lat + ',' + lng) +
-                '&z=17&output=embed';
+           
+const mapId = 'laporan-part1-map-' +
+    Date.now() + '-' +
+    Math.random().toString(36).slice(2, 8);
 
-            return `
-                <div class="laporan-part1-map-section">
-                    <div class="laporan-part1-map-title">
-                        Lokasi Geotagging
-                    </div>
+const mapUrl =
+    'https://www.openstreetmap.org/?mlat=' +
+    encodeURIComponent(lat) +
+    '&mlon=' +
+    encodeURIComponent(lng) +
+    '#map=17/' + lat + '/' + lng;
 
-                    <div class="laporan-part1-map-container">
-                        <iframe
-                            src="${mapUrl}"
-                            loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade"
-                            allowfullscreen
-                            title="Peta lokasi geotagging Part 1"
-                        ></iframe>
-                    </div>
+return `
+    <div class="laporan-part1-map-section">
+        <div class="laporan-part1-map-title">
+            Lokasi Rumah / Geotagging
+        </div>
 
-                    <div class="laporan-part1-coordinate">
-                        Latitude: <strong>${escapeHtml(lat)}</strong>
-                        &nbsp;&nbsp;|&nbsp;&nbsp;
-                        Longitude: <strong>${escapeHtml(lng)}</strong>
-                    </div>
-                </div>
-            `;
+        <div class="laporan-part1-map-card">
+            <div class="laporan-part1-coordinate">
+                Koordinat lokasi:
+                <strong>${escapeHtml(lat)}</strong>,
+                <strong>${escapeHtml(lng)}</strong>
+            </div>
+
+            <div
+                class="laporan-part1-map-container"
+                id="${mapId}"
+                data-lat="${escapeHtml(lat)}"
+                data-lng="${escapeHtml(lng)}"
+            ></div>
+
+            <a
+                class="laporan-part1-map-link"
+                href="${mapUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Buka lokasi di OpenStreetMap
+            </a>
+        </div>
+    </div>
+`;
+
         }
 
         /* =====================================================
@@ -5236,6 +5343,11 @@ const usableQuestions = questions
                 contentBody.classList.toggle('is-photo-part', photoPart);
                 contentBody.classList.toggle('is-map-part', mapPart);
                 contentBody.innerHTML = renderQuestions(selectedPart);
+
+                // Inisialisasi Leaflet setelah HTML Part 1 masuk ke halaman.
+                requestAnimationFrame(function () {
+                    initLaporanPart1Maps(contentBody);
+                });
             });
         });
 
