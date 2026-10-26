@@ -1191,7 +1191,10 @@ class RespondenController extends Controller
             ->first();
 
         if (! $keluargaPeriode) {
-            return null;
+            return KeluargaPart1::query()
+                ->where('keluarga_periode_kode', $keluarga->kode)
+                ->orderByDesc('id')
+                ->value('status');
         }
 
         $statusPart1 = KeluargaPart1::query()
@@ -1280,13 +1283,15 @@ class RespondenController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $dataKuisioner =
-            KeluargaPart1::where(
-                'keluarga_periode_kode',
-                $keluarga->kode
-            )
-                ->orderByDesc('id')
-                ->first();
+        $kodeRelasiPeriode = KeluargaPeriode::query()
+            ->where('keluarga_kode', $keluarga->kode)
+            ->pluck('kode');
+
+        $dataKuisioner = KeluargaPart1::query()
+            ->whereIn('keluarga_periode_kode', $kodeRelasiPeriode)
+            ->orWhere('keluarga_periode_kode', $keluarga->kode)
+            ->orderByDesc('id')
+            ->first();
 
         if ($dataKuisioner && $this->isAnggotaTerkunci($dataKuisioner->status)) {
             $status = strtolower(trim((string) ($dataKuisioner->status ?? '')));

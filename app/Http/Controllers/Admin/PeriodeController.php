@@ -254,6 +254,19 @@ class PeriodeController extends Controller
             ]);
         }
 
+        if ((int) session('periode_id') !== (int) $periode->id) {
+            session()->forget([
+                'draft_keluarga_id',
+                'selected_keluarga_kode',
+                'part1_selesai',
+                'part2_selesai',
+                'part3_selesai',
+                'part4_selesai',
+                'part5_selesai',
+                'editing_rejected_questionnaire',
+            ]);
+        }
+
         /*
         |--------------------------------------------------------------------------
         | Simpan periode aktif

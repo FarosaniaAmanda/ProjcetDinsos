@@ -1076,22 +1076,63 @@
                             <p style="margin:0 0 12px; color:#64748b; font-size:13px;">
                                 Koordinat: {{ $latitude }}, {{ $longitude }}
                             </p>
-                            <div style="width:100%; height:320px; overflow:hidden; border-radius:10px; border:1px solid #e2e8f0;">
-                                <iframe
-                                    title="Peta lokasi rumah"
-                                    width="100%"
-                                    height="320"
-                                    style="border:0;"
-                                    loading="lazy"
-                                    referrerpolicy="no-referrer-when-downgrade"
-                                    src="https://www.google.com/maps?q={{ $latitude }},{{ $longitude }}&z=16&output=embed">
-                                </iframe>
+                            
+                            <div
+                                id="leaflet-home-map"
+                                style="width:100%; height:320px; border-radius:10px; border:1px solid #e2e8f0; z-index:1;">
                             </div>
+
                             <p style="margin:12px 0 0;">
-                                <a href="https://www.google.com/maps?q={{ $latitude }},{{ $longitude }}" target="_blank" rel="noopener noreferrer" style="color:#252a86; font-weight:600; text-decoration:underline;">
-                                    Buka titik lokasi di Google Maps
+                                <a
+                                    href="https://www.openstreetmap.org/?mlat={{ $latitude }}&mlon={{ $longitude }}#map=16/{{ $latitude }}/{{ $longitude }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style="color:#252a86; font-weight:600; text-decoration:underline;">
+                                    Buka titik lokasi di OpenStreetMap
                                 </a>
                             </p>
+
+                            <link
+                                rel="stylesheet"
+                                href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+                            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+                            <script>
+                                (function () {
+                                    const latitude = Number(@json($latitude));
+                                    const longitude = Number(@json($longitude));
+                                    const mapElement = document.getElementById('leaflet-home-map');
+
+                                    if (
+                                        !mapElement ||
+                                        !Number.isFinite(latitude) ||
+                                        !Number.isFinite(longitude) ||
+                                        typeof L === 'undefined'
+                                    ) {
+                                        return;
+                                    }
+
+                                    if (mapElement._leaflet_id) {
+                                        return;
+                                    }
+
+                                    const map = L.map(mapElement).setView(
+                                        [latitude, longitude],
+                                        16
+                                    );
+
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                        maxZoom: 19
+                                    }).addTo(map);
+
+                                    L.marker([latitude, longitude])
+                                        .addTo(map)
+                                        .bindPopup('Lokasi Rumah')
+                                        .openPopup();
+                                })();
+                            </script>
                         @elseif($geoRaw !== '' && $geoRaw !== '-')
                             <p style="margin:0 0 10px; color:#64748b; font-size:13px;">Data geotagging tersimpan, tetapi format koordinatnya belum dapat dibaca sebagai latitude dan longitude.</p>
                             <div style="padding:12px; background:#f8fafc; border-radius:8px; overflow-wrap:anywhere;">{{ $geoRaw }}</div>

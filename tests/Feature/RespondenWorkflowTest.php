@@ -92,6 +92,7 @@ class RespondenWorkflowTest extends TestCase
             $table->string('jalan_rumah')->nullable();
             $table->string('nomor_rumah')->nullable();
             $table->boolean('is_alamat_sesuai')->nullable();
+            $table->text('alasan_tidak_sesuai')->nullable();
             $table->string('geotangging')->nullable();
             $table->string('status')->default('draft');
             $table->unsignedTinyInteger('current_part')->default(1);
@@ -176,9 +177,17 @@ class RespondenWorkflowTest extends TestCase
             'geotagging' => '-7.645321, 112.906543',
         ]);
 
-        $this->assertDatabaseHas('part1_keluarga', [
-            'no_kk' => '3575020101010001',
-            'alamat_lengkap' => 'Jl. Mawar No. 5, RT 001/RW 002',
+        $family = Keluarga::query()
+            ->where('no_kk', '3575020101010001')
+            ->firstOrFail();
+
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => $family->kode,
+            'periode_kode' => 'PERIODE-AKTIF',
+        ]);
+
+        $this->assertDatabaseMissing('part1_keluarga', [
+            'keluarga_periode_kode' => $family->kode,
         ]);
 
         $this->assertDatabaseHas('keluarga_anggotas', [
@@ -202,8 +211,8 @@ class RespondenWorkflowTest extends TestCase
             ->get(route('responden.index'))
             ->assertSeeInOrder([
                 'Kepala Keluarga Tes',
-                'Istri Tes',
                 'Anak Tes',
+                'Istri Tes',
             ])
             ->assertSee('Aktif');
     }
@@ -214,8 +223,10 @@ class RespondenWorkflowTest extends TestCase
         $createdAt = now();
 
         foreach (range(1, 12) as $number) {
+            $familyCode = 'KLG-'.str_pad((string) $number, 10, '0', STR_PAD_LEFT);
+
             DB::table('keluargas')->insert([
-                'kode' => 'KLG-'.str_pad((string) $number, 10, '0', STR_PAD_LEFT),
+                'kode' => $familyCode,
                 'no_kk' => '357502010101'.str_pad((string) $number, 4, '0', STR_PAD_LEFT),
                 'nik' => '357502010102'.str_pad((string) $number, 4, '0', STR_PAD_LEFT),
                 'nama_lengkap' => $number === 1 ? 'Nama Responden Terpencil' : 'Responden '.$number,
@@ -223,6 +234,15 @@ class RespondenWorkflowTest extends TestCase
                 'created_by' => 'admin',
                 'created_at' => $createdAt->copy()->subMinutes($number),
                 'updated_at' => $createdAt->copy()->subMinutes($number),
+            ]);
+
+            DB::table('keluarga_periodes')->insert([
+                'kode' => 'KLP-'.str_pad((string) $number, 10, '0', STR_PAD_LEFT),
+                'keluarga_kode' => $familyCode,
+                'periode_kode' => 'PERIODE-AKTIF',
+                'status_kuisoner' => 'belum',
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
             ]);
         }
 
@@ -264,6 +284,25 @@ class RespondenWorkflowTest extends TestCase
             'updated_at' => now(),
         ]);
 
+        DB::table('keluarga_periodes')->insert([
+            [
+                'kode' => 'KLP-PERIODE-AKTIF',
+                'keluarga_kode' => 'KLG-PERIODE-AKTIF',
+                'periode_kode' => 'PERIODE-2026',
+                'status_kuisoner' => 'belum',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'KLP-PERIODE-SELESAI',
+                'keluarga_kode' => 'KLG-PERIODE-NONAKTIF',
+                'periode_kode' => 'PERIODE-SELESAI',
+                'status_kuisoner' => 'belum',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
         $this->withSession(['periode_id' => $periodeId])
             ->withoutVite()
             ->get(route('responden.index'))
@@ -274,7 +313,9 @@ class RespondenWorkflowTest extends TestCase
                 'Aksi',
             ])
             ->assertSee('Aktif')
-            ->assertSee('10/09/2026');
+            ->assertSee('10/09/2026')
+            ->assertSee('Keluarga Aktif')
+            ->assertDontSee('Keluarga Nonaktif');
 
         $periodeSelesaiId = DB::table('periodes')->insertGetId([
             'kode' => 'PERIODE-SELESAI',
@@ -285,7 +326,9 @@ class RespondenWorkflowTest extends TestCase
         $this->withSession(['periode_id' => $periodeSelesaiId])
             ->withoutVite()
             ->get(route('responden.index'))
-            ->assertSee('Non Aktif');
+            ->assertSee('Non Aktif')
+            ->assertSee('Keluarga Nonaktif')
+            ->assertDontSee('Keluarga Aktif');
     }
 
     public function test_store_saves_rt_rw_and_geotagging(): void
@@ -394,6 +437,10 @@ class RespondenWorkflowTest extends TestCase
             ->assertSee('responden.index')
             ->assertSee((string) $periodeId);
 
+        $this->withoutVite()
+            ->get(route('periode.pilih', ['tujuan' => 'kuisioner.index']))
+            ->assertSee('periode-option disabled');
+
         $this->post(route('periode.set'), [
             'periode_id' => $periodeId,
             'tujuan' => 'responden.index',
@@ -419,10 +466,241 @@ class RespondenWorkflowTest extends TestCase
             'nama_kepala_keluarga' => 'Keluarga Periode Selesai',
         ])->assertRedirect(route('responden.index'));
 
+        $family = DB::table('keluargas')
+            ->where('no_kk', '3575020101010051')
+            ->first();
+
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => $family->kode,
+            'periode_kode' => 'PERIODE-SELESAI',
+        ]);
+
         $this->withoutVite()
             ->get(route('responden.index'))
             ->assertSee('Keluarga Periode Selesai')
             ->assertSee('Non Aktif');
+    }
+
+    public function test_questionnaire_selection_shows_only_respondents_linked_to_the_selected_period(): void
+    {
+        $this->selectPeriod('Aktif');
+
+        DB::table('keluargas')->insert([
+            [
+                'kode' => 'KLG-LINKED',
+                'no_kk' => '3575020101010071',
+                'nik' => '3575020101010072',
+                'nama_lengkap' => 'Responden Periode Ini',
+                'status_keluarga' => 'Kepala Keluarga',
+                'created_by' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'KLG-OTHER-PERIOD',
+                'no_kk' => '3575020101010081',
+                'nik' => '3575020101010082',
+                'nama_lengkap' => 'Responden Periode Lain',
+                'status_keluarga' => 'Kepala Keluarga',
+                'created_by' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'KLG-UNLINKED',
+                'no_kk' => '3575020101010091',
+                'nik' => '3575020101010092',
+                'nama_lengkap' => 'Responden Tanpa Relasi',
+                'status_keluarga' => 'Kepala Keluarga',
+                'created_by' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        DB::table('keluarga_periodes')->insert([
+            [
+                'kode' => 'KLP-LINKED',
+                'keluarga_kode' => 'KLG-LINKED',
+                'periode_kode' => 'PERIODE-AKTIF',
+                'status_kuisoner' => 'belum',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'KLP-OTHER-PERIOD',
+                'keluarga_kode' => 'KLG-OTHER-PERIOD',
+                'periode_kode' => 'PERIODE-SELESAI',
+                'status_kuisoner' => 'belum',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $this->withoutVite()
+            ->get(route('kuisioner.pilih-responden'))
+            ->assertSee('Responden Periode Ini')
+            ->assertDontSee('Responden Periode Lain')
+            ->assertDontSee('Responden Tanpa Relasi');
+    }
+
+    public function test_questionnaire_url_rejects_a_selected_non_active_period(): void
+    {
+        $this->selectPeriod('Selesai');
+
+        $this->get(route('kuisioner.index'))
+            ->assertRedirect(route('periode.pilih', ['tujuan' => 'kuisioner.index']))
+            ->assertSessionHas('error');
+    }
+
+    public function test_questionnaire_draft_uses_the_selected_family_period_relation_code(): void
+    {
+        $periodeId = $this->selectPeriod('Aktif');
+
+        DB::table('keluargas')->insert([
+            'kode' => 'KLG-PART1',
+            'no_kk' => '3575020101010101',
+            'nik' => '3575020101010102',
+            'nama_lengkap' => 'Kepala Keluarga Periode',
+            'status_keluarga' => 'Kepala Keluarga',
+            'rt' => '001',
+            'rw' => '002',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KLP-PART1',
+            'keluarga_kode' => 'KLG-PART1',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'status_kuisoner' => 'belum',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->withSession(['periode_id' => $periodeId])
+            ->withoutVite()
+            ->get(route('kuisioner.part1', ['keluarga' => 'KLG-PART1']))
+            ->assertSee('Kepala Keluarga Periode');
+
+        $this->withSession(['periode_id' => $periodeId])
+            ->post(route('kuisioner.part1.store'), [
+                'keluarga_kode' => 'KLG-PART1',
+                'nik' => '3575020101010102',
+                'nama_kepala_keluarga' => 'Kepala Keluarga Periode',
+                'no_kk' => '3575020101010101',
+                'jml_keluarga' => '1',
+                'provinsi' => 'Jawa Timur',
+                'daerah' => 'Kota Pasuruan',
+                'kecamatan' => 'Bugul Kidul',
+                'kelurahan' => 'Bakalan',
+                'kode_pos' => '67127',
+                'rt_rw' => '001/002',
+                'alamat_lengkap' => 'Jl. Mawar',
+                'jalan_rumah' => 'Jl. Mawar',
+                'nomor_rumah' => '5',
+                'is_alamat_sesuai' => '1',
+                'action' => 'draft',
+            ])
+            ->assertRedirect(route('kuisioner.index'))
+            ->assertSessionHas('selected_keluarga_kode', 'KLP-PART1');
+
+        $this->assertDatabaseHas('part1_keluarga', [
+            'keluarga_periode_kode' => 'KLP-PART1',
+            'status' => 'draft',
+        ]);
+
+        $draftId = DB::table('part1_keluarga')
+            ->where('keluarga_periode_kode', 'KLP-PART1')
+            ->value('id');
+
+        $this->get(route('kuisioner.draft.resume', $draftId))
+            ->assertRedirect(route('kuisioner.part1'))
+            ->assertSessionHas('selected_keluarga_kode', 'KLP-PART1');
+
+        Schema::create('part2_kondisi_rumahs', function (Blueprint $table): void {
+            $table->id();
+            $table->string('keluarga_periode_kode');
+        });
+        Schema::create('part3_keuangan_keluargas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('keluarga_periode_kode');
+        });
+        Schema::create('part4_aset_keluargas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('keluarga_periode_kode');
+            $table->string('aset_keluarga');
+        });
+        Schema::create('part5_anggota_keluargas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('keluarga_periode_kode');
+            $table->string('keluarga_anggota_kode');
+        });
+        Schema::create('part5_foto_rumahs', function (Blueprint $table): void {
+            $table->id();
+            $table->string('keluarga_periode_kode');
+            $table->string('jenis_foto');
+        });
+
+        $this->post(route('kuisioner.part1.store'), [
+            'keluarga_kode' => 'KLG-PART1',
+            'nik' => '3575020101010102',
+            'nama_kepala_keluarga' => 'Kepala Keluarga Periode',
+            'no_kk' => '3575020101010101',
+            'jml_keluarga' => '1',
+            'provinsi' => 'Jawa Timur',
+            'daerah' => 'Kota Pasuruan',
+            'kecamatan' => 'Bugul Kidul',
+            'kelurahan' => 'Bakalan',
+            'kode_pos' => '67127',
+            'rt_rw' => '001/002',
+            'alamat_lengkap' => 'Jl. Mawar',
+            'jalan_rumah' => 'Jl. Mawar',
+            'nomor_rumah' => '5',
+            'is_alamat_sesuai' => '1',
+            'action' => 'next',
+        ])->assertRedirect(route('kuisioner.part2'));
+
+        $this->assertDatabaseHas('part1_keluarga', [
+            'id' => $draftId,
+            'keluarga_periode_kode' => 'KLP-PART1',
+            'current_part' => 2,
+        ]);
+    }
+
+    public function test_responden_with_questionnaire_relation_cannot_be_deleted(): void
+    {
+        $this->selectPeriod('Aktif');
+        $familyId = DB::table('keluargas')->insertGetId([
+            'kode' => 'KLG-DELETE-GUARD',
+            'no_kk' => '3575090901850200',
+            'nik' => '3575090901850201',
+            'nama_lengkap' => 'Kepala Keluarga Tes',
+            'status_keluarga' => 'Kepala Keluarga',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KP-DELETE-GUARD',
+            'keluarga_kode' => 'KLG-DELETE-GUARD',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'status_kuisoner' => 'draft',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('part1_keluarga')->insert([
+            'keluarga_periode_kode' => 'KP-DELETE-GUARD',
+            'status' => 'draft',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->delete(route('responden.destroy', $familyId))
+            ->assertRedirect(route('responden.index'))
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('keluargas', ['id' => $familyId]);
     }
 
     public function test_update_rejects_a_new_member_with_an_existing_family_nik(): void
