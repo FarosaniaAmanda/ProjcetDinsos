@@ -78,6 +78,37 @@
             word-wrap: break-word;
         }
 
+        /* Part 5: satu tabel terpisah untuk setiap anggota keluarga. */
+        .part5-member-block {
+            margin: 0 0 14px;
+            page-break-inside: avoid;
+        }
+
+        .part5-member-heading {
+            margin: 10px 0 0;
+            padding: 8px 9px;
+            background: #f2f4fa;
+            border: 1px solid #dfe3ed;
+            border-bottom: 0;
+            color: #252a86;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .part5-member-heading span {
+            color: #475569;
+            font-weight: normal;
+        }
+
+        .part5-member-table {
+            margin: 0;
+        }
+
+        .part5-member-table th,
+        .part5-member-table td {
+            width: 50%;
+        }
+
         .question-photo {
             display: block;
             width: auto;
@@ -271,7 +302,7 @@
         @if ((string) $partNumber === '6')
             <table class="part6-photo-table">
                 <tbody>
-        @else
+        @elseif ((string) $partNumber !== '5')
             <table class="question-table">
                 <thead>
                     <tr>
@@ -292,48 +323,69 @@
                     $memberRelation = data_get($member, 'status_keluarga');
                 @endphp
 
-                @forelse(data_get($member, 'questions', []) as $question)
-                    @php
-                        $questionText = data_get($question, 'text')
-                            ?? data_get($question, 'question')
-                            ?? data_get($question, 'pertanyaan')
-                            ?? 'Pertanyaan';
-                        $answer = data_get($question, 'answer')
-                            ?? data_get($question, 'jawaban')
-                            ?? data_get($question, 'value')
-                            ?? '';
+                <div class="part5-member-block">
+                    <h4 class="part5-member-heading">
+                        {{ $memberName }}
+                        @if ($memberNik)
+                            <span>NIK: {{ $memberNik }}</span>
+                        @endif
+                        @if ($memberRelation)
+                            <span> — {{ $memberRelation }}</span>
+                        @endif
+                    </h4>
 
-                        if (is_array($answer) || is_object($answer)) {
-                            $answer = json_encode(
-                                $answer,
-                                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
-                            );
-                        }
+                    <table class="question-table part5-member-table">
+                        <thead>
+                            <tr>
+                                <th>Pertanyaan</th>
+                                <th>Jawaban</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse(data_get($member, 'questions', []) as $question)
+                                @php
+                                    $questionText = data_get($question, 'text')
+                                        ?? data_get($question, 'question')
+                                        ?? data_get($question, 'pertanyaan')
+                                        ?? 'Pertanyaan';
+                                    $answer = data_get($question, 'answer')
+                                        ?? data_get($question, 'jawaban')
+                                        ?? data_get($question, 'value')
+                                        ?? '';
 
-                        $memberIdentity = $memberName;
-
-                        if ($memberNik) {
-                            $memberIdentity .= ' (NIK: '.$memberNik.')';
-                        }
-
-                        if ($memberRelation) {
-                            $memberIdentity .= ' - '.$memberRelation;
-                        }
-                    @endphp
-                    <tr>
-                        <td>{{ $memberIdentity }} — {{ $questionText }}</td>
-                        <td>{{ trim((string) $answer) !== '' ? $answer : 'Belum diisi' }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td>{{ $memberName }}</td>
-                        <td class="muted">Belum ada jawaban pada bagian ini.</td>
-                    </tr>
-                @endforelse
+                                    if (is_array($answer) || is_object($answer)) {
+                                        $answer = json_encode(
+                                            $answer,
+                                            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                                        );
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>{{ $questionText }}</td>
+                                    <td>{{ trim((string) $answer) !== '' ? $answer : 'Belum diisi' }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2" class="muted">Belum ada jawaban pada bagian ini.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             @empty
-                <tr>
-                    <td colspan="2" class="muted">Belum ada jawaban pada bagian ini.</td>
-                </tr>
+                <table class="question-table">
+                    <thead>
+                        <tr>
+                            <th>Pertanyaan</th>
+                            <th>Jawaban</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="2" class="muted">Belum ada jawaban anggota keluarga pada bagian ini.</td>
+                        </tr>
+                    </tbody>
+                </table>
             @endforelse
         @else
         @forelse(($part['questions'] ?? []) as $questionIndex => $question)
@@ -865,8 +917,11 @@
                     @endif
                 @endforelse
         @endif
+
+        @if ((string) $partNumber !== '5')
             </tbody>
-        </table>
+            </table>
+        @endif
 
         @if(!$loop->last)
             <div style="height: 8px;"></div>

@@ -1977,6 +1977,37 @@ class MonitoringController extends VerifikasiController
                 )
                 ->values();
 
+        /*
+        |--------------------------------------------------------------------------
+        | URUTAN DATA BERDASARKAN STATUS
+        |--------------------------------------------------------------------------
+        | Urutan tabel Monitoring:
+        | 1. Menunggu Verifikasi
+        | 2. Draft
+        | 3. Disetujui
+        | 4. Ditolak
+        | 5. Belum Didata (status tambahan, jika ada)
+        |
+        | Pengurutan dilakukan sebelum filter status dan pagination,
+        | sehingga urutan tetap konsisten di semua halaman tabel.
+        */
+
+        $statusPriority = [
+            'pending' => 1,
+            'draft' => 2,
+            'approved' => 3,
+            'rejected' => 4,
+            'not_processed' => 5,
+        ];
+
+        $filteredData = $filteredData
+            ->sortBy(function ($item) use ($statusPriority) {
+                $status = (string) data_get($item, 'status', '');
+
+                return $statusPriority[$status] ?? 99;
+            })
+            ->values();
+
         if ($statusFilter !== 'all') {
             $filteredData =
                 $filteredData
