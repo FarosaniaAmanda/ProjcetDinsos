@@ -664,23 +664,39 @@
         }
 
         .btn-edit {
-            background: #fff8e5;
-            color: #a47a00;
-            border: 1px solid #f0dfaa;
+            height: 31px;
+            padding: 0 10px;
+            border: 1px solid #dfe1e8;
+            background: #fff;
+            color: #252A86;
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all .2s ease;
         }
 
         .btn-edit:hover {
-            background: #fff1c7;
+            background: #252A86;
+            border-color: #252A86;
+            color: #fff;
         }
 
         .btn-hapus {
-            background: #fdecec;
-            color: #c74343;
-            border: 1px solid #f5d4d4;
+            height: 31px;
+            padding: 0 10px;
+            border: 1px solid #edd5d5;
+            background: #fff7f7;
+            color: #b34a4a;
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 600;
+            transition: all .2s ease;
         }
 
         .btn-hapus:hover {
-            background: #fbdada;
+            background: #b34a4a;
+            border-color: #b34a4a;
+            color: #fff;
         }
 
 
