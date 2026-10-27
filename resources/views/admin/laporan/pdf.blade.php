@@ -61,8 +61,21 @@
             font-weight: bold;
         }
 
-        .question-table th:first-child {
-            width: 42%;
+        /*
+         * Tabel hasil kuisioner:
+         * kolom Pertanyaan dan Jawaban dibuat sama lebar (50% : 50%).
+         * table-layout: fixed menjaga ukuran kolom konsisten pada setiap halaman PDF.
+         */
+        .question-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .question-table th,
+        .question-table td {
+            width: 50%;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
         }
 
         .question-photo {
@@ -79,6 +92,72 @@
         .question-photo-missing {
             color: #64748b;
             font-style: italic;
+        }
+
+        /*
+         * Data Keluarga dan Pendataan:
+         * kolom kiri dan kanan dibuat sama lebar (50% : 50%).
+         */
+        .family-data-table {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        .family-data-table th,
+        .family-data-table td {
+            width: 50%;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+
+        /*
+         * Foto Rumah Part 6:
+         * tiga foto ditampilkan berdampingan dalam satu baris.
+         */
+        .part6-photo-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: separate;
+            border-spacing: 6px;
+        }
+
+        .part6-photo-cell {
+            width: 33.3333%;
+            padding: 7px;
+            border: 1px solid #e1e5ec;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        .part6-question-title {
+            display: block;
+            margin-bottom: 7px;
+            color: #263238;
+            font-weight: bold;
+            font-size: 9px;
+            line-height: 1.35;
+            text-align: left;
+        }
+
+        .part6-photo {
+            display: block;
+            width: 100%;
+            max-width: 170px;
+            height: 125px;
+            margin: 4px auto 0;
+            object-fit: contain;
+            border: 1px solid #dfe3ed;
+            border-radius: 5px;
+        }
+
+        .part6-photo-missing {
+            display: block;
+            min-height: 125px;
+            padding: 12px 5px;
+            color: #64748b;
+            font-style: italic;
+            font-size: 8px;
+            text-align: center;
         }
 
         .map-answer {
@@ -131,7 +210,7 @@
     <div class="subtitle">Satu keluarga berdasarkan data Verifikasi terbaru</div>
 
     <h2>Data Keluarga dan Pendataan</h2>
-    <table>
+    <table class="family-data-table">
         <tbody>
             <tr><th>No. KK</th><td>{{ $item['no_kk'] ?? '-' }}</td></tr>
             <tr><th>Kepala Keluarga</th><td>{{ $item['nama'] ?? '-' }}</td></tr>
@@ -189,15 +268,21 @@
 
         <h3>Part {{ $partNumber }}{{ $partTitle !== '' ? ' - ' . $partTitle : '' }}</h3>
 
-        <table class="question-table">
-            <thead>
-                <tr>
-                    <th>Pertanyaan</th>
-                    <th>Jawaban</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse(($part['questions'] ?? []) as $questionIndex => $question)
+        @if ((string) $partNumber === '6')
+            <table class="part6-photo-table">
+                <tbody>
+        @else
+            <table class="question-table">
+                <thead>
+                    <tr>
+                        <th>Pertanyaan</th>
+                        <th>Jawaban</th>
+                    </tr>
+                </thead>
+                <tbody>
+        @endif
+
+        @forelse(($part['questions'] ?? []) as $questionIndex => $question)
                     @php
                         $questionText =
                             data_get($question, 'question')
@@ -588,91 +673,142 @@
                                 : 'Belum diisi';
                     @endphp
 
-                    <tr>
-                        <td>
-                            {{ $questionText }}
-                        </td>
+                    @if ((string) $partNumber === '6')
+                        @if ($questionIndex % 3 === 0)
+                            <tr>
+                        @endif
 
-                        <td>
+                        <td class="part6-photo-cell">
+                            <span class="part6-question-title">
+                                {{ $questionText }}
+                            </span>
+
                             @if($isImageAnswer)
-
                                 @if($pdfImageSource !== '')
                                     <img
                                         src="{{ $pdfImageSource }}"
-                                        class="question-photo"
+                                        class="part6-photo"
                                         alt="{{ $questionText }}"
                                     >
                                 @elseif($imageSource !== '')
-                                    <span class="question-photo-missing">
-                                        File foto ditemukan, tetapi file tidak dapat dibaca oleh PDF.
+                                    <span class="part6-photo-missing">
+                                        File foto ditemukan, tetapi tidak dapat dibaca oleh PDF.
                                     </span>
                                 @else
-                                    <span class="question-photo-missing">
+                                    <span class="part6-photo-missing">
                                         File foto tidak tersedia.
                                     </span>
                                 @endif
-
-                            @elseif($isMapAnswer)
-
-                                <div class="map-answer">
-                                    <strong>Lokasi Rumah / Geotagging</strong>
-
-                                    @if($mapValue !== '')
-                                        @if($mapCoordinates !== null)
-                                            @if($pdfMapImageSource !== '')
-                                                <img
-                                                    src="{{ $pdfMapImageSource }}"
-                                                    class="pdf-leaflet-map"
-                                                    alt="Peta lokasi rumah berdasarkan koordinat"
-                                                >
-                                            @else
-                                                <div class="map-coordinates">
-                                                    Gambar peta tidak dapat dimuat. Koordinat lokasi tetap tersedia di bawah.
-                                                </div>
-                                            @endif
-
-                                            <div class="map-coordinates">
-                                                Koordinat: {{ $mapCoordinates[0] }}, {{ $mapCoordinates[1] }}
-                                            </div>
-
-                                            @php
-                                                $mapUrl = 'https://www.openstreetmap.org/?mlat='
-                                                    . rawurlencode((string) $mapCoordinates[0])
-                                                    . '&mlon=' . rawurlencode((string) $mapCoordinates[1])
-                                                    . '#map=16/' . rawurlencode((string) $mapCoordinates[0])
-                                                    . '/' . rawurlencode((string) $mapCoordinates[1]);
-                                            @endphp
-                                            <a class="map-link" href="{{ $mapUrl }}">
-                                                Lihat lokasi di OpenStreetMap
-                                            </a>
-                                        @else
-                                            <div class="map-coordinates">
-                                                Format koordinat tidak valid: {{ $mapValue }}
-                                            </div>
-                                        @endif
-                                    @else
-                                        <div class="map-coordinates">
-                                            Koordinat belum tersedia.
-                                        </div>
-                                    @endif
-                                </div>
-
                             @else
-                                @if($isCurrencyQuestion && $answer !== '')
-                                    <span class="currency-answer">{{ $displayAnswer }}</span>
-                                @else
+                                <span class="part6-photo-missing">
                                     {{ $displayAnswer }}
-                                @endif
+                                </span>
                             @endif
                         </td>
-                    </tr>
+
+                        @if ($questionIndex % 3 === 2 || $loop->last)
+                            @if ($loop->last && $questionIndex % 3 !== 2)
+                                @for ($emptyCell = ($questionIndex % 3) + 1; $emptyCell < 3; $emptyCell++)
+                                    <td class="part6-photo-cell"></td>
+                                @endfor
+                            @endif
+                            </tr>
+                        @endif
+                    @else
+                        <tr>
+                            <td>
+                                {{ $questionText }}
+                            </td>
+
+                            <td>
+                                @if($isImageAnswer)
+
+                                    @if($pdfImageSource !== '')
+                                        <img
+                                            src="{{ $pdfImageSource }}"
+                                            class="question-photo"
+                                            alt="{{ $questionText }}"
+                                        >
+                                    @elseif($imageSource !== '')
+                                        <span class="question-photo-missing">
+                                            File foto ditemukan, tetapi file tidak dapat dibaca oleh PDF.
+                                        </span>
+                                    @else
+                                        <span class="question-photo-missing">
+                                            File foto tidak tersedia.
+                                        </span>
+                                    @endif
+
+                                @elseif($isMapAnswer)
+
+                                    <div class="map-answer">
+                                        <strong>Lokasi Rumah / Geotagging</strong>
+
+                                        @if($mapValue !== '')
+                                            @if($mapCoordinates !== null)
+                                                @if($pdfMapImageSource !== '')
+                                                    <img
+                                                        src="{{ $pdfMapImageSource }}"
+                                                        class="pdf-leaflet-map"
+                                                        alt="Peta lokasi rumah berdasarkan koordinat"
+                                                    >
+                                                @else
+                                                    <div class="map-coordinates">
+                                                        Gambar peta tidak dapat dimuat. Koordinat lokasi tetap tersedia di bawah.
+                                                    </div>
+                                                @endif
+
+                                                <div class="map-coordinates">
+                                                    Koordinat: {{ $mapCoordinates[0] }}, {{ $mapCoordinates[1] }}
+                                                </div>
+
+                                                @php
+                                                    $mapUrl = 'https://www.openstreetmap.org/?mlat='
+                                                        . rawurlencode((string) $mapCoordinates[0])
+                                                        . '&mlon=' . rawurlencode((string) $mapCoordinates[1])
+                                                        . '#map=16/' . rawurlencode((string) $mapCoordinates[0])
+                                                        . '/' . rawurlencode((string) $mapCoordinates[1]);
+                                                @endphp
+                                                <a class="map-link" href="{{ $mapUrl }}">
+                                                    Lihat lokasi di OpenStreetMap
+                                                </a>
+                                            @else
+                                                <div class="map-coordinates">
+                                                    Format koordinat tidak valid: {{ $mapValue }}
+                                                </div>
+                                            @endif
+                                        @else
+                                            <div class="map-coordinates">
+                                                Koordinat belum tersedia.
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                @else
+                                    @if($isCurrencyQuestion && $answer !== '')
+                                        <span class="currency-answer">{{ $displayAnswer }}</span>
+                                    @else
+                                        {{ $displayAnswer }}
+                                    @endif
+                                @endif
+                            </td>
+                        </tr>
+                    @endif
 
                 @empty
-                    <tr>
-                        <td colspan="2" class="muted">
-                            Belum ada jawaban pada bagian ini.
-                        </td>
-                    </tr>
+                    @if ((string) $partNumber === '6')
+                        <tr>
+                            <td colspan="3" class="muted">
+                                Belum ada foto pada bagian ini.
+                            </td>
+                        </tr>
+                    @else
+                        <tr>
+                            <td colspan="2" class="muted">
+                                Belum ada jawaban pada bagian ini.
+                            </td>
+                        </tr>
+                    @endif
                 @endforelse
             </tbody>
         </table>

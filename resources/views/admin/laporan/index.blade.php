@@ -992,8 +992,8 @@
     }
 
     .laporan-stats {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        /* Mode mobile: satu card statistik dalam setiap baris */
+        grid-template-columns: minmax(0, 1fr);
 
         gap: 10px;
 
@@ -1072,8 +1072,8 @@
     }
 
     .laporan-stats {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        /* Layar kecil: tetap satu card per baris */
+        grid-template-columns: minmax(0, 1fr);
 
         gap: 8px;
     }
@@ -3598,6 +3598,49 @@
     }
 }
 
+/* FIX FOTO RUMAH PART 6 PADA MODE MOBILE */
+@media (max-width: 600px) {
+    #modalQuestionnaireContent .questionnaire-content-body.is-photo-part {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        overflow-x: hidden !important;
+    }
+
+    #modalQuestionnaireContent .questionnaire-content-body.is-photo-part
+    .questionnaire-photo-question {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    #modalQuestionnaireContent .questionnaire-content-body.is-photo-part
+    .questionnaire-answer-image {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        overflow: visible !important;
+    }
+
+    #modalQuestionnaireContent .questionnaire-content-body.is-photo-part
+    .questionnaire-answer-image img {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        max-width: 100% !important;
+        max-height: 360px !important;
+        aspect-ratio: auto !important;
+        object-fit: contain !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+}
+
 
 
 </style>
@@ -4910,7 +4953,7 @@ if (familyHeadName && modalHeadName) {
                             ${isImage
                                 ? `
                                     <div class="questionnaire-answer questionnaire-answer-image">
-                                        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(question.imageName || label)}" loading="lazy" onerror="this.closest('.questionnaire-answer').textContent='Gambar tidak dapat ditampilkan.'">
+                                        <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(question.imageName || label)}" loading="eager" decoding="async" onerror="this.closest('.questionnaire-answer').textContent='Gambar tidak dapat ditampilkan.'">
                                         <a class="questionnaire-image-link" href="${escapeHtml(imageUrl)}" target="_blank" rel="noopener noreferrer">Buka gambar</a>
                                     </div>
                                 `

@@ -2147,8 +2147,14 @@ color: #7652C8;
         .monitoring-questionnaire-sidebar {
             position: static;
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: minmax(0, 1fr) !important;
             gap: 8px;
+            width: 100%;
+        }
+
+        .monitoring-questionnaire-sidebar .monitoring-questionnaire-part {
+            width: 100% !important;
+            min-width: 0 !important;
         }
 
         .monitoring-questionnaire-sidebar-title {
@@ -2208,7 +2214,13 @@ color: #7652C8;
 
         .monitoring-questionnaire-sidebar {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: minmax(0, 1fr) !important;
+            width: 100%;
+        }
+
+        .monitoring-questionnaire-sidebar .monitoring-questionnaire-part {
+            width: 100% !important;
+            min-width: 0 !important;
         }
 
         .monitoring-questionnaire-part {
@@ -2596,15 +2608,16 @@ color: #7652C8;
    DETAIL MONITORING — 
 ========================================================= */
 
-/* Kartu pertanyaan Part 1-4 menggunakan grid dua kolom. */
+/* Hasil kuisioner: satu kartu pertanyaan dalam satu baris. */
 .monitoring-questionnaire-content-body {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     align-content: start !important;
     align-items: start !important;
     gap: 10px !important;
 }
 
+/* Foto rumah tetap ditampilkan dalam beberapa kolom agar proporsional. */
 .monitoring-questionnaire-content-body.monitoring-questionnaire-photo-part {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
@@ -3354,8 +3367,8 @@ color: #7652C8;
                 <select class="monitoring-filter-select" id="monitoringStatus" name="status" onchange="this.form.submit()">
                     <option value="all" @selected(($filters['status'] ?? 'all') === 'all')>Semua Status</option>
                     <option value="not_processed" @selected(($filters['status'] ?? '') === 'not_processed')>Belum Didata</option>
-                    <option value="draft" @selected(($filters['status'] ?? '') === 'draft')>Draft</option>
                     <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>Menunggu Verifikasi</option>
+                    <option value="draft" @selected(($filters['status'] ?? '') === 'draft')>Draft</option>
                     <option value="approved" @selected(($filters['status'] ?? '') === 'approved')>Disetujui</option>
                     <option value="rejected" @selected(($filters['status'] ?? '') === 'rejected')>Ditolak</option>
                 </select>
