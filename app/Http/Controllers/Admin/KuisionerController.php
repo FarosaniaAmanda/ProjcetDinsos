@@ -3506,6 +3506,10 @@ class KuisionerController extends Controller
 
     public function storePart5Foto(Request $request)
     {
+        $action = $request->input('action', 'final');
+        $isDraft = $action === 'draft';
+        $isAutosave = $action === 'upload';
+
         /*
         |--------------------------------------------------------------------------
         | AMBIL DRAFT AKTIF
@@ -3610,10 +3614,20 @@ class KuisionerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $action = $request->input('action', 'final');
-        $isDraft = $action === 'draft';
         $isEditingRejectedQuestionnaire = session('editing_rejected_questionnaire');
         $deleteFoto = $request->input('delete_foto', []);
+
+        if (
+            $isAutosave
+            && ! $request->hasFile('tampak_depan')
+            && ! $request->hasFile('ruang_tamu')
+            && ! $request->hasFile('kamar_mandi')
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pilih foto yang ingin disimpan.',
+            ], 422);
+        }
 
         $fotoTersimpan = KeluargaFotoRumah::where(
             'keluarga_periode_kode',
@@ -3626,7 +3640,7 @@ class KuisionerController extends Controller
             $fotoLamaAda = $fotoTersimpan->has($field);
             $ditandaiHapus = ! empty($deleteFoto[$field]);
 
-            $wajibUpload = ! $isDraft && (
+            $wajibUpload = ! $isDraft && ! $isAutosave && (
                 ! $fotoLamaAda || $ditandaiHapus
             );
 
@@ -3647,7 +3661,7 @@ class KuisionerController extends Controller
             '*.max' => 'Ukuran setiap foto maksimal 5 MB.',
         ]);
 
-        if (! $isDraft) {
+        if (! $isDraft && ! $isAutosave) {
             $completionIssues = $this->questionnaireCompletionIssues(
                 $draft,
                 $request
@@ -3776,6 +3790,15 @@ class KuisionerController extends Controller
                 }
             }
 
+            if ($isAutosave) {
+                DB::commit();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Foto rumah berhasil disimpan.',
+                ]);
+            }
+
             if ($isDraft) {
                 $draftAttributes = [
                     'current_part' => 5,
@@ -3893,6 +3916,13 @@ class KuisionerController extends Controller
         } catch (\Throwable $e) {
 
             DB::rollBack();
+
+            if ($isAutosave) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Foto rumah gagal disimpan. Silakan coba kembali.',
+                ], 500);
+            }
 
             return back()
                 ->withInput()

@@ -743,6 +743,7 @@
     <form
         id="form-foto-rumah"
         action="{{ route('kuisioner.part5.foto.store') }}"
+        data-upload-url="{{ route('kuisioner.part5.foto.store') }}"
         method="POST"
         enctype="multipart/form-data"
     >
@@ -1109,6 +1110,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form-foto-rumah');
     const choiceOverlay = document.getElementById('foto-choice-overlay');
     const choiceHeading = document.getElementById('foto-choice-heading');
     const choiceCamera = document.getElementById('foto-choice-camera');
@@ -1143,6 +1145,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let cameraFacing = 'environment';
     let cameraBusy = false;
     let previousBodyOverflow = '';
+    const uploadRequests = new Map();
+    const uploadVersions = new Map();
+    let pendingSubmit = false;
 
     function lockPage() {
         if (
@@ -1310,7 +1315,94 @@ document.addEventListener('DOMContentLoaded', function () {
         if (activeFilename) {
             activeFilename.textContent = file.name;
         }
+
+        queuePhotoSave(file, fieldName);
     }
+
+    async function savePhoto(file, fieldName, version) {
+        try {
+            const formData = new FormData();
+            formData.append('_token', form.querySelector('input[name="_token"]').value);
+            formData.append('action', 'upload');
+            formData.append(fieldName, file);
+
+            const response = await fetch(form.dataset.uploadUrl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+            const result = await response.json().catch(function () {
+                return {};
+            });
+
+            if (!response.ok || response.redirected || !result.success) {
+                const errors = result.errors ? Object.values(result.errors).flat() : [];
+                throw new Error(
+                    errors[0] || result.message || 'Foto rumah gagal disimpan.'
+                );
+            }
+
+            if (uploadVersions.get(fieldName) !== version) {
+                return;
+            }
+
+            const input = form.querySelector('input[name="' + fieldName + '"]');
+            input.value = '';
+        } catch (error) {
+            console.error('Foto rumah gagal disimpan:', error);
+        }
+    }
+
+    function queuePhotoSave(file, fieldName) {
+        const version = (uploadVersions.get(fieldName) || 0) + 1;
+        uploadVersions.set(fieldName, version);
+
+        const previousRequest = uploadRequests.get(fieldName) || Promise.resolve();
+        const uploadRequest = previousRequest
+            .then(function () {
+                return savePhoto(file, fieldName, version);
+            });
+
+        uploadRequests.set(fieldName, uploadRequest);
+        uploadRequest.then(function () {
+            if (uploadRequests.get(fieldName) === uploadRequest) {
+                uploadRequests.delete(fieldName);
+            }
+        });
+    }
+
+    form.addEventListener('submit', function (event) {
+        if (pendingSubmit) {
+            event.preventDefault();
+            return;
+        }
+
+        if (uploadRequests.size === 0) {
+            return;
+        }
+
+        event.preventDefault();
+        pendingSubmit = true;
+        const submitter = event.submitter;
+
+        (async function () {
+            while (uploadRequests.size > 0) {
+                await Promise.all(Array.from(uploadRequests.values()));
+            }
+
+            pendingSubmit = false;
+
+            if (submitter) {
+                form.requestSubmit(submitter);
+            } else {
+                form.requestSubmit();
+            }
+        })();
+    });
 
     /* Buka modal pilihan sumber foto */
     document.querySelectorAll('[data-foto-choice]').forEach(function (button) {

@@ -282,6 +282,60 @@
                 <tbody>
         @endif
 
+        @if ((string) $partNumber === '5')
+            @forelse(($part['members'] ?? []) as $member)
+                @php
+                    $memberName = data_get($member, 'nama')
+                        ?? data_get($member, 'nama_lengkap')
+                        ?? 'Anggota keluarga';
+                    $memberNik = data_get($member, 'nik');
+                    $memberRelation = data_get($member, 'status_keluarga');
+                @endphp
+
+                @forelse(data_get($member, 'questions', []) as $question)
+                    @php
+                        $questionText = data_get($question, 'text')
+                            ?? data_get($question, 'question')
+                            ?? data_get($question, 'pertanyaan')
+                            ?? 'Pertanyaan';
+                        $answer = data_get($question, 'answer')
+                            ?? data_get($question, 'jawaban')
+                            ?? data_get($question, 'value')
+                            ?? '';
+
+                        if (is_array($answer) || is_object($answer)) {
+                            $answer = json_encode(
+                                $answer,
+                                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                            );
+                        }
+
+                        $memberIdentity = $memberName;
+
+                        if ($memberNik) {
+                            $memberIdentity .= ' (NIK: '.$memberNik.')';
+                        }
+
+                        if ($memberRelation) {
+                            $memberIdentity .= ' - '.$memberRelation;
+                        }
+                    @endphp
+                    <tr>
+                        <td>{{ $memberIdentity }} — {{ $questionText }}</td>
+                        <td>{{ trim((string) $answer) !== '' ? $answer : 'Belum diisi' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td>{{ $memberName }}</td>
+                        <td class="muted">Belum ada jawaban pada bagian ini.</td>
+                    </tr>
+                @endforelse
+            @empty
+                <tr>
+                    <td colspan="2" class="muted">Belum ada jawaban pada bagian ini.</td>
+                </tr>
+            @endforelse
+        @else
         @forelse(($part['questions'] ?? []) as $questionIndex => $question)
                     @php
                         $questionText =
@@ -810,6 +864,7 @@
                         </tr>
                     @endif
                 @endforelse
+        @endif
             </tbody>
         </table>
 

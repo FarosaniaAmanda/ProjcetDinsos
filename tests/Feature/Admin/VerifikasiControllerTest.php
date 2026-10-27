@@ -2,12 +2,13 @@
 
 namespace Tests\Feature\Admin;
 
-use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\VerifikasiController;
 use App\Models\Keluarga;
 use App\Models\KeluargaPart1;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -638,6 +639,113 @@ class VerifikasiControllerTest extends TestCase
                 ->all()
         );
     }
+
+    public function test_laporan_pdf_renders_saved_answers_for_each_part5_member(): void
+    {
+        Schema::table('part5_anggota_keluargas', function (Blueprint $table): void {
+            foreach ([
+                'keberadaan',
+                'no_hp',
+                'jenis_kelamin',
+                'pekerjaan_utama',
+                'status_pekerjaan',
+            ] as $column) {
+                $table->string($column)->nullable();
+            }
+
+            $table->text('keluhan_kesehatan')->nullable();
+        });
+
+        $periodeId = DB::table('periodes')->insertGetId([
+            'kode' => 'PERIODE-PDF',
+            'nama' => 'Periode PDF',
+            'tgl_awal' => '2026-01-01 00:00:00',
+            'tgl_akhir' => '2026-12-31 23:59:59',
+            'status_periode' => 'Aktif',
+        ]);
+        session(['periode_id' => $periodeId]);
+
+        DB::table('keluargas')->insert([
+            'kode' => 'KELUARGA-PDF',
+            'no_kk' => 'KK-PDF',
+            'nik' => 'NIK-KEPALA-PDF',
+            'nama_lengkap' => 'Kepala Keluarga PDF',
+            'status_keluarga' => 'Kepala Keluarga',
+        ]);
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KP-PDF',
+            'keluarga_kode' => 'KELUARGA-PDF',
+            'periode_kode' => 'PERIODE-PDF',
+        ]);
+        $questionnaireId = DB::table('part1_keluarga')->insertGetId([
+            'keluarga_periode_kode' => 'KP-PDF',
+            'no_kk' => 'KK-PDF',
+            'nama_kepala_keluarga' => 'Kepala Keluarga PDF',
+            'jml_keluarga' => '3',
+            'status' => 'approved',
+            'current_part' => 5,
+        ]);
+
+        DB::table('keluarga_anggotas')->insert([
+            [
+                'kode' => 'ANGGOTA-PDF-1',
+                'keluarga_kode' => 'KELUARGA-PDF',
+                'nik' => 'NIK-ANGGOTA-PDF-1',
+                'nama_lengkap' => 'Anggota PDF Satu',
+                'status_keluarga' => 'Anak',
+            ],
+            [
+                'kode' => 'ANGGOTA-PDF-2',
+                'keluarga_kode' => 'KELUARGA-PDF',
+                'nik' => 'NIK-ANGGOTA-PDF-2',
+                'nama_lengkap' => 'Anggota PDF Dua',
+                'status_keluarga' => 'Istri',
+            ],
+        ]);
+        DB::table('part5_anggota_keluargas')->insert([
+            [
+                'keluarga_periode_kode' => 'KP-PDF',
+                'keluarga_anggota_kode' => 'ANGGOTA-PDF-1',
+                'keberadaan' => 'Ada - Rumah',
+                'no_hp' => '0811111111',
+                'jenis_kelamin' => 'Laki-laki',
+                'pekerjaan_utama' => 'Pelajar',
+                'status_pekerjaan' => 'Tidak Bekerja',
+                'keluhan_kesehatan' => 'Asma',
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-PDF',
+                'keluarga_anggota_kode' => 'ANGGOTA-PDF-2',
+                'keberadaan' => 'Ada - Rumah',
+                'no_hp' => '0822222222',
+                'jenis_kelamin' => 'Perempuan',
+                'pekerjaan_utama' => 'Guru',
+                'status_pekerjaan' => 'Pegawai',
+                'keluhan_kesehatan' => 'Migrain',
+            ],
+        ]);
+
+        $item = (new TestableLaporanController)
+            ->reportRows()
+            ->firstWhere('id', $questionnaireId);
+        $html = view('admin.laporan.pdf', ['item' => $item])->render();
+        $pdfResponse = (new TestableLaporanController)->pdf($questionnaireId);
+
+        $this->assertStringContainsString('Anggota PDF Satu', $html);
+        $this->assertStringContainsString('NIK-ANGGOTA-PDF-1', $html);
+        $this->assertStringContainsString('0811111111', $html);
+        $this->assertStringContainsString('Laki-laki', $html);
+        $this->assertStringContainsString('Pelajar', $html);
+        $this->assertStringContainsString('Asma', $html);
+        $this->assertStringContainsString('Anggota PDF Dua', $html);
+        $this->assertStringContainsString('NIK-ANGGOTA-PDF-2', $html);
+        $this->assertStringContainsString('0822222222', $html);
+        $this->assertStringContainsString('Perempuan', $html);
+        $this->assertStringContainsString('Guru', $html);
+        $this->assertStringContainsString('Migrain', $html);
+        $this->assertSame('application/pdf', $pdfResponse->headers->get('Content-Type'));
+        $this->assertStringStartsWith('%PDF-', $pdfResponse->getContent());
+    }
 }
 
 class TestableVerifikasiController extends VerifikasiController
@@ -702,7 +810,7 @@ class TestableMonitoringController extends MonitoringController
 
 class TestableLaporanController extends LaporanController
 {
-    public function reportRows(?array $filters = null): \Illuminate\Support\Collection
+    public function reportRows(?array $filters = null): Collection
     {
         return $this->eligibleRows($filters);
     }

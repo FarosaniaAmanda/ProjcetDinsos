@@ -3,8 +3,10 @@
 namespace Tests\Feature\Admin;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class KuisionerControllerTest extends TestCase
@@ -236,6 +238,118 @@ class KuisionerControllerTest extends TestCase
             ->assertSee('Responden Disetujui')
             ->assertSee('Jl. Melati')
             ->assertDontSee('Responden Ditolak');
+    }
+
+    public function test_part5_photo_upload_saves_without_draft_and_reuses_the_existing_record(): void
+    {
+        Schema::dropIfExists('keluarga_anggotas');
+        Schema::dropIfExists('part5_anggota_keluargas');
+        Schema::dropIfExists('part5_foto_rumahs');
+
+        Schema::create('keluarga_anggotas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('kode');
+            $table->string('keluarga_kode');
+        });
+
+        Schema::create('part5_anggota_keluargas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('keluarga_periode_kode');
+            $table->string('keluarga_anggota_kode');
+        });
+
+        $migration = require database_path(
+            'migrations/2026_10_09_021412_create_part5_foto_rumahs_table.php'
+        );
+        $migration->up();
+
+        $this->linkFamily('KLG-FOTO-001', 'KLP-FOTO-001');
+
+        $questionnaireId = DB::table('part1_keluarga')->insertGetId([
+            'keluarga_periode_kode' => 'KLP-FOTO-001',
+            'status' => 'draft',
+            'current_part' => 5,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->withSession([
+            'draft_keluarga_id' => $questionnaireId,
+            'selected_keluarga_kode' => 'KLP-FOTO-001',
+        ]);
+        Storage::fake('public');
+
+        $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route('kuisioner.part5.foto.store'), [
+            'action' => 'upload',
+        ])->assertUnprocessable()->assertJson([
+            'success' => false,
+            'message' => 'Pilih foto yang ingin disimpan.',
+        ]);
+        $this->assertDatabaseCount('part5_foto_rumahs', 0);
+
+        $upload = fn (string $field) => $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->post(route('kuisioner.part5.foto.store'), [
+            'action' => 'upload',
+            $field => UploadedFile::fake()->image($field.'.png'),
+        ]);
+
+        $upload('tampak_depan')->assertOk()->assertJson([
+            'success' => true,
+        ]);
+        $firstPath = DB::table('part5_foto_rumahs')->value('path_file');
+
+        $upload('tampak_depan')->assertOk()->assertJson([
+            'success' => true,
+        ]);
+        $secondPath = DB::table('part5_foto_rumahs')->value('path_file');
+
+        foreach (['ruang_tamu', 'kamar_mandi'] as $field) {
+            $upload($field)->assertOk()->assertJson([
+                'success' => true,
+            ]);
+        }
+
+        $this->assertDatabaseCount('part5_foto_rumahs', 3);
+        $this->assertNotSame($firstPath, $secondPath);
+        Storage::disk('public')->assertMissing($firstPath);
+        Storage::disk('public')->assertExists($secondPath);
+        foreach (['ruang_tamu', 'kamar_mandi'] as $field) {
+            $path = DB::table('part5_foto_rumahs')
+                ->where('jenis_foto', $field)
+                ->value('path_file');
+
+            $this->assertDatabaseHas('part5_foto_rumahs', [
+                'keluarga_periode_kode' => 'KLP-FOTO-001',
+                'jenis_foto' => $field,
+                'path_file' => $path,
+            ]);
+            Storage::disk('public')->assertExists($path);
+        }
+        $this->assertDatabaseHas('part1_keluarga', [
+            'id' => $questionnaireId,
+            'status' => 'draft',
+            'current_part' => 5,
+        ]);
+
+        $this->withoutVite()
+            ->get(route('kuisioner.part5.foto'))
+            ->assertOk()
+            ->assertSee(
+                'data-upload-url="'.route('kuisioner.part5.foto.store').'"',
+                false
+            )
+            ->assertSee(asset('storage/'.$secondPath), false)
+            ->assertDontSee('Foto berhasil disimpan.')
+            ->assertDontSee('Foto sudah tersimpan di server.');
+
+        $this->post(route('kuisioner.part5.foto.store'), [
+            'action' => 'draft',
+        ])->assertRedirect(route('kuisioner.index'))
+            ->assertSessionHas('success', 'Foto rumah berhasil disimpan sebagai draft.');
+        $this->assertDatabaseCount('part5_foto_rumahs', 3);
     }
 
     private function linkFamily(string $familyCode, string $relationCode): void
