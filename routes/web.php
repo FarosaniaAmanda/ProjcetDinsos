@@ -10,9 +10,9 @@ use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\RespondenController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
@@ -115,9 +115,7 @@ Route::post('/profil/ubah-password', function (Request $request) {
 
     $userId = Auth::id();
 
-    $user = DB::table('users')
-        ->where('id', $userId)
-        ->first();
+    $user = User::find($userId);
 
     if (! $user) {
         Auth::logout();
@@ -151,10 +149,9 @@ Route::post('/profil/ubah-password', function (Request $request) {
     */
 
     if (
-        str_starts_with(
-            $passwordDatabase,
-            '$2y$'
-        )
+        str_starts_with($passwordDatabase, '$2')
+        || str_starts_with($passwordDatabase, '$argon')
+        || str_starts_with($passwordDatabase, '$pbkdf2')
     ) {
 
         $passwordBenar = Hash::check(
@@ -196,15 +193,8 @@ Route::post('/profil/ubah-password', function (Request $request) {
     |
     */
 
-    DB::table('users')
-        ->where('id', $userId)
-        ->update([
-
-            'password' => $request->input('password_baru'),
-
-            'updated_at' => now(),
-
-        ]);
+    $user->password = $request->input('password_baru');
+    $user->save();
 
     /*
     |--------------------------------------------------------------------------

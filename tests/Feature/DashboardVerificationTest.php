@@ -22,12 +22,23 @@ class DashboardVerificationTest extends TestCase
         Schema::dropIfExists('part2_kondisi_rumahs');
         Schema::dropIfExists('part1_keluarga');
         Schema::dropIfExists('keluargas');
+        Schema::dropIfExists('keluarga_periodes');
         Schema::dropIfExists('kecamatans');
         Schema::dropIfExists('periodes');
 
         Schema::create('periodes', function (Blueprint $table): void {
             $table->id();
+            $table->string('kode')->unique();
+            $table->string('nama');
             $table->string('status_periode');
+            $table->timestamps();
+        });
+
+        Schema::create('keluarga_periodes', function (Blueprint $table): void {
+            $table->id();
+            $table->string('kode')->unique();
+            $table->string('periode_kode');
+            $table->string('keluarga_kode');
             $table->timestamps();
         });
 
@@ -116,6 +127,93 @@ class DashboardVerificationTest extends TestCase
 
                 return true;
             });
+    }
+
+    public function test_dashboard_filter_updates_all_period_data_for_the_selected_period(): void
+    {
+        $selectedPeriodKode = 'PER-2026-1';
+        $otherPeriodKode = 'PER-2026-2';
+
+        DB::table('periodes')->insert([
+            [
+                'kode' => $selectedPeriodKode,
+                'nama' => 'Periode 1',
+                'status_periode' => 'selesai',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => $otherPeriodKode,
+                'nama' => 'Periode 2',
+                'status_periode' => 'aktif',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $selectedFamilyCode = $this->createVerificationRecord(1, 'pending');
+        $otherFamilyCode = $this->createVerificationRecord(2, 'approved');
+
+        DB::table('kecamatans')->insert([
+            'kecamatan_id' => 'KEC-001',
+            'deskripsi' => 'Kecamatan Tes',
+        ]);
+
+        DB::table('keluargas')
+            ->whereIn('kode', [$selectedFamilyCode, $otherFamilyCode])
+            ->update(['kecamatan_id' => 'KEC-001']);
+
+        DB::table('keluarga_periodes')->insert([
+            [
+                'kode' => 'KLP-001',
+                'periode_kode' => $selectedPeriodKode,
+                'keluarga_kode' => $selectedFamilyCode,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'KLP-002',
+                'periode_kode' => $otherPeriodKode,
+                'keluarga_kode' => $otherFamilyCode,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $response = $this->get(route('dashboard', [
+            'periode_kode' => $selectedPeriodKode,
+        ]));
+
+        $response
+            ->assertOk()
+            ->assertViewHas('selectedPeriodKode', $selectedPeriodKode)
+            ->assertViewHas('totalResponden', 1)
+            ->assertViewHas('jumlahDisetujui', 0)
+            ->assertViewHas('jumlahMenungguVerifikasi', 1)
+            ->assertViewHas('jumlahDitolak', 0)
+            ->assertViewHas('rekapPeriode', function ($periodes) use ($selectedPeriodKode): bool {
+                $this->assertCount(1, $periodes);
+                $this->assertSame($selectedPeriodKode, $periodes->first()->kode);
+                $this->assertSame(1, $periodes->first()->total_responden);
+                $this->assertSame(1, $periodes->first()->jumlah_menunggu_verifikasi);
+
+                return true;
+            })
+            ->assertViewHas('persebaranKecamatan', function ($kecamatan): bool {
+                $this->assertCount(1, $kecamatan);
+                $this->assertSame(1, $kecamatan->first()->total_responden);
+
+                return true;
+            })
+            ->assertViewHas('kuisionerTerakhir', function (LengthAwarePaginator $items): bool {
+                $this->assertSame(1, $items->total());
+
+                return true;
+            });
+
+        $response
+            ->assertSee('Keluarga 1')
+            ->assertDontSee('Keluarga 2');
     }
 
     public function test_dashboard_questionnaire_table_paginates_five_verification_records_per_page(): void

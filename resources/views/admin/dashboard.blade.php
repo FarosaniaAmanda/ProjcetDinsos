@@ -319,14 +319,6 @@
             padding: 30px;
         }
 
-        .page-kicker {
-            margin-bottom: 7px;
-            color: #252A86;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-        }
-
         .page-title {
             margin-bottom: 8px;
             color: #252A86;
@@ -379,10 +371,12 @@
 
         /* KARTU STATISTIK */
         .stats-grid {
+            position: relative;
             display: grid;
             grid-template-columns: repeat(4, minmax(0,1fr));
             gap: 12px;
             margin-bottom: 22px;
+            padding-top: 64px;
         }
 
         .stat-card {
@@ -834,6 +828,30 @@
             color: #9ca3af !important;
         }
 
+
+        /* KARTU UTAMA DASHBOARD: latar belakang luar + panel besar di dalamnya */
+        .dashboard-panel {
+            width: auto;
+            margin: 8px 35px 24px;
+            padding: 28px;
+            background: #fff;
+            border: 1px solid #e1e5f0;
+            border-radius: 18px;
+            box-shadow: 0 5px 20px rgba(41,45,143,.045);
+        }
+
+        .dashboard-panel .welcome-card {
+            border-radius: 12px;
+             margin-top: -8px;
+        }
+
+        .dashboard-panel .stat-card,
+        .dashboard-panel .chart-card,
+        .dashboard-panel .questionnaire-card,
+        .dashboard-panel .period-card {
+            box-shadow: 0 3px 12px rgba(41,45,143,.035);
+        }
+
         /* RESPONSIVE */
         @media (max-width: 1100px) {
             .stats-grid {
@@ -906,6 +924,11 @@
                 padding: 20px;
             }
 
+            .dashboard-panel {
+                margin: 8px 8px 20px;
+                padding: 22px;
+            }
+
             .dashboard-chart-grid {
                 grid-template-columns: 1fr;
             }
@@ -946,6 +969,12 @@
 
             .content {
                 padding: 16px 12px 28px;
+            }
+
+            .dashboard-panel {
+                margin: 4px 0 18px;
+                padding: 15px;
+                border-radius: 14px;
             }
 
             .page-title {
@@ -1100,17 +1129,23 @@
 
         /* FILTER PERIODE DASHBOARD */
         .period-filter-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-end;
             gap: 14px;
             flex-wrap: wrap;
-            margin: 22px 0;
-            padding: 16px 18px;
-            background: #fff;
-            border: 1px solid #e7eaf2;
-            border-radius: 12px;
-            box-shadow: 0 3px 12px rgba(20, 35, 90, .04);
+            width: 300px;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            z-index: 2;
         }
 
         .period-filter-copy {
@@ -1135,18 +1170,56 @@
             align-items: center;
             gap: 8px;
             flex-wrap: wrap;
+            width: 100%;
+            min-width: 0;
         }
 
         .period-filter-select {
-            min-width: 220px;
+            display: block;
+            width: 100%;
+            min-width: 0;
             max-width: 100%;
-            padding: 10px 12px;
+            box-sizing: border-box;
+            padding: 9px 11px;
             border: 1px solid #d9deea;
             border-radius: 8px;
             background: #fff;
             color: #283044;
             font: inherit;
             font-size: 13px;
+        }
+
+        /* Indikator kecil saat periode sedang diganti */
+        .period-filter-panel {
+            position: absolute;
+        }
+
+        .period-filter-loading {
+            display: none;
+            position: absolute;
+            right: 29px;
+            top: 50%;
+            width: 13px;
+            height: 13px;
+            margin-top: -7px;
+            border: 2px solid #dfe4f4;
+            border-top-color: #252A86;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .period-filter-panel.is-loading .period-filter-loading {
+            display: block;
+            animation: periodSpin .7s linear infinite;
+        }
+
+        .period-filter-panel.is-loading .period-filter-select {
+            border-color: #aeb8e8;
+            background-color: #fafbff;
+        }
+
+        @keyframes periodSpin {
+            to { transform: rotate(360deg); }
         }
 
         .period-filter-button {
@@ -1170,8 +1243,21 @@
         }
 
         @media (max-width: 600px) {
+            .stats-grid {
+                padding-top: 76px;
+            }
+
             .period-filter-panel {
-                align-items: stretch;
+                left: 0;
+                right: 0;
+                width: 100%;
+                justify-content: flex-end;
+                align-items: center;
+            }
+
+            .period-filter-controls {
+                width: auto;
+                justify-content: flex-end;
             }
 
             .period-filter-controls {
@@ -1182,6 +1268,7 @@
                 flex: 1;
                 min-width: 0;
                 width: 100%;
+                max-width: 100%;
             }
         }
 
@@ -1334,15 +1421,7 @@
         </header>
 
         <section class="content">
-            <div class="page-kicker">{{ strtoupper(auth()->user()->role ?? 'PENGGUNA') }}</div>
-            <h1 class="page-title">Dashboard</h1>
-            <p class="page-description">
-                Selamat datang di panel administrasi Sistem Pendataan Perlinsos Kota Pasuruan.
-                Pantau data responden, kuisioner, dan proses verifikasi melalui dashboard ini.
-            </p>
-
-
-
+            <div class="dashboard-panel">
             <div class="welcome-card">
                 <div class="welcome-title">Selamat Datang, {{ $authenticatedName }}</div>
                 <div class="welcome-text">
@@ -1354,6 +1433,22 @@
 
             {{-- STATISTIK --}}
             <div class="stats-grid">
+                {{-- FILTER PERIODE DASHBOARD: posisi pojok kanan atas card Disetujui --}}
+                <form method="GET" action="{{ route('dashboard') }}" class="period-filter-panel">
+                    <div class="period-filter-controls">
+                        <select name="periode_kode" class="period-filter-select" aria-label="Pilih periode pendataan" onchange="showPeriodLoading(this.form)">
+                            <option value="">Semua Periode</option>
+                            @foreach(($periodeOptions ?? collect()) as $opsiPeriode)
+                                <option value="{{ $opsiPeriode->kode }}"
+                                    {{ (string) ($selectedPeriodKode ?? '') === (string) $opsiPeriode->kode ? 'selected' : '' }}>
+                                    {{ $opsiPeriode->nama }}
+                                    ({{ ucfirst(strtolower($opsiPeriode->status_periode ?? '')) }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="period-filter-loading" aria-hidden="true"></span>
+                    </div>
+                </form>
                 <div class="stat-card stat-card-respondent">
                     <div class="stat-label">Total Responden</div>
                     <div class="stat-value">{{ $totalResponden ?? 0 }}</div>
@@ -1378,33 +1473,6 @@
                     <div class="stat-description">Data telah disetujui</div>
                 </div>
             </div>
-
-            {{-- FILTER PERIODE DASHBOARD --}}
-            <form method="GET" action="{{ route('dashboard') }}" class="period-filter-panel">
-                <div class="period-filter-copy">
-                    <div class="period-filter-title">Filter Periode Pendataan</div>
-                    <div class="period-filter-description">
-                        Pilih periode aktif maupun selesai untuk melihat ringkasan data.
-                    </div>
-                </div>
-
-                <div class="period-filter-controls">
-                    <select name="periode_kode" class="period-filter-select" aria-label="Pilih periode pendataan">
-                        <option value="">Semua Periode</option>
-                        @foreach(($periodeOptions ?? collect()) as $opsiPeriode)
-                            <option value="{{ $opsiPeriode->kode }}"
-                                {{ (string) ($selectedPeriodKode ?? '') === (string) $opsiPeriode->kode ? 'selected' : '' }}>
-                                {{ $opsiPeriode->nama }}
-                                ({{ ucfirst(strtolower($opsiPeriode->status_periode ?? '')) }})
-                            </option>
-                        @endforeach
-                    </select>
-                    <button type="submit" class="period-filter-button">Terapkan</button>
-                    @if(!empty($selectedPeriodKode))
-                        <a href="{{ route('dashboard') }}" class="period-filter-reset">Reset</a>
-                    @endif
-                </div>
-            </form>
 
             {{-- GRAFIK --}}
             <div class="dashboard-chart-grid">
@@ -1660,10 +1728,21 @@
                     <nav class="pagination-buttons" id="periodButtons" aria-label="Navigasi halaman rekap periode"></nav>
                 </div>
             </div>
+            </div>
         </section>
     </main>
 
     <script>
+        /* Indikator halus saat filter periode dipilih; tanpa kedip atau menggeser halaman */
+        function showPeriodLoading(form) {
+            if (!form || form.dataset.submitting === 'true') return;
+
+            form.dataset.submitting = 'true';
+            form.classList.add('is-loading');
+
+            form.submit();
+        }
+
         /* SIDEBAR RESPONSIF */
         const sidebar = document.getElementById('sidebar');
         const hamburger = document.getElementById('hamburger');
@@ -1856,7 +1935,11 @@ if (kecamatanCanvas && typeof Chart !== 'undefined') {
                     },
                     ticks: {
                         color: '#555',
-                        maxRotation: 35,
+                        autoSkip: false,
+                        font: {
+                            size: 9
+                        },
+                        maxRotation: 0,
                         minRotation: 0
                     },
                     title: {
