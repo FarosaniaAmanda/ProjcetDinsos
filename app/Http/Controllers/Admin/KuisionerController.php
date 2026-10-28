@@ -115,12 +115,13 @@ class KuisionerController extends Controller
             ->where('status', 'draft');
 
         if ($search !== '') {
-            $draftQuery->where(function ($query) use ($search) {
+            $matchingIdentifierIds = KeluargaPart1::idsMatchingIdentifierSearch($search);
+
+            $draftQuery->where(function ($query) use ($search, $matchingIdentifierIds): void {
                 $keyword = '%'.$search.'%';
 
-                $query->where('no_kk', 'like', $keyword)
-                    ->orWhere('nik', 'like', $keyword)
-                    ->orWhere('nama_kepala_keluarga', 'like', $keyword);
+                $query->where('nama_kepala_keluarga', 'like', $keyword)
+                    ->orWhereIn('id', $matchingIdentifierIds);
             });
         }
 
@@ -511,17 +512,22 @@ class KuisionerController extends Controller
             ->unique()
             ->values();
 
+        $familyCodes = KeluargaPeriode::query()
+            ->whereIn('kode', $familyCodes)
+            ->pluck('keluarga_kode')
+            ->all();
+
         $families = Keluarga::query()
-            ->whereIn('kode', KeluargaPeriode::query()
-                ->whereIn('kode', $familyCodes)
-                ->select('keluarga_kode'))
-            ->orWhereIn('no_kk', $familyNumbers)
             ->get([
                 'kode',
                 'no_kk',
                 'nik',
                 'nama_lengkap',
-            ]);
+            ])
+            ->filter(
+                static fn (Keluarga $keluarga): bool => in_array($keluarga->kode, $familyCodes, true)
+                    || in_array($keluarga->no_kk, $familyNumbers->all(), true)
+            );
 
         $familiesByCode = $families->keyBy('kode');
         $familiesByNumber = $families->keyBy('no_kk');
@@ -555,8 +561,10 @@ class KuisionerController extends Controller
 
         if (! $familyExists && filled($questionnaire->no_kk)) {
             $family = Keluarga::query()
-                ->where('no_kk', $questionnaire->no_kk)
-                ->first();
+                ->get()
+                ->first(
+                    static fn (Keluarga $keluarga): bool => $keluarga->no_kk === $questionnaire->no_kk
+                );
 
             if ($family) {
                 $familyCode = $family->kode;
@@ -702,41 +710,61 @@ class KuisionerController extends Controller
             ->whereIn('kode', $kodeSudahDipakai)
             ->pluck('keluarga_kode');
 
-        $responden = Keluarga::query()
-            ->whereIn('kode', $relations->pluck('keluarga_kode'))
-            ->when(
-                $keluargaSudahDipakai->isNotEmpty(),
-                function ($query) use ($keluargaSudahDipakai) {
-                    $query->whereNotIn('kode', $keluargaSudahDipakai);
-                }
-            )
-            ->when(
-                ! empty($kataKunci),
-                function ($query) use ($kataKunci) {
-                    foreach ($kataKunci as $kata) {
-                        $query->where(function ($q) use ($kata) {
-                            $keyword = '%'.$kata.'%';
+        $familyCodes = $relations->pluck('keluarga_kode');
+        $candidateFamilies = Keluarga::query()
+            ->whereIn('kode', $familyCodes)
+            ->get()
+            ->keyBy('kode');
 
-                            $q->where('nama_lengkap', 'like', $keyword)
-                                ->orWhere('nik', 'like', $keyword)
-                                ->orWhere('no_kk', 'like', $keyword);
-                        });
-                    }
-                }
-            )
-            ->when(
-                $search !== '',
-                function ($query) use ($search) {
-                    $query->orderByRaw(
-                        'CASE
-                            WHEN nama_lengkap = ? THEN 0
-                            WHEN nama_lengkap LIKE ? THEN 1
-                            ELSE 2
-                        END',
-                        [$search, $search.'%']
-                    );
-                }
-            )
+        $respondenQuery = Keluarga::query()
+            ->whereIn('kode', $familyCodes);
+
+        if ($keluargaSudahDipakai->isNotEmpty()) {
+            $respondenQuery->whereNotIn('kode', $keluargaSudahDipakai);
+        }
+
+        foreach ($kataKunci as $kata) {
+            $keyword = '%'.$kata.'%';
+            $searchPattern = '/'.str_replace(
+                ['%', '_'],
+                ['[\s\S]*', '[\s\S]'],
+                preg_quote($keyword, '/')
+            ).'/iu';
+
+            $familyCodesMatchingIdentifiers = $candidateFamilies
+                ->filter(
+                    static fn (Keluarga $keluarga): bool => preg_match(
+                        $searchPattern,
+                        (string) $keluarga->nik
+                    ) === 1 || preg_match(
+                        $searchPattern,
+                        (string) $keluarga->no_kk
+                    ) === 1
+                )
+                ->pluck('kode');
+
+            $respondenQuery->where(function (Builder $query) use (
+                $keyword,
+                $familyCodesMatchingIdentifiers
+            ): void {
+                $query
+                    ->where('nama_lengkap', 'like', $keyword)
+                    ->orWhereIn('kode', $familyCodesMatchingIdentifiers);
+            });
+        }
+
+        if ($search !== '') {
+            $respondenQuery->orderByRaw(
+                'CASE
+                    WHEN nama_lengkap = ? THEN 0
+                    WHEN nama_lengkap LIKE ? THEN 1
+                    ELSE 2
+                END',
+                [$search, $search.'%']
+            );
+        }
+
+        $responden = $respondenQuery
             ->orderBy('nama_lengkap')
             ->paginate(10)
             ->withQueryString();
@@ -4055,7 +4083,11 @@ class KuisionerController extends Controller
 
         $keluarga = Keluarga::where('kode', $familyCode)->first();
         if (! $keluarga && $dataPart1->no_kk) {
-            $keluarga = Keluarga::where('no_kk', $dataPart1->no_kk)->first();
+            $keluarga = Keluarga::query()
+                ->get()
+                ->first(
+                    static fn (Keluarga $family): bool => $family->no_kk === $dataPart1->no_kk
+                );
         }
 
         // Ambil nilai pertama yang benar-benar terisi, bukan sekadar tidak-null.

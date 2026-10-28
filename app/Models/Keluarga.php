@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedIdentifier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -28,6 +29,8 @@ class Keluarga extends Model
 
     protected $casts = [
         'tanggal_entri' => 'date',
+        'no_kk' => EncryptedIdentifier::class,
+        'nik' => EncryptedIdentifier::class,
     ];
 
     public function anggota(): HasMany

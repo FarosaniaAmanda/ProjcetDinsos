@@ -9,6 +9,7 @@ use App\Models\Periode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Database\Query\Expression;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -35,7 +36,7 @@ class DashboardController extends Controller
         'belum diproses',
     ];
 
-    public function index(\Illuminate\Http\Request $request): View
+    public function index(Request $request): View
     {
         $hasKeluargasTable = Schema::hasTable('keluargas');
         $hasPeriodesTable = Schema::hasTable('periodes');
@@ -304,31 +305,27 @@ class DashboardController extends Controller
             $selectedPeriodKode
         )->count();
 
-        $namaRespondenQuery = Keluarga::query()
-            ->select('nama_lengkap')
-            ->where(function (Builder $query): void {
-                $query
-                    ->whereColumn(
-                        'keluargas.kode',
-                        'part1_keluarga.keluarga_periode_kode'
-                    )
-                    ->orWhereColumn(
-                        'keluargas.no_kk',
-                        'part1_keluarga.no_kk'
-                    );
-            })
-            ->limit(1);
-
         $kuisionerTerakhir = $this->pendingVerificationQuery($selectedPeriodKode)
             ->select('part1_keluarga.*')
-            ->selectSub($namaRespondenQuery, 'nama_responden')
             ->latest('part1_keluarga.updated_at')
             ->paginate(5)
             ->withQueryString();
 
+        $keluargas = Keluarga::query()
+            ->get(['kode', 'no_kk', 'nama_lengkap']);
+
         $kuisionerTerakhir->getCollection()->each(
-            function (KeluargaPart1 $item): void {
+            function (KeluargaPart1 $item) use ($keluargas): void {
+                $keluarga = $keluargas->first(
+                    static fn (Keluarga $family): bool => $family->kode === $item->keluarga_periode_kode
+                        || $family->no_kk === $item->no_kk
+                );
+
                 $item->setAttribute('status_verifikasi', 'pending');
+                $item->setAttribute(
+                    'nama_responden',
+                    $keluarga?->nama_lengkap ?? $item->nama_kepala_keluarga
+                );
             }
         );
 
@@ -356,8 +353,19 @@ class DashboardController extends Controller
 
     private function linkedVerificationQuery(?string $selectedPeriodKode = null): Builder
     {
+        $familyNumbers = Keluarga::query()
+            ->get(['no_kk'])
+            ->pluck('no_kk')
+            ->filter()
+            ->all();
+
+        $legacyPart1Ids = KeluargaPart1::idsMatchingIdentifierValues(
+            'no_kk',
+            $familyNumbers
+        );
+
         $query = KeluargaPart1::query()
-            ->where(function (Builder $query): void {
+            ->where(function (Builder $query) use ($legacyPart1Ids): void {
                 $query
                     // Format data yang tersimpan saat ini: KLG-... di Part 1.
                     ->whereIn(
@@ -373,34 +381,46 @@ class DashboardController extends Controller
                         'part1_keluarga.keluarga_periode_kode',
                         DB::table('keluarga_periodes')->select('keluarga_kode')
                     )
-                    ->orWhereIn(
-                        'part1_keluarga.no_kk',
-                        Keluarga::query()
-                            ->whereNotNull('no_kk')
-                            ->select('no_kk')
-                    );
+                    ->orWhereIn('part1_keluarga.id', $legacyPart1Ids);
             });
 
         if ($selectedPeriodKode !== null && $selectedPeriodKode !== '') {
-            $query->whereExists(function (QueryBuilder $relationQuery) use ($selectedPeriodKode): void {
-                $relationQuery->selectRaw('1')
-                    ->from('keluarga_periodes as kp')
-                    ->where('kp.periode_kode', $selectedPeriodKode)
-                    ->where(function (QueryBuilder $matchQuery): void {
-                        $matchQuery
-                            ->whereColumn(
-                                'kp.keluarga_kode',
-                                'part1_keluarga.keluarga_periode_kode'
-                            )
-                            ->orWhereColumn(
-                                'kp.kode',
-                                'part1_keluarga.keluarga_periode_kode'
-                            )
-                            ->orWhereColumn(
-                                'kp.keluarga_kode',
-                                'part1_keluarga.no_kk'
-                            );
-                    });
+            $familyNumbersForPeriod = DB::table('keluarga_periodes')
+                ->where('periode_kode', $selectedPeriodKode)
+                ->pluck('keluarga_kode')
+                ->all();
+            $part1IdsMatchingPeriodFamilyNumbers = KeluargaPart1::idsMatchingIdentifierValues(
+                'no_kk',
+                $familyNumbersForPeriod
+            );
+
+            $query->where(function (Builder $periodQuery) use (
+                $selectedPeriodKode,
+                $part1IdsMatchingPeriodFamilyNumbers
+            ): void {
+                $periodQuery->whereExists(function (QueryBuilder $relationQuery) use ($selectedPeriodKode): void {
+                    $relationQuery->selectRaw('1')
+                        ->from('keluarga_periodes as kp')
+                        ->where('kp.periode_kode', $selectedPeriodKode)
+                        ->where(function (QueryBuilder $matchQuery): void {
+                            $matchQuery
+                                ->whereColumn(
+                                    'kp.keluarga_kode',
+                                    'part1_keluarga.keluarga_periode_kode'
+                                )
+                                ->orWhereColumn(
+                                    'kp.kode',
+                                    'part1_keluarga.keluarga_periode_kode'
+                                );
+                        });
+                });
+
+                if ($part1IdsMatchingPeriodFamilyNumbers !== []) {
+                    $periodQuery->orWhereIn(
+                        'part1_keluarga.id',
+                        $part1IdsMatchingPeriodFamilyNumbers
+                    );
+                }
             });
         }
 
@@ -431,40 +451,40 @@ class DashboardController extends Controller
                 )
                 // Status kosong/selesai atau status lain hanya dihitung jika
                 // kuisioner memang sudah lengkap, dan bukan status final/awal.
-                ->orWhere(function (Builder $otherStatusQuery): void {
-                    $otherStatusQuery
-                        ->where(function (Builder $statusQuery): void {
-                            $statusQuery
-                                ->whereNull('part1_keluarga.status')
-                                ->orWhereNotIn(
-                                    new Expression('LOWER(TRIM(part1_keluarga.status))'),
-                                    array_merge(
-                                        self::APPROVED_STATUSES,
-                                        self::REJECTED_STATUSES,
-                                        self::NOT_PROCESSED_STATUSES,
-                                        [
-                                            'pending',
-                                            'diajukan',
-                                            'menunggu',
-                                            'diperiksa',
-                                            'menunggu verifikasi',
-                                        ]
-                                    )
-                                );
-                        })
-                        ->where(function (Builder $completeQuery): void {
-                            $completeQuery
-                                ->whereRaw(
-                                    'LOWER(TRIM(part1_keluarga.status)) = ?',
-                                    ['selesai']
-                                )
-                                ->orWhere(function (Builder $questionnaireQuery): void {
-                                    $this->whereQuestionnaireComplete(
-                                        $questionnaireQuery
+                    ->orWhere(function (Builder $otherStatusQuery): void {
+                        $otherStatusQuery
+                            ->where(function (Builder $statusQuery): void {
+                                $statusQuery
+                                    ->whereNull('part1_keluarga.status')
+                                    ->orWhereNotIn(
+                                        new Expression('LOWER(TRIM(part1_keluarga.status))'),
+                                        array_merge(
+                                            self::APPROVED_STATUSES,
+                                            self::REJECTED_STATUSES,
+                                            self::NOT_PROCESSED_STATUSES,
+                                            [
+                                                'pending',
+                                                'diajukan',
+                                                'menunggu',
+                                                'diperiksa',
+                                                'menunggu verifikasi',
+                                            ]
+                                        )
                                     );
-                                });
-                        });
-                });
+                            })
+                            ->where(function (Builder $completeQuery): void {
+                                $completeQuery
+                                    ->whereRaw(
+                                        'LOWER(TRIM(part1_keluarga.status)) = ?',
+                                        ['selesai']
+                                    )
+                                    ->orWhere(function (Builder $questionnaireQuery): void {
+                                        $this->whereQuestionnaireComplete(
+                                            $questionnaireQuery
+                                        );
+                                    });
+                            });
+                    });
             });
     }
 
@@ -530,20 +550,48 @@ class DashboardController extends Controller
     private function addCompleteMembersSubquery(
         QueryBuilder $familyQuery
     ): void {
+        $familiesByNumber = Keluarga::query()
+            ->get(['kode', 'no_kk'])
+            ->filter(static fn (Keluarga $keluarga): bool => filled($keluarga->no_kk))
+            ->groupBy('no_kk');
+        $legacyMatches = [];
+
+        KeluargaPart1::query()
+            ->select(['id', 'no_kk', 'keluarga_periode_kode'])
+            ->lazyById(500)
+            ->each(function (KeluargaPart1 $part1Record) use ($familiesByNumber, &$legacyMatches): void {
+                foreach ($familiesByNumber->get($part1Record->no_kk, collect()) as $keluarga) {
+                    if ($keluarga->kode !== $part1Record->keluarga_periode_kode) {
+                        $legacyMatches[] = [
+                            'part1_id' => $part1Record->id,
+                            'keluarga_kode' => $keluarga->kode,
+                        ];
+                    }
+                }
+            });
+
         $familyQuery
             ->selectRaw('1')
             ->from('keluargas as complete_family')
 
-            ->where(function (QueryBuilder $familyMatch): void {
+            ->where(function (QueryBuilder $familyMatch) use ($legacyMatches): void {
                 $familyMatch
                     ->whereColumn(
                         'complete_family.kode',
                         'part1_keluarga.keluarga_periode_kode'
-                    )
-                    ->orWhereColumn(
-                        'complete_family.no_kk',
-                        'part1_keluarga.no_kk'
                     );
+
+                if ($legacyMatches !== []) {
+                    $familyMatch->orWhere(function (QueryBuilder $legacyMatch) use ($legacyMatches): void {
+                        foreach ($legacyMatches as $legacyPair) {
+                            $legacyMatch->orWhere(function (QueryBuilder $pairQuery) use ($legacyPair): void {
+                                $pairQuery
+                                    ->where('part1_keluarga.id', $legacyPair['part1_id'])
+                                    ->where('complete_family.kode', $legacyPair['keluarga_kode']);
+                            });
+                        }
+                    });
+                }
             })
 
             ->whereExists(function (QueryBuilder $memberQuery): void {

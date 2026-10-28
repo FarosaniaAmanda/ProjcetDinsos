@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\EncryptedIdentifier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -17,6 +18,10 @@ class KeluargaAnggota extends Model
         'status_keluarga',
         'created_by',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'nik' => EncryptedIdentifier::class,
     ];
 
     public function keluarga(): BelongsTo

@@ -8,10 +8,10 @@ use App\Models\KeluargaAnggota;
 use App\Models\KeluargaPart1;
 use App\Models\KeluargaPeriode;
 use App\Models\Periode;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class RespondenController extends Controller
@@ -44,18 +44,37 @@ class RespondenController extends Controller
         });
 
         if ($search !== '') {
-            $query->where(function ($query) use ($search) {
-                $keyword = "%{$search}%";
+            $searchPattern = '/'.str_replace(
+                ['%', '_'],
+                ['[\s\S]*', '[\s\S]'],
+                preg_quote('%'.$search.'%', '/')
+            ).'/iu';
 
-                $query
-                    ->where('no_kk', 'like', $keyword)
-                    ->orWhere('nik', 'like', $keyword)
+            $sensitiveFamilyIds = (clone $query)
+                ->get()
+                ->filter(function (Keluarga $keluarga) use ($searchPattern): bool {
+                    $matchesSensitiveIdentifier = static fn (mixed $value): bool => preg_match(
+                        $searchPattern,
+                        (string) $value
+                    ) === 1;
+
+                    return $matchesSensitiveIdentifier($keluarga->no_kk)
+                        || $matchesSensitiveIdentifier($keluarga->nik)
+                        || $keluarga->anggota->contains(
+                            static fn (KeluargaAnggota $anggota): bool => $matchesSensitiveIdentifier($anggota->nik)
+                        );
+                })
+                ->pluck('id')
+                ->all();
+
+            $keyword = "%{$search}%";
+            $query->where(function (Builder $searchQuery) use ($keyword, $sensitiveFamilyIds): void {
+                $searchQuery
+                    ->whereIn('keluargas.id', $sensitiveFamilyIds)
                     ->orWhere('nama_lengkap', 'like', $keyword)
                     ->orWhere('alamat_lengkap', 'like', $keyword)
-                    ->orWhereHas('anggota', function ($query) use ($keyword) {
-                        $query
-                            ->where('nik', 'like', $keyword)
-                            ->orWhere('nama_lengkap', 'like', $keyword);
+                    ->orWhereHas('anggota', function (Builder $memberQuery) use ($keyword): void {
+                        $memberQuery->where('nama_lengkap', 'like', $keyword);
                     });
             });
         }
@@ -140,11 +159,12 @@ class RespondenController extends Controller
         $ignoreId = $request->filled('ignore_id') ? (int) $request->input('ignore_id') : null;
 
         if ($jenis === 'kk') {
-            $query = Keluarga::query()->where('no_kk', $nomor);
-            if ($ignoreId !== null) {
-                $query->where('id', '!=', $ignoreId);
-            }
-            $terdaftar = $query->exists();
+            $terdaftar = Keluarga::query()
+                ->get()
+                ->contains(
+                    static fn (Keluarga $keluarga): bool => $keluarga->no_kk === $nomor
+                        && $keluarga->id !== $ignoreId
+                );
 
             return response()->json([
                 'exists' => $terdaftar,
@@ -152,21 +172,27 @@ class RespondenController extends Controller
             ]);
         }
 
-        $queryKeluarga = Keluarga::query()->where('nik', $nomor);
-        if ($ignoreId !== null) {
-            $queryKeluarga->where('id', '!=', $ignoreId);
-        }
-        $terdaftar = $queryKeluarga->exists();
+        $terdaftar = Keluarga::query()
+            ->get()
+            ->contains(
+                static fn (Keluarga $keluarga): bool => $keluarga->nik === $nomor
+                    && $keluarga->id !== $ignoreId
+            );
 
         if (! $terdaftar) {
-            $queryAnggota = KeluargaAnggota::query()->where('nik', $nomor);
-            if ($ignoreId !== null) {
-                $keluargaSaatIni = Keluarga::find($ignoreId);
-                if ($keluargaSaatIni) {
-                    $queryAnggota->where('keluarga_kode', '!=', $keluargaSaatIni->kode);
-                }
-            }
-            $terdaftar = $queryAnggota->exists();
+            $keluargaSaatIni = $ignoreId !== null
+                ? Keluarga::find($ignoreId)
+                : null;
+
+            $terdaftar = KeluargaAnggota::query()
+                ->get()
+                ->contains(
+                    static fn (KeluargaAnggota $anggota): bool => $anggota->nik === $nomor
+                        && (
+                            $keluargaSaatIni === null
+                            || $anggota->keluarga_kode !== $keluargaSaatIni->kode
+                        )
+                );
         }
 
         return response()->json([
@@ -220,7 +246,6 @@ class RespondenController extends Controller
             'nomor_kk' => [
                 'required',
                 'digits:16',
-                'unique:keluargas,no_kk',
             ],
 
             'nik_kepala_keluarga' => [
@@ -323,6 +348,7 @@ class RespondenController extends Controller
             'anggota.*.nik.digits' => 'NIK anggota harus terdiri dari 16 digit.',
         ]);
 
+        $this->validasiNomorKKUnik((string) $request->input('nomor_kk'));
         $this->validasiNIKUnik($request);
 
         DB::transaction(function () use ($request, $periodeTerpilih) {
@@ -819,7 +845,6 @@ class RespondenController extends Controller
             'nomor_kk' => [
                 'required',
                 'digits:16',
-                Rule::unique('keluargas', 'no_kk')->ignore($id),
             ],
 
             'nik_kepala_keluarga' => [
@@ -917,6 +942,7 @@ class RespondenController extends Controller
             ],
         ]);
 
+        $this->validasiNomorKKUnik((string) $request->input('nomor_kk'), (int) $id);
         $this->validasiNIKUnik($request, (int) $id);
 
         DB::transaction(function () use (
@@ -1103,31 +1129,57 @@ class RespondenController extends Controller
             ]);
         }
 
-        $queryKeluarga = Keluarga::query()->whereIn('nik', $semuaNik);
-        if ($ignoreFamilyId !== null) {
-            $keluargaSaatIni = Keluarga::find($ignoreFamilyId);
-            if ($keluargaSaatIni) {
-                $queryKeluarga->where('id', '!=', $ignoreFamilyId);
-            }
-        }
-        if ($queryKeluarga->exists()) {
+        $keluargaSaatIni = $ignoreFamilyId !== null
+            ? Keluarga::find($ignoreFamilyId)
+            : null;
+
+        $nikYangSudahDigunakanKeluarga = Keluarga::query()
+            ->get()
+            ->contains(
+                static fn (Keluarga $keluarga): bool => $semuaNik->contains($keluarga->nik)
+                    && (
+                        $keluargaSaatIni === null
+                        || $keluarga->id !== $ignoreFamilyId
+                    )
+            );
+
+        if ($nikYangSudahDigunakanKeluarga) {
             throw ValidationException::withMessages([
                 'nik_kepala_keluarga' => 'NIK sudah digunakan sebagai NIK kepala keluarga lain.',
                 'anggota' => 'Salah satu NIK sudah digunakan oleh keluarga lain.',
             ]);
         }
 
-        $queryAnggota = KeluargaAnggota::query()->whereIn('nik', $semuaNik);
-        if ($ignoreFamilyId !== null) {
-            $keluargaSaatIni = Keluarga::find($ignoreFamilyId);
-            if ($keluargaSaatIni) {
-                $queryAnggota->where('keluarga_kode', '!=', $keluargaSaatIni->kode);
-            }
-        }
-        if ($queryAnggota->exists()) {
+        $nikAnggotaSudahDigunakan = KeluargaAnggota::query()
+            ->get()
+            ->contains(
+                static fn (KeluargaAnggota $anggota): bool => $semuaNik->contains($anggota->nik)
+                    && (
+                        $keluargaSaatIni === null
+                        || $anggota->keluarga_kode !== $keluargaSaatIni->kode
+                    )
+            );
+
+        if ($nikAnggotaSudahDigunakan) {
             throw ValidationException::withMessages([
                 'nik_kepala_keluarga' => 'NIK sudah digunakan oleh anggota keluarga lain.',
                 'anggota' => 'Salah satu NIK sudah digunakan oleh anggota keluarga lain.',
+            ]);
+        }
+    }
+
+    private function validasiNomorKKUnik(string $nomorKk, ?int $ignoreFamilyId = null): void
+    {
+        $sudahTerdaftar = Keluarga::query()
+            ->get()
+            ->contains(
+                static fn (Keluarga $keluarga): bool => $keluarga->no_kk === $nomorKk
+                    && $keluarga->id !== $ignoreFamilyId
+            );
+
+        if ($sudahTerdaftar) {
+            throw ValidationException::withMessages([
+                'nomor_kk' => 'Nomor KK sudah terdaftar. Data responden tidak dapat disimpan.',
             ]);
         }
     }

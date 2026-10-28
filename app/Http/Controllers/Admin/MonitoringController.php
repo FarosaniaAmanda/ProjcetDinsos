@@ -634,8 +634,13 @@ class MonitoringController extends VerifikasiController
         }
 
         if (! $part1Sumber && blank($kodePeriodeSumber) && filled($noKkSumber)) {
-            $part1Sumber = KeluargaPart1::where('no_kk', $noKkSumber)
-                ->latest('id')->first();
+            $matchingPart1Ids = KeluargaPart1::idsMatchingIdentifierValues(
+                'no_kk',
+                [(string) $noKkSumber]
+            );
+            $part1Sumber = $matchingPart1Ids !== []
+                ? KeluargaPart1::find(max($matchingPart1Ids))
+                : null;
         }
 
         $keluargaSumber = null;
@@ -647,7 +652,11 @@ class MonitoringController extends VerifikasiController
         }
 
         if (! $keluargaSumber && blank($kodeKeluargaSumber) && filled($noKkSumber)) {
-            $keluargaSumber = Keluarga::where('no_kk', $noKkSumber)->first();
+            $keluargaSumber = Keluarga::query()
+                ->get()
+                ->first(
+                    static fn (Keluarga $keluarga): bool => $keluarga->no_kk === $noKkSumber
+                );
         }
 
         $firstFilledMonitoring = static function (...$values) {

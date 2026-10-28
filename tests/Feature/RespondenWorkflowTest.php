@@ -3,9 +3,11 @@
 namespace Tests\Feature;
 
 use App\Models\Keluarga;
+use App\Models\KeluargaAnggota;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
@@ -39,8 +41,8 @@ class RespondenWorkflowTest extends TestCase
         Schema::create('keluargas', function (Blueprint $table): void {
             $table->id();
             $table->string('kode');
-            $table->string('no_kk', 18);
-            $table->string('nik', 18);
+            $table->string('no_kk', 255);
+            $table->string('nik', 255);
             $table->string('nama_lengkap');
             $table->string('status_keluarga');
             $table->string('kecamatan_id')->nullable();
@@ -105,7 +107,7 @@ class RespondenWorkflowTest extends TestCase
             $table->id();
             $table->string('kode');
             $table->string('keluarga_kode');
-            $table->string('nik');
+            $table->string('nik', 255);
             $table->string('nama_lengkap');
             $table->string('status_keluarga');
             $table->string('created_by')->nullable();
@@ -148,9 +150,31 @@ class RespondenWorkflowTest extends TestCase
 
         $response->assertRedirect(route('responden.index'));
 
+        $family = Keluarga::query()
+            ->get()
+            ->first(
+                static fn (Keluarga $keluarga): bool => $keluarga->no_kk === '3575020101010001'
+            );
+
+        $this->assertNotNull($family);
+        $this->assertSame('3575020101010002', $family->nik);
+        $this->assertSame(
+            '3575020101010001',
+            Crypt::decryptString(substr(
+                DB::table('keluargas')->where('id', $family->id)->value('no_kk'),
+                strlen('enc:v1:')
+            ))
+        );
+        $this->assertSame(
+            '3575020101010002',
+            Crypt::decryptString(substr(
+                DB::table('keluargas')->where('id', $family->id)->value('nik'),
+                strlen('enc:v1:')
+            ))
+        );
+
         $this->assertDatabaseHas('keluargas', [
-            'no_kk' => '3575020101010001',
-            'nik' => '3575020101010002',
+            'id' => $family->id,
             'nama_lengkap' => 'Kepala Keluarga Tes',
             'status_keluarga' => 'Kepala Keluarga',
             'kecamatan_id' => '3575020',
@@ -163,23 +187,16 @@ class RespondenWorkflowTest extends TestCase
 
         $this->assertSame(
             '2026-01-02',
-            Keluarga::query()
-                ->where('no_kk', '3575020101010001')
-                ->firstOrFail()
-                ->tanggal_entri
+            $family->tanggal_entri
                 ->toDateString()
         );
 
         $this->assertDatabaseHas('keluargas', [
-            'no_kk' => '3575020101010001',
+            'id' => $family->id,
             'rt' => '001',
             'rw' => '002',
             'geotagging' => '-7.645321, 112.906543',
         ]);
-
-        $family = Keluarga::query()
-            ->where('no_kk', '3575020101010001')
-            ->firstOrFail();
 
         $this->assertDatabaseHas('keluarga_periodes', [
             'keluarga_kode' => $family->kode,
@@ -190,22 +207,28 @@ class RespondenWorkflowTest extends TestCase
             'keluarga_periode_kode' => $family->kode,
         ]);
 
-        $this->assertDatabaseHas('keluarga_anggotas', [
-            'nik' => '3575020101010003',
-            'nama_lengkap' => 'Anak Tes',
-            'status_keluarga' => 'Anak',
-        ]);
+        $members = KeluargaAnggota::query()->get();
+        $this->assertSame(
+            ['3575020101010003', '3575020101010004'],
+            $members->pluck('nik')->sort()->values()->all()
+        );
 
-        $this->assertDatabaseMissing('keluarga_anggotas', [
-            'nik' => '3575020101010002',
-            'status_keluarga' => 'Kepala Keluarga',
-        ]);
+        foreach (['3575020101010003', '3575020101010004'] as $memberNik) {
+            $storedNik = DB::table('keluarga_anggotas')
+                ->where('keluarga_kode', $family->kode)
+                ->where('nama_lengkap', $memberNik === '3575020101010003' ? 'Anak Tes' : 'Istri Tes')
+                ->value('nik');
 
-        $this->assertDatabaseHas('keluarga_anggotas', [
-            'nik' => '3575020101010004',
-            'nama_lengkap' => 'Istri Tes',
-            'status_keluarga' => 'Istri',
-        ]);
+            $this->assertSame(
+                $memberNik,
+                Crypt::decryptString(substr($storedNik, strlen('enc:v1:')))
+            );
+        }
+
+        $this->getJson(route('responden.editData', $family->id))
+            ->assertJsonPath('no_kk', '3575020101010001')
+            ->assertJsonPath('nik_kepala_keluarga', '3575020101010002')
+            ->assertJsonPath('anggota.1.nik', '3575020101010003');
 
         $this->withoutVite()
             ->get(route('responden.index'))
@@ -215,6 +238,14 @@ class RespondenWorkflowTest extends TestCase
                 'Istri Tes',
             ])
             ->assertSee('Aktif');
+
+        $this->withoutVite()
+            ->get(route('responden.index', ['search' => '3575020101010001']))
+            ->assertSee('Kepala Keluarga Tes');
+
+        $this->withoutVite()
+            ->get(route('responden.index', ['search' => '3575020101010003']))
+            ->assertSee('Kepala Keluarga Tes');
     }
 
     public function test_search_finds_respondent_beyond_the_first_page(): void
@@ -346,8 +377,15 @@ class RespondenWorkflowTest extends TestCase
 
         $response->assertRedirect(route('responden.index'));
 
+        $family = Keluarga::query()
+            ->get()
+            ->first(
+                static fn (Keluarga $keluarga): bool => $keluarga->no_kk === '3575020101010001'
+            );
+
+        $this->assertNotNull($family);
         $this->assertDatabaseHas('keluargas', [
-            'no_kk' => '3575020101010001',
+            'id' => $family->id,
             'rt' => '001',
             'rw' => '002',
             'geotagging' => '-7.645321, 112.906543',
@@ -356,24 +394,21 @@ class RespondenWorkflowTest extends TestCase
 
     public function test_duplicate_check_reports_existing_and_available_family_numbers(): void
     {
-        $familyId = DB::table('keluargas')->insertGetId([
+        $family = Keluarga::query()->create([
             'kode' => 'KLG-DUPLICATE-TEST',
             'no_kk' => '3575090901850009',
             'nik' => '3575090901850010',
             'nama_lengkap' => 'Kepala Keluarga Tes',
             'status_keluarga' => 'Kepala Keluarga',
             'created_by' => 'admin',
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
-        DB::table('keluarga_anggotas')->insert([
+        $familyId = $family->id;
+        KeluargaAnggota::query()->create([
             'kode' => 'ANG-DUPLICATE-TEST',
             'keluarga_kode' => 'KLG-DUPLICATE-TEST',
             'nik' => '3575090901850011',
             'nama_lengkap' => 'Anggota Keluarga Tes',
             'status_keluarga' => 'Anak',
-            'created_at' => now(),
-            'updated_at' => now(),
         ]);
 
         $this->postJson(route('responden.cekDuplikat'), [
@@ -409,6 +444,73 @@ class RespondenWorkflowTest extends TestCase
             'exists' => false,
             'message' => '',
         ]);
+    }
+
+    public function test_legacy_identifiers_are_readable_and_encrypted_once_when_edited(): void
+    {
+        $familyId = DB::table('keluargas')->insertGetId([
+            'kode' => 'KLG-LEGACY-ENCRYPTION',
+            'no_kk' => '3575090901850029',
+            'nik' => '3575090901850030',
+            'nama_lengkap' => 'Kepala Keluarga Lama',
+            'status_keluarga' => 'Kepala Keluarga',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $memberId = DB::table('keluarga_anggotas')->insertGetId([
+            'kode' => 'ANG-LEGACY-ENCRYPTION',
+            'keluarga_kode' => 'KLG-LEGACY-ENCRYPTION',
+            'nik' => '3575090901850031',
+            'nama_lengkap' => 'Anggota Lama',
+            'status_keluarga' => 'Anak',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $family = Keluarga::findOrFail($familyId);
+        $member = KeluargaAnggota::findOrFail($memberId);
+        $this->assertSame('3575090901850029', $family->no_kk);
+        $this->assertSame('3575090901850030', $family->nik);
+        $this->assertSame('3575090901850031', $member->nik);
+
+        $this->postJson(route('responden.cekDuplikat'), [
+            'jenis' => 'kk',
+            'nomor' => '3575090901850029',
+        ])->assertExactJson([
+            'exists' => true,
+            'message' => 'Nomor KK sudah terdaftar.',
+        ]);
+
+        $this->postJson(route('responden.cekDuplikat'), [
+            'jenis' => 'nik',
+            'nomor' => '3575090901850031',
+        ])->assertExactJson([
+            'exists' => true,
+            'message' => 'NIK sudah terdaftar.',
+        ]);
+
+        $family->no_kk = $family->no_kk;
+        $family->nik = $family->nik;
+        $family->save();
+        $member->nik = $member->nik;
+        $member->save();
+
+        $storedFamily = DB::table('keluargas')->where('id', $familyId)->first();
+        $storedMemberNik = DB::table('keluarga_anggotas')->where('id', $memberId)->value('nik');
+
+        $this->assertTrue(str_starts_with($storedFamily->no_kk, 'enc:v1:'));
+        $this->assertTrue(str_starts_with($storedFamily->nik, 'enc:v1:'));
+        $this->assertTrue(str_starts_with($storedMemberNik, 'enc:v1:'));
+        $this->assertFalse(str_starts_with($storedFamily->no_kk, 'enc:v1:enc:v1:'));
+        $this->assertSame(
+            '3575090901850029',
+            Crypt::decryptString(substr($storedFamily->no_kk, strlen('enc:v1:')))
+        );
+        $this->assertSame(
+            '3575090901850031',
+            Crypt::decryptString(substr($storedMemberNik, strlen('enc:v1:')))
+        );
     }
 
     public function test_responden_requires_a_period_and_allows_selecting_non_active_periods(): void
@@ -466,9 +568,11 @@ class RespondenWorkflowTest extends TestCase
             'nama_kepala_keluarga' => 'Keluarga Periode Selesai',
         ])->assertRedirect(route('responden.index'));
 
-        $family = DB::table('keluargas')
-            ->where('no_kk', '3575020101010051')
-            ->first();
+        $family = Keluarga::query()
+            ->get()
+            ->first(
+                static fn (Keluarga $keluarga): bool => $keluarga->no_kk === '3575020101010051'
+            );
 
         $this->assertDatabaseHas('keluarga_periodes', [
             'keluarga_kode' => $family->kode,
@@ -815,22 +919,25 @@ class RespondenWorkflowTest extends TestCase
                 ],
             ])->assertRedirect(route('responden.index'));
 
-        $this->assertDatabaseHas('keluargas', [
-            'id' => $familyId,
-            'no_kk' => '3575090901850009',
-            'nik' => '3575090901850010',
-            'nama_lengkap' => 'Kepala Keluarga Diperbarui',
-        ]);
-        $this->assertDatabaseHas('keluarga_anggotas', [
-            'id' => $memberId,
-            'nik' => '3575090901850011',
-            'nama_lengkap' => 'Anggota Lama',
-        ]);
+        $updatedFamily = Keluarga::findOrFail($familyId);
+        $this->assertSame('3575090901850009', $updatedFamily->no_kk);
+        $this->assertSame('3575090901850010', $updatedFamily->nik);
+        $this->assertSame('Kepala Keluarga Diperbarui', $updatedFamily->nama_lengkap);
+        $updatedMember = KeluargaAnggota::findOrFail($memberId);
+        $this->assertSame('3575090901850011', $updatedMember->nik);
+        $this->assertSame('Anggota Lama', $updatedMember->nama_lengkap);
         $this->assertDatabaseHas('keluarga_anggotas', [
             'keluarga_kode' => 'KLG-DRAFT-TEST',
-            'nik' => '3575090901850012',
             'nama_lengkap' => 'Anggota Baru',
         ]);
+        $this->assertTrue(
+            KeluargaAnggota::query()
+                ->get()
+                ->contains(
+                    static fn (KeluargaAnggota $anggota): bool => $anggota->nik === '3575090901850012'
+                        && $anggota->keluarga_kode === 'KLG-DRAFT-TEST'
+                )
+        );
     }
 
     public function test_update_allows_adding_members_when_draft_uses_legacy_family_code(): void
@@ -904,9 +1011,16 @@ class RespondenWorkflowTest extends TestCase
         ]);
         $this->assertDatabaseHas('keluarga_anggotas', [
             'keluarga_kode' => 'KLG-LEGACY-DRAFT',
-            'nik' => '3575090901850103',
             'nama_lengkap' => 'Anggota Baru Draft',
         ]);
+        $this->assertTrue(
+            KeluargaAnggota::query()
+                ->get()
+                ->contains(
+                    static fn (KeluargaAnggota $anggota): bool => $anggota->nik === '3575090901850103'
+                        && $anggota->keluarga_kode === 'KLG-LEGACY-DRAFT'
+                )
+        );
     }
 
     public function test_update_uses_questionnaire_status_from_the_selected_period(): void
@@ -1047,12 +1161,23 @@ class RespondenWorkflowTest extends TestCase
         ]);
         $this->assertDatabaseHas('keluarga_anggotas', [
             'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
-            'nik' => '3575090901880013',
         ]);
-        $this->assertDatabaseMissing('keluarga_anggotas', [
-            'keluarga_kode' => 'KLG-MULTI-PERIOD-TEST',
-            'nik' => '3575090901880014',
-        ]);
+        $this->assertTrue(
+            KeluargaAnggota::query()
+                ->get()
+                ->contains(
+                    static fn (KeluargaAnggota $anggota): bool => $anggota->nik === '3575090901880013'
+                        && $anggota->keluarga_kode === 'KLG-MULTI-PERIOD-TEST'
+                )
+        );
+        $this->assertFalse(
+            KeluargaAnggota::query()
+                ->get()
+                ->contains(
+                    static fn (KeluargaAnggota $anggota): bool => $anggota->nik === '3575090901880014'
+                        && $anggota->keluarga_kode === 'KLG-MULTI-PERIOD-TEST'
+                )
+        );
     }
 
     public function test_update_rejects_numbers_used_by_another_family(): void
@@ -1087,17 +1212,23 @@ class RespondenWorkflowTest extends TestCase
 
         $this->from(route('responden.index'))
             ->put(route('responden.update', $familyId), [
-                'nomor_kk' => '3575090901850020',
+                'nomor_kk' => '3575090901850009',
                 'nik_kepala_keluarga' => '3575090901850021',
                 'nama_kepala_keluarga' => 'Kepala Keluarga Saat Ini',
                 'anggota' => [],
             ])
-            ->assertSessionHasErrors(['nomor_kk', 'nik_kepala_keluarga']);
+            ->assertSessionHasErrors('nik_kepala_keluarga');
 
-        $this->assertDatabaseHas('keluargas', [
-            'id' => $familyId,
-            'nik' => '3575090901850010',
-        ]);
+        $this->from(route('responden.index'))
+            ->put(route('responden.update', $familyId), [
+                'nomor_kk' => '3575090901850020',
+                'nik_kepala_keluarga' => '3575090901850030',
+                'nama_kepala_keluarga' => 'Kepala Keluarga Saat Ini',
+                'anggota' => [],
+            ])
+            ->assertSessionHasErrors('nomor_kk');
+
+        $this->assertSame('3575090901850010', Keluarga::findOrFail($familyId)->nik);
     }
 
     public function test_update_preserves_existing_members_for_pending_verification(): void
@@ -1296,8 +1427,15 @@ class RespondenWorkflowTest extends TestCase
         ]);
         $this->assertDatabaseHas('keluarga_anggotas', [
             'keluarga_kode' => 'KLG-REJECTED-TEST',
-            'nik' => '3575090901890004',
         ]);
+        $this->assertTrue(
+            KeluargaAnggota::query()
+                ->get()
+                ->contains(
+                    static fn (KeluargaAnggota $anggota): bool => $anggota->nik === '3575090901890004'
+                        && $anggota->keluarga_kode === 'KLG-REJECTED-TEST'
+                )
+        );
     }
 
     public function test_region_lookup_uses_cached_nominatim_coordinates(): void

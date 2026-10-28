@@ -257,18 +257,23 @@ class VerifikasiController extends Controller
                 }
             );
         } else {
-            $itemsQuery->where(function (Builder $query): void {
+            $familyNumbers = Keluarga::query()
+                ->get(['no_kk'])
+                ->pluck('no_kk')
+                ->filter()
+                ->all();
+            $legacyPart1Ids = KeluargaPart1::idsMatchingIdentifierValues(
+                'no_kk',
+                $familyNumbers
+            );
+
+            $itemsQuery->where(function (Builder $query) use ($legacyPart1Ids): void {
                 $query
                     ->whereIn(
                         'part1_keluarga.keluarga_periode_kode',
                         Keluarga::query()->select('kode')
                     )
-                    ->orWhereIn(
-                        'part1_keluarga.no_kk',
-                        Keluarga::query()
-                            ->whereNotNull('no_kk')
-                            ->select('no_kk')
-                    );
+                    ->orWhereIn('part1_keluarga.id', $legacyPart1Ids);
             });
         }
 
@@ -348,16 +353,15 @@ class VerifikasiController extends Controller
                     }
 
                     if (! $keluarga && $item->no_kk) {
-                        $familyQuery = Keluarga::where(
-                            'no_kk',
-                            $item->no_kk
-                        );
-
-                        if (filled($item->nik)) {
-                            $familyQuery->where('nik', $item->nik);
-                        }
-
-                        $keluarga = $familyQuery->first();
+                        $keluarga = Keluarga::query()
+                            ->get()
+                            ->first(
+                                static fn (Keluarga $family): bool => $family->no_kk === $item->no_kk
+                                    && (
+                                        blank($item->nik)
+                                        || $family->nik === $item->nik
+                                    )
+                            );
                     }
                 }
 
@@ -832,65 +836,35 @@ class VerifikasiController extends Controller
             $search =
                 '%'.$filters['search'].'%';
 
+            $familiesMatchingName = Keluarga::query()
+                ->where('nama_lengkap', 'like', $search)
+                ->get(['kode', 'no_kk']);
+            $matchingFamilyCodes = $familiesMatchingName->pluck('kode')->all();
+            $matchingFamilyNumbers = $familiesMatchingName->pluck('no_kk')->filter()->all();
+            $matchingIdentifierIds = array_unique(array_merge(
+                KeluargaPart1::idsMatchingIdentifierSearch($filters['search']),
+                KeluargaPart1::idsMatchingIdentifierValues('no_kk', $matchingFamilyNumbers)
+            ));
+
             $query->where(
                 function (
                     Builder $query
-                ) use ($search): void {
+                ) use ($search, $matchingFamilyCodes, $matchingIdentifierIds): void {
 
                     $query
                         ->where(
-                            'part1_keluarga.no_kk',
-                            'like',
-                            $search
-                        )
-
-                        ->orWhere(
-                            'part1_keluarga.nik',
-                            'like',
-                            $search
-                        )
-
-                        ->orWhere(
                             'part1_keluarga.nama_kepala_keluarga',
                             'like',
                             $search
                         )
 
-                        ->orWhereExists(
-                            function (
-                                QueryBuilder $familyQuery
-                            ) use ($search): void {
-
-                                $familyQuery
-                                    ->selectRaw('1')
-                                    ->from(
-                                        'keluargas as search_family'
-                                    )
-
-                                    ->where(
-                                        function (
-                                            QueryBuilder $familyMatch
-                                        ): void {
-
-                                            $familyMatch
-                                                ->whereColumn(
-                                                    'search_family.kode',
-                                                    'part1_keluarga.keluarga_periode_kode'
-                                                )
-
-                                                ->orWhereColumn(
-                                                    'search_family.no_kk',
-                                                    'part1_keluarga.no_kk'
-                                                );
-                                        }
-                                    )
-
-                                    ->where(
-                                        'search_family.nama_lengkap',
-                                        'like',
-                                        $search
-                                    );
-                            }
+                        ->orWhereIn(
+                            'part1_keluarga.keluarga_periode_kode',
+                            $matchingFamilyCodes
+                        )
+                        ->orWhereIn(
+                            'part1_keluarga.id',
+                            $matchingIdentifierIds
                         );
                 }
             );
@@ -922,7 +896,31 @@ class VerifikasiController extends Controller
                         'kecamatan_id',
                         $filters['kecamatan']
                     )
-                    ->select('kelurahan_id');
+                    ->pluck('kelurahan_id');
+
+            $familiesInRegion = Keluarga::query()
+                ->where(function (Builder $districtQuery) use (
+                    $filters,
+                    $kelurahanIdsInKecamatan
+                ): void {
+                    $districtQuery
+                        ->where('kecamatan_id', $filters['kecamatan'])
+                        ->orWhereIn('kelurahan_id', $kelurahanIdsInKecamatan);
+                })
+                ->when(
+                    $filters['kelurahan'] !== '',
+                    fn (Builder $familyQuery): Builder => $familyQuery->where(
+                        'kelurahan_id',
+                        $filters['kelurahan']
+                    )
+                )
+                ->get(['kode', 'no_kk']);
+            $familyCodesInRegion = $familiesInRegion->pluck('kode')->all();
+            $familyNumbersInRegion = $familiesInRegion->pluck('no_kk')->filter()->all();
+            $part1IdsWithMatchingFamilyNumbers = KeluargaPart1::idsMatchingIdentifierValues(
+                'no_kk',
+                $familyNumbersInRegion
+            );
 
             $query->where(
                 function (
@@ -930,72 +928,18 @@ class VerifikasiController extends Controller
                 ) use (
                     $filters,
                     $kecamatanNama,
-                    $kelurahanIdsInKecamatan
+                    $familyCodesInRegion,
+                    $part1IdsWithMatchingFamilyNumbers
                 ): void {
 
                     $query
-                        ->whereExists(
-                            function (
-                                QueryBuilder $familyQuery
-                            ) use (
-                                $filters,
-                                $kelurahanIdsInKecamatan
-                            ): void {
-
-                                $familyQuery
-                                    ->selectRaw('1')
-                                    ->from(
-                                        'keluargas as region_family'
-                                    )
-
-                                    ->where(
-                                        function (
-                                            QueryBuilder $familyMatch
-                                        ): void {
-
-                                            $familyMatch
-                                                ->whereColumn(
-                                                    'region_family.kode',
-                                                    'part1_keluarga.keluarga_periode_kode'
-                                                )
-
-                                                ->orWhereColumn(
-                                                    'region_family.no_kk',
-                                                    'part1_keluarga.no_kk'
-                                                );
-                                        }
-                                    )
-
-                                    ->where(
-                                        function (
-                                            QueryBuilder $districtQuery
-                                        ) use (
-                                            $filters,
-                                            $kelurahanIdsInKecamatan
-                                        ): void {
-
-                                            $districtQuery
-                                                ->where(
-                                                    'region_family.kecamatan_id',
-                                                    $filters['kecamatan']
-                                                )
-
-                                                ->orWhereIn(
-                                                    'region_family.kelurahan_id',
-                                                    $kelurahanIdsInKecamatan
-                                                );
-                                        }
-                                    );
-
-                                if (
-                                    $filters['kelurahan'] !== ''
-                                ) {
-                                    $familyQuery->where(
-                                        'region_family.kelurahan_id',
-                                        $filters['kelurahan']
-                                    );
-                                }
-                            }
+                        ->whereIn(
+                            'part1_keluarga.keluarga_periode_kode',
+                            $familyCodesInRegion
+                        )
+                        ->orWhereIn(
+                            'part1_keluarga.id',
+                            $part1IdsWithMatchingFamilyNumbers
                         )
 
                         ->orWhere(
@@ -1450,6 +1394,25 @@ class VerifikasiController extends Controller
     protected function addCompleteMembersSubquery(
         QueryBuilder $familyQuery
     ): void {
+        $familiesByNumber = Keluarga::query()
+            ->get(['kode', 'no_kk'])
+            ->filter(static fn (Keluarga $keluarga): bool => filled($keluarga->no_kk))
+            ->groupBy('no_kk');
+        $legacyMatches = [];
+
+        KeluargaPart1::query()
+            ->select(['id', 'no_kk', 'keluarga_periode_kode'])
+            ->lazyById(500)
+            ->each(function (KeluargaPart1 $part1Record) use ($familiesByNumber, &$legacyMatches): void {
+                foreach ($familiesByNumber->get($part1Record->no_kk, collect()) as $keluarga) {
+                    if ($keluarga->kode !== $part1Record->keluarga_periode_kode) {
+                        $legacyMatches[] = [
+                            'part1_id' => $part1Record->id,
+                            'keluarga_kode' => $keluarga->kode,
+                        ];
+                    }
+                }
+            });
 
         $familyQuery
             ->selectRaw('1')
@@ -1460,18 +1423,25 @@ class VerifikasiController extends Controller
             ->where(
                 function (
                     QueryBuilder $familyMatch
-                ): void {
+                ) use ($legacyMatches): void {
 
                     $familyMatch
                         ->whereColumn(
                             'complete_family.kode',
                             'part1_keluarga.keluarga_periode_kode'
-                        )
-
-                        ->orWhereColumn(
-                            'complete_family.no_kk',
-                            'part1_keluarga.no_kk'
                         );
+
+                    if ($legacyMatches !== []) {
+                        $familyMatch->orWhere(function (QueryBuilder $legacyMatch) use ($legacyMatches): void {
+                            foreach ($legacyMatches as $legacyPair) {
+                                $legacyMatch->orWhere(function (QueryBuilder $pairQuery) use ($legacyPair): void {
+                                    $pairQuery
+                                        ->where('part1_keluarga.id', $legacyPair['part1_id'])
+                                        ->where('complete_family.kode', $legacyPair['keluarga_kode']);
+                                });
+                            }
+                        });
+                    }
                 }
             )
 
@@ -2558,6 +2528,8 @@ class VerifikasiController extends Controller
         */
 
         $part5Members = [];
+        $members = collect();
+        $part5Rows = collect();
 
         if (
             $kode &&
@@ -2653,67 +2625,65 @@ class VerifikasiController extends Controller
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | HUBUNGKAN JAWABAN PART 5 LAMA KE ANGGOTA AKTIF
+        |--------------------------------------------------------------------------
+        | Perbarui card anggota yang sudah dibuat, bukan menambahkan card baru.
+        |--------------------------------------------------------------------------
+        */
 
-/*
-|--------------------------------------------------------------------------
-| HUBUNGKAN JAWABAN PART 5 LAMA KE ANGGOTA AKTIF
-|--------------------------------------------------------------------------
-| Perbarui card anggota yang sudah dibuat, bukan menambahkan card baru.
-|--------------------------------------------------------------------------
-*/
+        $kodeAnggotaAktif = $members
+            ->pluck('kode')
+            ->map(fn ($value) => trim((string) $value))
+            ->filter()
+            ->values();
 
-$kodeAnggotaAktif = $members
-    ->pluck('kode')
-    ->map(fn ($value) => trim((string) $value))
-    ->filter()
-    ->values();
+        $part5Lama = $part5Rows
+            ->filter(function ($row) use ($kodeAnggotaAktif) {
+                $kodeLama = trim((string) $row->keluarga_anggota_kode);
 
-$part5Lama = $part5Rows
-    ->filter(function ($row) use ($kodeAnggotaAktif) {
-        $kodeLama = trim((string) $row->keluarga_anggota_kode);
+                return $kodeLama !== ''
+                    && ! $kodeAnggotaAktif->contains($kodeLama);
+            })
+            ->sortBy('id')
+            ->values();
 
-        return $kodeLama !== ''
-            && ! $kodeAnggotaAktif->contains($kodeLama);
-    })
-    ->sortBy('id')
-    ->values();
+        $anggotaTanpaJawaban = $members
+            ->filter(function ($member) use ($part5Rows) {
+                $kode = trim((string) $member->kode);
 
-$anggotaTanpaJawaban = $members
-    ->filter(function ($member) use ($part5Rows) {
-        $kode = trim((string) $member->kode);
+                return ! $part5Rows->contains(
+                    fn ($row) => trim((string) $row->keluarga_anggota_kode) === $kode
+                );
+            })
+            ->values();
 
-        return ! $part5Rows->contains(
-            fn ($row) =>
-                trim((string) $row->keluarga_anggota_kode) === $kode
-        );
-    })
-    ->values();
+        if (
+            $part5Lama->isNotEmpty()
+            && $part5Lama->count() === $anggotaTanpaJawaban->count()
+        ) {
+            foreach ($anggotaTanpaJawaban as $index => $member) {
+                $rowLama = $part5Lama->get($index);
 
-if (
-    $part5Lama->isNotEmpty()
-    && $part5Lama->count() === $anggotaTanpaJawaban->count()
-) {
-    foreach ($anggotaTanpaJawaban as $index => $member) {
-        $rowLama = $part5Lama->get($index);
+                // Cari card anggota yang sudah dibuat sebelumnya.
+                foreach ($part5Members as $key => $existingMember) {
+                    if (
+                        trim((string) ($existingMember['kode'] ?? ''))
+                        === trim((string) $member->kode)
+                    ) {
+                        // Perbarui jawaban pada card tersebut, tanpa menambah card.
+                        $part5Members[$key] =
+                            $this->buildFamilyMemberQuestionnaire(
+                                $member,
+                                $rowLama
+                            );
 
-        // Cari card anggota yang sudah dibuat sebelumnya.
-        foreach ($part5Members as $key => $existingMember) {
-            if (
-                trim((string) ($existingMember['kode'] ?? ''))
-                === trim((string) $member->kode)
-            ) {
-                // Perbarui jawaban pada card tersebut, tanpa menambah card.
-                $part5Members[$key] =
-                    $this->buildFamilyMemberQuestionnaire(
-                        $member,
-                        $rowLama
-                    );
-
-                break;
+                        break;
+                    }
+                }
             }
         }
-    }
-}
 
         /*
         |--------------------------------------------------------------------------
@@ -3218,10 +3188,11 @@ if (
         ) {
 
             $keluarga =
-                Keluarga::where(
-                    'no_kk',
-                    $item->no_kk
-                )->first();
+                Keluarga::query()
+                    ->get()
+                    ->first(
+                        static fn (Keluarga $family): bool => $family->no_kk === $item->no_kk
+                    );
         }
 
         abort_if(
@@ -3275,43 +3246,43 @@ if (
 |--------------------------------------------------------------------------
 */
 
-$part5 = KeluargaPart5::query()
-    ->where('keluarga_periode_kode', $item->keluarga_periode_kode)
-    ->where('keluarga_anggota_kode', $member->kode)
-    ->first();
+        $part5 = KeluargaPart5::query()
+            ->where('keluarga_periode_kode', $item->keluarga_periode_kode)
+            ->where('keluarga_anggota_kode', $member->kode)
+            ->first();
 
-/*
-|--------------------------------------------------------------------------
-| FALLBACK: CARI DATA PART 5 YANG KODENYA SUDAH TIDAK COCOK
-|--------------------------------------------------------------------------
-*/
+        /*
+        |--------------------------------------------------------------------------
+        | FALLBACK: CARI DATA PART 5 YANG KODENYA SUDAH TIDAK COCOK
+        |--------------------------------------------------------------------------
+        */
 
-if (! $part5) {
-    $part5 = KeluargaPart5::query()
-        ->where('keluarga_periode_kode', $item->keluarga_periode_kode)
-        ->whereNotNull('keluarga_anggota_kode')
-        ->where('keluarga_anggota_kode', '!=', '')
-        ->orderBy('id')
-        ->get()
-        ->first(function ($row) use ($member) {
-            // Hanya mengambil data yang belum terhubung
-            // ke kode anggota aktif.
-            return ! KeluargaAnggota::query()
-                ->where('kode', $row->keluarga_anggota_kode)
-                ->exists();
-        });
-}
+        if (! $part5) {
+            $part5 = KeluargaPart5::query()
+                ->where('keluarga_periode_kode', $item->keluarga_periode_kode)
+                ->whereNotNull('keluarga_anggota_kode')
+                ->where('keluarga_anggota_kode', '!=', '')
+                ->orderBy('id')
+                ->get()
+                ->first(function ($row) {
+                    // Hanya mengambil data yang belum terhubung
+                    // ke kode anggota aktif.
+                    return ! KeluargaAnggota::query()
+                        ->where('kode', $row->keluarga_anggota_kode)
+                        ->exists();
+                });
+        }
 
-/*
-|--------------------------------------------------------------------------
-| BUILD DATA DETAIL
-|--------------------------------------------------------------------------
-*/
+        /*
+        |--------------------------------------------------------------------------
+        | BUILD DATA DETAIL
+        |--------------------------------------------------------------------------
+        */
 
-$memberData = $this->buildFamilyMemberQuestionnaire(
-    $member,
-    $part5
-);
+        $memberData = $this->buildFamilyMemberQuestionnaire(
+            $member,
+            $part5
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -3442,10 +3413,11 @@ $memberData = $this->buildFamilyMemberQuestionnaire(
         ) {
 
             $keluarga =
-                Keluarga::where(
-                    'no_kk',
-                    $item->no_kk
-                )->first();
+                Keluarga::query()
+                    ->get()
+                    ->first(
+                        static fn (Keluarga $family): bool => $family->no_kk === $item->no_kk
+                    );
         }
 
         /*

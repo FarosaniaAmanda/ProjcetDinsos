@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\KeluargaPart1;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -77,6 +78,8 @@ class KuisionerPart1Test extends TestCase
 
         $response = $this->post(route('kuisioner.part1.store'), [
             'keluarga_kode' => 'KLG-TEST-0001',
+            'nik' => '3575020101010001',
+            'no_kk' => '3575020101010002',
             'is_alamat_sesuai' => '0',
             'alasan_tidak_sesuai' => 'Alamat tidak sesuai hasil verifikasi.',
             'action' => 'draft',
@@ -88,5 +91,93 @@ class KuisionerPart1Test extends TestCase
             'is_alamat_sesuai' => 0,
             'alasan_tidak_sesuai' => 'Alamat tidak sesuai hasil verifikasi.',
         ]);
+
+        $part1 = KeluargaPart1::query()
+            ->where('keluarga_periode_kode', 'KLP-TEST-0001')
+            ->firstOrFail();
+        $storedIdentifiers = DB::table('part1_keluarga')
+            ->where('id', $part1->id)
+            ->first(['nik', 'no_kk']);
+
+        $this->assertStringStartsWith('enc:v1:', $storedIdentifiers->nik);
+        $this->assertStringStartsWith('enc:v1:', $storedIdentifiers->no_kk);
+        $this->assertSame('3575020101010001', $part1->nik);
+        $this->assertSame('3575020101010002', $part1->no_kk);
+
+        $this->post(route('kuisioner.part1.store'), [
+            'keluarga_kode' => 'KLG-TEST-0001',
+            'nik' => '3575020101010003',
+            'no_kk' => '3575020101010004',
+            'action' => 'draft',
+        ])->assertRedirect(route('kuisioner.index'));
+
+        $updatedPart1 = KeluargaPart1::findOrFail($part1->id);
+
+        $this->assertSame('3575020101010003', $updatedPart1->nik);
+        $this->assertSame('3575020101010004', $updatedPart1->no_kk);
+    }
+
+    public function test_migration_encrypts_legacy_part1_identifiers_only_once(): void
+    {
+        Schema::dropIfExists('part1_keluarga');
+        Schema::create('part1_keluarga', function (Blueprint $table): void {
+            $table->id();
+            $table->string('nik')->nullable();
+            $table->string('no_kk')->nullable();
+            $table->timestamps();
+        });
+
+        $id = DB::table('part1_keluarga')->insertGetId([
+            'nik' => '3575020101010005',
+            'no_kk' => '3575020101010006',
+        ]);
+        $migration = require database_path(
+            'migrations/2026_10_28_041500_encrypt_part1_family_identifiers.php'
+        );
+
+        $migration->up();
+        $encryptedIdentifiers = DB::table('part1_keluarga')
+            ->where('id', $id)
+            ->first(['nik', 'no_kk']);
+
+        $this->assertSame('text', Schema::getColumnType('part1_keluarga', 'nik'));
+        $this->assertSame('text', Schema::getColumnType('part1_keluarga', 'no_kk'));
+        $this->assertStringStartsWith('enc:v1:', $encryptedIdentifiers->nik);
+        $this->assertStringStartsWith('enc:v1:', $encryptedIdentifiers->no_kk);
+        $this->assertSame('3575020101010005', KeluargaPart1::findOrFail($id)->nik);
+        $this->assertSame('3575020101010006', KeluargaPart1::findOrFail($id)->no_kk);
+
+        $migration->up();
+
+        $this->assertDatabaseHas('part1_keluarga', [
+            'id' => $id,
+            'nik' => $encryptedIdentifiers->nik,
+            'no_kk' => $encryptedIdentifiers->no_kk,
+        ]);
+    }
+
+    public function test_identifier_search_matches_encrypted_part1_values(): void
+    {
+        Schema::dropIfExists('part1_keluarga');
+        Schema::create('part1_keluarga', function (Blueprint $table): void {
+            $table->id();
+            $table->string('nik')->nullable();
+            $table->string('no_kk')->nullable();
+            $table->timestamps();
+        });
+
+        $part1 = KeluargaPart1::query()->create([
+            'nik' => '3575020101010007',
+            'no_kk' => '3575020101010008',
+        ]);
+
+        $this->assertSame(
+            [$part1->id],
+            KeluargaPart1::idsMatchingIdentifierSearch('01010007')
+        );
+        $this->assertSame(
+            [$part1->id],
+            KeluargaPart1::idsMatchingIdentifierValues('no_kk', ['3575020101010008'])
+        );
     }
 }
