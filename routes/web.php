@@ -247,6 +247,16 @@ Route::delete('/periode/{id}', [PeriodeController::class, 'destroy'])
 Route::get('/responden', [RespondenController::class, 'index'])
     ->name('responden.index');
 
+Route::post('/responden/ambil-data', [RespondenController::class, 'ambilData'])
+    ->name('responden.ambilData');
+
+Route::patch('/responden/status-massal', [RespondenController::class, 'updateBulkStatus'])
+    ->name('responden.status.massal');
+
+Route::patch('/responden/{id}/status', [RespondenController::class, 'updateStatus'])
+    ->whereNumber('id')
+    ->name('responden.status.update');
+
 Route::get('/responden/tambah', [RespondenController::class, 'create'])
     ->name('responden.create');
 

@@ -74,8 +74,11 @@ class RespondenWorkflowTest extends TestCase
             $table->string('keluarga_kode');
             $table->string('periode_kode');
             $table->string('status_kuisoner');
+            $table->boolean('is_active')->default(true);
             $table->string('created_by')->nullable();
+            $table->string('updated_by')->nullable();
             $table->timestamps();
+            $table->unique(['keluarga_kode', 'periode_kode']);
         });
 
         Schema::create('part1_keluarga', function (Blueprint $table): void {
@@ -201,6 +204,7 @@ class RespondenWorkflowTest extends TestCase
         $this->assertDatabaseHas('keluarga_periodes', [
             'keluarga_kode' => $family->kode,
             'periode_kode' => 'PERIODE-AKTIF',
+            'is_active' => true,
         ]);
 
         $this->assertDatabaseMissing('part1_keluarga', [
@@ -321,6 +325,7 @@ class RespondenWorkflowTest extends TestCase
                 'keluarga_kode' => 'KLG-PERIODE-AKTIF',
                 'periode_kode' => 'PERIODE-2026',
                 'status_kuisoner' => 'belum',
+                'is_active' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -329,6 +334,7 @@ class RespondenWorkflowTest extends TestCase
                 'keluarga_kode' => 'KLG-PERIODE-NONAKTIF',
                 'periode_kode' => 'PERIODE-SELESAI',
                 'status_kuisoner' => 'belum',
+                'is_active' => false,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -558,7 +564,7 @@ class RespondenWorkflowTest extends TestCase
             ->assertSessionHasErrors('periode_id');
     }
 
-    public function test_adding_a_respondent_in_a_non_active_period_shows_non_active_status(): void
+    public function test_adding_a_respondent_in_a_non_active_period_starts_with_active_status(): void
     {
         $this->selectPeriod('Selesai');
 
@@ -577,12 +583,13 @@ class RespondenWorkflowTest extends TestCase
         $this->assertDatabaseHas('keluarga_periodes', [
             'keluarga_kode' => $family->kode,
             'periode_kode' => 'PERIODE-SELESAI',
+            'is_active' => true,
         ]);
 
         $this->withoutVite()
             ->get(route('responden.index'))
             ->assertSee('Keluarga Periode Selesai')
-            ->assertSee('Non Aktif');
+            ->assertSee('Aktif');
     }
 
     public function test_questionnaire_selection_shows_only_respondents_linked_to_the_selected_period(): void
@@ -1468,6 +1475,241 @@ class RespondenWorkflowTest extends TestCase
         Http::assertSent(fn (Request $request): bool => $request['q'] === 'Bakalan, Bugul Kidul, Kota Pasuruan, Jawa Timur, Indonesia'
             && $request->hasHeader('User-Agent', 'ProjcetDinsos/1.0')
         );
+    }
+
+    public function test_index_shows_statistics_and_status_for_the_selected_period_without_back_button(): void
+    {
+        $this->selectPeriod('Aktif');
+        $this->createFamilyInPeriod('KLG-STAT-ACTIVE', 'PERIODE-AKTIF', true);
+        $this->createFamilyInPeriod('KLG-STAT-INACTIVE', 'PERIODE-AKTIF', false);
+
+        $this->withoutVite()
+            ->get(route('responden.index', ['status' => 'semua']))
+            ->assertViewHas('totalResponden', 2)
+            ->assertViewHas('respondenAktif', 1)
+            ->assertViewHas('respondenNonaktif', 1)
+            ->assertSee('Total Responden')
+            ->assertSee('Responden Aktif')
+            ->assertSee('Responden Nonaktif')
+            ->assertSee('Aktif')
+            ->assertSee('Non Aktif')
+            ->assertDontSee('Kembali');
+    }
+
+    public function test_status_update_only_changes_the_selected_period_relation(): void
+    {
+        $periodeId = $this->selectPeriod('Aktif');
+        DB::table('periodes')->insert([
+            'kode' => 'PERIODE-LAIN',
+            'nama' => 'Periode Lain',
+            'status_periode' => 'Selesai',
+        ]);
+        $familyId = $this->createFamilyInPeriod('KLG-STATUS-PERIOD', 'PERIODE-AKTIF', true);
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KLP-STATUS-PERIOD-OTHER',
+            'keluarga_kode' => 'KLG-STATUS-PERIOD',
+            'periode_kode' => 'PERIODE-LAIN',
+            'status_kuisoner' => 'belum',
+            'is_active' => true,
+        ]);
+
+        $this->withSession(['periode_id' => $periodeId])
+            ->patchJson(route('responden.status.update', $familyId), [
+                'is_active' => false,
+            ])
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('is_active', false);
+
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-STATUS-PERIOD',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'is_active' => false,
+        ]);
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-STATUS-PERIOD',
+            'periode_kode' => 'PERIODE-LAIN',
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_invalid_status_update_returns_validation_error_without_changing_database_state(): void
+    {
+        $this->selectPeriod('Aktif');
+        $familyId = $this->createFamilyInPeriod('KLG-INVALID-STATUS', 'PERIODE-AKTIF');
+
+        $this->patchJson(route('responden.status.update', $familyId), [
+            'is_active' => 'invalid',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('is_active');
+
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-INVALID-STATUS',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_bulk_status_update_only_changes_respondents_matching_all_filters(): void
+    {
+        $this->selectPeriod('Aktif');
+        $this->seedWilayah();
+        $targetOneId = $this->createFamilyInPeriod(
+            'KLG-BULK-TARGET-1',
+            'PERIODE-AKTIF',
+            true,
+            'Target Satu',
+            '3575020',
+            '3575020001'
+        );
+        $targetTwoId = $this->createFamilyInPeriod(
+            'KLG-BULK-TARGET-2',
+            'PERIODE-AKTIF',
+            true,
+            'Target Dua',
+            '3575020',
+            '3575020001'
+        );
+        $outsideId = $this->createFamilyInPeriod(
+            'KLG-BULK-OUTSIDE',
+            'PERIODE-AKTIF',
+            true,
+            'Target Luar',
+            '3575021',
+            '3575021001'
+        );
+
+        $this->patch(route('responden.status.massal'), [
+            'target_status' => 'nonaktif',
+            'status' => 'semua',
+            'kecamatan_id' => '3575020',
+            'kelurahan_id' => '3575020001',
+            'search' => 'Target',
+        ])->assertRedirect();
+
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-BULK-TARGET-1',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'is_active' => false,
+        ]);
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-BULK-TARGET-2',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'is_active' => false,
+        ]);
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-BULK-OUTSIDE',
+            'periode_kode' => 'PERIODE-AKTIF',
+            'is_active' => true,
+        ]);
+        $this->assertNotSame($targetOneId, $outsideId);
+        $this->assertNotSame($targetTwoId, $outsideId);
+
+        $this->withoutVite()
+            ->get(route('responden.index', [
+                'status' => 'nonaktif',
+                'kecamatan_id' => '3575020',
+                'kelurahan_id' => '3575020001',
+                'search' => 'Target',
+            ]))
+            ->assertSee('Target Satu')
+            ->assertSee('Target Dua')
+            ->assertDontSee('Target Luar');
+    }
+
+    public function test_import_is_idempotent_and_only_adds_relations_to_the_selected_period(): void
+    {
+        $targetPeriodId = DB::table('periodes')->insertGetId([
+            'kode' => 'PERIODE-TARGET',
+            'nama' => 'Periode Target',
+            'status_periode' => 'Aktif',
+        ]);
+        DB::table('periodes')->insert([
+            'kode' => 'PERIODE-SOURCE',
+            'nama' => 'Periode Sumber',
+            'status_periode' => 'Selesai',
+        ]);
+        $this->createFamilyInPeriod('KLG-IMPORT-SOURCE', 'PERIODE-SOURCE');
+        DB::table('keluarga_anggotas')->insert([
+            'kode' => 'ANG-IMPORT-SOURCE',
+            'keluarga_kode' => 'KLG-IMPORT-SOURCE',
+            'nik' => '3575020101010003',
+            'nama_lengkap' => 'Anggota Import',
+            'status_keluarga' => 'Anak',
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->withSession(['periode_id' => $targetPeriodId])
+            ->post(route('responden.ambilData'), ['periode_sumber' => 'PERIODE-SOURCE'])
+            ->assertRedirect(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']));
+
+        $this->assertDatabaseHas('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-IMPORT-SOURCE',
+            'periode_kode' => 'PERIODE-TARGET',
+            'is_active' => true,
+        ]);
+
+        $this->post(route('responden.ambilData'), ['periode_sumber' => 'PERIODE-SOURCE'])
+            ->assertRedirect(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']));
+
+        $this->assertSame(
+            1,
+            DB::table('keluarga_periodes')
+                ->where('keluarga_kode', 'KLG-IMPORT-SOURCE')
+                ->where('periode_kode', 'PERIODE-TARGET')
+                ->count()
+        );
+        $this->assertSame(
+            1,
+            DB::table('keluarga_periodes')
+                ->where('keluarga_kode', 'KLG-IMPORT-SOURCE')
+                ->where('periode_kode', 'PERIODE-SOURCE')
+                ->count()
+        );
+
+        $this->withoutVite()
+            ->get(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']))
+            ->assertSee('Data dari Periode Sumber')
+            ->assertSee('Responden Tes')
+            ->assertSee('Anggota Import');
+    }
+
+    private function createFamilyInPeriod(
+        string $familyCode,
+        string $periodCode,
+        bool $isActive = true,
+        string $name = 'Responden Tes',
+        ?string $kecamatanId = null,
+        ?string $kelurahanId = null
+    ): int {
+        $familyId = DB::table('keluargas')->insertGetId([
+            'kode' => $familyCode,
+            'no_kk' => '3575020101010001',
+            'nik' => '3575020101010002',
+            'nama_lengkap' => $name,
+            'status_keluarga' => 'Kepala Keluarga',
+            'kecamatan_id' => $kecamatanId,
+            'kelurahan_id' => $kelurahanId,
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KLP-'.$familyCode.'-'.$periodCode,
+            'keluarga_kode' => $familyCode,
+            'periode_kode' => $periodCode,
+            'status_kuisoner' => 'belum',
+            'is_active' => $isActive,
+            'created_by' => 'admin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return $familyId;
     }
 
     private function seedWilayah(): void

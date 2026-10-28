@@ -5,6 +5,12 @@
 @if (session('success'))
 <div class="responden-notification success" id="respondenNotification"><span class="responden-notification-icon">✓</span><span>{{ session('success') }}</span></div>
 @endif
+@if (session('error'))
+<div class="responden-notification warning" id="respondenNotification"><span class="responden-notification-icon">!</span><span>{{ session('error') }}</span></div>
+@endif
+@if ($errors->any())
+<div class="responden-notification warning" id="respondenNotification"><span class="responden-notification-icon">!</span><span>{{ $errors->first() }}</span></div>
+@endif
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -182,6 +188,259 @@
 .responden-search-button:hover {
     background: #f2f3f8;
     color: #252A86;
+}
+
+.responden-header-actions,
+.responden-import-actions,
+.responden-filter-form,
+.responden-bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.responden-header-actions {
+    position: relative;
+}
+
+.responden-import-dropdown {
+    position: relative;
+}
+
+.responden-import-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 20;
+    width: 300px;
+    padding: 14px;
+    border: 1px solid #e1e3eb;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .13);
+}
+
+.responden-import-menu label,
+.responden-filter-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #666;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.responden-filter-form {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.responden-filter-select,
+.responden-import-select {
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid #dfe1e8;
+    border-radius: 8px;
+    background: #fff;
+    color: #444;
+    font-size: 11px;
+}
+
+.responden-filter-select {
+    min-width: 135px;
+}
+
+.responden-filter-select:focus,
+.responden-import-select:focus {
+    border-color: #252A86;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 42, 134, .08);
+}
+
+.responden-search {
+    width: auto;
+    flex: 0 1 250px;
+}
+
+.responden-statistics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.responden-stat-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 82px;
+    padding: 16px 18px;
+    border: 1px solid;
+    border-radius: 11px;
+    background: #fff;
+}
+
+.responden-stat-card.total {
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+    background: #eff6ff;
+}
+
+.responden-stat-card.active {
+    border-color: #bbf7d0;
+    color: #15803d;
+    background: #f0fdf4;
+}
+
+.responden-stat-card.inactive {
+    border-color: #fecaca;
+    color: #b91c1c;
+    background: #fef2f2;
+}
+
+.responden-stat-label {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.responden-stat-value {
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.responden-bulk-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid #e8e9ef;
+    background: #fcfcfe;
+}
+
+.responden-bulk-label {
+    color: #777;
+    font-size: 11px;
+}
+
+.responden-bulk-button {
+    min-height: 32px;
+    padding: 0 11px;
+    border: 1px solid;
+    border-radius: 7px;
+    background: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.responden-bulk-button.activate {
+    border-color: #86efac;
+    color: #15803d;
+}
+
+.responden-bulk-button.deactivate {
+    border-color: #fca5a5;
+    color: #b91c1c;
+}
+
+.responden-status-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.responden-status-checkbox {
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: #198754;
+    cursor: pointer;
+}
+
+.responden-status-checkbox:disabled {
+    cursor: wait;
+}
+
+.responden-status-label {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.responden-status-label.aktif {
+    color: #15803d;
+}
+
+.responden-status-label.nonaktif {
+    color: #b91c1c;
+}
+
+.responden-imported-panel {
+    margin-top: 20px;
+}
+
+.responden-imported-title {
+    color: #252A86;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+@media (max-width: 950px) {
+    .responden-filter-form {
+        justify-content: flex-start;
+    }
+
+    .responden-filter-select {
+        flex: 1 1 140px;
+    }
+
+    .responden-search {
+        flex-basis: 100%;
+    }
+}
+
+@media (max-width: 700px) {
+    .responden-statistics {
+        grid-template-columns: 1fr;
+        gap: 9px;
+    }
+
+    .responden-stat-card {
+        min-height: 68px;
+    }
+
+    .responden-header-actions {
+        width: 100%;
+    }
+
+    .responden-header-actions > * {
+        flex: 1;
+    }
+
+    .responden-import-dropdown > .responden-btn,
+    .responden-header-actions > .responden-btn {
+        width: 100%;
+    }
+
+    .responden-import-menu {
+        right: auto;
+        left: 0;
+        width: min(300px, calc(100vw - 40px));
+    }
+
+    .responden-bulk-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .responden-filter-form {
+        width: 100%;
+    }
+
+    .responden-filter-form > * {
+        flex: 1 1 100%;
+    }
 }
 
 
@@ -1055,31 +1314,6 @@ textarea.responden-form-control {
     border: 1px solid #fecaca;
 }
 
-.responden-back-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    height: 34px;
-    padding: 0 12px;
-    margin-bottom: 12px;
-    border: 1px solid #dcdfea;
-    border-radius: 7px;
-    background: #fff;
-    color: #555;
-    font-size: 11px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all .2s ease;
-}
-
-.responden-back-btn:hover {
-    background: #f7f7fa;
-    border-color: #252A86;
-    color: #252A86;
-}
-
 .geotagging-info {
     display: flex;
     align-items: center;
@@ -1255,11 +1489,6 @@ textarea.responden-form-control {
 
         <div>
 
-            <button type="button" class="responden-back-btn" onclick="window.history.back()">
-                <span aria-hidden="true">←</span>
-                Kembali
-            </button>
-
             <div class="responden-page-label">
                 ADMIN
             </div>
@@ -1274,16 +1503,65 @@ textarea.responden-form-control {
 
         </div>
 
+        <div class="responden-header-actions">
+            <details class="responden-import-dropdown">
+                <summary class="responden-btn responden-btn-secondary">
+                    Ambil Data
+                </summary>
+                <div class="responden-import-menu">
+                    <form
+                        action="{{ route('responden.ambilData') }}"
+                        method="POST"
+                        onsubmit="return konfirmasiAmbilData(this)"
+                    >
+                        @csrf
+                        <label for="periode_sumber">Pilih periode sumber</label>
+                        <select
+                            class="responden-import-select"
+                            id="periode_sumber"
+                            name="periode_sumber"
+                            required
+                            style="width:100%;margin-bottom:10px;"
+                        >
+                            <option value="">Pilih periode</option>
+                            @foreach ($periodes as $periode)
+                                <option value="{{ $periode->kode }}">
+                                    {{ $periode->nama }} ({{ $periode->status_periode }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="responden-btn responden-btn-primary" style="width:100%;">
+                            Konfirmasi Ambil Data
+                        </button>
+                    </form>
+                </div>
+            </details>
 
-        <button
-            type="button"
-            class="responden-btn responden-btn-primary"
-            onclick="bukaModalTambah()"
-        >
-            <span style="font-size: 16px;">+</span>
-            Tambah Responden
-        </button>
+            <button
+                type="button"
+                class="responden-btn responden-btn-primary"
+                onclick="bukaModalTambah()"
+            >
+                <span style="font-size: 16px;">+</span>
+                Tambah Responden
+            </button>
+        </div>
 
+    </div>
+
+    <div class="responden-statistics" aria-label="Statistik responden periode {{ $periodeTerpilih->nama }}">
+        <div class="responden-stat-card total">
+            <span class="responden-stat-label">Total Responden</span>
+            <span class="responden-stat-value">{{ number_format($totalResponden, 0, ',', '.') }}</span>
+        </div>
+        <div class="responden-stat-card active">
+            <span class="responden-stat-label">Responden Aktif</span>
+            <span class="responden-stat-value">{{ number_format($respondenAktif, 0, ',', '.') }}</span>
+        </div>
+        <div class="responden-stat-card inactive">
+            <span class="responden-stat-label">Responden Nonaktif</span>
+            <span class="responden-stat-value">{{ number_format($respondenNonaktif, 0, ',', '.') }}</span>
+        </div>
     </div>
 
 
@@ -1309,36 +1587,107 @@ textarea.responden-form-control {
 
 
             <form
-                class="responden-search"
+                class="responden-filter-form"
                 id="searchRespondenForm"
                 method="GET"
                 action="{{ route('responden.index') }}"
             >
-
-                <span class="responden-search-icon">
-                    ⌕
-                </span>
-
-                <input
-                    type="text"
-                    id="searchResponden"
-                    name="search"
-                    placeholder="Cari No. KK atau nama..."
-                    autocomplete="off"
-                    value="{{ request('search') }}"
+                <select
+                    class="responden-filter-select"
+                    id="kecamatanFilter"
+                    name="kecamatan_id"
+                    aria-label="Filter Kecamatan"
                 >
+                    <option value="">Semua Kecamatan</option>
+                    @foreach ($kecamatans as $kecamatan)
+                        <option value="{{ $kecamatan->kecamatan_id }}" @selected($filters['kecamatan_id'] === (string) $kecamatan->kecamatan_id)>
+                            {{ $kecamatan->deskripsi }}
+                        </option>
+                    @endforeach
+                </select>
 
-                <button
-                    type="submit"
-                    class="responden-search-button"
-                    aria-label="Cari responden"
-                    title="Cari responden"
+                <select
+                    class="responden-filter-select"
+                    id="kelurahanFilter"
+                    name="kelurahan_id"
+                    aria-label="Filter Kelurahan"
+                    {{ $filters['kecamatan_id'] === '' ? 'disabled' : '' }}
                 >
-                    ⌕
-                </button>
+                    <option value="">Semua Kelurahan</option>
+                    @foreach ($kelurahans as $kelurahan)
+                        <option value="{{ $kelurahan->kelurahan_id }}" @selected($filters['kelurahan_id'] === (string) $kelurahan->kelurahan_id)>
+                            {{ $kelurahan->deskripsi }}
+                        </option>
+                    @endforeach
+                </select>
 
+                <select
+                    class="responden-filter-select"
+                    id="statusFilter"
+                    name="status"
+                    aria-label="Filter Status"
+                >
+                    <option value="aktif" @selected($filters['status'] === 'aktif')>Aktif</option>
+                    <option value="nonaktif" @selected($filters['status'] === 'nonaktif')>Nonaktif</option>
+                    <option value="semua" @selected($filters['status'] === 'semua')>Semua Status</option>
+                </select>
+
+                @if (request()->filled('imported_from') && $importedFrom)
+                    <input type="hidden" name="imported_from" value="{{ $importedFrom->kode }}">
+                @endif
+
+                <div class="responden-search">
+                    <span class="responden-search-icon">⌕</span>
+                    <input
+                        type="text"
+                        id="searchResponden"
+                        name="search"
+                        placeholder="Cari No. KK atau nama..."
+                        autocomplete="off"
+                        value="{{ $filters['search'] }}"
+                    >
+                    <button
+                        type="submit"
+                        class="responden-search-button"
+                        aria-label="Cari responden"
+                        title="Cari responden"
+                    >
+                        ⌕
+                    </button>
+                </div>
             </form>
 
+        </div>
+
+        <div class="responden-bulk-toolbar">
+            <span class="responden-bulk-label">
+                Aksi massal berlaku pada seluruh hasil filter untuk periode {{ $periodeTerpilih->nama }}.
+            </span>
+            <div class="responden-bulk-actions">
+                @foreach (['aktif' => 'Aktifkan Semua', 'nonaktif' => 'Nonaktifkan Semua'] as $targetStatus => $label)
+                    <form
+                        method="POST"
+                        action="{{ route('responden.status.massal') }}"
+                        onsubmit="return konfirmasiStatusMassal(this, '{{ $label }}')"
+                    >
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="target_status" value="{{ $targetStatus }}">
+                        @foreach ($filters as $filterName => $filterValue)
+                            <input type="hidden" name="{{ $filterName }}" value="{{ $filterValue }}">
+                        @endforeach
+                        @if ($importedFrom)
+                            <input type="hidden" name="imported_from" value="{{ $importedFrom->kode }}">
+                        @endif
+                        <button
+                            type="submit"
+                            class="responden-bulk-button {{ $targetStatus === 'aktif' ? 'activate' : 'deactivate' }}"
+                        >
+                            {{ $label }}
+                        </button>
+                    </form>
+                @endforeach
+            </div>
         </div>
 
 
@@ -1500,8 +1849,19 @@ textarea.responden-form-control {
                             </td>
 
                             <td>
-                                <span class="responden-status-badge {{ $keluarga->status_periode === 'aktif' ? 'aktif' : 'nonaktif' }}">
-                                    {{ $keluarga->status_periode === 'aktif' ? 'Aktif' : 'Non Aktif' }}
+                                <span class="responden-status-control">
+                                    <input
+                                        type="checkbox"
+                                        class="responden-status-checkbox"
+                                        aria-label="Status aktif {{ $keluarga->nama_lengkap }}"
+                                        data-url="{{ route('responden.status.update', $keluarga->id) }}"
+                                        data-original="{{ (int) $keluarga->is_active }}"
+                                        @checked((bool) $keluarga->is_active)
+                                        onchange="updateStatusResponden(this)"
+                                    >
+                                    <span class="responden-status-label {{ $keluarga->is_active ? 'aktif' : 'nonaktif' }}">
+                                        {{ $keluarga->is_active ? 'Aktif' : 'Non Aktif' }}
+                                    </span>
                                 </span>
                             </td>
 
@@ -1679,6 +2039,65 @@ textarea.responden-form-control {
         @endif
 
     </div>
+
+    @if ($importedFrom)
+        <div class="responden-panel responden-imported-panel" id="respondenImportedPanel">
+            <div class="responden-panel-header">
+                <div>
+                    <div class="responden-imported-title">Data dari {{ $importedFrom->nama }}</div>
+                    <div class="responden-panel-subtitle">
+                        Responden dari periode sumber yang telah ditautkan ke periode {{ $periodeTerpilih->nama }}.
+                    </div>
+                </div>
+            </div>
+            <div class="responden-table-wrapper">
+                <table class="responden-table">
+                    <thead>
+                        <tr>
+                            <th>No. KK</th>
+                            <th>NIK</th>
+                            <th>Nama Kepala Keluarga</th>
+                            <th>Kecamatan / Kelurahan</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="respondenImportedTableBody">
+                        @forelse ($respondenDiambil as $responden)
+                            <tr>
+                                <td>{{ $responden->no_kk ?? '-' }}</td>
+                                <td>{{ $responden->nik ?? '-' }}</td>
+                                <td>{{ $responden->nama_lengkap ?? '-' }}</td>
+                                <td>{{ $responden->kecamatan ?? '-' }} / {{ $responden->kelurahan ?? '-' }}</td>
+                                <td>
+                                    <span class="responden-status-label {{ $responden->is_active ? 'aktif' : 'nonaktif' }}">
+                                        {{ $responden->is_active ? 'Aktif' : 'Non Aktif' }}
+                                    </span>
+                                </td>
+                            </tr>
+                            @foreach ($responden->anggota as $anggota)
+                                <tr>
+                                    <td></td>
+                                    <td>{{ $anggota->nik ?? '-' }}</td>
+                                    <td>
+                                        {{ $anggota->nama_lengkap ?? '-' }}
+                                        <span class="responden-panel-subtitle">({{ $anggota->status_keluarga ?? 'Anggota' }})</span>
+                                    </td>
+                                    <td>{{ $responden->kecamatan ?? '-' }} / {{ $responden->kelurahan ?? '-' }}</td>
+                                    <td></td>
+                                </tr>
+                            @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="5" class="responden-empty">
+                                    Tidak ada responden dari periode tersebut yang cocok dengan filter.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 
 </div>
 
@@ -4238,6 +4657,59 @@ function tampilkanNotifikasi(pesan, tipe = 'success') {
     }, 4000);
 }
 
+function konfirmasiAmbilData(form) {
+    const periode = form.querySelector('[name="periode_sumber"]');
+    if (!periode || !periode.value) {
+        tampilkanNotifikasi('Pilih periode sumber terlebih dahulu.', 'warning');
+        return false;
+    }
+
+    return window.confirm('Ambil data dari ' + periode.options[periode.selectedIndex].text + ' ke periode yang sedang dipilih?');
+}
+
+function konfirmasiStatusMassal(form, tindakan) {
+    const status = form.querySelector('[name="status"]')?.value || 'semua';
+    const keteranganStatus = status === 'semua'
+        ? 'semua status'
+        : 'responden berstatus ' + (status === 'aktif' ? 'Aktif' : 'Nonaktif');
+
+    return window.confirm(
+        tindakan + ' seluruh responden berstatus ' + keteranganStatus + ' yang sesuai filter saat ini?'
+    );
+}
+
+async function updateStatusResponden(checkbox) {
+    const statusSebelumnya = checkbox.dataset.original === '1';
+    checkbox.disabled = true;
+
+    try {
+        const response = await fetch(checkbox.dataset.url, {
+            method: 'PATCH',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': @json(csrf_token()),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ is_active: checkbox.checked })
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Status responden gagal diperbarui.');
+        }
+
+        window.location.reload();
+    } catch (error) {
+        checkbox.checked = statusSebelumnya;
+        checkbox.disabled = false;
+        tampilkanNotifikasi(
+            error.message || 'Terjadi kesalahan saat memperbarui status responden.',
+            'warning'
+        );
+    }
+}
+
 
 
 /* =========================================================
@@ -4341,12 +4813,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('searchRespondenForm');
     const input = document.getElementById('searchResponden');
     const tableBody = document.getElementById('respondenTableBody');
-    const paginationAwal = document.querySelector('.responden-pagination');
 
-    if (!form || !input || !tableBody) return;
+    if (!form || !input || !tableBody) {
+        return;
+    }
 
     let searchTimer = null;
     let requestController = null;
+
+    function buildSearchUrl() {
+        const url = new URL(form.action, window.location.origin);
+        const parameters = new URLSearchParams();
+
+        new FormData(form).forEach(function (value, key) {
+            if (typeof value === 'string' && value.trim() !== '') {
+                parameters.set(key, value.trim());
+            }
+        });
+
+        parameters.delete('page');
+        url.search = parameters.toString();
+
+        return url;
+    }
 
     async function muatHasil(url, ubahRiwayat = true) {
         if (requestController) requestController.abort();
@@ -4363,8 +4852,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const dokumen = new DOMParser().parseFromString(html, 'text/html');
             const bodyBaru = dokumen.querySelector('#respondenTableBody');
             const paginationBaru = dokumen.querySelector('.responden-pagination');
+            const importedPanelBaru = dokumen.querySelector('#respondenImportedPanel');
             const bodyLama = document.getElementById('respondenTableBody');
             const paginationLama = document.querySelector('.responden-pagination');
+            const importedPanelLama = document.getElementById('respondenImportedPanel');
+            const kelurahanBaru = dokumen.getElementById('kelurahanFilter');
+            const kelurahanLama = document.getElementById('kelurahanFilter');
 
             if (bodyBaru && bodyLama) bodyLama.innerHTML = bodyBaru.innerHTML;
             if (paginationLama && paginationBaru) {
@@ -4376,23 +4869,52 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (panel) panel.appendChild(paginationBaru);
             }
 
+            if (importedPanelLama && importedPanelBaru) {
+                importedPanelLama.outerHTML = importedPanelBaru.outerHTML;
+            } else if (importedPanelLama) {
+                importedPanelLama.remove();
+            } else if (importedPanelBaru) {
+                document.querySelector('.responden-panel')
+                    ?.insertAdjacentHTML('afterend', importedPanelBaru.outerHTML);
+            }
+
+            if (kelurahanBaru && kelurahanLama) {
+                kelurahanLama.innerHTML = kelurahanBaru.innerHTML;
+                kelurahanLama.disabled = kelurahanBaru.disabled;
+            }
+
             if (ubahRiwayat) history.replaceState({}, '', url);
         } catch (error) {
-            if (error.name !== 'AbortError') console.error(error);
+            if (error.name !== 'AbortError') {
+                console.error(error);
+                tampilkanNotifikasi(error.message || 'Gagal memuat hasil responden.', 'warning');
+            }
         }
     }
 
     input.addEventListener('input', function () {
         clearTimeout(searchTimer);
         searchTimer = setTimeout(function () {
-            const url = new URL(form.action, window.location.origin);
-            const nilai = input.value.trim();
-            if (nilai) url.searchParams.set('search', nilai);
-            else url.searchParams.delete('search');
-            // Pencarian baru selalu dimulai dari halaman pertama.
-            url.searchParams.delete('page');
-            muatHasil(url.toString());
+            muatHasil(buildSearchUrl().toString());
         }, 300);
+    });
+
+    ['kecamatanFilter', 'kelurahanFilter', 'statusFilter'].forEach(function (id) {
+        const filter = document.getElementById(id);
+        if (!filter) return;
+
+        filter.addEventListener('change', function () {
+            clearTimeout(searchTimer);
+
+            if (id === 'kecamatanFilter') {
+                const kelurahan = document.getElementById('kelurahanFilter');
+                if (kelurahan) {
+                    kelurahan.value = '';
+                }
+            }
+
+            muatHasil(buildSearchUrl().toString());
+        });
     });
 
     // Klik pagination tetap memuat hasil tanpa refresh seluruh halaman.
@@ -4407,12 +4929,7 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', function (event) {
         event.preventDefault();
         clearTimeout(searchTimer);
-        const url = new URL(form.action, window.location.origin);
-        const nilai = input.value.trim();
-        if (nilai) url.searchParams.set('search', nilai);
-        else url.searchParams.delete('search');
-        url.searchParams.delete('page');
-        muatHasil(url.toString());
+        muatHasil(buildSearchUrl().toString());
     });
 });
 

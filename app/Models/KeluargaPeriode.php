@@ -13,8 +13,13 @@ class KeluargaPeriode extends Model
         'keluarga_kode',
         'periode_kode',
         'status_kuisoner',
+        'is_active',
         'created_by',
         'updated_by',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     /**

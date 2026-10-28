@@ -27,100 +27,349 @@ class RespondenController extends Controller
             return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
         }
 
-        $search = $request->query('search');
-        $search = is_string($search) ? trim($search) : '';
-
-        $query = Keluarga::with([
-            'anggota' => function ($query) {
-                $query
-                    ->where('status_keluarga', '!=', 'Kepala Keluarga')
-                    ->orderBy('id');
-            },
-        ])->whereIn('keluargas.kode', function ($subQuery) use ($periodeTerpilih) {
-            $subQuery
-                ->select('keluarga_kode')
-                ->from('keluarga_periodes')
-                ->where('periode_kode', $periodeTerpilih->kode);
-        });
-
-        if ($search !== '') {
-            $searchPattern = '/'.str_replace(
-                ['%', '_'],
-                ['[\s\S]*', '[\s\S]'],
-                preg_quote('%'.$search.'%', '/')
-            ).'/iu';
-
-            $sensitiveFamilyIds = (clone $query)
-                ->get()
-                ->filter(function (Keluarga $keluarga) use ($searchPattern): bool {
-                    $matchesSensitiveIdentifier = static fn (mixed $value): bool => preg_match(
-                        $searchPattern,
-                        (string) $value
-                    ) === 1;
-
-                    return $matchesSensitiveIdentifier($keluarga->no_kk)
-                        || $matchesSensitiveIdentifier($keluarga->nik)
-                        || $keluarga->anggota->contains(
-                            static fn (KeluargaAnggota $anggota): bool => $matchesSensitiveIdentifier($anggota->nik)
-                        );
-                })
-                ->pluck('id')
-                ->all();
-
-            $keyword = "%{$search}%";
-            $query->where(function (Builder $searchQuery) use ($keyword, $sensitiveFamilyIds): void {
-                $searchQuery
-                    ->whereIn('keluargas.id', $sensitiveFamilyIds)
-                    ->orWhere('nama_lengkap', 'like', $keyword)
-                    ->orWhere('alamat_lengkap', 'like', $keyword)
-                    ->orWhereHas('anggota', function (Builder $memberQuery) use ($keyword): void {
-                        $memberQuery->where('nama_lengkap', 'like', $keyword);
-                    });
-            });
-        }
-
-        $keluargas = $query
-            ->latest()
+        $filters = $this->respondenFilters($request);
+        $keluargas = $this->respondenQuery($periodeTerpilih, $filters)
+            ->orderByDesc('keluargas.created_at')
             ->paginate(5)
             ->withQueryString();
-
-        $statusPeriode = strtolower(trim((string) $periodeTerpilih->status_periode));
 
         $kecamatans = DB::table('kecamatans')
             ->orderBy('deskripsi', 'asc')
             ->get();
 
         $kelurahans = DB::table('kelurahans')
-            ->get()
-            ->keyBy('kelurahan_id');
+            ->when(
+                $filters['kecamatan_id'] !== '',
+                fn ($query) => $query->where('kecamatan_id', $filters['kecamatan_id'])
+            )
+            ->orderBy('deskripsi', 'asc')
+            ->get();
 
-        $kecamatansById = $kecamatans->keyBy('kecamatan_id');
+        $this->enrichResponden($keluargas->getCollection(), $kecamatans, $kelurahans);
 
-        foreach ($keluargas as $keluarga) {
-            $keluarga->nama_kepala_keluarga = $keluarga->nama_lengkap;
+        $totalResponden = KeluargaPeriode::query()
+            ->where('periode_kode', $periodeTerpilih->kode)
+            ->count();
+        $respondenAktif = KeluargaPeriode::query()
+            ->where('periode_kode', $periodeTerpilih->kode)
+            ->where('is_active', true)
+            ->count();
+        $respondenNonaktif = $totalResponden - $respondenAktif;
 
-            $keluarga->kecamatan =
-                $kecamatansById->get($keluarga->kecamatan_id)?->deskripsi;
+        $periodes = Periode::query()
+            ->orderByDesc('tgl_awal')
+            ->orderByDesc('id')
+            ->get();
 
-            $keluarga->kelurahan =
-                $kelurahans->get($keluarga->kelurahan_id)?->deskripsi;
+        $importedFromKode = $request->query('imported_from');
+        $importedFrom = is_string($importedFromKode) && $importedFromKode !== ''
+            ? Periode::query()->where('kode', $importedFromKode)->first()
+            : null;
+        $respondenDiambil = collect();
 
-            $keluarga->jml_keluarga =
-                $keluarga->anggota->count();
+        if ($importedFrom) {
+            $sourceFamilyCodes = KeluargaPeriode::query()
+                ->where('periode_kode', $importedFrom->kode)
+                ->select('keluarga_kode')
+                ->distinct();
 
-            $keluarga->status_periode =
-                $statusPeriode === 'aktif'
-                    ? 'aktif'
-                    : 'nonaktif';
+            $respondenDiambil = $this->respondenQuery($periodeTerpilih, $filters)
+                ->whereIn('keluargas.kode', $sourceFamilyCodes)
+                ->orderBy('keluargas.nama_lengkap')
+                ->get();
+
+            $this->enrichResponden($respondenDiambil, $kecamatans, $kelurahans);
         }
 
         return view(
             'admin.responden.index',
             compact(
                 'keluargas',
-                'kecamatans'
+                'kecamatans',
+                'kelurahans',
+                'periodes',
+                'periodeTerpilih',
+                'totalResponden',
+                'respondenAktif',
+                'respondenNonaktif',
+                'respondenDiambil',
+                'importedFrom',
+                'filters'
             )
         );
+    }
+
+    /**
+     * Add respondents from a source period to the period currently selected by the user.
+     */
+    public function ambilData(Request $request)
+    {
+        $periodeTujuan = $this->getSelectedPeriode();
+
+        if (! $periodeTujuan) {
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
+
+        $validated = $request->validate([
+            'periode_sumber' => ['required', 'string', 'exists:periodes,kode'],
+        ]);
+
+        $periodeSumber = Periode::query()
+            ->where('kode', $validated['periode_sumber'])
+            ->firstOrFail();
+
+        $jumlahDiambil = DB::transaction(function () use ($periodeSumber, $periodeTujuan): int {
+            $kodeKeluargaSumber = KeluargaPeriode::query()
+                ->where('periode_kode', $periodeSumber->kode)
+                ->select('keluarga_kode')
+                ->distinct()
+                ->pluck('keluarga_kode');
+
+            $kodeKeluargaSudahAda = KeluargaPeriode::query()
+                ->where('periode_kode', $periodeTujuan->kode)
+                ->whereIn('keluarga_kode', $kodeKeluargaSumber)
+                ->pluck('keluarga_kode')
+                ->all();
+
+            $kodeKeluargaBaru = Keluarga::query()
+                ->whereIn('kode', $kodeKeluargaSumber)
+                ->whereNotIn('kode', $kodeKeluargaSudahAda)
+                ->pluck('kode');
+
+            if ($kodeKeluargaBaru->isEmpty()) {
+                return 0;
+            }
+
+            $createdBy = auth()->user()?->name ?? 'admin';
+            $now = now();
+
+            foreach ($kodeKeluargaBaru->chunk(500) as $familyCodes) {
+                $relations = $familyCodes->map(static fn (string $familyCode): array => [
+                    'kode' => 'KLP-'.strtoupper(Str::random(10)),
+                    'keluarga_kode' => $familyCode,
+                    'periode_kode' => $periodeTujuan->kode,
+                    'status_kuisoner' => 'belum',
+                    'is_active' => true,
+                    'created_by' => $createdBy,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ])->all();
+
+                DB::table('keluarga_periodes')->insert($relations);
+            }
+
+            return $kodeKeluargaBaru->count();
+        });
+
+        return redirect()
+            ->route('responden.index', ['imported_from' => $periodeSumber->kode])
+            ->with(
+                'success',
+                $jumlahDiambil > 0
+                    ? "{$jumlahDiambil} responden berhasil ditambahkan dari {$periodeSumber->nama}."
+                    : "Tidak ada responden baru dari {$periodeSumber->nama}; relasi yang sudah ada tidak digandakan."
+            );
+    }
+
+    /**
+     * Update one respondent's active status for the selected period.
+     */
+    public function updateStatus(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'is_active' => ['required', 'boolean'],
+        ]);
+        $periodeTerpilih = $this->getSelectedPeriode();
+
+        if (! $periodeTerpilih) {
+            return response()->json([
+                'message' => 'Pilih periode sebelum memperbarui status responden.',
+            ], 409);
+        }
+
+        $keluarga = Keluarga::query()->findOrFail($id);
+        $relation = KeluargaPeriode::query()
+            ->where('keluarga_kode', $keluarga->kode)
+            ->where('periode_kode', $periodeTerpilih->kode)
+            ->firstOrFail();
+        $relation->is_active = (bool) $validated['is_active'];
+        $relation->updated_by = auth()->user()?->name ?? 'admin';
+        $relation->save();
+
+        return response()->json([
+            'success' => true,
+            'is_active' => (bool) $relation->is_active,
+            'message' => 'Status responden berhasil diperbarui.',
+        ]);
+    }
+
+    /**
+     * Update statuses for all respondents matching the active list filters.
+     */
+    public function updateBulkStatus(Request $request)
+    {
+        $validated = $request->validate([
+            'target_status' => ['required', 'in:aktif,nonaktif'],
+            'search' => ['nullable', 'string', 'max:255'],
+            'kecamatan_id' => ['nullable', 'string', 'max:13'],
+            'kelurahan_id' => ['nullable', 'string', 'max:13'],
+            'status' => ['nullable', 'in:aktif,nonaktif,semua'],
+            'imported_from' => ['nullable', 'string', 'exists:periodes,kode'],
+        ]);
+        $periodeTerpilih = $this->getSelectedPeriode();
+
+        if (! $periodeTerpilih) {
+            return redirect()->route('periode.pilih', ['tujuan' => 'responden.index']);
+        }
+
+        $filters = $this->respondenFilters($request);
+        $targetStatus = $validated['target_status'] === 'aktif';
+        $jumlahDiubah = 0;
+
+        DB::transaction(function () use ($periodeTerpilih, $filters, $targetStatus, &$jumlahDiubah): void {
+            $this->respondenQuery($periodeTerpilih, $filters)
+                ->select(['keluargas.id', 'keluargas.kode'])
+                ->chunkById(500, function ($families) use (
+                    $periodeTerpilih,
+                    $targetStatus,
+                    &$jumlahDiubah
+                ): void {
+                    $jumlahDiubah += DB::table('keluarga_periodes')
+                        ->where('periode_kode', $periodeTerpilih->kode)
+                        ->whereIn('keluarga_kode', $families->pluck('kode'))
+                        ->where('is_active', '!=', $targetStatus)
+                        ->update([
+                            'is_active' => $targetStatus,
+                            'updated_by' => auth()->user()?->name ?? 'admin',
+                            'updated_at' => now(),
+                        ]);
+                }, 'keluargas.id', 'id');
+        });
+
+        $redirectFilters = $filters;
+
+        if ($validated['imported_from'] ?? null) {
+            $redirectFilters['imported_from'] = $validated['imported_from'];
+        }
+
+        return redirect()
+            ->route('responden.index', $redirectFilters)
+            ->with(
+                'success',
+                "{$jumlahDiubah} status responden berhasil diperbarui."
+            );
+    }
+
+    /**
+     * Update the status-related data shown for a page of respondents.
+     */
+    private function enrichResponden($respondents, $kecamatans, $kelurahans): void
+    {
+        $kecamatansById = $kecamatans->keyBy('kecamatan_id');
+        $kelurahansById = $kelurahans->keyBy('kelurahan_id');
+
+        foreach ($respondents as $keluarga) {
+            $keluarga->nama_kepala_keluarga = $keluarga->nama_lengkap;
+            $keluarga->kecamatan = $kecamatansById->get($keluarga->kecamatan_id)?->deskripsi;
+            $keluarga->kelurahan = $kelurahansById->get($keluarga->kelurahan_id)?->deskripsi;
+            $keluarga->jml_keluarga = $keluarga->anggota->count();
+        }
+    }
+
+    /**
+     * Build the selected-period respondent query and apply every list filter.
+     *
+     * @param  array{search: string, kecamatan_id: string, kelurahan_id: string, status: string}  $filters
+     */
+    private function respondenQuery(Periode $periode, array $filters): Builder
+    {
+        $query = Keluarga::query()
+            ->join('keluarga_periodes as responden_period', function ($join) use ($periode): void {
+                $join->on('responden_period.keluarga_kode', '=', 'keluargas.kode')
+                    ->where('responden_period.periode_kode', '=', $periode->kode);
+            })
+            ->select('keluargas.*', 'responden_period.is_active as is_active')
+            ->with([
+                'anggota' => function ($query): void {
+                    $query
+                        ->where('status_keluarga', '!=', 'Kepala Keluarga')
+                        ->orderBy('id');
+                },
+            ]);
+
+        if ($filters['kecamatan_id'] !== '') {
+            $query->where('keluargas.kecamatan_id', $filters['kecamatan_id']);
+        }
+
+        if ($filters['kelurahan_id'] !== '') {
+            $query->where('keluargas.kelurahan_id', $filters['kelurahan_id']);
+        }
+
+        if ($filters['status'] !== 'semua') {
+            $query->where(
+                'responden_period.is_active',
+                $filters['status'] === 'aktif'
+            );
+        }
+
+        if ($filters['search'] !== '') {
+            $searchPattern = '/'.str_replace(
+                ['%', '_'],
+                ['[\s\S]*', '[\s\S]'],
+                preg_quote('%'.$filters['search'].'%', '/')
+            ).'/iu';
+
+            $sensitiveFamilyIds = (clone $query)
+                ->get()
+                ->filter(function (Keluarga $keluarga) use ($searchPattern): bool {
+                    $matchesIdentifier = static fn (mixed $value): bool => preg_match(
+                        $searchPattern,
+                        (string) $value
+                    ) === 1;
+
+                    return $matchesIdentifier($keluarga->no_kk)
+                        || $matchesIdentifier($keluarga->nik)
+                        || $keluarga->anggota->contains(
+                            static fn (KeluargaAnggota $anggota): bool => $matchesIdentifier($anggota->nik)
+                        );
+                })
+                ->pluck('id')
+                ->all();
+            $keyword = '%'.$filters['search'].'%';
+
+            $query->where(function (Builder $searchQuery) use ($keyword, $sensitiveFamilyIds): void {
+                $searchQuery
+                    ->whereIn('keluargas.id', $sensitiveFamilyIds)
+                    ->orWhere('keluargas.nama_lengkap', 'like', $keyword)
+                    ->orWhere('keluargas.alamat_lengkap', 'like', $keyword)
+                    ->orWhereHas('anggota', function (Builder $memberQuery) use ($keyword): void {
+                        $memberQuery->where('nama_lengkap', 'like', $keyword);
+                    });
+            });
+        }
+
+        return $query;
+    }
+
+    /**
+     * @return array{search: string, kecamatan_id: string, kelurahan_id: string, status: string}
+     */
+    private function respondenFilters(Request $request): array
+    {
+        return [
+            'search' => is_string($request->input('search'))
+                ? trim($request->input('search'))
+                : '',
+            'kecamatan_id' => is_string($request->input('kecamatan_id'))
+                ? trim($request->input('kecamatan_id'))
+                : '',
+            'kelurahan_id' => is_string($request->input('kelurahan_id'))
+                ? trim($request->input('kelurahan_id'))
+                : '',
+            'status' => in_array($request->input('status', 'semua'), ['aktif', 'nonaktif', 'semua'], true)
+                ? $request->input('status', 'semua')
+                : 'semua',
+        ];
     }
 
     /**
@@ -421,6 +670,7 @@ class RespondenController extends Controller
                 'keluarga_kode' => $keluarga->kode,
                 'periode_kode' => $periodeTerpilih->kode,
                 'status_kuisoner' => 'belum',
+                'is_active' => true,
                 'created_by' => $createdBy,
                 'created_at' => now(),
                 'updated_at' => now(),
