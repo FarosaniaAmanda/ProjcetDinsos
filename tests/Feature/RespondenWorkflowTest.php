@@ -1519,7 +1519,10 @@ class RespondenWorkflowTest extends TestCase
             ])
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('is_active', false);
+            ->assertJsonPath('is_active', false)
+            ->assertJsonPath('total_responden', 1)
+            ->assertJsonPath('responden_aktif', 0)
+            ->assertJsonPath('responden_nonaktif', 1);
 
         $this->assertDatabaseHas('keluarga_periodes', [
             'keluarga_kode' => 'KLG-STATUS-PERIOD',
@@ -1627,10 +1630,16 @@ class RespondenWorkflowTest extends TestCase
         ]);
         DB::table('periodes')->insert([
             'kode' => 'PERIODE-SOURCE',
-            'nama' => 'Periode Sumber',
+            'nama' => 'September 2026',
             'status_periode' => 'Selesai',
         ]);
         $this->createFamilyInPeriod('KLG-IMPORT-SOURCE', 'PERIODE-SOURCE');
+        $this->createFamilyInPeriod(
+            'KLG-IMPORT-SOURCE-INACTIVE',
+            'PERIODE-SOURCE',
+            false,
+            'Responden Nonaktif Sumber'
+        );
         DB::table('keluarga_anggotas')->insert([
             'kode' => 'ANG-IMPORT-SOURCE',
             'keluarga_kode' => 'KLG-IMPORT-SOURCE',
@@ -1644,16 +1653,28 @@ class RespondenWorkflowTest extends TestCase
 
         $this->withSession(['periode_id' => $targetPeriodId])
             ->post(route('responden.ambilData'), ['periode_sumber' => 'PERIODE-SOURCE'])
-            ->assertRedirect(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']));
+            ->assertRedirect(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']))
+            ->assertSessionHas(
+                'success',
+                'Data berhasil diambil dari Periode September 2026 sebanyak 1 responden.'
+            );
 
         $this->assertDatabaseHas('keluarga_periodes', [
             'keluarga_kode' => 'KLG-IMPORT-SOURCE',
             'periode_kode' => 'PERIODE-TARGET',
             'is_active' => true,
         ]);
+        $this->assertDatabaseMissing('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-IMPORT-SOURCE-INACTIVE',
+            'periode_kode' => 'PERIODE-TARGET',
+        ]);
 
         $this->post(route('responden.ambilData'), ['periode_sumber' => 'PERIODE-SOURCE'])
-            ->assertRedirect(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']));
+            ->assertRedirect(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']))
+            ->assertSessionHas(
+                'success',
+                'Data berhasil diambil dari Periode September 2026 sebanyak 0 responden.'
+            );
 
         $this->assertSame(
             1,
@@ -1672,9 +1693,10 @@ class RespondenWorkflowTest extends TestCase
 
         $this->withoutVite()
             ->get(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']))
-            ->assertSee('Data dari Periode Sumber')
+            ->assertSee('Data dari September 2026')
             ->assertSee('Responden Tes')
-            ->assertSee('Anggota Import');
+            ->assertSee('Anggota Import')
+            ->assertDontSee('Responden Nonaktif Sumber');
     }
 
     private function createFamilyInPeriod(

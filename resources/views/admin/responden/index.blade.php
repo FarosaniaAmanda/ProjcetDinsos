@@ -1552,15 +1552,15 @@ textarea.responden-form-control {
     <div class="responden-statistics" aria-label="Statistik responden periode {{ $periodeTerpilih->nama }}">
         <div class="responden-stat-card total">
             <span class="responden-stat-label">Total Responden</span>
-            <span class="responden-stat-value">{{ number_format($totalResponden, 0, ',', '.') }}</span>
+            <span class="responden-stat-value" id="respondenStatTotal">{{ number_format($totalResponden, 0, ',', '.') }}</span>
         </div>
         <div class="responden-stat-card active">
             <span class="responden-stat-label">Responden Aktif</span>
-            <span class="responden-stat-value">{{ number_format($respondenAktif, 0, ',', '.') }}</span>
+            <span class="responden-stat-value" id="respondenStatAktif">{{ number_format($respondenAktif, 0, ',', '.') }}</span>
         </div>
         <div class="responden-stat-card inactive">
             <span class="responden-stat-label">Responden Nonaktif</span>
-            <span class="responden-stat-value">{{ number_format($respondenNonaktif, 0, ',', '.') }}</span>
+            <span class="responden-stat-value" id="respondenStatNonaktif">{{ number_format($respondenNonaktif, 0, ',', '.') }}</span>
         </div>
     </div>
 
@@ -1856,10 +1856,14 @@ textarea.responden-form-control {
                                         aria-label="Status aktif {{ $keluarga->nama_lengkap }}"
                                         data-url="{{ route('responden.status.update', $keluarga->id) }}"
                                         data-original="{{ (int) $keluarga->is_active }}"
+                                        data-status-label="statusLabel-{{ $keluarga->id }}"
                                         @checked((bool) $keluarga->is_active)
                                         onchange="updateStatusResponden(this)"
                                     >
-                                    <span class="responden-status-label {{ $keluarga->is_active ? 'aktif' : 'nonaktif' }}">
+                                    <span
+                                        class="responden-status-label {{ $keluarga->is_active ? 'aktif' : 'nonaktif' }}"
+                                        id="statusLabel-{{ $keluarga->id }}"
+                                    >
                                         {{ $keluarga->is_active ? 'Aktif' : 'Non Aktif' }}
                                     </span>
                                 </span>
@@ -4699,7 +4703,23 @@ async function updateStatusResponden(checkbox) {
             throw new Error(result.message || 'Status responden gagal diperbarui.');
         }
 
-        window.location.reload();
+        checkbox.dataset.original = result.is_active ? '1' : '0';
+
+        const statusLabel = document.getElementById(checkbox.dataset.statusLabel);
+        if (statusLabel) {
+            statusLabel.textContent = result.is_active ? 'Aktif' : 'Non Aktif';
+            statusLabel.classList.toggle('aktif', result.is_active);
+            statusLabel.classList.toggle('nonaktif', !result.is_active);
+        }
+
+        const numberFormat = new Intl.NumberFormat('id-ID');
+        document.getElementById('respondenStatTotal').textContent =
+            numberFormat.format(result.total_responden);
+        document.getElementById('respondenStatAktif').textContent =
+            numberFormat.format(result.responden_aktif);
+        document.getElementById('respondenStatNonaktif').textContent =
+            numberFormat.format(result.responden_nonaktif);
+        checkbox.disabled = false;
     } catch (error) {
         checkbox.checked = statusSebelumnya;
         checkbox.disabled = false;

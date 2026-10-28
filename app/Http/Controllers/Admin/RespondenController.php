@@ -70,6 +70,7 @@ class RespondenController extends Controller
         if ($importedFrom) {
             $sourceFamilyCodes = KeluargaPeriode::query()
                 ->where('periode_kode', $importedFrom->kode)
+                ->where('is_active', true)
                 ->select('keluarga_kode')
                 ->distinct();
 
@@ -121,6 +122,7 @@ class RespondenController extends Controller
         $jumlahDiambil = DB::transaction(function () use ($periodeSumber, $periodeTujuan): int {
             $kodeKeluargaSumber = KeluargaPeriode::query()
                 ->where('periode_kode', $periodeSumber->kode)
+                ->where('is_active', true)
                 ->select('keluarga_kode')
                 ->distinct()
                 ->pluck('keluarga_kode');
@@ -161,13 +163,18 @@ class RespondenController extends Controller
             return $kodeKeluargaBaru->count();
         });
 
+        $namaPeriodeSumber = Str::startsWith(
+            mb_strtolower($periodeSumber->nama),
+            'periode '
+        )
+            ? $periodeSumber->nama
+            : 'Periode '.$periodeSumber->nama;
+
         return redirect()
             ->route('responden.index', ['imported_from' => $periodeSumber->kode])
             ->with(
                 'success',
-                $jumlahDiambil > 0
-                    ? "{$jumlahDiambil} responden berhasil ditambahkan dari {$periodeSumber->nama}."
-                    : "Tidak ada responden baru dari {$periodeSumber->nama}; relasi yang sudah ada tidak digandakan."
+                "Data berhasil diambil dari {$namaPeriodeSumber} sebanyak {$jumlahDiambil} responden."
             );
     }
 
@@ -196,9 +203,20 @@ class RespondenController extends Controller
         $relation->updated_by = auth()->user()?->name ?? 'admin';
         $relation->save();
 
+        $totalResponden = KeluargaPeriode::query()
+            ->where('periode_kode', $periodeTerpilih->kode)
+            ->count();
+        $respondenAktif = KeluargaPeriode::query()
+            ->where('periode_kode', $periodeTerpilih->kode)
+            ->where('is_active', true)
+            ->count();
+
         return response()->json([
             'success' => true,
             'is_active' => (bool) $relation->is_active,
+            'total_responden' => $totalResponden,
+            'responden_aktif' => $respondenAktif,
+            'responden_nonaktif' => $totalResponden - $respondenAktif,
             'message' => 'Status responden berhasil diperbarui.',
         ]);
     }
