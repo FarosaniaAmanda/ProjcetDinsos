@@ -478,8 +478,7 @@
 
             .bg-logo {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
 
             width: 100%;
             height: 100%;
@@ -487,11 +486,11 @@
             max-height: none;
 
             object-fit: cover;
-            object-position: 12% 45%;
+            object-position: 45% center;
 
             opacity: 0.35;
-            transform: translate(-12px, -88px) scale(1.03);
-            transform-origin: top left;
+            transform: scale(1.15);
+            transform-origin: 35% center;
 
             pointer-events: none;
             user-select: none;
