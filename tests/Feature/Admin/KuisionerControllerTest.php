@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -350,6 +351,76 @@ class KuisionerControllerTest extends TestCase
         ])->assertRedirect(route('kuisioner.index'))
             ->assertSessionHas('success', 'Foto rumah berhasil disimpan sebagai draft.');
         $this->assertDatabaseCount('part5_foto_rumahs', 3);
+    }
+
+    public function test_completed_questionnaire_displays_legacy_encrypted_identifiers_as_plain_text(): void
+    {
+        Schema::create('keluarga_anggotas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('kode');
+            $table->string('keluarga_kode');
+            $table->string('nik')->nullable();
+            $table->string('nama_lengkap')->nullable();
+            $table->string('status_keluarga')->nullable();
+        });
+
+        foreach ([
+            'part2_kondisi_rumahs',
+            'part3_keuangan_keluargas',
+            'part4_aset_keluargas',
+            'part5_anggota_keluargas',
+            'part5_foto_rumahs',
+        ] as $tableName) {
+            Schema::create($tableName, function (Blueprint $table): void {
+                $table->id();
+                $table->string('keluarga_periode_kode');
+            });
+        }
+
+        DB::table('keluargas')->insert([
+            'kode' => 'KLG-DETAIL-ENCRYPTED',
+            'no_kk' => '3575020101010001',
+            'nik' => '3575020101010002',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $this->linkFamily('KLG-DETAIL-ENCRYPTED', 'KLP-DETAIL-ENCRYPTED');
+
+        $nik = '3575020101010002';
+        $noKk = '3575020101010001';
+        $memberNik = '3575020101010003';
+        $nikCiphertext = Crypt::encryptString($nik);
+        $noKkCiphertext = Crypt::encryptString($noKk);
+        $memberNikCiphertext = Crypt::encryptString($memberNik);
+
+        DB::table('keluarga_anggotas')->insert([
+            'kode' => 'ANG-DETAIL-ENCRYPTED',
+            'keluarga_kode' => 'KLG-DETAIL-ENCRYPTED',
+            'nik' => $memberNikCiphertext,
+            'nama_lengkap' => 'Anggota Terenkripsi',
+            'status_keluarga' => 'Anak',
+        ]);
+
+        $questionnaireId = DB::table('part1_keluarga')->insertGetId([
+            'keluarga_periode_kode' => 'KLP-DETAIL-ENCRYPTED',
+            'no_kk' => $noKkCiphertext,
+            'nik' => $nikCiphertext,
+            'nama_kepala_keluarga' => 'Responden Selesai',
+            'status' => 'selesai',
+            'current_part' => 5,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->withoutVite()
+            ->get(route('kuisioner.selesai.detail', $questionnaireId))
+            ->assertOk()
+            ->assertSee($noKk)
+            ->assertSee($nik)
+            ->assertSee($memberNik)
+            ->assertDontSee($noKkCiphertext)
+            ->assertDontSee($nikCiphertext)
+            ->assertDontSee($memberNikCiphertext);
     }
 
     private function linkFamily(string $familyCode, string $relationCode): void

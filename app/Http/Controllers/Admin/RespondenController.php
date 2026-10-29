@@ -119,13 +119,24 @@ class RespondenController extends Controller
             ->where('kode', $validated['periode_sumber'])
             ->firstOrFail();
 
-        $jumlahDiambil = DB::transaction(function () use ($periodeSumber, $periodeTujuan): int {
+        /** @var array{jumlah_sumber_aktif: int, jumlah_diambil: int} $hasilPengambilan */
+        $hasilPengambilan = DB::transaction(function () use ($periodeSumber, $periodeTujuan): array {
             $kodeKeluargaSumber = KeluargaPeriode::query()
                 ->where('periode_kode', $periodeSumber->kode)
                 ->where('is_active', true)
+                ->whereIn('keluarga_kode', Keluarga::query()->select('kode'))
                 ->select('keluarga_kode')
                 ->distinct()
                 ->pluck('keluarga_kode');
+
+            $jumlahSumberAktif = $kodeKeluargaSumber->count();
+
+            if ($jumlahSumberAktif === 0) {
+                return [
+                    'jumlah_sumber_aktif' => 0,
+                    'jumlah_diambil' => 0,
+                ];
+            }
 
             $kodeKeluargaSudahAda = KeluargaPeriode::query()
                 ->where('periode_kode', $periodeTujuan->kode)
@@ -139,7 +150,10 @@ class RespondenController extends Controller
                 ->pluck('kode');
 
             if ($kodeKeluargaBaru->isEmpty()) {
-                return 0;
+                return [
+                    'jumlah_sumber_aktif' => $jumlahSumberAktif,
+                    'jumlah_diambil' => 0,
+                ];
             }
 
             $createdBy = auth()->user()?->name ?? 'admin';
@@ -160,7 +174,10 @@ class RespondenController extends Controller
                 DB::table('keluarga_periodes')->insert($relations);
             }
 
-            return $kodeKeluargaBaru->count();
+            return [
+                'jumlah_sumber_aktif' => $jumlahSumberAktif,
+                'jumlah_diambil' => $kodeKeluargaBaru->count(),
+            ];
         });
 
         $namaPeriodeSumber = Str::startsWith(
@@ -170,12 +187,23 @@ class RespondenController extends Controller
             ? $periodeSumber->nama
             : 'Periode '.$periodeSumber->nama;
 
-        return redirect()
-            ->route('responden.index', ['imported_from' => $periodeSumber->kode])
-            ->with(
-                'success',
-                "Data berhasil diambil dari {$namaPeriodeSumber} sebanyak {$jumlahDiambil} responden."
-            );
+        $redirect = redirect()->route(
+            'responden.index',
+            ['imported_from' => $periodeSumber->kode]
+        );
+
+        if ($hasilPengambilan['jumlah_sumber_aktif'] === 0) {
+            return $redirect->with('error', 'Belum bisa mengambil data.');
+        }
+
+        if ($hasilPengambilan['jumlah_diambil'] === 0) {
+            return $redirect->with('error', 'Data sudah diambil sebelumnya.');
+        }
+
+        return $redirect->with(
+            'success',
+            "Data berhasil diambil dari {$namaPeriodeSumber} sebanyak {$hasilPengambilan['jumlah_diambil']} responden."
+        );
     }
 
     /**

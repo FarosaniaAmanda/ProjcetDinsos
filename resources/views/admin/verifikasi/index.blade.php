@@ -5094,7 +5094,7 @@
                                 </td> 
  
                                 <td> 
-                                    {{ $item['tanggal'] ?? '-' }} 
+                                    {{ explode(' ', (string) ($item['tanggal'] ?? '-'), 2)[0] }}
                                 </td> 
  
                                 <td> 

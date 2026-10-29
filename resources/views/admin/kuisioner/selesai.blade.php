@@ -81,7 +81,7 @@
                         <th>Kecamatan</th>
                         <th>Kelurahan</th>
                         <th>Status</th>
-                        <th>Tanggal Pengajuan</th>
+                        <th>Tanggal Pendataan</th>
                         <th width="125">Aksi</th>
                     </tr>
                 </thead>

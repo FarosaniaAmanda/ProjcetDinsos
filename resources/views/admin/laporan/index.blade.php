@@ -4073,7 +4073,7 @@
                             </td> 
  
                             <td> 
-                                {{ $tanggalPendataan }} 
+                                {{ explode(' ', (string) $tanggalPendataan, 2)[0] }}
                             </td> 
  
                             <td> 

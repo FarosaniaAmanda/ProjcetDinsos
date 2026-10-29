@@ -12,11 +12,19 @@ class EncryptedIdentifier implements CastsAttributes
 
     public function get(Model $model, string $key, mixed $value, array $attributes): mixed
     {
-        if (! is_string($value) || ! str_starts_with($value, self::PREFIX)) {
+        if (! is_string($value)) {
             return $value;
         }
 
-        return self::decrypt($value);
+        if (str_starts_with($value, self::PREFIX)) {
+            return self::decrypt($value);
+        }
+
+        if (! self::isLegacyEncrypted($value)) {
+            return $value;
+        }
+
+        return Crypt::decryptString($value);
     }
 
     public function set(Model $model, string $key, mixed $value, array $attributes): mixed
@@ -44,5 +52,22 @@ class EncryptedIdentifier implements CastsAttributes
     private static function decrypt(string $value): string
     {
         return Crypt::decryptString(substr($value, strlen(self::PREFIX)));
+    }
+
+    private static function isLegacyEncrypted(string $value): bool
+    {
+        $decoded = base64_decode($value, true);
+
+        if ($decoded === false) {
+            return false;
+        }
+
+        $payload = json_decode($decoded, true);
+
+        return is_array($payload)
+            && isset($payload['iv'], $payload['value'], $payload['mac'])
+            && is_string($payload['iv'])
+            && is_string($payload['value'])
+            && is_string($payload['mac']);
     }
 }

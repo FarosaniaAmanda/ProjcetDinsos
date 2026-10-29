@@ -991,6 +991,7 @@
                             'id', 'created_at', 'updated_at', 'deleted_at',
                             'keluarga_periode_kode', 'status', 'current_part',
                             'created_by', 'updated_by',
+                            'nik', 'no_kk',
                             // Sembunyikan hanya metadata dan field bantu berakhiran _display.
                             // Kolom jawaban asli Part 1 tetap ditampilkan.
                             'geotagging', 'geotangging',
@@ -1674,8 +1675,10 @@
                                                 <div class="answer-value">
 
                                                     @php
-                                                        $displayValue = $value;
                                                         $fieldLower = strtolower($field);
+                                                        $displayValue = $fieldLower === 'nik'
+                                                            ? $member->nik
+                                                            : $value;
                                                         if (
                                                             str_contains($fieldLower, 'disabilitas')
                                                             || str_contains($fieldLower, 'penyakit')

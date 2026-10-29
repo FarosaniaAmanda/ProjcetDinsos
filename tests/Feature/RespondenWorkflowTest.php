@@ -1671,10 +1671,7 @@ class RespondenWorkflowTest extends TestCase
 
         $this->post(route('responden.ambilData'), ['periode_sumber' => 'PERIODE-SOURCE'])
             ->assertRedirect(route('responden.index', ['imported_from' => 'PERIODE-SOURCE']))
-            ->assertSessionHas(
-                'success',
-                'Data berhasil diambil dari Periode September 2026 sebanyak 0 responden.'
-            );
+            ->assertSessionHas('error', 'Data sudah diambil sebelumnya.');
 
         $this->assertSame(
             1,
@@ -1697,6 +1694,39 @@ class RespondenWorkflowTest extends TestCase
             ->assertSee('Responden Tes')
             ->assertSee('Anggota Import')
             ->assertDontSee('Responden Nonaktif Sumber');
+    }
+
+    public function test_import_rejects_a_source_period_without_active_respondents(): void
+    {
+        $targetPeriodId = DB::table('periodes')->insertGetId([
+            'kode' => 'PERIODE-TARGET-NO-ACTIVE',
+            'nama' => 'Periode Target',
+            'status_periode' => 'Aktif',
+        ]);
+        DB::table('periodes')->insert([
+            'kode' => 'PERIODE-SOURCE-INACTIVE',
+            'nama' => 'Periode Sumber Nonaktif',
+            'status_periode' => 'Selesai',
+        ]);
+        $this->createFamilyInPeriod(
+            'KLG-IMPORT-SOURCE-NO-ACTIVE',
+            'PERIODE-SOURCE-INACTIVE',
+            false
+        );
+
+        $this->withSession(['periode_id' => $targetPeriodId])
+            ->post(route('responden.ambilData'), [
+                'periode_sumber' => 'PERIODE-SOURCE-INACTIVE',
+            ])
+            ->assertRedirect(route('responden.index', [
+                'imported_from' => 'PERIODE-SOURCE-INACTIVE',
+            ]))
+            ->assertSessionHas('error', 'Belum bisa mengambil data.');
+
+        $this->assertDatabaseMissing('keluarga_periodes', [
+            'keluarga_kode' => 'KLG-IMPORT-SOURCE-NO-ACTIVE',
+            'periode_kode' => 'PERIODE-TARGET-NO-ACTIVE',
+        ]);
     }
 
     private function createFamilyInPeriod(
