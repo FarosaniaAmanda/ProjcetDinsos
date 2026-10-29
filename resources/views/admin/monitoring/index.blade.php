@@ -2608,10 +2608,10 @@ color: #7652C8;
    DETAIL MONITORING — 
 ========================================================= */
 
-/* Hasil kuisioner: satu kartu pertanyaan dalam satu baris. */
+/* Hasil kuisioner: dua kartu pertanyaan dalam satu baris pada desktop. */
 .monitoring-questionnaire-content-body {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     align-content: start !important;
     align-items: start !important;
     gap: 10px !important;
