@@ -70,6 +70,10 @@
         align-content: start;
         min-width: 0;
     }
+    
+    .part5-foto-input {
+    display: none !important;
+    }
 
     /* Judul pertanyaan 69, 70, 71 */
     .part5-foto-number {
@@ -143,92 +147,74 @@
     /* =========================
        AREA TAMBAH FOTO
     ========================= */
-    .part5-foto-input {
-        display: none !important;
-    }
-
     .part5-foto-card > div:last-child {
-        min-width: 0;
-        padding-top: 48px;
+    min-width: 0;
+    padding-top: 48px;
     }
 
     .part5-foto-upload {
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
+        gap: 12px;
         width: 100%;
-        height: 190px;
         min-height: 190px;
-        padding: 18px;
-        color: #555f78;
-        background: #f9faff;
-        border: 1.5px dashed #b9c5e3;
-        border-radius: 11px;
-        text-align: center;
-        cursor: pointer;
-        transition: background .2s, border-color .2s;
+        padding: 15px;
+        background: transparent;
+        border: none;
     }
 
-    .part5-foto-upload:hover {
-        background: #f1f4ff;
-        border-color: #6477c2;
-    }
-
-    .part5-foto-upload:focus-visible {
-        outline: 3px solid rgba(37, 42, 134, .2);
-        outline-offset: 3px;
-    }
-
-    .part5-foto-upload-content {
+    .part5-foto-upload-actions {
         display: flex;
         flex-direction: column;
-        align-items: center;
         gap: 10px;
     }
 
-    .part5-foto-upload-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 52px;
-        height: 52px;
-        color: #fff;
-        background: #303d88;
-        border-radius: 15px;
-        font-size: 23px;
-        box-shadow: 0 4px 10px rgba(48, 61, 136, .16);
-    }
-
-    .part5-foto-upload-title {
-        color: #303d80;
-        font-size: 15px;
-        font-weight: 750;
-    }
-
-    .part5-foto-upload-description {
-        color: #737e97;
-        font-size: 12px;
-        line-height: 1.7;
-    }
-
-    .part5-foto-upload-hint {
+    .part5-foto-action-btn {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        margin-top: 0;
-        padding: 7px 12px;
-        color: #303d88;
-        background: #edf0ff;
-        border-radius: 7px;
-        font-size: 11px;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        min-height: 43px;
+        padding: 10px 12px;
+        border: 1px solid #292d8f;
+        border-radius: 9px;
+        font-family: inherit;
+        font-size: 12px;
         font-weight: 700;
+        cursor: pointer;
     }
 
-    .part5-foto-error {
-        margin-top: 8px;
-        color: #c93646;
-        font-size: 12px;
-        line-height: 1.5;
+    .part5-foto-action-camera {
+        color: white;
+        background: #292d8f;
+    }
+
+    .part5-foto-action-gallery {
+        color: #292d8f;
+        background: white;
+    }
+
+    @media (max-width: 700px) {
+        .part5-foto-card > div:last-child {
+            padding-top: 0;
+        }
+
+        .part5-foto-upload {
+            min-height: auto;
+            padding: 0;
+        }
+
+        .part5-foto-upload-actions {
+            flex-direction: row;
+        }
+    }
+
+    @media (max-width: 430px) {
+        .part5-foto-upload-actions {
+            flex-direction: column;
+        }
     }
 
     /* =========================
@@ -786,32 +772,37 @@
                         name="tampak_depan"
                         class="part5-foto-input"
                         accept="image/jpeg,image/png,image/jpg"
+                        hidden
                     >
 
-                    <button
-                        type="button"
-                        class="part5-foto-upload"
-                        data-foto-choice="tampak_depan"
-                        aria-label="Tambah foto tampak depan rumah"
-                    >
-                        <span class="part5-foto-upload-content">
+                    <div class="part5-foto-upload">
+                        <div class="part5-foto-upload-actions">
+                            <button
+                                type="button"
+                                class="part5-foto-action-btn part5-foto-action-gallery"
+                                data-foto-gallery="tampak_depan"
+                            >
+                                <i class="far fa-images"></i>
+                                Pilih dari Galeri/File
+                            </button>
 
-                            <span class="part5-foto-upload-title">
-                                Tambahkan Foto
-                            </span>
-
-                            <span class="part5-foto-upload-description">
-                                Ambil foto menggunakan kamera<br>
-                                atau pilih dari galeri/file
-                            </span>
-                        </span>
-                    </button>
+                            <button
+                                type="button"
+                                class="part5-foto-action-btn part5-foto-action-camera"
+                                data-foto-camera="tampak_depan"
+                            >
+                                <i class="fas fa-camera"></i>
+                                Ambil dari Kamera
+                            </button>
+                        </div>
+                    </div>
 
                     @error('tampak_depan')
                         <div class="part5-foto-error">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
+
 
             {{-- 70. RUANG TAMU --}}
             <div class="part5-foto-card" data-foto="ruang_tamu">
@@ -850,30 +841,34 @@
                         accept="image/jpeg,image/png,image/jpg"
                     >
 
-                    <button
-                        type="button"
-                        class="part5-foto-upload"
-                        data-foto-choice="ruang_tamu"
-                        aria-label="Tambah foto ruang tamu"
-                    >
-                        <span class="part5-foto-upload-content">
+                    <div class="part5-foto-upload">
+                        <div class="part5-foto-upload-actions">
+                            <button
+                                type="button"
+                                class="part5-foto-action-btn part5-foto-action-gallery"
+                                data-foto-gallery="ruang_tamu"
+                            >
+                                <i class="far fa-images"></i>
+                                Pilih dari Galeri/File
+                            </button>
 
-                            <span class="part5-foto-upload-title">
-                                Tambahkan Foto
-                            </span>
-
-                            <span class="part5-foto-upload-description">
-                                Ambil foto menggunakan kamera<br>
-                                atau pilih dari galeri/file
-                            </span>
-                        </span>
-                    </button>
+                            <button
+                                type="button"
+                                class="part5-foto-action-btn part5-foto-action-camera"
+                                data-foto-camera="ruang_tamu"
+                            >
+                                <i class="fas fa-camera"></i>
+                                Ambil dari Kamera
+                            </button>
+                        </div>
+                    </div>
 
                     @error('ruang_tamu')
                         <div class="part5-foto-error">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
+
 
             {{-- 71. KAMAR MANDI --}}
             <div class="part5-foto-card" data-foto="kamar_mandi">
@@ -912,24 +907,27 @@
                         accept="image/jpeg,image/png,image/jpg"
                     >
 
-                    <button
-                        type="button"
-                        class="part5-foto-upload"
-                        data-foto-choice="kamar_mandi"
-                        aria-label="Tambah foto kamar mandi"
-                    >
-                        <span class="part5-foto-upload-content">
+                    <div class="part5-foto-upload">
+                        <div class="part5-foto-upload-actions">
+                            <button
+                                type="button"
+                                class="part5-foto-action-btn part5-foto-action-gallery"
+                                data-foto-gallery="kamar_mandi"
+                            >
+                                <i class="far fa-images"></i>
+                                Pilih dari Galeri/File
+                            </button>
 
-                            <span class="part5-foto-upload-title">
-                                Tambahkan Foto
-                            </span>
-
-                            <span class="part5-foto-upload-description">
-                                Ambil foto menggunakan kamera<br>
-                                atau pilih dari galeri/file
-                            </span>
-                        </span>
-                    </button>
+                            <button
+                                type="button"
+                                class="part5-foto-action-btn part5-foto-action-camera"
+                                data-foto-camera="kamar_mandi"
+                            >
+                                <i class="fas fa-camera"></i>
+                                Ambil dari Kamera
+                            </button>
+                        </div>
+                    </div>
 
                     @error('kamar_mandi')
                         <div class="part5-foto-error">{{ $message }}</div>
@@ -937,7 +935,7 @@
                 </div>
             </div>
 
-        </div>
+            </div>
 
         {{-- CATATAN --}}
         <div class="part5-foto-note">
@@ -1404,35 +1402,24 @@ document.addEventListener('DOMContentLoaded', function () {
         })();
     });
 
-    /* Buka modal pilihan sumber foto */
-    document.querySelectorAll('[data-foto-choice]').forEach(function (button) {
+    /* Pilih kamera secara langsung */
+    document.querySelectorAll('[data-foto-camera]').forEach(function (button) {
         button.addEventListener('click', function () {
-            openChoice(button.dataset.fotoChoice);
+            if (setActiveField(button.dataset.fotoCamera)) {
+                openCamera();
+            }
         });
     });
 
-    /* Pilih kamera */
-    choiceCamera.addEventListener('click', openCamera);
-
-    /* Pilih galeri atau file */
-    choiceGallery.addEventListener('click', function () {
-        if (!activeInput) {
-            return;
-        }
-
-        const input = activeInput;
-
-        closeChoice();
-        input.click();
+    /* Pilih galeri/file secara langsung */
+    document.querySelectorAll('[data-foto-gallery]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            if (setActiveField(button.dataset.fotoGallery) && activeInput) {
+                activeInput.click();
+            }
+        });
     });
 
-    choiceClose.addEventListener('click', closeChoice);
-
-    choiceOverlay.addEventListener('click', function (event) {
-        if (event.target === choiceOverlay) {
-            closeChoice();
-        }
-    });
 
     /* Ambil foto dari kamera */
     captureButton.addEventListener('click', function () {
@@ -1483,6 +1470,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             );
 
+            // Validasi ukuran maksimal 5 MB
+            const maxSize = 5 * 1024 * 1024;
+
+            if (file.size > maxSize) {
+                cameraBusy = false;
+                captureButton.disabled = false;
+
+                alert('Ukuran foto maksimal 4 MB. Silakan ambil foto dengan ukuran lebih kecil.');
+                return;
+            }
+
             const transfer = new DataTransfer();
             transfer.items.add(file);
             activeInput.files = transfer.files;
@@ -1516,6 +1514,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const file = input.files[0];
+
+            // Validasi ukuran maksimal 4 MB
+            const maxSize = 4 * 1024 * 1024;
+
+            if (file.size > maxSize) {
+                alert('Ukuran foto maksimal 4 MB. Silakan pilih foto dengan ukuran lebih kecil.');
+                input.value = '';
+                return;
+            }
 
             if (!file.type.startsWith('image/')) {
                 alert('File harus berupa gambar.');

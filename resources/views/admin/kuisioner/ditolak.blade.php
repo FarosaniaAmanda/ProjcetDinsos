@@ -63,7 +63,7 @@
                             <td>{{ $item->kecamatan ?: '-' }}</td>
                             <td>{{ $item->kelurahan ?: '-' }}</td>
                             <td>{{ $item->alasan_penolakan ?: 'Alasan penolakan belum tersedia.' }}</td>
-                            <td>{{ $item->updated_at?->format('d-m-Y H:i') ?: '-' }}</td>
+                            <td>{{ $item->updated_at?->format('d-m-Y') ?: '-' }}</td>
                             <td>
                                 <form method="POST" action="{{ route('kuisioner.rejected.edit', ['id' => $item->id]) }}">
                                     @csrf
