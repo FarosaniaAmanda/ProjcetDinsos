@@ -535,7 +535,39 @@ input[type="hidden"][name="longitude"] {
     #map {
     height: 280px;
     }
-}
+    }
+
+    /* RESPONSIVE TOMBOL PART 1 - HP */
+    @media (max-width: 560px) {
+
+        .form-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .form-footer > .btn-reset {
+            width: 100%;
+            align-self: stretch;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-left: 0;
+            gap: 12px;
+        }
+
+        .form-actions .btn-draft,
+        .form-actions .btn-next {
+            width: 100%;
+            min-width: 0;
+            flex: none;
+        }
+
+    }
 
 </style>
 
