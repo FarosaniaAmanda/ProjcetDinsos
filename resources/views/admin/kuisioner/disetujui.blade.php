@@ -54,7 +54,7 @@
                             <td>{{ $item->alamat_lengkap ?: ($item->keluarga_data?->alamat_lengkap ?: '-') }}</td>
                             <td>{{ $item->kecamatan ?: '-' }}</td>
                             <td>{{ $item->kelurahan ?: '-' }}</td>
-                            <td>{{ $item->updated_at?->format('d-m-Y H:i') ?: '-' }}</td>
+                            <td>{{ $item->updated_at?->format('d-m-Y') ?: '-' }}</td>
                             <td><span class="status-approved-badge">Disetujui</span></td>
                             <td><a class="status-detail-button" href="{{ route('kuisioner.selesai.detail', ['id' => $item->id]) }}">Detail</a></td>
                         </tr>

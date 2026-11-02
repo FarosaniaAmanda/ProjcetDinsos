@@ -40,20 +40,15 @@
         body {
             min-height: 100vh;
             min-height: 100dvh;
-
             font-family: "Segoe UI", Arial, sans-serif;
             background: #ffffff;
             color: var(--text);
-
             display: flex;
             justify-content: center;
             align-items: center;
-
             padding: 24px;
-
             position: relative;
             isolation: isolate;
-
             overflow-x: hidden;
             overflow-y: auto;
         }
@@ -68,52 +63,38 @@
         }
 
         /* =========================================
-           BACKGROUND LOGO - DEFAULT LAPTOP
-           Laptop tetap landscape
+           BACKGROUND LOGO
         ========================================= */
 
         .bg-logo {
             position: fixed;
-
             width: 100vw;
             height: 100vh;
-
             left: 50%;
             top: 50%;
-
             transform: translate(-50%, -50%);
-
             object-fit: cover;
             object-position: center;
-
             opacity: 0.20;
-
             z-index: -1;
-
             pointer-events: none;
             user-select: none;
         }
 
         /* =========================================
-           CONTAINER LOGIN - DEFAULT LAPTOP
+           CONTAINER LOGIN
         ========================================= */
 
         .login-container {
             position: relative;
             z-index: 1;
-
             width: 100%;
             max-width: 420px;
-
             background: rgba(255, 255, 255, 0.97);
-
             border: 1px solid rgba(220, 220, 220, 0.85);
             border-radius: 16px;
-
             padding: 34px 38px 28px;
-
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.10);
-
             animation: cardEnter 0.55s ease both;
         }
 
@@ -160,15 +141,11 @@
         .login-success {
             padding: 12px 13px;
             border-radius: 8px;
-
             font-size: 12.5px;
             line-height: 1.6;
-
             margin-bottom: 17px;
-
             text-align: left;
             overflow-wrap: anywhere;
-
             animation: messageEnter 0.25s ease both;
         }
 
@@ -206,11 +183,9 @@
 
         .form-group label {
             display: block;
-
             font-size: 13px;
             font-weight: 600;
             color: #222;
-
             margin-bottom: 8px;
         }
 
@@ -225,42 +200,29 @@
 
         .input-icon {
             position: absolute;
-
             left: 13px;
             top: 50%;
-
             transform: translateY(-50%);
-
             width: 18px;
             height: 18px;
-
             stroke: #777;
             fill: none;
-
             pointer-events: none;
-
             transition: stroke 0.2s ease;
         }
 
         .input-wrapper input {
             display: block;
-
             width: 100%;
             height: 47px;
-
             padding: 0 45px 0 42px;
-
             border: 1px solid var(--border);
             border-radius: 8px;
-
             outline: none;
-
             background: var(--surface);
             color: #222;
-
             font-size: 13px;
             line-height: normal;
-
             transition:
                 border-color 0.22s ease,
                 box-shadow 0.22s ease,
@@ -287,29 +249,20 @@
 
         .toggle-password {
             position: absolute;
-
             right: 11px;
             top: 50%;
-
             transform: translateY(-50%);
-
             width: 30px;
             height: 34px;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             border: none;
             border-radius: 6px;
-
             background: transparent;
-
             padding: 0;
             color: #777;
-
             cursor: pointer;
-
             transition:
                 color 0.2s ease,
                 background 0.2s ease;
@@ -328,10 +281,8 @@
         .toggle-password svg {
             width: 19px;
             height: 19px;
-
             stroke: currentColor;
             fill: none;
-
             stroke-width: 1.7;
             stroke-linecap: round;
             stroke-linejoin: round;
@@ -344,28 +295,20 @@
         .login-btn {
             width: 100%;
             min-height: 47px;
-
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 9px;
-
             margin-top: 5px;
             padding: 12px 16px;
-
             border: none;
             border-radius: 8px;
-
             background: var(--primary);
             color: #ffffff;
-
             font-size: 13.5px;
             font-weight: 600;
-
             cursor: pointer;
-
             box-shadow: 0 4px 10px rgba(36, 59, 143, 0.10);
-
             transition:
                 background 0.22s ease,
                 transform 0.22s ease,
@@ -376,7 +319,6 @@
         .login-btn:hover:not(:disabled) {
             background: var(--primary-dark);
             transform: translateY(-1px);
-
             box-shadow: 0 7px 17px rgba(36, 59, 143, 0.20);
         }
 
@@ -396,15 +338,11 @@
 
         .button-spinner {
             display: none;
-
             width: 16px;
             height: 16px;
-
             border: 2px solid rgba(255, 255, 255, 0.40);
             border-top-color: #ffffff;
-
             border-radius: 50%;
-
             animation: spin 0.7s linear infinite;
         }
 
@@ -425,10 +363,8 @@
         .login-footer {
             text-align: center;
             margin-top: 20px;
-
             font-size: 10.5px;
             line-height: 1.6;
-
             color: #999;
         }
 
@@ -444,20 +380,21 @@
             .bg-logo {
                 width: 100vw;
                 height: 100dvh;
-
                 object-fit: contain;
                 object-position: center;
-
                 opacity: 0.18;
             }
 
             .login-container {
                 width: 100%;
                 max-width: 400px;
-
                 padding: 31px 30px 26px;
             }
         }
+
+        /* =========================================
+           HP PORTRAIT
+        ========================================= */
 
         @media screen and (max-width: 450px) and (orientation: portrait) {
             html,
@@ -477,24 +414,20 @@
             }
 
             .bg-logo {
-            position: fixed;
-            inset: 0;
-
-            width: 100%;
-            height: 100%;
-            max-width: none;
-            max-height: none;
-
-            object-fit: cover;
-            object-position: 45% center;
-
-            opacity: 0.35;
-            transform: scale(1.15);
-            transform-origin: 35% center;
-
-            pointer-events: none;
-            user-select: none;
-        }
+                position: fixed;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                object-fit: cover;
+                object-position: 45% center;
+                opacity: 0.35;
+                transform: scale(1.15);
+                transform-origin: 35% center;
+                pointer-events: none;
+                user-select: none;
+            }
 
             .login-container {
                 position: relative;
@@ -577,6 +510,10 @@
             }
         }
 
+        /* =========================================
+           HP LANDSCAPE
+        ========================================= */
+
         @media screen and (max-width: 900px) and (orientation: landscape) {
             body {
                 padding: 16px;
@@ -585,17 +522,14 @@
             .bg-logo {
                 width: 100vw;
                 height: 100dvh;
-
                 object-fit: cover;
                 object-position: center;
-
                 opacity: 0.16;
             }
 
             .login-container {
                 width: 100%;
                 max-width: 380px;
-
                 padding: 23px 25px 20px;
             }
 
@@ -616,6 +550,10 @@
             }
         }
 
+        /* =========================================
+           LAYAR PENDEK
+        ========================================= */
+
         @media screen and (max-height: 500px) {
             body {
                 align-items: flex-start;
@@ -628,6 +566,11 @@
                 margin-bottom: auto;
             }
         }
+
+        /* =========================================
+           AKSESIBILITAS
+        ========================================= */
+
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -666,7 +609,7 @@
             </p>
         </header>
 
-        {{-- PESAN ERROR LOGIN --}}
+        {{-- PESAN ERROR LOGIN: SATU NOTIFIKASI DI ATAS --}}
 
         @if ($errors->any())
             <div class="login-error" role="alert" aria-live="polite">
@@ -733,21 +676,9 @@
                         spellcheck="false"
                         required
                         autofocus
-                        @if ($errors->has('nomor_identitas'))
-                            aria-invalid="true"
-                            aria-describedby="identitasError"
-                        @endif
                     >
-                </div>
 
-                @error('nomor_identitas')
-                    <small
-                        id="identitasError"
-                        style="display:block;color:#c62828;margin-top:6px;font-size:12px;"
-                    >
-                        {{ $message }}
-                    </small>
-                @enderror
+                </div>
             </div>
 
             {{-- PASSWORD --}}
@@ -791,10 +722,6 @@
                         autocapitalize="off"
                         spellcheck="false"
                         required
-                        @if ($errors->has('password'))
-                            aria-invalid="true"
-                            aria-describedby="passwordError"
-                        @endif
                     >
 
                     {{-- TOMBOL MATA PASSWORD --}}
@@ -823,16 +750,8 @@
                             ></circle>
                         </svg>
                     </button>
-                </div>
 
-                @error('password')
-                    <small
-                        id="passwordError"
-                        style="display:block;color:#c62828;margin-top:6px;font-size:12px;"
-                    >
-                        {{ $message }}
-                    </small>
-                @enderror
+                </div>
             </div>
 
             {{-- TOMBOL MASUK --}}
