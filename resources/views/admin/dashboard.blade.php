@@ -2052,7 +2052,7 @@ if (kecamatanCanvas && typeof Chart !== 'undefined') {
 
                 ctx.font = '11px Arial';
                 ctx.fillStyle = '#777';
-                ctx.fillText('verifikasi', x, y + 22);
+                ctx.fillText('responden', x, y + 22);
 
                 ctx.restore();
             }
