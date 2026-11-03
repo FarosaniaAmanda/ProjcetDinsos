@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Keluarga;
 use App\Models\KeluargaPart1;
+use App\Models\KeluargaPeriode;
 use App\Models\Periode;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -36,6 +37,15 @@ class DashboardController extends Controller
         'belum diproses',
     ];
 
+    private const PENDING_STATUSES = [
+        'pending',
+        'diajukan',
+        'menunggu',
+        'diperiksa',
+        'menunggu_verifikasi',
+        'menunggu verifikasi',
+    ];
+
     public function index(Request $request): View
     {
         $hasKeluargasTable = Schema::hasTable('keluargas');
@@ -45,9 +55,22 @@ class DashboardController extends Controller
         $hasPart1Table = Schema::hasTable('part1_keluarga');
         $hasKeluargaPeriodesTable = Schema::hasTable('keluarga_periodes');
 
-        $periodeOptions = $hasPeriodesTable
+        $allPeriodes = $hasPeriodesTable
             ? Periode::orderByDesc('id')->get()
             : collect();
+
+        $today = today();
+        $isPeriodeAktif = static fn (Periode $periode): bool => mb_strtolower(
+            trim((string) $periode->status_periode)
+        ) === 'aktif';
+        $isPeriodeBerjalan = static fn (Periode $periode): bool => $periode->tgl_awal !== null
+            && $periode->tgl_akhir !== null
+            && $periode->tgl_awal->lte($today)
+            && $periode->tgl_akhir->gte($today);
+
+        $periodeOptions = $allPeriodes
+            ->filter(fn (Periode $periode): bool => $isPeriodeAktif($periode) || $isPeriodeBerjalan($periode))
+            ->values();
 
         $selectedPeriodKode = trim((string) $request->query('periode_kode', ''));
 
@@ -62,26 +85,6 @@ class DashboardController extends Controller
 
         $periodeAktif = $hasPeriodesTable
             ? Periode::whereRaw('LOWER(TRIM(status_periode)) = ?', ['aktif'])->count()
-            : 0;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Total Responden Mengikuti Periode yang Dipilih
-        |--------------------------------------------------------------------------
-        */
-        $keluargaQuery = Keluarga::query();
-
-        if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
-            $keluargaQuery->whereIn(
-                'keluargas.kode',
-                DB::table('keluarga_periodes')
-                    ->where('periode_kode', $selectedPeriodKode)
-                    ->select('keluarga_kode')
-            );
-        }
-
-        $totalResponden = $hasKeluargasTable
-            ? $keluargaQuery->count()
             : 0;
 
         $dataMasukQuery = Keluarga::query();
@@ -104,7 +107,7 @@ class DashboardController extends Controller
         | Rekap Setiap Periode
         |--------------------------------------------------------------------------
         */
-        $rekapPeriode = $periodeOptions->map(function ($periode) use (
+        $rekapPeriode = $allPeriodes->map(function ($periode) use (
             $hasKeluargaPeriodesTable,
             $hasPart1Table
         ) {
@@ -158,12 +161,18 @@ class DashboardController extends Controller
             return $periode;
         });
 
-        // Jika filter periode dipilih, tabel rekap menampilkan periode yang sama.
-        if ($selectedPeriodKode !== '') {
-            $rekapPeriode = $rekapPeriode
-                ->filter(fn ($periode) => (string) $periode->kode === $selectedPeriodKode)
-                ->values();
-        }
+        $rekapPeriode = $rekapPeriode
+            ->sortBy(static function (Periode $periode): int {
+                $status = mb_strtolower(trim((string) $periode->status_periode));
+
+                return match ($status) {
+                    'aktif', 'active' => 0,
+                    'akan datang', 'akan_datang', 'upcoming', 'belum dimulai', 'belum_dimulai' => 1,
+                    'selesai', 'completed', 'complete' => 2,
+                    default => 3,
+                };
+            })
+            ->values();
 
         /*
         |--------------------------------------------------------------------------
@@ -268,6 +277,13 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
         if (! $hasPart1Table) {
+            $jumlahBelumDidata = $this->respondentsWithoutQuestionnaireCount(
+                $selectedPeriodKode,
+                $hasKeluargaPeriodesTable,
+                false,
+                $hasKeluargasTable
+            );
+            $totalResponden = $jumlahBelumDidata;
             $kuisionerTerakhir = new LengthAwarePaginator([], 0, 5);
 
             return view('admin.dashboard', compact(
@@ -284,6 +300,8 @@ class DashboardController extends Controller
                 'jumlahDisetujui' => 0,
                 'jumlahMenungguVerifikasi' => 0,
                 'jumlahDitolak' => 0,
+                'jumlahDraft' => 0,
+                'jumlahBelumDidata' => $jumlahBelumDidata,
             ]);
         }
 
@@ -304,6 +322,27 @@ class DashboardController extends Controller
         $jumlahMenungguVerifikasi = $this->pendingVerificationQuery(
             $selectedPeriodKode
         )->count();
+
+        $jumlahDraft = $this->draftVerificationQuery($selectedPeriodKode)->count();
+
+        $jumlahBelumDidata = $this->linkedVerificationQuery($selectedPeriodKode)
+            ->whereIn(
+                new Expression('LOWER(TRIM(part1_keluarga.status))'),
+                self::NOT_PROCESSED_STATUSES
+            )
+            ->count();
+        $jumlahBelumDidata += $this->respondentsWithoutQuestionnaireCount(
+            $selectedPeriodKode,
+            $hasKeluargaPeriodesTable,
+            $hasPart1Table,
+            $hasKeluargasTable
+        );
+
+        $totalResponden = $jumlahBelumDidata
+            + $jumlahDraft
+            + $jumlahMenungguVerifikasi
+            + $jumlahDisetujui
+            + $jumlahDitolak;
 
         $kuisionerTerakhir = $this->pendingVerificationQuery($selectedPeriodKode)
             ->select('part1_keluarga.*')
@@ -341,8 +380,67 @@ class DashboardController extends Controller
             'jumlahDisetujui',
             'jumlahMenungguVerifikasi',
             'jumlahDitolak',
+            'jumlahDraft',
+            'jumlahBelumDidata',
             'kuisionerTerakhir'
         ));
+    }
+
+    private function respondentsWithoutQuestionnaireCount(
+        string $selectedPeriodKode,
+        bool $hasKeluargaPeriodesTable,
+        bool $hasPart1Table,
+        bool $hasKeluargasTable
+    ): int {
+        if (! $hasKeluargaPeriodesTable) {
+            return 0;
+        }
+
+        $query = KeluargaPeriode::query()
+            ->where('periode_kode', '!=', '');
+
+        if ($selectedPeriodKode !== '') {
+            $query->where('periode_kode', $selectedPeriodKode);
+        }
+
+        if (! $hasPart1Table) {
+            return $query->count();
+        }
+
+        return $query
+            ->whereNotExists(function (QueryBuilder $questionnaireQuery) use ($hasKeluargasTable): void {
+                $questionnaireQuery
+                    ->selectRaw('1')
+                    ->from('part1_keluarga')
+                    ->where(function (QueryBuilder $identifierQuery) use ($hasKeluargasTable): void {
+                        $identifierQuery
+                            ->whereColumn(
+                                'part1_keluarga.keluarga_periode_kode',
+                                'keluarga_periodes.keluarga_kode'
+                            )
+                            ->orWhereColumn(
+                                'part1_keluarga.keluarga_periode_kode',
+                                'keluarga_periodes.kode'
+                            );
+
+                        if ($hasKeluargasTable) {
+                            $identifierQuery->orWhereExists(function (QueryBuilder $familyQuery): void {
+                                $familyQuery
+                                    ->selectRaw('1')
+                                    ->from('keluargas')
+                                    ->whereColumn(
+                                        'keluargas.kode',
+                                        'keluarga_periodes.keluarga_kode'
+                                    )
+                                    ->whereColumn(
+                                        'keluargas.no_kk',
+                                        'part1_keluarga.no_kk'
+                                    );
+                            });
+                        }
+                    });
+            })
+            ->count();
     }
 
     /*
@@ -441,13 +539,7 @@ class DashboardController extends Controller
                 // tetap dihitung meskipun penanda kelengkapan bagian belum sinkron.
                 $query->whereIn(
                     new Expression('LOWER(TRIM(part1_keluarga.status))'),
-                    [
-                        'pending',
-                        'diajukan',
-                        'menunggu',
-                        'diperiksa',
-                        'menunggu verifikasi',
-                    ]
+                    self::PENDING_STATUSES
                 )
                 // Status kosong/selesai atau status lain hanya dihitung jika
                 // kuisioner memang sudah lengkap, dan bukan status final/awal.
@@ -462,13 +554,7 @@ class DashboardController extends Controller
                                             self::APPROVED_STATUSES,
                                             self::REJECTED_STATUSES,
                                             self::NOT_PROCESSED_STATUSES,
-                                            [
-                                                'pending',
-                                                'diajukan',
-                                                'menunggu',
-                                                'diperiksa',
-                                                'menunggu verifikasi',
-                                            ]
+                                            self::PENDING_STATUSES
                                         )
                                     );
                             })
@@ -485,6 +571,28 @@ class DashboardController extends Controller
                                     });
                             });
                     });
+            });
+    }
+
+    private function draftVerificationQuery(?string $selectedPeriodKode = null): Builder
+    {
+        return $this->linkedVerificationQuery($selectedPeriodKode)
+            ->where(function (Builder $statusQuery): void {
+                $statusQuery
+                    ->whereNull('part1_keluarga.status')
+                    ->orWhereNotIn(
+                        new Expression('LOWER(TRIM(part1_keluarga.status))'),
+                        array_merge(
+                            self::APPROVED_STATUSES,
+                            self::REJECTED_STATUSES,
+                            self::NOT_PROCESSED_STATUSES,
+                            self::PENDING_STATUSES,
+                            ['selesai']
+                        )
+                    );
+            })
+            ->whereNot(function (Builder $completeQuery): void {
+                $this->whereQuestionnaireComplete($completeQuery);
             });
     }
 

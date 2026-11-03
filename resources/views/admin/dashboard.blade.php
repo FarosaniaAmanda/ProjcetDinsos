@@ -373,7 +373,7 @@
         .stats-grid {
             position: relative;
             display: grid;
-            grid-template-columns: repeat(4, minmax(0,1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 12px;
             margin-bottom: 22px;
             padding-top: 64px;
@@ -381,18 +381,25 @@
 
         .stat-card {
             position: relative;
+            min-width: 0;
             min-height: 125px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 18px 10px;
+            padding: 20px;
             overflow: hidden;
             text-align: center;
             background: #fff;
             border: 1px solid #e6e8f1;
             border-radius: 16px;
             box-shadow: 0 6px 20px rgba(41,45,143,.045);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(41,45,143,.07);
         }
 
         .stat-card::before {
@@ -406,30 +413,26 @@
         }
 
         .stat-card-respondent { --stat-color: #3155c6; }
-        .stat-card-rejected { --stat-color: #d9534f; }
-        .stat-card-pending { --stat-color: #d99a00; }
+        .stat-card-rejected { --stat-color: #d14b4b; }
+        .stat-card-pending { --stat-color: #bd8700; }
         .stat-card-approved { --stat-color: #15916d; }
+        .stat-card-draft { --stat-color: #6b7280; }
+        .stat-card-not-processed { --stat-color: #7652c8; }
 
         .stat-label {
             color: #27305e;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 700;
-            line-height: 1.35;
+            line-height: 1.3;
         }
 
         .stat-value {
-            margin-top: 9px;
-            color: var(--stat-color);
-            font-size: 29px;
-            font-weight: 800;
-            line-height: 1;
-        }
-
-        .stat-description {
             margin-top: 8px;
-            color: #8a92a5;
-            font-size: 10px;
-            line-height: 1.4;
+            color: var(--stat-color);
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1;
         }
 
         /* GRAFIK */
@@ -576,9 +579,11 @@
             border-radius: 50%;
         }
 
-        .verification-approved { background: #21874b; }
-        .verification-pending { background: #f2c94c; }
-        .verification-rejected { background: #d9534f; }
+        .verification-approved { background: #15916d; }
+        .verification-pending { background: #bd8700; }
+        .verification-rejected { background: #d14b4b; }
+        .verification-draft { background: #6b7280; }
+        .verification-not-processed { background: #7652c8; }
 
         /* TABEL */
         .questionnaire-card,
@@ -855,7 +860,7 @@
         /* RESPONSIVE */
         @media (max-width: 1100px) {
             .stats-grid {
-                grid-template-columns: repeat(2,minmax(0,1fr));
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
 
             .dashboard-chart-grid {
@@ -1002,23 +1007,6 @@
             .stats-grid {
                 gap: 9px;
                 margin-bottom: 14px;
-            }
-
-            .stat-card {
-                min-height: 115px;
-                padding: 13px 8px;
-            }
-
-            .stat-label {
-                font-size: 11px;
-            }
-
-            .stat-value {
-                font-size: 25px;
-            }
-
-            .stat-description {
-                font-size: 9px;
             }
 
             .dashboard-chart-grid {
@@ -1245,6 +1233,7 @@
         @media (max-width: 600px) {
             .stats-grid {
                 padding-top: 76px;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .period-filter-panel {
@@ -1269,6 +1258,12 @@
                 min-width: 0;
                 width: 100%;
                 max-width: 100%;
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 700px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
         }
 
@@ -1433,11 +1428,13 @@
 
             {{-- STATISTIK --}}
             <div class="stats-grid">
-                {{-- FILTER PERIODE DASHBOARD: posisi pojok kanan atas card Disetujui --}}
+                {{-- Filter periode yang sedang aktif atau berjalan --}}
                 <form method="GET" action="{{ route('dashboard') }}" class="period-filter-panel">
                     <div class="period-filter-controls">
                         <select name="periode_kode" class="period-filter-select" aria-label="Pilih periode pendataan" onchange="showPeriodLoading(this.form)">
-                            <option value="">Semua Periode</option>
+                            <option value="" {{ (string) ($selectedPeriodKode ?? '') === '' ? 'selected' : '' }}>
+                                Semua Periode
+                            </option>
                             @foreach(($periodeOptions ?? collect()) as $opsiPeriode)
                                 <option value="{{ $opsiPeriode->kode }}"
                                     {{ (string) ($selectedPeriodKode ?? '') === (string) $opsiPeriode->kode ? 'selected' : '' }}>
@@ -1452,25 +1449,31 @@
                 <div class="stat-card stat-card-respondent">
                     <div class="stat-label">Total Responden</div>
                     <div class="stat-value">{{ $totalResponden ?? 0 }}</div>
-                    <div class="stat-description">Data responden terdaftar</div>
                 </div>
 
-                <div class="stat-card stat-card-rejected">
-                    <div class="stat-label">Ditolak</div>
-                    <div class="stat-value">{{ $jumlahDitolak ?? 0 }}</div>
-                    <div class="stat-description">Jumlah data yang ditolak saat verifikasi</div>
+                <div class="stat-card stat-card-not-processed">
+                    <div class="stat-label">Belum Didata</div>
+                    <div class="stat-value">{{ $jumlahBelumDidata ?? 0 }}</div>
+                </div>
+
+                <div class="stat-card stat-card-draft">
+                    <div class="stat-label">Draft</div>
+                    <div class="stat-value">{{ $jumlahDraft ?? 0 }}</div>
                 </div>
 
                 <div class="stat-card stat-card-pending">
                     <div class="stat-label">Menunggu Verifikasi</div>
                     <div class="stat-value">{{ $jumlahMenungguVerifikasi ?? 0 }}</div>
-                    <div class="stat-description">Data kuisioner menunggu verifikasi</div>
                 </div>
 
                 <div class="stat-card stat-card-approved">
                     <div class="stat-label">Disetujui</div>
                     <div class="stat-value">{{ $jumlahDisetujui ?? 0 }}</div>
-                    <div class="stat-description">Data telah disetujui</div>
+                </div>
+
+                <div class="stat-card stat-card-rejected">
+                    <div class="stat-label">Ditolak</div>
+                    <div class="stat-value">{{ $jumlahDitolak ?? 0 }}</div>
                 </div>
             </div>
 
@@ -1505,10 +1508,10 @@
                         <div class="verification-legend">
                             <div class="verification-legend-item">
                                 <div class="verification-legend-left">
-                                    <span class="verification-dot verification-approved"></span>
-                                    <span>Disetujui</span>
+                                    <span class="verification-dot verification-not-processed"></span>
+                                    <span>Belum Didata</span>
                                 </div>
-                                <strong id="approvedValue">{{ $jumlahDisetujui ?? 0 }}</strong>
+                                <strong id="notProcessedValue">{{ $jumlahBelumDidata ?? 0 }}</strong>
                             </div>
 
                             <div class="verification-legend-item">
@@ -1517,6 +1520,22 @@
                                     <span>Menunggu Verifikasi</span>
                                 </div>
                                 <strong id="pendingValue">{{ $jumlahMenungguVerifikasi ?? 0 }}</strong>
+                            </div>
+
+                            <div class="verification-legend-item">
+                                <div class="verification-legend-left">
+                                    <span class="verification-dot verification-draft"></span>
+                                    <span>Draft</span>
+                                </div>
+                                <strong id="draftValue">{{ $jumlahDraft ?? 0 }}</strong>
+                            </div>
+
+                            <div class="verification-legend-item">
+                                <div class="verification-legend-left">
+                                    <span class="verification-dot verification-approved"></span>
+                                    <span>Disetujui</span>
+                                </div>
+                                <strong id="approvedValue">{{ $jumlahDisetujui ?? 0 }}</strong>
                             </div>
 
                             <div class="verification-legend-item">
@@ -1970,16 +1989,20 @@ if (kecamatanCanvas && typeof Chart !== 'undefined') {
         /* GRAFIK DONUT STATUS VERIFIKASI */
         const verificationCanvas = document.getElementById('verificationChart');
 
-               const verificationData = {
+        const verificationData = {
             disetujui: Number(@json($jumlahDisetujui ?? 0)),
             menungguVerifikasi: Number(@json($jumlahMenungguVerifikasi ?? 0)),
-            ditolak: Number(@json($jumlahDitolak ?? 0))
+            ditolak: Number(@json($jumlahDitolak ?? 0)),
+            draft: Number(@json($jumlahDraft ?? 0)),
+            belumDidata: Number(@json($jumlahBelumDidata ?? 0))
         };
 
         const verificationTotal =
             Number(verificationData.disetujui) +
             Number(verificationData.menungguVerifikasi) +
-            Number(verificationData.ditolak);
+            Number(verificationData.ditolak) +
+            Number(verificationData.draft) +
+            Number(verificationData.belumDidata);
 
         const verificationHasData = verificationTotal > 0;
 
@@ -1997,6 +2020,12 @@ if (kecamatanCanvas && typeof Chart !== 'undefined') {
 
         document.getElementById('rejectedValue').textContent =
             `${verificationData.ditolak} (${percentageFor(verificationData.ditolak)}%)`;
+
+        document.getElementById('draftValue').textContent =
+            `${verificationData.draft} (${percentageFor(verificationData.draft)}%)`;
+
+        document.getElementById('notProcessedValue').textContent =
+            `${verificationData.belumDidata} (${percentageFor(verificationData.belumDidata)}%)`;
 
         const centerTextPlugin = {
             id: 'centerText',
@@ -2034,18 +2063,26 @@ if (kecamatanCanvas && typeof Chart !== 'undefined') {
                 type: 'doughnut',
 
                 data: {
-                    labels: ['Disetujui', 'Menunggu Verifikasi', 'Ditolak'],
+                    labels: [
+                        'Belum Didata',
+                        'Menunggu Verifikasi',
+                        'Draft',
+                        'Disetujui',
+                        'Ditolak'
+                    ],
                     datasets: [{
                         data: verificationHasData
                             ? [
-                                Number(verificationData.disetujui),
+                                Number(verificationData.belumDidata),
                                 Number(verificationData.menungguVerifikasi),
+                                Number(verificationData.draft),
+                                Number(verificationData.disetujui),
                                 Number(verificationData.ditolak)
                             ]
                             : [1],
 
                         backgroundColor: verificationHasData
-                            ? ['#21874b', '#f2c94c', '#d9534f']
+                            ? ['#7652c8', '#bd8700', '#6b7280', '#15916d', '#d14b4b']
                             : ['#e5e7eb'],
 
                         borderWidth: 0,

@@ -31,6 +31,8 @@ class DashboardVerificationTest extends TestCase
             $table->string('kode')->unique();
             $table->string('nama');
             $table->string('status_periode');
+            $table->dateTime('tgl_awal')->nullable();
+            $table->dateTime('tgl_akhir')->nullable();
             $table->timestamps();
         });
 
@@ -129,6 +131,60 @@ class DashboardVerificationTest extends TestCase
             });
     }
 
+    public function test_dashboard_counts_draft_and_not_processed_records_in_cards_and_verification_chart(): void
+    {
+        $this->createVerificationRecord(1, 'draft');
+        $this->createVerificationRecord(2, 'belum didata');
+        $this->createFamilyWithoutQuestionnaire(3);
+
+        $response = $this->get(route('dashboard'));
+        $content = $response->getContent();
+
+        $response
+            ->assertOk()
+            ->assertSee('Draft')
+            ->assertSee('Belum Didata')
+            ->assertSee('labels: [', false)
+            ->assertSee("'Draft'", false)
+            ->assertSee("'Belum Didata'", false)
+            ->assertSee('id="draftValue">1<', false)
+            ->assertSee('id="notProcessedValue">1<', false)
+            ->assertSee('grid-template-columns: repeat(6, minmax(0, 1fr));', false)
+            ->assertSee('min-height: 125px;', false)
+            ->assertSee('padding: 20px;', false)
+            ->assertSee('font-size: 30px;', false)
+            ->assertViewHas('totalResponden', 2)
+            ->assertViewHas('jumlahDraft', 1)
+            ->assertViewHas('jumlahBelumDidata', 1);
+
+        $this->assertSame(
+            1,
+            preg_match(
+                "/labels:\\s*\\[\\s*'Belum Didata',\\s*'Menunggu Verifikasi',\\s*'Draft',\\s*'Disetujui',\\s*'Ditolak'/",
+                $content
+            )
+        );
+
+        $this->assertSame(
+            1,
+            preg_match(
+                '/Number\\(verificationData\\.belumDidata\\),\\s*Number\\(verificationData\\.menungguVerifikasi\\),\\s*Number\\(verificationData\\.draft\\),\\s*Number\\(verificationData\\.disetujui\\),\\s*Number\\(verificationData\\.ditolak\\)/',
+                $content
+            )
+        );
+
+        $legendStart = strpos($content, 'class="verification-legend"');
+        $legendPositions = array_map(
+            fn (string $label): int|false => strpos($content, '<span>'.$label.'</span>', $legendStart),
+            ['Belum Didata', 'Menunggu Verifikasi', 'Draft', 'Disetujui', 'Ditolak']
+        );
+
+        $this->assertNotContains(false, $legendPositions);
+        $sortedLegendPositions = $legendPositions;
+        sort($sortedLegendPositions);
+        $this->assertSame($sortedLegendPositions, $legendPositions);
+    }
+
     public function test_dashboard_filter_updates_all_period_data_for_the_selected_period(): void
     {
         $selectedPeriodKode = 'PER-2026-1';
@@ -138,14 +194,18 @@ class DashboardVerificationTest extends TestCase
             [
                 'kode' => $selectedPeriodKode,
                 'nama' => 'Periode 1',
-                'status_periode' => 'selesai',
+                'status_periode' => 'aktif',
+                'tgl_awal' => today()->subDay(),
+                'tgl_akhir' => today()->addDay(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'kode' => $otherPeriodKode,
                 'nama' => 'Periode 2',
-                'status_periode' => 'aktif',
+                'status_periode' => 'akan datang',
+                'tgl_awal' => today()->addDays(2),
+                'tgl_akhir' => today()->addDays(3),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -153,6 +213,8 @@ class DashboardVerificationTest extends TestCase
 
         $selectedFamilyCode = $this->createVerificationRecord(1, 'pending');
         $otherFamilyCode = $this->createVerificationRecord(2, 'approved');
+        $familyWithoutQuestionnaireCode = 'KLG-0003';
+        $this->createFamilyWithoutQuestionnaire(3);
 
         DB::table('kecamatans')->insert([
             'kecamatan_id' => 'KEC-001',
@@ -163,22 +225,9 @@ class DashboardVerificationTest extends TestCase
             ->whereIn('kode', [$selectedFamilyCode, $otherFamilyCode])
             ->update(['kecamatan_id' => 'KEC-001']);
 
-        DB::table('keluarga_periodes')->insert([
-            [
-                'kode' => 'KLP-001',
-                'periode_kode' => $selectedPeriodKode,
-                'keluarga_kode' => $selectedFamilyCode,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'kode' => 'KLP-002',
-                'periode_kode' => $otherPeriodKode,
-                'keluarga_kode' => $otherFamilyCode,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
+        $this->createFamilyPeriodRelation('KLP-001', $selectedPeriodKode, $selectedFamilyCode);
+        $this->createFamilyPeriodRelation('KLP-002', $otherPeriodKode, $otherFamilyCode);
+        $this->createFamilyPeriodRelation('KLP-003', $selectedPeriodKode, $familyWithoutQuestionnaireCode);
 
         $response = $this->get(route('dashboard', [
             'periode_kode' => $selectedPeriodKode,
@@ -187,14 +236,16 @@ class DashboardVerificationTest extends TestCase
         $response
             ->assertOk()
             ->assertViewHas('selectedPeriodKode', $selectedPeriodKode)
-            ->assertViewHas('totalResponden', 1)
+            ->assertViewHas('totalResponden', 2)
             ->assertViewHas('jumlahDisetujui', 0)
             ->assertViewHas('jumlahMenungguVerifikasi', 1)
             ->assertViewHas('jumlahDitolak', 0)
+            ->assertViewHas('jumlahDraft', 0)
+            ->assertViewHas('jumlahBelumDidata', 1)
             ->assertViewHas('rekapPeriode', function ($periodes) use ($selectedPeriodKode): bool {
-                $this->assertCount(1, $periodes);
+                $this->assertCount(2, $periodes);
                 $this->assertSame($selectedPeriodKode, $periodes->first()->kode);
-                $this->assertSame(1, $periodes->first()->total_responden);
+                $this->assertSame(2, $periodes->first()->total_responden);
                 $this->assertSame(1, $periodes->first()->jumlah_menunggu_verifikasi);
 
                 return true;
@@ -214,6 +265,174 @@ class DashboardVerificationTest extends TestCase
         $response
             ->assertSee('Keluarga 1')
             ->assertDontSee('Keluarga 2');
+    }
+
+    public function test_dashboard_defaults_to_all_periods_and_orders_the_full_period_recap_by_status(): void
+    {
+        DB::table('periodes')->insert([
+            [
+                'kode' => 'PER-SELESAI',
+                'nama' => 'Periode Selesai',
+                'status_periode' => 'selesai',
+                'tgl_awal' => today()->subDays(10),
+                'tgl_akhir' => today()->subDays(5),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'PER-KEDEPAN',
+                'nama' => 'Periode Akan Datang',
+                'status_periode' => 'akan datang',
+                'tgl_awal' => today()->addDays(5),
+                'tgl_akhir' => today()->addDays(10),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'PER-AKTIF',
+                'nama' => 'Periode Aktif',
+                'status_periode' => 'aktif',
+                'tgl_awal' => today()->subDay(),
+                'tgl_akhir' => today()->addDay(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'PER-BERJALAN',
+                'nama' => 'Periode Berjalan',
+                'status_periode' => 'akan datang',
+                'tgl_awal' => today()->subDay(),
+                'tgl_akhir' => today()->addDay(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+        $familyCode = 'KLG-PERIODE-AKTIF';
+        $completedPeriodFamilyCode = 'KLG-PERIODE-SELESAI';
+        DB::table('keluargas')->insert([
+            [
+                'kode' => $familyCode,
+                'no_kk' => 'KK-PERIODE-AKTIF',
+                'nama_lengkap' => 'Responden Periode Aktif',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => $completedPeriodFamilyCode,
+                'no_kk' => 'KK-PERIODE-SELESAI',
+                'nama_lengkap' => 'Responden Periode Selesai',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+        $this->createFamilyPeriodRelation('KLP-AKTIF-1', 'PER-AKTIF', $familyCode);
+        $this->createFamilyPeriodRelation('KLP-SELESAI-1', 'PER-SELESAI', $completedPeriodFamilyCode);
+
+        $response = $this->get(route('dashboard'));
+
+        $response
+            ->assertOk()
+            ->assertSee('value="" selected', false)
+            ->assertViewHas('selectedPeriodKode', '')
+            ->assertViewHas('totalResponden', 2)
+            ->assertViewHas('jumlahBelumDidata', 2)
+            ->assertViewHas('periodeOptions', function ($periodes): bool {
+                $this->assertEqualsCanonicalizing(
+                    ['PER-AKTIF', 'PER-BERJALAN'],
+                    $periodes->pluck('kode')->all()
+                );
+
+                return true;
+            })
+            ->assertViewHas('rekapPeriode', function ($periodes): bool {
+                $this->assertSame(
+                    ['PER-AKTIF', 'PER-BERJALAN', 'PER-KEDEPAN', 'PER-SELESAI'],
+                    $periodes->pluck('kode')->all()
+                );
+
+                return true;
+            });
+    }
+
+    public function test_dashboard_all_period_filter_includes_every_period_and_period_responses(): void
+    {
+        DB::table('periodes')->insert([
+            [
+                'kode' => 'PER-AKTIF',
+                'nama' => 'Periode Aktif',
+                'status_periode' => 'aktif',
+                'tgl_awal' => today()->subDay(),
+                'tgl_akhir' => today()->addDay(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => 'PER-SELESAI',
+                'nama' => 'Periode Selesai',
+                'status_periode' => 'selesai',
+                'tgl_awal' => today()->subDays(10),
+                'tgl_akhir' => today()->subDays(5),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        $this->createVerificationRecord(1, 'draft');
+        $this->createVerificationRecord(2, 'approved');
+        $this->createFamilyWithoutQuestionnaire(3);
+        $this->createFamilyPeriodRelation('KLP-AKTIF-1', 'PER-AKTIF', 'KLG-0001');
+        $this->createFamilyPeriodRelation('KLP-AKTIF-3', 'PER-AKTIF', 'KLG-0003');
+        $this->createFamilyPeriodRelation('KLP-SELESAI-2', 'PER-SELESAI', 'KLG-0002');
+
+        $response = $this->get(route('dashboard', ['periode_kode' => '']));
+
+        $response
+            ->assertOk()
+            ->assertSee('value="" selected', false)
+            ->assertSee('Semua Periode')
+            ->assertViewHas('selectedPeriodKode', '')
+            ->assertViewHas('periodeOptions', function ($periodes): bool {
+                $this->assertEqualsCanonicalizing(
+                    ['PER-AKTIF'],
+                    $periodes->pluck('kode')->all()
+                );
+
+                return true;
+            })
+            ->assertDontSee('value="PER-SELESAI"', false)
+            ->assertViewHas('totalResponden', 3)
+            ->assertViewHas('jumlahBelumDidata', 1)
+            ->assertViewHas('jumlahDraft', 1)
+            ->assertViewHas('jumlahMenungguVerifikasi', 0)
+            ->assertViewHas('jumlahDisetujui', 1)
+            ->assertViewHas('jumlahDitolak', 0);
+    }
+
+    public function test_dashboard_defaults_to_all_periods_when_no_period_is_active_or_running(): void
+    {
+        DB::table('periodes')->insert([
+            'kode' => 'PER-SELESAI',
+            'nama' => 'Periode Selesai',
+            'status_periode' => 'selesai',
+            'tgl_awal' => today()->subDays(10),
+            'tgl_akhir' => today()->subDay(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $this->createVerificationRecord(1, 'approved');
+
+        $response = $this->get(route('dashboard'));
+
+        $response
+            ->assertOk()
+            ->assertSee('Semua Periode')
+            ->assertViewHas('selectedPeriodKode', '')
+            ->assertViewHas('totalResponden', 1)
+            ->assertViewHas('jumlahDisetujui', 1)
+            ->assertViewHas('jumlahMenungguVerifikasi', 0)
+            ->assertViewHas('jumlahDitolak', 0)
+            ->assertViewHas('jumlahDraft', 0)
+            ->assertViewHas('jumlahBelumDidata', 0);
     }
 
     public function test_dashboard_questionnaire_table_paginates_five_verification_records_per_page(): void
@@ -316,6 +535,32 @@ class DashboardVerificationTest extends TestCase
         ]);
 
         return $code;
+    }
+
+    private function createFamilyWithoutQuestionnaire(int $number): void
+    {
+        DB::table('keluargas')->insert([
+            'kode' => 'KLG-'.str_pad((string) $number, 4, '0', STR_PAD_LEFT),
+            'no_kk' => 'KK-'.str_pad((string) $number, 4, '0', STR_PAD_LEFT),
+            'nama_lengkap' => 'Keluarga '.$number,
+            'kecamatan' => 'Kecamatan Tes',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    private function createFamilyPeriodRelation(
+        string $relationCode,
+        string $periodCode,
+        string $familyCode
+    ): void {
+        DB::table('keluarga_periodes')->insert([
+            'kode' => $relationCode,
+            'periode_kode' => $periodCode,
+            'keluarga_kode' => $familyCode,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     private function createVerificationRecords(int $count): void
