@@ -3912,7 +3912,8 @@
                                 $index 
                             ); 
 
-                            $itemUuid = data_get($item, 'uuid');
+                            // ID angka untuk Detail, UUID khusus untuk URL PDF.
+                            $pdfUuid = (string) data_get($item, 'pdf_uuid', '');
  
                             $noKk = data_get( 
                                 $item, 
@@ -4100,8 +4101,8 @@
                                     data-tanggal="{{ e($tanggalPendataan) }}" 
                                     data-status="{{ e($status) }}" 
                                     data-complete="{{ $isComplete ? '1' : '0' }}" 
-                                    data-detail-url="{{ route('laporan.detail', ['uuid' => $itemUuid]) }}"
-                                    data-pdf-url="{{ route('laporan.pdf', ['uuid' => $itemUuid]) }}"
+                                    data-detail-url="{{ route('laporan.detail', ['id' => $itemId]) }}"
+                                    data-pdf-url="{{ $pdfUuid !== '' ? route('laporan.pdf', ['uuid' => $pdfUuid]) : '' }}" 
                                 > 
                                     Detail 
                                 </button> 

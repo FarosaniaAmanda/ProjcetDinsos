@@ -465,18 +465,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan', [LaporanController::class, 'index'])
         ->name('laporan.index');
 
-    Route::get('/laporan/{uuid}/detail', [LaporanController::class, 'showDetail'])
-        ->whereUuid('uuid')
+    // Detail laporan menggunakan ID angka.
+    Route::get('/laporan/{id}/detail', [LaporanController::class, 'showDetail'])
+        ->whereNumber('id')
         ->name('laporan.detail');
 
+    // Download PDF menggunakan UUID.
     Route::get('/laporan/{uuid}/pdf', [LaporanController::class, 'pdf'])
         ->whereUuid('uuid')
         ->name('laporan.pdf');
 
+    // Export Excel tetap dipertahankan.
     Route::get('/laporan/export', [LaporanController::class, 'export'])
         ->name('admin.laporan.export');
 });
-
 /*
 |--------------------------------------------------------------------------
 | MASTER
