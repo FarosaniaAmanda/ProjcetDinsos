@@ -2067,10 +2067,29 @@ textarea.responden-form-control {
                     </thead>
                     <tbody id="respondenImportedTableBody">
                         @forelse ($respondenDiambil as $responden)
-                            <tr>
-                                <td>{{ $responden->no_kk ?? '-' }}</td>
+                            <tr class="responden-family-main" id="imported-keluarga-row-{{ $responden->id }}">
+                                <td>
+                                    @if ($responden->anggota->isNotEmpty())
+                                        <button
+                                            type="button"
+                                            class="responden-kk-toggle"
+                                            id="imported-kk-toggle-{{ $responden->id }}"
+                                            aria-expanded="false"
+                                            onclick="toggleImportedKeluarga({{ $responden->id }})"
+                                        >
+                                            <span class="responden-kk-icon" aria-hidden="true">⌄</span>
+                                            <span>{{ $responden->no_kk ?? '-' }}</span>
+                                        </button>
+                                    @else
+                                        {{ $responden->no_kk ?? '-' }}
+                                    @endif
+                                </td>
                                 <td>{{ $responden->nik ?? '-' }}</td>
-                                <td>{{ $responden->nama_lengkap ?? '-' }}</td>
+                                <td>
+                                    <span class="responden-member-name">
+                                        {{ $responden->nama_lengkap ?? '-' }}
+                                    </span>
+                                </td>
                                 <td>{{ $responden->kecamatan ?? '-' }} / {{ $responden->kelurahan ?? '-' }}</td>
                                 <td>
                                     <span class="responden-status-label {{ $responden->is_active ? 'aktif' : 'nonaktif' }}">
@@ -2079,12 +2098,16 @@ textarea.responden-form-control {
                                 </td>
                             </tr>
                             @foreach ($responden->anggota as $anggota)
-                                <tr>
-                                    <td></td>
+                                <tr class="responden-member-row" data-imported-keluarga="{{ $responden->id }}">
+                                    <td>
+                                        <div class="responden-member-indent">
+                                            <span class="responden-member-indent-line"></span>
+                                            <span style="font-size:10px;color:#999;">Anggota</span>
+                                        </div>
+                                    </td>
                                     <td>{{ $anggota->nik ?? '-' }}</td>
                                     <td>
-                                        {{ $anggota->nama_lengkap ?? '-' }}
-                                        <span class="responden-panel-subtitle">({{ $anggota->status_keluarga ?? 'Anggota' }})</span>
+                                        <span class="responden-member-name">{{ $anggota->nama_lengkap ?? '-' }}</span>
                                     </td>
                                     <td>{{ $responden->kecamatan ?? '-' }} / {{ $responden->kelurahan ?? '-' }}</td>
                                     <td></td>
@@ -4578,6 +4601,31 @@ function toggleKeluarga(id) {
     const sedangTerbuka = button.classList.contains('active');
 
     button.classList.toggle('active', !sedangTerbuka);
+
+    if (mainRow) {
+        mainRow.classList.toggle('expanded', !sedangTerbuka);
+    }
+
+    memberRows.forEach(function (row) {
+        row.classList.toggle('active', !sedangTerbuka);
+    });
+}
+
+function toggleImportedKeluarga(id) {
+    const button = document.getElementById('imported-kk-toggle-' + id);
+    const mainRow = document.getElementById('imported-keluarga-row-' + id);
+    const memberRows = document.querySelectorAll(
+        '.responden-member-row[data-imported-keluarga="' + id + '"]'
+    );
+
+    if (!button) {
+        return;
+    }
+
+    const sedangTerbuka = button.classList.contains('active');
+
+    button.classList.toggle('active', !sedangTerbuka);
+    button.setAttribute('aria-expanded', String(!sedangTerbuka));
 
     if (mainRow) {
         mainRow.classList.toggle('expanded', !sedangTerbuka);
