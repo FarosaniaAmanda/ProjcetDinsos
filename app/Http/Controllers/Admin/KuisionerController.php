@@ -3533,7 +3533,7 @@ class KuisionerController extends Controller
     */
 
     public function storePart5Foto(Request $request)
-    {
+    {    
         $action = $request->input('action', 'final');
         $isDraft = $action === 'draft';
         $isAutosave = $action === 'upload';

@@ -995,26 +995,24 @@
         /* Mode mobile: satu card statistik dalam setiap baris */
         grid-template-columns: minmax(0, 1fr);
 
-        gap: 10px;
+        gap: 16px;
 
-        padding: 15px;
+        padding: 20px 18px;
     }
 
     .laporan-stat-card {
-        min-height: 76px;
+    min-height: 140px; 
+    padding: 20px 16px;
+    border-radius: 12px;
+}
 
-        padding: 13px;
+.laporan-stat-label {
+    font-size: 16px; 
+}
 
-        border-radius: 12px;
-    }
-
-    .laporan-stat-label {
-        font-size: 11px;
-    }
-
-    .laporan-stat-value {
-        font-size: 19px;
-    }
+.laporan-stat-value {
+    font-size: 34px; 
+}
 
     .laporan-card-header {
         padding: 17px;
@@ -1075,24 +1073,25 @@
         /* Layar kecil: tetap satu card per baris */
         grid-template-columns: minmax(0, 1fr);
 
-        gap: 8px;
+        gap: 14px;
+
+        padding-left: 12px;
+        padding-right: 12px;
     }
 
-    .laporan-stat-card {
-        min-height: 70px;
+  .laporan-stat-card {
+    min-height: 130px; 
+    padding: 18px 14px;
+    border-radius: 12px;
+}
 
-        padding: 11px;
+.laporan-stat-label {
+    font-size: 15px; 
+}
 
-        border-radius: 11px;
-    }
-
-    .laporan-stat-label {
-        font-size: 10px;
-    }
-
-    .laporan-stat-value {
-        font-size: 18px;
-    }
+.laporan-stat-value {
+    font-size: 32px; 
+}
 }
 
 /* ============================================================

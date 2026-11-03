@@ -468,6 +468,34 @@
             font-size: 12px;
         }
     }
+    
+    /* RESPONSIVE TOMBOL PART 2 - HP */
+    @media (max-width: 560px) {
+
+        .part2-footer {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .part2-footer-left,
+        .part2-footer-right {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 12px;
+        }
+
+        .part2-back,
+        .part2-draft,
+        .part2-next {
+            width: 100%;
+            min-width: 0;
+            flex: none;
+        }
+
+    }
 </style>
 
 

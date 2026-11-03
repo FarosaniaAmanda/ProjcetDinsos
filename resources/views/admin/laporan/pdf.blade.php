@@ -42,6 +42,15 @@
             font-size: 11px;
         }
 
+        /*
+         * Part 5: jaga judul agar tidak tertinggal sendirian
+         * di akhir halaman ketika blok anggota pindah ke halaman berikutnya.
+         */
+        .part5-section-heading {
+            page-break-after: avoid;
+            page-break-inside: avoid;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -297,7 +306,7 @@
             $partTitle = $part['title'] ?? '';
         @endphp
 
-        <h3>Part {{ $partNumber }}{{ $partTitle !== '' ? ' - ' . $partTitle : '' }}</h3>
+        <h3 class="{{ (string) $partNumber === '5' ? 'part5-section-heading' : '' }}">Part {{ $partNumber }}{{ $partTitle !== '' ? ' - ' . $partTitle : '' }}</h3>
 
         @if ((string) $partNumber === '6')
             <table class="part6-photo-table">
