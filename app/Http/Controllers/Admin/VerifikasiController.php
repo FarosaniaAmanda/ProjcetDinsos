@@ -20,7 +20,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -2719,16 +2718,7 @@ class VerifikasiController extends Controller
                     // File sudah memiliki URL lengkap.
                     $url = $rawPath;
                 } else {
-                    // Hilangkan prefix penyimpanan yang mungkin sudah tersimpan.
-                    $path = preg_replace(
-                        '#^(?:public/|storage/|app/public/)#i',
-                        '',
-                        ltrim($rawPath, '/')
-                    );
-
-                    $url = $path !== ''
-                        ? Storage::disk('public')->url($path)
-                        : '';
+                    $url = $this->makeHousePhotoUrl($rawPath);
                 }
 
                 $jenis = str_replace(
@@ -2820,6 +2810,39 @@ class VerifikasiController extends Controller
                 'questions' => $part6Questions,
             ],
         ];
+    }
+
+    protected function makeHousePhotoUrl(string $path): string
+    {
+        $path = trim(str_replace('\\', '/', $path));
+
+        if ($path === '') {
+            return '';
+        }
+
+        if (
+            preg_match('#^(?:https?:)?//#i', $path)
+            || str_starts_with(strtolower($path), 'data:image/')
+        ) {
+            return $path;
+        }
+
+        $path = ltrim($path, '/');
+        $position = stripos($path, 'kuisioner/');
+
+        if ($position !== false) {
+            $path = substr($path, $position);
+        } else {
+            $path = preg_replace(
+                '#^(?:public/storage/|storage/app/public/|storage/app/|app/public/|public/|storage/)#i',
+                '',
+                $path
+            );
+        }
+
+        $path = ltrim((string) $path, '/');
+
+        return $path === '' ? '' : '/storage/'.$path;
     }
 
     /*

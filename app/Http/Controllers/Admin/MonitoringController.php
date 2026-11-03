@@ -1581,9 +1581,9 @@ class MonitoringController extends VerifikasiController
                 $publicDisk->put($path, $contents);
             }
 
-            return $publicDisk->url($path);
+            return '/storage/'.$path;
         } catch (\Throwable $e) {
-            return asset('storage/'.$path);
+            return '/storage/'.$path;
         }
     }
 

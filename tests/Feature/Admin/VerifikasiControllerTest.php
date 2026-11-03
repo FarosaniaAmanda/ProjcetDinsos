@@ -11,6 +11,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class VerifikasiControllerTest extends TestCase
@@ -819,6 +820,26 @@ class VerifikasiControllerTest extends TestCase
             $questionnaire->uuid
         );
     }
+
+    public function test_house_photo_urls_use_the_current_host_on_all_detail_pages(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+
+        $path = 'kuisioner/rumah/current-host.jpg';
+        $expectedUrl = '/storage/'.$path;
+
+        $verificationUrl = (new TestableVerifikasiController)
+            ->housePhotoUrl('storage/app/public/'.$path);
+        $monitoringUrl = (new TestableMonitoringController)
+            ->housePhotoUrl($path);
+        $reportUrl = (new TestableLaporanController)
+            ->housePhotoUrl($path);
+
+        $this->assertSame($expectedUrl, $verificationUrl);
+        $this->assertSame($expectedUrl, $monitoringUrl);
+        $this->assertSame($expectedUrl, $reportUrl);
+    }
 }
 
 class TestableVerifikasiController extends VerifikasiController
@@ -831,6 +852,11 @@ class TestableVerifikasiController extends VerifikasiController
     public function part1Questions(KeluargaPart1 $item, ?Keluarga $keluarga): array
     {
         return parent::buildQuestionnaire($item, $keluarga)[0]['questions'];
+    }
+
+    public function housePhotoUrl(string $path): string
+    {
+        return $this->makeHousePhotoUrl($path);
     }
 
     public function completedVerificationData(string $status = 'all'): array
@@ -870,6 +896,11 @@ class TestableVerifikasiController extends VerifikasiController
 
 class TestableMonitoringController extends MonitoringController
 {
+    public function housePhotoUrl(string $path): string
+    {
+        return $this->makeStorageUrl($path);
+    }
+
     public function monitoringData(): array
     {
         return $this->getData()->all();
@@ -883,6 +914,11 @@ class TestableMonitoringController extends MonitoringController
 
 class TestableLaporanController extends LaporanController
 {
+    public function housePhotoUrl(string $path): string
+    {
+        return $this->makeStorageUrl($path);
+    }
+
     public function reportRows(?array $filters = null): Collection
     {
         return $this->eligibleRows($filters);
