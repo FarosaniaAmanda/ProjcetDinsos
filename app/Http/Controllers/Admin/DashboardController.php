@@ -83,17 +83,26 @@ class DashboardController extends Controller
             $selectedPeriodKode = '';
         }
 
+        $activePeriodKodes = $allPeriodes
+            ->filter($isPeriodeAktif)
+            ->pluck('kode')
+            ->map(static fn ($kode): string => (string) $kode)
+            ->all();
+        $periodFilter = $selectedPeriodKode !== ''
+            ? [$selectedPeriodKode]
+            : ($activePeriodKodes !== [] ? $activePeriodKodes : ($allPeriodes->isEmpty() ? null : []));
+
         $periodeAktif = $hasPeriodesTable
             ? Periode::whereRaw('LOWER(TRIM(status_periode)) = ?', ['aktif'])->count()
             : 0;
 
         $dataMasukQuery = Keluarga::query();
 
-        if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
+        if ($periodFilter !== null && $hasKeluargaPeriodesTable) {
             $dataMasukQuery->whereIn(
                 'keluargas.kode',
                 DB::table('keluarga_periodes')
-                    ->where('periode_kode', $selectedPeriodKode)
+                    ->whereIn('periode_kode', $periodFilter)
                     ->select('keluarga_kode')
             );
         }
@@ -190,12 +199,12 @@ class DashboardController extends Controller
                     'kecamatans.kecamatan_id'
                 );
 
-            if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
+            if ($periodFilter !== null && $hasKeluargaPeriodesTable) {
                 // Filter periode diletakkan pada kondisi LEFT JOIN, bukan WHERE,
                 // supaya kecamatan dengan jumlah 0 tetap ikut dikirim ke grafik.
-                $kecamatanQuery->leftJoin('keluarga_periodes', function ($join) use ($selectedPeriodKode) {
+                $kecamatanQuery->leftJoin('keluarga_periodes', function ($join) use ($periodFilter) {
                     $join->on('keluarga_periodes.keluarga_kode', '=', 'keluargas.kode')
-                        ->where('keluarga_periodes.periode_kode', '=', $selectedPeriodKode);
+                        ->whereIn('keluarga_periodes.periode_kode', $periodFilter);
                 });
 
                 $totalRespondenKecamatan = DB::raw(
@@ -243,13 +252,13 @@ class DashboardController extends Controller
                     'kelurahans.kelurahan_id'
                 );
 
-            if ($selectedPeriodKode !== '' && $hasKeluargaPeriodesTable) {
+            if ($periodFilter !== null && $hasKeluargaPeriodesTable) {
                 $kelurahanQuery->join(
                     'keluarga_periodes',
                     'keluarga_periodes.keluarga_kode',
                     '=',
                     'keluargas.kode'
-                )->where('keluarga_periodes.periode_kode', $selectedPeriodKode);
+                )->whereIn('keluarga_periodes.periode_kode', $periodFilter);
             }
 
             $persebaranKelurahan = $kelurahanQuery
@@ -278,7 +287,7 @@ class DashboardController extends Controller
         */
         if (! $hasPart1Table) {
             $jumlahBelumDidata = $this->respondentsWithoutQuestionnaireCount(
-                $selectedPeriodKode,
+                $periodFilter,
                 $hasKeluargaPeriodesTable,
                 false,
                 $hasKeluargasTable
@@ -305,14 +314,14 @@ class DashboardController extends Controller
             ]);
         }
 
-        $jumlahDisetujui = $this->linkedVerificationQuery($selectedPeriodKode)
+        $jumlahDisetujui = $this->linkedVerificationQuery($periodFilter)
             ->whereIn(
                 new Expression('LOWER(TRIM(part1_keluarga.status))'),
                 self::APPROVED_STATUSES
             )
             ->count();
 
-        $jumlahDitolak = $this->linkedVerificationQuery($selectedPeriodKode)
+        $jumlahDitolak = $this->linkedVerificationQuery($periodFilter)
             ->whereIn(
                 new Expression('LOWER(TRIM(part1_keluarga.status))'),
                 self::REJECTED_STATUSES
@@ -320,19 +329,19 @@ class DashboardController extends Controller
             ->count();
 
         $jumlahMenungguVerifikasi = $this->pendingVerificationQuery(
-            $selectedPeriodKode
+            $periodFilter
         )->count();
 
-        $jumlahDraft = $this->draftVerificationQuery($selectedPeriodKode)->count();
+        $jumlahDraft = $this->draftVerificationQuery($periodFilter)->count();
 
-        $jumlahBelumDidata = $this->linkedVerificationQuery($selectedPeriodKode)
+        $jumlahBelumDidata = $this->linkedVerificationQuery($periodFilter)
             ->whereIn(
                 new Expression('LOWER(TRIM(part1_keluarga.status))'),
                 self::NOT_PROCESSED_STATUSES
             )
             ->count();
         $jumlahBelumDidata += $this->respondentsWithoutQuestionnaireCount(
-            $selectedPeriodKode,
+            $periodFilter,
             $hasKeluargaPeriodesTable,
             $hasPart1Table,
             $hasKeluargasTable
@@ -344,7 +353,7 @@ class DashboardController extends Controller
             + $jumlahDisetujui
             + $jumlahDitolak;
 
-        $kuisionerTerakhir = $this->pendingVerificationQuery($selectedPeriodKode)
+        $kuisionerTerakhir = $this->pendingVerificationQuery($periodFilter)
             ->select('part1_keluarga.*')
             ->latest('part1_keluarga.updated_at')
             ->paginate(5)
@@ -387,7 +396,7 @@ class DashboardController extends Controller
     }
 
     private function respondentsWithoutQuestionnaireCount(
-        string $selectedPeriodKode,
+        string|array|null $periodFilter,
         bool $hasKeluargaPeriodesTable,
         bool $hasPart1Table,
         bool $hasKeluargasTable
@@ -399,8 +408,10 @@ class DashboardController extends Controller
         $query = KeluargaPeriode::query()
             ->where('periode_kode', '!=', '');
 
-        if ($selectedPeriodKode !== '') {
-            $query->where('periode_kode', $selectedPeriodKode);
+        if (is_array($periodFilter)) {
+            $query->whereIn('periode_kode', $periodFilter);
+        } elseif ($periodFilter !== null && $periodFilter !== '') {
+            $query->where('periode_kode', $periodFilter);
         }
 
         if (! $hasPart1Table) {
@@ -449,7 +460,7 @@ class DashboardController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    private function linkedVerificationQuery(?string $selectedPeriodKode = null): Builder
+    private function linkedVerificationQuery(string|array|null $periodFilter = null): Builder
     {
         $familyNumbers = Keluarga::query()
             ->get(['no_kk'])
@@ -482,9 +493,13 @@ class DashboardController extends Controller
                     ->orWhereIn('part1_keluarga.id', $legacyPart1Ids);
             });
 
-        if ($selectedPeriodKode !== null && $selectedPeriodKode !== '') {
+        $periodKodes = is_array($periodFilter)
+            ? $periodFilter
+            : ($periodFilter !== null && $periodFilter !== '' ? [$periodFilter] : null);
+
+        if ($periodKodes !== null) {
             $familyNumbersForPeriod = DB::table('keluarga_periodes')
-                ->where('periode_kode', $selectedPeriodKode)
+                ->whereIn('periode_kode', $periodKodes)
                 ->pluck('keluarga_kode')
                 ->all();
             $part1IdsMatchingPeriodFamilyNumbers = KeluargaPart1::idsMatchingIdentifierValues(
@@ -493,13 +508,13 @@ class DashboardController extends Controller
             );
 
             $query->where(function (Builder $periodQuery) use (
-                $selectedPeriodKode,
+                $periodKodes,
                 $part1IdsMatchingPeriodFamilyNumbers
             ): void {
-                $periodQuery->whereExists(function (QueryBuilder $relationQuery) use ($selectedPeriodKode): void {
+                $periodQuery->whereExists(function (QueryBuilder $relationQuery) use ($periodKodes): void {
                     $relationQuery->selectRaw('1')
                         ->from('keluarga_periodes as kp')
-                        ->where('kp.periode_kode', $selectedPeriodKode)
+                        ->whereIn('kp.periode_kode', $periodKodes)
                         ->where(function (QueryBuilder $matchQuery): void {
                             $matchQuery
                                 ->whereColumn(
@@ -531,9 +546,9 @@ class DashboardController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    private function pendingVerificationQuery(?string $selectedPeriodKode = null): Builder
+    private function pendingVerificationQuery(string|array|null $periodFilter = null): Builder
     {
-        return $this->linkedVerificationQuery($selectedPeriodKode)
+        return $this->linkedVerificationQuery($periodFilter)
             ->where(function (Builder $query): void {
                 // Status yang secara eksplisit sudah diajukan untuk verifikasi
                 // tetap dihitung meskipun penanda kelengkapan bagian belum sinkron.
@@ -574,9 +589,9 @@ class DashboardController extends Controller
             });
     }
 
-    private function draftVerificationQuery(?string $selectedPeriodKode = null): Builder
+    private function draftVerificationQuery(string|array|null $periodFilter = null): Builder
     {
-        return $this->linkedVerificationQuery($selectedPeriodKode)
+        return $this->linkedVerificationQuery($periodFilter)
             ->where(function (Builder $statusQuery): void {
                 $statusQuery
                     ->whereNull('part1_keluarga.status')

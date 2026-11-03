@@ -267,7 +267,7 @@ class DashboardVerificationTest extends TestCase
             ->assertDontSee('Keluarga 2');
     }
 
-    public function test_dashboard_defaults_to_all_periods_and_orders_the_full_period_recap_by_status(): void
+    public function test_dashboard_defaults_to_all_active_periods_and_orders_the_full_period_recap_by_status(): void
     {
         DB::table('periodes')->insert([
             [
@@ -298,6 +298,15 @@ class DashboardVerificationTest extends TestCase
                 'updated_at' => now(),
             ],
             [
+                'kode' => 'PER-AKTIF-2',
+                'nama' => 'Periode Aktif 2',
+                'status_periode' => 'aktif',
+                'tgl_awal' => today()->subDay(),
+                'tgl_akhir' => today()->addDay(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'kode' => 'PER-BERJALAN',
                 'nama' => 'Periode Berjalan',
                 'status_periode' => 'akan datang',
@@ -308,12 +317,20 @@ class DashboardVerificationTest extends TestCase
             ],
         ]);
         $familyCode = 'KLG-PERIODE-AKTIF';
+        $secondActiveFamilyCode = 'KLG-PERIODE-AKTIF-2';
         $completedPeriodFamilyCode = 'KLG-PERIODE-SELESAI';
         DB::table('keluargas')->insert([
             [
                 'kode' => $familyCode,
                 'no_kk' => 'KK-PERIODE-AKTIF',
                 'nama_lengkap' => 'Responden Periode Aktif',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'kode' => $secondActiveFamilyCode,
+                'no_kk' => 'KK-PERIODE-AKTIF-2',
+                'nama_lengkap' => 'Responden Periode Aktif 2',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -326,6 +343,7 @@ class DashboardVerificationTest extends TestCase
             ],
         ]);
         $this->createFamilyPeriodRelation('KLP-AKTIF-1', 'PER-AKTIF', $familyCode);
+        $this->createFamilyPeriodRelation('KLP-AKTIF-2', 'PER-AKTIF-2', $secondActiveFamilyCode);
         $this->createFamilyPeriodRelation('KLP-SELESAI-1', 'PER-SELESAI', $completedPeriodFamilyCode);
 
         $response = $this->get(route('dashboard'));
@@ -338,7 +356,7 @@ class DashboardVerificationTest extends TestCase
             ->assertViewHas('jumlahBelumDidata', 2)
             ->assertViewHas('periodeOptions', function ($periodes): bool {
                 $this->assertEqualsCanonicalizing(
-                    ['PER-AKTIF', 'PER-BERJALAN'],
+                    ['PER-AKTIF', 'PER-AKTIF-2', 'PER-BERJALAN'],
                     $periodes->pluck('kode')->all()
                 );
 
@@ -346,7 +364,7 @@ class DashboardVerificationTest extends TestCase
             })
             ->assertViewHas('rekapPeriode', function ($periodes): bool {
                 $this->assertSame(
-                    ['PER-AKTIF', 'PER-BERJALAN', 'PER-KEDEPAN', 'PER-SELESAI'],
+                    ['PER-AKTIF-2', 'PER-AKTIF', 'PER-BERJALAN', 'PER-KEDEPAN', 'PER-SELESAI'],
                     $periodes->pluck('kode')->all()
                 );
 
@@ -354,7 +372,7 @@ class DashboardVerificationTest extends TestCase
             });
     }
 
-    public function test_dashboard_all_period_filter_includes_every_period_and_period_responses(): void
+    public function test_dashboard_all_active_period_filter_excludes_inactive_period_responses(): void
     {
         DB::table('periodes')->insert([
             [
@@ -400,15 +418,15 @@ class DashboardVerificationTest extends TestCase
                 return true;
             })
             ->assertDontSee('value="PER-SELESAI"', false)
-            ->assertViewHas('totalResponden', 3)
+            ->assertViewHas('totalResponden', 2)
             ->assertViewHas('jumlahBelumDidata', 1)
             ->assertViewHas('jumlahDraft', 1)
             ->assertViewHas('jumlahMenungguVerifikasi', 0)
-            ->assertViewHas('jumlahDisetujui', 1)
+            ->assertViewHas('jumlahDisetujui', 0)
             ->assertViewHas('jumlahDitolak', 0);
     }
 
-    public function test_dashboard_defaults_to_all_periods_when_no_period_is_active_or_running(): void
+    public function test_dashboard_shows_zero_counts_when_no_period_is_active(): void
     {
         DB::table('periodes')->insert([
             'kode' => 'PER-SELESAI',
@@ -427,8 +445,8 @@ class DashboardVerificationTest extends TestCase
             ->assertOk()
             ->assertSee('Semua Periode')
             ->assertViewHas('selectedPeriodKode', '')
-            ->assertViewHas('totalResponden', 1)
-            ->assertViewHas('jumlahDisetujui', 1)
+            ->assertViewHas('totalResponden', 0)
+            ->assertViewHas('jumlahDisetujui', 0)
             ->assertViewHas('jumlahMenungguVerifikasi', 0)
             ->assertViewHas('jumlahDitolak', 0)
             ->assertViewHas('jumlahDraft', 0)
