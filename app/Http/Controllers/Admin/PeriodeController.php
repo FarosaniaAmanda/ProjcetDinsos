@@ -173,10 +173,6 @@ class PeriodeController extends Controller
      */
     public function pilih(Request $request)
     {
-        $periodes = Periode::query()
-            ->orderByDesc('id')
-            ->get();
-
         /*
         |--------------------------------------------------------------------------
         | Tujuan menu yang diperbolehkan
@@ -212,6 +208,14 @@ class PeriodeController extends Controller
             $tujuan = 'kuisioner.index';
         }
 
+        if ($tujuan === 'laporan.index' && $request->user() === null) {
+            return redirect()->route('login');
+        }
+
+        $periodes = Periode::query()
+            ->orderByDesc('id')
+            ->get();
+
         return view(
             'admin.periode.pilih',
             compact(
@@ -227,6 +231,13 @@ class PeriodeController extends Controller
      */
     public function setPeriode(Request $request)
     {
+        if (
+            $request->input('tujuan') === 'laporan.index'
+            && $request->user() === null
+        ) {
+            return redirect()->route('login');
+        }
+
         $request->validate([
             'periode_id' => [
                 'required',

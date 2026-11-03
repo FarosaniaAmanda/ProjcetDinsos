@@ -461,20 +461,24 @@ Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/laporan', [LaporanController::class, 'index'])
-    ->name('laporan.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/laporan', [LaporanController::class, 'index'])
+        ->name('laporan.index');
 
-Route::get('/laporan/{id}/detail', [LaporanController::class, 'showDetail'])
-    ->whereNumber('id')
-    ->name('laporan.detail');
+    // Detail laporan menggunakan ID angka.
+    Route::get('/laporan/{id}/detail', [LaporanController::class, 'showDetail'])
+        ->whereNumber('id')
+        ->name('laporan.detail');
 
-Route::get('/laporan/{id}/pdf', [LaporanController::class, 'pdf'])
-    ->whereNumber('id')
-    ->name('laporan.pdf');
+    // Download PDF menggunakan UUID.
+    Route::get('/laporan/{uuid}/pdf', [LaporanController::class, 'pdf'])
+        ->whereUuid('uuid')
+        ->name('laporan.pdf');
 
-Route::get('/laporan/export', [LaporanController::class, 'export'])
-    ->name('admin.laporan.export');
-
+    // Export Excel tetap dipertahankan.
+    Route::get('/laporan/export', [LaporanController::class, 'export'])
+        ->name('admin.laporan.export');
+});
 /*
 |--------------------------------------------------------------------------
 | MASTER

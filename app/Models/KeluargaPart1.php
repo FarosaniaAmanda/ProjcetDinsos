@@ -4,11 +4,21 @@ namespace App\Models;
 
 use App\Casts\EncryptedIdentifier;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use InvalidArgumentException;
 
 class KeluargaPart1 extends Model
 {
     protected $table = 'part1_keluarga';
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $questionnaire): void {
+            if (blank($questionnaire->uuid)) {
+                $questionnaire->uuid = (string) Str::uuid();
+            }
+        });
+    }
 
     protected $casts = [
         'nik' => EncryptedIdentifier::class,

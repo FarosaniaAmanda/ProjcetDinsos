@@ -25,6 +25,13 @@ class LaporanController extends MonitoringController
         );
 
         $laporanRows = $this->eligibleRows($filters);
+
+        // Membuat UUID untuk URL download PDF tanpa menyimpan ke database.
+        $laporanRows = $laporanRows->map(function (array $item): array {
+            $item['pdf_uuid'] = $this->makePdfUuid((int) $item['id']);
+
+            return $item;
+        });
         $disetujui = $laporanRows
     ->where('status', 'approved')
     ->count();
@@ -105,10 +112,26 @@ $ditolak = $laporanRows
         return response()->json(['data' => $item]);
     }
 
-    public function pdf(int $id)
+    /**
+     * Download PDF laporan menggunakan UUID pada URL.
+     */
+    public function pdf(string $uuid)
     {
-        $item = $this->eligibleRows()
-            ->firstWhere('id', $id);
+        // Cari data berdasarkan UUID yang dibentuk dari ID.
+        $item = $this->eligibleRows()->first(
+            function (array $row) use ($uuid): bool {
+                $id = (int) data_get($row, 'id', 0);
+
+                if ($id <= 0) {
+                    return false;
+                }
+
+                return hash_equals(
+                    $this->makePdfUuid($id),
+                    strtolower($uuid)
+                );
+            }
+        );
 
         abort_if($item === null, 404);
 
@@ -122,7 +145,9 @@ $ditolak = $laporanRows
             'tempDir' => storage_path('framework'),
         ]);
 
-        $html = view('admin.laporan.pdf', ['item' => $item])->render();
+        $html = view('admin.laporan.pdf', [
+            'item' => $item,
+        ])->render();
 
         $dompdf->loadHtml($html, 'UTF-8');
         $dompdf->setPaper('A4', 'portrait');
@@ -130,18 +155,53 @@ $ditolak = $laporanRows
 
         $pdfOutput = $dompdf->output();
 
-        $fileName = 'laporan-'.Str::slug(
+        $fileName = 'laporan-' . Str::slug(
             (string) $item['no_kk']
-        ).'.pdf';
+        ) . '.pdf';
 
         return response($pdfOutput, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
         ]);
     }
 
     /**
-     * Embed local questionnaire photos because remote URLs are disabled in Dompdf.
+     * Membuat UUID deterministik untuk URL download PDF.
+     * UUID tidak disimpan ke database.
+     */
+    private function makePdfUuid(int $id): string
+    {
+        $key = (string) config('app.key');
+
+        $hash = hash_hmac(
+            'sha256',
+            'laporan-pdf:' . $id,
+            $key
+        );
+
+        // Ambil 32 karakter hexadecimal pertama.
+        $uuid = substr($hash, 0, 32);
+
+        // Atur versi UUID dan variant.
+        $uuid[12] = '5';
+
+        $uuid[16] = dechex(
+            (hexdec($uuid[16]) & 0x03) | 0x08
+        );
+
+        // Bentuk UUID standar.
+        return sprintf(
+            '%s-%s-%s-%s-%s',
+            substr($uuid, 0, 8),
+            substr($uuid, 8, 4),
+            substr($uuid, 12, 4),
+            substr($uuid, 16, 4),
+            substr($uuid, 20, 12)
+        );
+    }
+
+    /**
+     * Embed local questionnaire photos because remote URLs are disabled in Dompdf. because remote URLs are disabled in Dompdf.
      *
      * @param  array<int, array<string, mixed>>  $photos
      * @return array<int, array<string, mixed>>

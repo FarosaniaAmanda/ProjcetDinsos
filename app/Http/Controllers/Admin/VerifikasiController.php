@@ -26,6 +26,8 @@ use Illuminate\View\View;
 
 class VerifikasiController extends Controller
 {
+    private const DISPLAY_TIMEZONE = 'Asia/Jakarta';
+
     /*
     |--------------------------------------------------------------------------
     | INDEX
@@ -489,6 +491,7 @@ class VerifikasiController extends Controller
                 return [
 
                     'id' => $item->id,
+                    'uuid' => $item->uuid,
 
                     /*
                     | IDENTITAS
@@ -587,9 +590,9 @@ class VerifikasiController extends Controller
                         ?? '-',
 
                     'tanggal' => $tanggal
-                        ? $tanggal->format(
-                            'd-m-Y H:i'
-                        )
+                        ? $tanggal->copy()
+                            ->setTimezone(self::DISPLAY_TIMEZONE)
+                            ->format('d-m-Y H:i')
                         : '-',
 
                     /*
@@ -662,9 +665,9 @@ class VerifikasiController extends Controller
                     'keluarga_periode_kode' => $item->keluarga_periode_kode,
 
                     'created_at' => $item->created_at
-                        ? $item->created_at->format(
-                            'd-m-Y H:i'
-                        )
+                        ? $item->created_at->copy()
+                            ->setTimezone(self::DISPLAY_TIMEZONE)
+                            ->format('d-m-Y H:i')
                         : '-',
 
                     /*

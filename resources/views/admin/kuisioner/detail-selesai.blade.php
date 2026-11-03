@@ -1565,27 +1565,34 @@
                 @if($anggota && $anggota->count())
 
                     @php
+        
+                    $hiddenMember = [
+                    'id',
+                    'kode',
+                    'keluarga_anggota_kode',
+                    'anggota_kode',
+                    'kode_anggota',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                    'keluarga_kode',
+                    'created_by',
+                    'updated_by'
+                ];
 
-                        $hiddenMember = [
-                            'id',
-                            'created_at',
-                            'updated_at',
-                            'deleted_at',
-                            'keluarga_kode',
-                            'created_by',
-                            'updated_by'
-                        ];
-
-                        $hiddenPart5 = [
-                            'id',
-                            'created_at',
-                            'updated_at',
-                            'deleted_at',
-                            'keluarga_periode_kode',
-                            'keluarga_anggota_kode',
-                            'created_by',
-                            'updated_by'
-                        ];
+                $hiddenPart5 = [
+                    'id',
+                    'kode',
+                    'anggota_kode',
+                    'kode_anggota',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                    'keluarga_periode_kode',
+                    'keluarga_anggota_kode',
+                    'created_by',
+                    'updated_by'
+                ];
 
                     @endphp
 
