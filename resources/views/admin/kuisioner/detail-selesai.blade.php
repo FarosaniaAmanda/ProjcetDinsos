@@ -1576,6 +1576,7 @@
                     'updated_at',
                     'deleted_at',
                     'keluarga_kode',
+                            'keluarga_anggota_kode',
                     'created_by',
                     'updated_by'
                 ];
