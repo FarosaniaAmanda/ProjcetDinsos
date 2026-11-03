@@ -90,5 +90,59 @@ class UserIdentityDisplayTest extends TestCase
         $this->assertStringContainsString($roleLabel, $profileLink);
         $this->assertStringContainsString($name, $dashboard);
         $this->assertStringContainsString('Anda masuk sebagai '.strtolower($roleLabel), $dashboard);
+        $this->assertStringNotContainsString(
+            'href="'.route('kuisioner.index').'" class="menu-link"',
+            $dashboard
+        );
+        $this->assertStringNotContainsString(
+            'href="'.route('verifikasi.index').'" class="menu-link"',
+            $dashboard
+        );
+    }
+
+    public function test_operator_sidebar_omits_questionnaire_and_verification_menus(): void
+    {
+        Auth::setUser(new User([
+            'name' => 'Eka',
+            'role' => 'operator',
+        ]));
+
+        $layout = view('admin.layouts.app')->render();
+
+        $this->assertStringContainsString('Dashboard', $layout);
+        $this->assertStringContainsString('Responden', $layout);
+        $this->assertStringNotContainsString('Kuisioner', $layout);
+        $this->assertStringNotContainsString('Verifikasi', $layout);
+    }
+
+    public function test_role_page_layout_does_not_render_the_admin_sidebar(): void
+    {
+        Auth::setUser(new User([
+            'name' => 'Adibah',
+            'role' => 'verifikator',
+        ]));
+
+        $layout = view('admin.layouts.role-page')->render();
+
+        $this->assertStringNotContainsString('id="sidebar"', $layout);
+        $this->assertStringContainsString('role-page-content', $layout);
+    }
+
+    public function test_non_operator_sidebar_does_not_show_operator_menus(): void
+    {
+        foreach (['petugas', 'verifikator'] as $role) {
+            Auth::setUser(new User([
+                'name' => 'Petugas',
+                'role' => $role,
+            ]));
+
+            $layout = view('admin.layouts.app')->render();
+
+            $this->assertStringNotContainsString('Dashboard', $layout);
+            $this->assertStringNotContainsString('Responden', $layout);
+            $this->assertStringNotContainsString('Monitoring', $layout);
+            $this->assertStringNotContainsString('Laporan', $layout);
+            $this->assertStringNotContainsString('Master', $layout);
+        }
     }
 }

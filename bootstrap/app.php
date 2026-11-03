@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\EnsurePeriodeSelected;
+use App\Http\Middleware\EnsureRoleMenuAccess;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,11 +15,15 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-    $middleware->alias([
-        'periode' => \App\Http\Middleware\EnsurePeriodeSelected::class,
-    ]);
+        $middleware->web(append: [
+            EnsureRoleMenuAccess::class,
+        ]);
 
-})
+        $middleware->alias([
+            'periode' => EnsurePeriodeSelected::class,
+        ]);
+
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),

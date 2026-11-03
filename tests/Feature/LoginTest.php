@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -44,6 +45,36 @@ class LoginTest extends TestCase
         ]);
 
         $response->assertRedirect(route('dashboard'));
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public static function usersByRoleAndLandingPage(): array
+    {
+        return [
+            'petugas' => ['petugas', 'periode.pilih', ['tujuan' => 'kuisioner.index']],
+            'verifikator' => ['verifikator', 'periode.pilih', ['tujuan' => 'verifikasi.index']],
+            'operator' => ['operator', 'dashboard', []],
+        ];
+    }
+
+    #[DataProvider('usersByRoleAndLandingPage')]
+    public function test_login_redirects_user_to_the_landing_page_for_their_role(
+        string $role,
+        string $routeName,
+        array $routeParameters
+    ): void {
+        $user = User::factory()->create([
+            'nomor_identitas' => 'ROLE-'.strtoupper($role),
+            'role' => $role,
+            'password' => Hash::make('password'),
+        ]);
+
+        $response = $this->post(route('login.process'), [
+            'nomor_identitas' => $user->nomor_identitas,
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect(route($routeName, $routeParameters));
         $this->assertAuthenticatedAs($user);
     }
 

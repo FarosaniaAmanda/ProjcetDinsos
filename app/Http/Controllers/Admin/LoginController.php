@@ -73,6 +73,18 @@ class LoginController extends Controller
 
             $request->session()->regenerate();
 
+            if ($user->role === 'petugas') {
+                return redirect()->route('periode.pilih', [
+                    'tujuan' => 'kuisioner.index',
+                ]);
+            }
+
+            if ($user->role === 'verifikator') {
+                return redirect()->route('periode.pilih', [
+                    'tujuan' => 'verifikasi.index',
+                ]);
+            }
+
             return redirect()->route('dashboard');
         }
 

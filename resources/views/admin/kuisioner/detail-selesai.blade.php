@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('admin.layouts.role-page')
 
 @section('title', in_array($dataPart1->status, ['approved', 'disetujui'], true) ? 'Detail Kuisioner Disetujui' : 'Detail Kuisioner Selesai')
 

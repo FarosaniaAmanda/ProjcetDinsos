@@ -1,5 +1,5 @@
 
-@extends('admin.layouts.app')
+@extends('admin.layouts.role-page')
 
 @section('title', 'Kuisioner Menunggu Verifikasi')
 
