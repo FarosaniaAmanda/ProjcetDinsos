@@ -60,6 +60,7 @@ class VerifikasiControllerTest extends TestCase
 
         Schema::create('part1_keluarga', function (Blueprint $table): void {
             $table->id();
+            $table->uuid('uuid')->nullable()->unique();
             $table->string('keluarga_periode_kode')->nullable();
             $table->string('nik')->nullable();
             $table->string('nama_kepala_keluarga')->nullable();
@@ -176,6 +177,56 @@ class VerifikasiControllerTest extends TestCase
         $this->assertSame('Periode Aktif', $data[0]['periode']);
         $this->assertSame('RT 007 / RW 012', $data[0]['rt_rw']);
         $this->assertSame('-7.657,112.899', $data[0]['geotangging']);
+    }
+
+    public function test_verification_monitoring_and_reports_display_timestamps_in_wib_without_changing_database_values(): void
+    {
+        DB::table('periodes')->insert([
+            'kode' => 'PERIODE-WIB',
+            'nama' => 'Periode WIB',
+            'tgl_awal' => '2026-01-01 00:00:00',
+            'tgl_akhir' => '2026-12-31 23:59:59',
+            'status_periode' => 'aktif',
+        ]);
+        DB::table('keluargas')->insert([
+            'kode' => 'KELUARGA-WIB',
+            'no_kk' => 'KK-WIB',
+            'nama_lengkap' => 'Keluarga WIB',
+        ]);
+        DB::table('keluarga_periodes')->insert([
+            'kode' => 'KODE-WIB',
+            'keluarga_kode' => 'KELUARGA-WIB',
+            'periode_kode' => 'PERIODE-WIB',
+        ]);
+        DB::table('part1_keluarga')->insert([
+            'keluarga_periode_kode' => 'KODE-WIB',
+            'no_kk' => 'KK-WIB',
+            'nama_kepala_keluarga' => 'Responden WIB',
+            'status' => 'approved',
+            'created_at' => '2026-11-02 07:17:00',
+            'updated_at' => null,
+        ]);
+
+        $verification = (new TestableVerifikasiController)->verificationData();
+        $monitoring = (new TestableMonitoringController)->monitoringData();
+        $report = (new TestableLaporanController)->reportRows();
+
+        $this->assertSame(
+            array_fill(0, 7, '02-11-2026 14:17'),
+            [
+                $verification[0]['tanggal'],
+                $verification[0]['created_at'],
+                $monitoring[0]['tanggal'],
+                $monitoring[0]['created_at'],
+                $report[0]['tanggal'],
+                $report[0]['created_at'],
+                $report[0]['tanggal_pendataan'],
+            ]
+        );
+        $this->assertSame(
+            '2026-11-02 07:17:00',
+            DB::table('part1_keluarga')->value('created_at')
+        );
     }
 
     public function test_selected_non_active_period_is_used_by_verification_monitoring_and_reports(): void
@@ -678,6 +729,7 @@ class VerifikasiControllerTest extends TestCase
             'periode_kode' => 'PERIODE-PDF',
         ]);
         $questionnaireId = DB::table('part1_keluarga')->insertGetId([
+            'uuid' => 'f77b4a1e-2e5a-4bdb-97cf-9f8c3935d10d',
             'keluarga_periode_kode' => 'KP-PDF',
             'no_kk' => 'KK-PDF',
             'nama_kepala_keluarga' => 'Kepala Keluarga PDF',
@@ -727,10 +779,18 @@ class VerifikasiControllerTest extends TestCase
 
         $item = (new TestableLaporanController)
             ->reportRows()
-            ->firstWhere('id', $questionnaireId);
+            ->firstWhere('uuid', 'f77b4a1e-2e5a-4bdb-97cf-9f8c3935d10d');
         $html = view('admin.laporan.pdf', ['item' => $item])->render();
-        $pdfResponse = (new TestableLaporanController)->pdf($questionnaireId);
+        $controller = new TestableLaporanController;
+        $detailResponse = $controller->showDetail($item['uuid']);
+        $pdfResponse = $controller->pdf($item['uuid']);
 
+        $this->assertSame($questionnaireId, $detailResponse->getData(true)['data']['id']);
+        $this->assertSame($questionnaireId, $item['id']);
+        $this->assertSame(
+            route('laporan.pdf', ['uuid' => $item['uuid']]),
+            url('/laporan/'.$item['uuid'].'/pdf')
+        );
         $this->assertStringContainsString('Anggota PDF Satu', $html);
         $this->assertStringContainsString('NIK-ANGGOTA-PDF-1', $html);
         $this->assertStringContainsString('0811111111', $html);
@@ -745,6 +805,19 @@ class VerifikasiControllerTest extends TestCase
         $this->assertStringContainsString('Migrain', $html);
         $this->assertSame('application/pdf', $pdfResponse->headers->get('Content-Type'));
         $this->assertStringStartsWith('%PDF-', $pdfResponse->getContent());
+    }
+
+    public function test_new_questionnaires_receive_a_uuid(): void
+    {
+        $questionnaire = new KeluargaPart1([
+            'status' => 'draft',
+        ]);
+        $questionnaire->save();
+
+        $this->assertMatchesRegularExpression(
+            '/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
+            $questionnaire->uuid
+        );
     }
 }
 

@@ -95,20 +95,20 @@ $ditolak = $laporanRows
         ));
     }
 
-    public function showDetail(int $id): JsonResponse
+    public function showDetail(string $uuid): JsonResponse
     {
         $item = $this->eligibleRows()
-            ->firstWhere('id', $id);
+            ->firstWhere('uuid', $uuid);
 
         abort_if($item === null, 404);
 
         return response()->json(['data' => $item]);
     }
 
-    public function pdf(int $id)
+    public function pdf(string $uuid)
     {
         $item = $this->eligibleRows()
-            ->firstWhere('id', $id);
+            ->firstWhere('uuid', $uuid);
 
         abort_if($item === null, 404);
 
