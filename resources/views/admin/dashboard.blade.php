@@ -1494,9 +1494,9 @@
 
                 <div class="chart-card">
                     <div class="chart-header">
-                        <div class="chart-title">Status Verifikasi</div>
+                        <div class="chart-title">Status Kuisioner</div>
                         <div class="chart-description">
-                            Ringkasan status verifikasi responden.
+                            Ringkasan status kuisioner responden.
                         </div>
                     </div>
 

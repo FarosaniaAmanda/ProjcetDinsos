@@ -3640,6 +3640,21 @@
     }
 }
 
+/* FIX FINAL: HASIL KUISIONER MOBILE 1 CARD PER BARIS */
+@media screen and (max-width: 767px) {
+    #modalQuestionnaireContent .questionnaire-content-body {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        width: 100% !important;
+    }
+
+    #modalQuestionnaireContent .questionnaire-question {
+        grid-column: 1 / -1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+}
 
 
 </style>
