@@ -1327,7 +1327,12 @@
             <div class="master-menu" id="masterMenu">
                 <button type="button" class="menu-link master-toggle" id="masterToggle">
                     <span class="master-toggle-left">
-                        <span class="menu-icon">⚙</span>
+                        <span class="menu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                            </svg>
+                        </span>
                         <span>Master</span>
                     </span>
                     <span class="master-arrow">
@@ -1339,11 +1344,25 @@
 
                 <div class="master-submenu" id="masterSubmenu">
                     <a href="{{ route('periode.index') }}" class="submenu-link">
-                        <span class="submenu-icon">▣</span>
+                        <span class="submenu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="17" rx="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                        </span>
                         <span>Periode</span>
                     </a>
                     <a href="{{ route('master.index') }}" class="submenu-link">
-                        <span class="submenu-icon">♙</span>
+                        <span class="submenu-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </span>
                         <span>Pengguna</span>
                     </a>
                 </div>
@@ -1411,7 +1430,7 @@
                     <div class="period-filter-controls">
                         <select name="periode_kode" class="period-filter-select" aria-label="Pilih periode pendataan" onchange="showPeriodLoading(this.form)">
                             <option value="" {{ (string) ($selectedPeriodKode ?? '') === '' ? 'selected' : '' }}>
-                                Semua Periode Aktif
+                                Semua Periode
                             </option>
                             @foreach(($periodeOptions ?? collect()) as $opsiPeriode)
                                 <option value="{{ $opsiPeriode->kode }}"
