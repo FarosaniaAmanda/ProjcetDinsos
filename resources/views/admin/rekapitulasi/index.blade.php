@@ -164,6 +164,7 @@
 
     .recap-table-wrap {
         width: 100%;
+        padding: 10px 24px 20px;
         overflow-x: auto;
     }
 
@@ -227,6 +228,10 @@
             padding: 22px 20px 32px;
         }
 
+        .recap-table-wrap {
+            padding: 8px 20px 18px;
+        }
+
         .recap-filter {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -280,6 +285,10 @@
         .recap-notice {
             margin-right: 15px;
             margin-left: 15px;
+        }
+
+        .recap-table-wrap {
+            padding: 6px 12px 16px;
         }
 
         .recap-table th,
