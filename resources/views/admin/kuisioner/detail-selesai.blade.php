@@ -988,7 +988,7 @@
                         // Identitas utama sudah ditampilkan di kartu Informasi Responden,
                         // jadi sembunyikan kolom yang sama agar tidak tampil dua kali.
                         $hiddenPart1 = [
-                            'id', 'created_at', 'updated_at', 'deleted_at',
+                            'id', 'uuid', 'created_at', 'updated_at', 'deleted_at',
                             'keluarga_periode_kode', 'status', 'current_part',
                             'created_by', 'updated_by',
                             'nik', 'no_kk',
