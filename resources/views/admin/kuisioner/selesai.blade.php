@@ -276,6 +276,7 @@
 
     .kuisioner-selesai-page {
         width: 100%;
+        padding: 28px 32px 36px;
     }
 
     /* PAGE HEADER */
@@ -730,6 +731,10 @@
 
     /* MOBILE */
     @media (max-width: 600px) {
+        .kuisioner-selesai-page {
+            padding: 20px 16px 28px;
+        }
+
         .page-header {
             margin-bottom: 18px;
         }

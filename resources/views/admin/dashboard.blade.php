@@ -1411,7 +1411,7 @@
                     <div class="period-filter-controls">
                         <select name="periode_kode" class="period-filter-select" aria-label="Pilih periode pendataan" onchange="showPeriodLoading(this.form)">
                             <option value="" {{ (string) ($selectedPeriodKode ?? '') === '' ? 'selected' : '' }}>
-                                Semua Periode
+                                Semua Periode Aktif
                             </option>
                             @foreach(($periodeOptions ?? collect()) as $opsiPeriode)
                                 <option value="{{ $opsiPeriode->kode }}"
