@@ -1151,68 +1151,6 @@
             </a>
 
 
-            <!-- KUISIONER -->
-
-            <a
-                href="{{ route('periode.pilih', ['tujuan' => 'kuisioner.index']) }}" 
-                class="{{ request()->routeIs('kuisioner.*') ? 'active' : '' }}"
-            >
-
-                <span class="menu-icon">
-
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-
-                        <polyline points="14 2 14 8 20 8"></polyline>
-
-                        <line x1="8" y1="13" x2="16" y2="13"></line>
-
-                        <line x1="8" y1="17" x2="16" y2="17"></line>
-
-                    </svg>
-
-                </span>
-
-                <span>Kuisioner</span>
-
-            </a>
-
-
-            <!-- VERIFIKASI -->
-
-            <a
-                href="{{ route('periode.pilih', ['tujuan' => 'verifikasi.index']) }}"
-                class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}"
-            >
-
-                <span class="menu-icon">
-
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-
-                        <path d="M9 11l3 3L22 4"></path>
-
-                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-
-                    </svg>
-
-                </span>
-
-                <span>Verifikasi</span>
-
-            </a>
-
-
             <!-- MONITORING -->
 
             <a
@@ -1258,7 +1196,7 @@
                         stroke-width="2"
                     >
 
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V8z"></path>
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 
                         <polyline points="14 2 14 8 20 8"></polyline>
 
@@ -1286,22 +1224,7 @@
 
                 <span class="master-toggle-left">
 
-                    <span class="menu-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-
-                            <circle cx="12" cy="12" r="3"></circle>
-
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-
-                        </svg>
-
-                    </span>
+                    <span class="menu-icon">⚙</span>
 
                     <span>Master</span>
 
@@ -1340,26 +1263,7 @@
                     class="submenu-link {{ request()->routeIs('periode.*') ? 'active' : '' }}"
                 >
 
-                    <span class="submenu-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-
-                            <rect x="3" y="4" width="18" height="17" rx="2"></rect>
-
-                            <line x1="16" y1="2" x2="16" y2="6"></line>
-
-                            <line x1="8" y1="2" x2="8" y2="6"></line>
-
-                            <line x1="3" y1="10" x2="21" y2="10"></line>
-
-                        </svg>
-
-                    </span>
+                    <span class="submenu-icon">▣</span>
 
                     <span>Periode</span>
 
@@ -1373,26 +1277,7 @@
                     class="submenu-link {{ request()->routeIs('master.*') ? 'active' : '' }}"
                 >
 
-                    <span class="submenu-icon">
-
-                        <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                        >
-
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-
-                            <circle cx="9" cy="7" r="4"></circle>
-
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-
-                        </svg>
-
-                    </span>
+                    <span class="submenu-icon">♙</span>
 
                     <span>Pengguna</span>
 
