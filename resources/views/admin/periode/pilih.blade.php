@@ -399,7 +399,7 @@
                 <h2>Pilih Periode</h2>
 
                 <p>
-                    @if(in_array($tujuan, ['verifikasi.index', 'monitoring.index', 'laporan.index'], true))
+                    @if(in_array($tujuan, ['verifikasi.index', 'monitoring.index', 'rekapitulasi.index', 'laporan.index'], true))
                         Pilih periode pendataan yang ingin ditampilkan.
                     @elseif($tujuan === 'responden.index')
                         Pilih periode pendataan.
@@ -437,7 +437,7 @@
                             $isAktif = $status === 'aktif';
                             $semuaStatusDapatDipilih = in_array(
                                 $tujuan,
-                                ['responden.index', 'verifikasi.index', 'monitoring.index', 'laporan.index'],
+                                ['responden.index', 'verifikasi.index', 'monitoring.index', 'rekapitulasi.index', 'laporan.index'],
                                 true
                             );
                         @endphp
@@ -445,7 +445,7 @@
 
                         @if($isAktif || $semuaStatusDapatDipilih)
 
-                            {{-- Periode aktif dapat dipilih semua menu; Responden, Verifikasi, Monitoring, dan Laporan menerima semua status. --}}
+                            {{-- Periode aktif dapat dipilih semua menu; Responden, Verifikasi, Monitoring, Rekapitulasi, dan Laporan menerima semua status. --}}
                             <form
                                 action="{{ route('periode.set') }}"
                                 method="POST"

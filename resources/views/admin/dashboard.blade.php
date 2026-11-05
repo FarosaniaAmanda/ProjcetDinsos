@@ -1312,6 +1312,16 @@
                 <span>Monitoring</span>
             </a>
 
+            <a href="{{ route('rekapitulasi.index') }}" class="menu-link">
+                <span class="menu-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18"/>
+                        <path d="m19 9-5 5-4-4-5 5"/>
+                    </svg>
+                </span>
+                <span>Rekapitulasi</span>
+            </a>
+
             <a href="{{ route('laporan.index') }}" class="menu-link">
                 <span class="menu-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

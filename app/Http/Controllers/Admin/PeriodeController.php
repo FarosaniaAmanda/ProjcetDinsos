@@ -184,6 +184,7 @@ class PeriodeController extends Controller
             'responden.index',
             'verifikasi.index',
             'monitoring.index',
+            'rekapitulasi.index',
             'laporan.index',
         ];
 
@@ -208,7 +209,10 @@ class PeriodeController extends Controller
             $tujuan = 'kuisioner.index';
         }
 
-        if ($tujuan === 'laporan.index' && $request->user() === null) {
+        if (
+            in_array($tujuan, ['rekapitulasi.index', 'laporan.index'], true)
+            && $request->user() === null
+        ) {
             return redirect()->route('login');
         }
 
@@ -232,7 +236,7 @@ class PeriodeController extends Controller
     public function setPeriode(Request $request)
     {
         if (
-            $request->input('tujuan') === 'laporan.index'
+            in_array($request->input('tujuan'), ['rekapitulasi.index', 'laporan.index'], true)
             && $request->user() === null
         ) {
             return redirect()->route('login');
@@ -248,7 +252,7 @@ class PeriodeController extends Controller
             'tujuan' => [
                 'required',
                 'string',
-                'in:kuisioner.index,responden.index,verifikasi.index,monitoring.index,laporan.index',
+                'in:kuisioner.index,responden.index,verifikasi.index,monitoring.index,rekapitulasi.index,laporan.index',
             ],
         ]);
 
@@ -260,7 +264,7 @@ class PeriodeController extends Controller
         |--------------------------------------------------------------------------
         | Aturan pemilihan periode berdasarkan tujuan menu
         |--------------------------------------------------------------------------
-        | Verifikasi, Monitoring, dan Laporan boleh menggunakan semua periode,
+        | Verifikasi, Monitoring, Rekapitulasi, dan Laporan boleh menggunakan semua periode,
         | baik Aktif, Akan Datang, Selesai, maupun Tidak Aktif.
         | Responden tetap mengikuti aturan sebelumnya: semua status diperbolehkan.
         | Kuisioner tetap hanya dapat menggunakan periode berstatus Aktif.
@@ -271,6 +275,7 @@ class PeriodeController extends Controller
             'responden.index',
             'verifikasi.index',
             'monitoring.index',
+            'rekapitulasi.index',
             'laporan.index',
         ];
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MonitoringController;
 use App\Http\Controllers\Admin\PeriodeController;
+use App\Http\Controllers\Admin\RekapitulasiController;
 use App\Http\Controllers\Admin\RespondenController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VerifikasiController;
@@ -454,6 +455,16 @@ Route::get('/monitoring', [MonitoringController::class, 'index'])
 
 Route::get('/monitoring/{id}', [MonitoringController::class, 'detail'])
     ->name('monitoring.detail');
+
+/*
+|--------------------------------------------------------------------------
+| REKAPITULASI PETUGAS
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/rekapitulasi', [RekapitulasiController::class, 'index'])
+    ->middleware('auth')
+    ->name('rekapitulasi.index');
 
 /*
 |--------------------------------------------------------------------------

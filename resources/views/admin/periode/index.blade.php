@@ -1180,6 +1180,28 @@
             </a>
 
 
+            <a
+                href="{{ route('rekapitulasi.index') }}"
+                class="{{ request()->routeIs('rekapitulasi.*') ? 'active' : '' }}"
+            >
+
+                <span class="menu-icon">
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                    >
+                        <path d="M3 3v18h18"></path>
+                        <path d="m19 9-5 5-4-4-5 5"></path>
+                    </svg>
+                </span>
+
+                <span>Rekapitulasi</span>
+
+            </a>
+
+
             <!-- LAPORAN -->
 
             <a
