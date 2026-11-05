@@ -50,7 +50,7 @@ class UserIdentityDisplayTest extends TestCase
         $this->assertStringContainsString($name, $layout);
         $this->assertStringContainsString($roleLabel, $layout);
         $this->assertStringNotContainsString('Operator - Admin', $layout);
-        $dashboardProfileMarker = strpos($dashboard, 'class="header-admin"');
+        $dashboardProfileMarker = strpos($dashboard, 'class="admin-profile"');
         $dashboardProfileStart = strrpos(
             substr($dashboard, 0, (int) $dashboardProfileMarker),
             '<a'

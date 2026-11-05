@@ -5,334 +5,13 @@
     $authenticatedRole = ucfirst($authenticatedUser?->role ?: 'pengguna');
 @endphp
 
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Sistem Pendataan Perlinsos Kota Pasuruan</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@extends('admin.layouts.app')
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+@section('title', 'Dashboard | Sistem Pendataan Perlinsos Kota Pasuruan')
 
-        body {
-            min-height: 100vh;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #f5f6fa;
-            color: #1f2937;
-            overflow-x: hidden;
-        }
-
-        /* SIDEBAR */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 260px;
-            height: 100vh;
-            background: #252A86;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            z-index: 1000;
-            overflow-y: auto;
-            transition: transform .3s ease;
-        }
-
-        .sidebar-logo {
-            height: 105px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            border-bottom: 1px solid rgba(255,255,255,.12);
-        }
-
-        .sidebar-logo img {
-            width: 72px;
-            height: 72px;
-            object-fit: contain;
-            border-radius: 50%;
-            background: #fff;
-        }
-
-        .sidebar-menu {
-            padding: 20px 14px;
-            flex: 1;
-        }
-
-        .menu-title {
-            font-size: 11px;
-            font-weight: 700;
-            color: rgba(255,255,255,.55);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin: 8px 10px 12px;
-        }
-
-        .menu-link,
-        .submenu-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            padding: 12px 14px;
-            margin-bottom: 5px;
-            border: 0;
-            border-radius: 9px;
-            background: transparent;
-            color: rgba(255,255,255,.85);
-            text-decoration: none;
-            text-align: left;
-            font-family: inherit;
-            font-size: 14px;
-            cursor: pointer;
-            transition: .2s ease;
-        }
-
-        .menu-link:hover,
-        .submenu-link:hover {
-            background: rgba(255,255,255,.12);
-            color: #fff;
-        }
-
-        .menu-link.active {
-            background: #fff;
-            color: #252A86;
-            font-weight: 700;
-        }
-
-        .menu-icon {
-            width: 20px;
-            min-width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .menu-icon svg,
-        .submenu-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .master-menu {
-            width: 100%;
-        }
-
-        .master-toggle {
-            appearance: none;
-        }
-
-        .master-toggle-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .master-arrow {
-            margin-left: auto;
-            transition: transform .25s ease;
-        }
-
-        .master-arrow svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .master-toggle.open .master-arrow {
-            transform: rotate(180deg);
-        }
-
-        .master-submenu {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            padding-left: 18px;
-            transition: max-height .3s ease, opacity .2s ease;
-        }
-
-        .master-submenu.open {
-            max-height: 200px;
-            opacity: 1;
-        }
-
-        .submenu-link {
-            font-size: 13px;
-            padding: 10px 14px;
-        }
-
-        .submenu-icon {
-            width: 18px;
-            min-width: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sidebar-footer {
-            padding: 15px 14px;
-            border-top: 1px solid rgba(255,255,255,.12);
-        }
-
-        .logout-form {
-            width: 100%;
-        }
-
-        .logout-link {
-            width: 100%;
-            border: 0;
-            background: transparent;
-            color: rgba(255,255,255,.85);
-            text-align: left;
-            cursor: pointer;
-        }
-
-        /* MAIN */
-        .main {
-            margin-left: 260px;
-            width: calc(100% - 260px);
-            min-height: 100vh;
-        }
-
-        .header {
-            height: 75px;
-            position: sticky;
-            top: 0;
-            z-index: 900;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 0 30px;
-            background: #fff;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            min-width: 0;
-        }
-
-        .header-title {
-            color: #252A86;
-            font-size: 16px;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .header-subtitle {
-            margin-top: 4px;
-            color: #9ca3af;
-            font-size: 12px;
-        }
-
-        .header-admin {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 9px;
-            border-radius: 10px;
-            color: inherit;
-            text-decoration: none;
-            flex-shrink: 0;
-        }
-
-        .header-admin:hover {
-            background: #f3f4f6;
-        }
-
-        .admin-text {
-            text-align: right;
-        }
-
-        .admin-name {
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .admin-role {
-            margin-top: 3px;
-            color: #9ca3af;
-            font-size: 11px;
-        }
-
-        .admin-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #252A86;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .hamburger {
-            display: none;
-            width: 38px;
-            height: 38px;
-            border: 1px solid #e5e7eb;
-            background: #fff;
-            border-radius: 7px;
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .hamburger span {
-            width: 17px;
-            height: 2px;
-            background: #252A86;
-            border-radius: 2px;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,.35);
-            z-index: 950;
-        }
-
-        .overlay.show {
-            display: block;
-        }
-
-        /* CONTENT */
-        .content {
-            padding: 30px;
-        }
-
-        .page-title {
-            margin-bottom: 8px;
-            color: #252A86;
-            font-size: 27px;
-        }
-
-        .page-description {
-            margin-bottom: 25px;
-            color: #6b7280;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .welcome-card {
+@push('styles')
+<style>
+.welcome-card {
             position: relative;
             overflow: hidden;
             padding: 24px 25px;
@@ -894,37 +573,6 @@
         }
 
         @media (max-width: 900px) {
-            .sidebar {
-                width: 270px;
-                transform: translateX(-100%);
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .header {
-                height: 70px;
-                padding: 0 20px;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .header-title {
-                font-size: 15px;
-            }
-
-            .header-subtitle {
-                display: none;
-            }
-
             .content {
                 padding: 20px;
             }
@@ -944,34 +592,6 @@
         }
 
         @media (max-width: 600px) {
-            .sidebar-logo {
-                height: 100px;
-            }
-
-            .sidebar-logo img {
-                width: 64px;
-                height: 64px;
-            }
-
-            .header {
-                height: 64px;
-                padding: 0 14px;
-            }
-
-            .header-title {
-                max-width: 170px;
-                font-size: 12px;
-            }
-
-            .header-admin .admin-text {
-                display: none;
-            }
-
-            .admin-avatar {
-                width: 34px;
-                height: 34px;
-            }
-
             .content {
                 padding: 16px 12px 28px;
             }
@@ -1093,18 +713,8 @@
         }
 
         @media (max-width: 400px) {
-            .sidebar {
-                width: 250px;
-            }
 
-            .content {
-                padding: 14px 10px 24px;
-            }
 
-            .header-title {
-                max-width: 145px;
-                font-size: 11px;
-            }
 
             .stat-value {
                 font-size: 21px;
@@ -1268,161 +878,9 @@
         }
 
     </style>
-</head>
+@endpush
 
-<body>
-    {{-- SIDEBAR --}}
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-logo">
-            <img src="{{ asset('images/dinsos.png') }}" alt="Logo Dinas Sosial">
-        </div>
-
-        <nav class="sidebar-menu">
-            <div class="menu-title">Menu Utama</div>
-
-            <a href="{{ route('dashboard') }}" class="menu-link active">
-                <span class="menu-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"/>
-                        <rect x="14" y="3" width="7" height="7"/>
-                        <rect x="3" y="14" width="7" height="7"/>
-                        <rect x="14" y="14" width="7" height="7"/>
-                    </svg>
-                </span>
-                <span>Dashboard</span>
-            </a>
-
-            <a href="{{ route('periode.pilih', ['tujuan' => 'responden.index']) }}" class="menu-link">
-                <span class="menu-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                </span>
-                <span>Responden</span>
-            </a>
-
-            <a href="{{ route('monitoring.index') }}" class="menu-link">
-                <span class="menu-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 3 3 21 21 21"/>
-                        <polyline points="7 16 11 12 14 15 21 8"/>
-                    </svg>
-                </span>
-                <span>Monitoring</span>
-            </a>
-
-            <a href="{{ route('rekapitulasi.index') }}" class="menu-link">
-                <span class="menu-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 3v18h18"/>
-                        <path d="m19 9-5 5-4-4-5 5"/>
-                    </svg>
-                </span>
-                <span>Rekapitulasi</span>
-            </a>
-
-            <a href="{{ route('laporan.index') }}" class="menu-link">
-                <span class="menu-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="8" y1="13" x2="16" y2="13"/>
-                        <line x1="8" y1="17" x2="16" y2="17"/>
-                    </svg>
-                </span>
-                <span>Laporan</span>
-            </a>
-
-            <div class="master-menu" id="masterMenu">
-                <button type="button" class="menu-link master-toggle" id="masterToggle">
-                    <span class="master-toggle-left">
-                        <span class="menu-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.42 1.42-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21h-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06-1.42-1.42.06-.06A1.65 1.65 0 0 0 8.6 15a1.65 1.65 0 0 0-1.51-1H7v-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.42-1.42.06.06A1.65 1.65 0 0 0 12.52 6H12V4h2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.42 1.42-.06.06A1.65 1.65 0 0 0 18.6 9a1.65 1.65 0 0 0 1.51 1H20v2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                            </svg>
-                        </span>
-                        <span>Master</span>
-                    </span>
-                    <span class="master-arrow">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </span>
-                </button>
-
-                <div class="master-submenu" id="masterSubmenu">
-                    <a href="{{ route('periode.index') }}" class="submenu-link">
-                        <span class="submenu-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="17" rx="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
-                        </span>
-                        <span>Periode</span>
-                    </a>
-                    <a href="{{ route('master.index') }}" class="submenu-link">
-                        <span class="submenu-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                            </svg>
-                        </span>
-                        <span>Pengguna</span>
-                    </a>
-                </div>
-            </div>
-        </nav>
-
-        <div class="sidebar-footer">
-            <form action="{{ route('logout') }}" method="POST" class="logout-form">
-                @csrf
-                <button type="submit" class="menu-link logout-link">
-                    <span class="menu-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                            <polyline points="16 17 21 12 16 7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                    </span>
-                    <span>Keluar</span>
-                </button>
-            </form>
-        </div>
-    </aside>
-
-    <div class="overlay" id="overlay"></div>
-
-    {{-- MAIN --}}
-    <main class="main">
-        <header class="header">
-            <div class="header-left">
-                <button type="button" class="hamburger" id="hamburger" aria-label="Buka menu">
-                    <span></span><span></span><span></span>
-                </button>
-                <div>
-                    <div class="header-title">Sistem Pendataan Perlinsos Kota Pasuruan</div>
-                    <div class="header-subtitle">Panel Administrasi</div>
-                </div>
-            </div>
-
-            <a href="{{ route('profil.index') }}" class="header-admin">
-                <div class="admin-text">
-                    <div class="admin-name">{{ $authenticatedName }}</div>
-                    <div class="admin-role">{{ $authenticatedRole }}</div>
-                </div>
-                <div class="admin-avatar">
-                    {{ strtoupper(substr($authenticatedName, 0, 1)) }}
-                </div>
-            </a>
-        </header>
-
-        <section class="content">
+@section('content')
             <div class="dashboard-panel">
             <div class="welcome-card">
                 <div class="welcome-title">Selamat Datang, {{ $authenticatedName }}</div>
@@ -1755,10 +1213,13 @@
                 </div>
             </div>
             </div>
-        </section>
-    </main>
+@endsection
+
+@push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+
         /* Indikator halus saat filter periode dipilih; tanpa kedip atau menggeser halaman */
         function showPeriodLoading(form) {
             if (!form || form.dataset.submitting === 'true') return;
@@ -1768,49 +1229,6 @@
 
             form.submit();
         }
-
-        /* SIDEBAR RESPONSIF */
-        const sidebar = document.getElementById('sidebar');
-        const hamburger = document.getElementById('hamburger');
-        const overlay = document.getElementById('overlay');
-
-        function openSidebar() {
-            sidebar.classList.add('show');
-            overlay.classList.add('show');
-        }
-
-        function closeSidebar() {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-        }
-
-        hamburger.addEventListener('click', function () {
-            sidebar.classList.contains('show') ? closeSidebar() : openSidebar();
-        });
-
-        overlay.addEventListener('click', closeSidebar);
-
-        window.addEventListener('resize', function () {
-            if (window.innerWidth > 900) closeSidebar();
-        });
-
-        sidebar.querySelectorAll('a').forEach(function (link) {
-            link.addEventListener('click', function () {
-                if (window.innerWidth <= 900) closeSidebar();
-            });
-        });
-
-        /* DROPDOWN MASTER */
-        const masterMenu = document.getElementById('masterMenu');
-        const masterToggle = document.getElementById('masterToggle');
-        const masterSubmenu = document.getElementById('masterSubmenu');
-
-        masterToggle.addEventListener('click', function () {
-            masterMenu.classList.toggle('open');
-            masterToggle.classList.toggle('open');
-            masterSubmenu.classList.toggle('open');
-        });
-
 
         /* PAGINATION TABEL PERIODE */
         function setupPeriodPagination() {
@@ -1992,7 +1410,6 @@ if (kecamatanCanvas && typeof Chart !== 'undefined') {
     });
 }
 
-
         /* GRAFIK DONUT STATUS VERIFIKASI */
         const verificationCanvas = document.getElementById('verificationChart');
 
@@ -2127,5 +1544,4 @@ if (kecamatanCanvas && typeof Chart !== 'undefined') {
             });
         }
     </script>
-</body>
-</html>
+@endpush
