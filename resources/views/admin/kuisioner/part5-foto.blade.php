@@ -1009,10 +1009,31 @@ document.addEventListener('DOMContentLoaded', function () {
                 videoConstraints.facingMode = { ideal: facingMode };
             }
 
-            activeStream = await navigator.mediaDevices.getUserMedia({
+            const cameraConstraints = {
                 audio: false,
                 video: videoConstraints
-            });
+            };
+
+            try {
+                activeStream = await navigator.mediaDevices.getUserMedia(
+                    cameraConstraints
+                );
+            } catch (error) {
+                if (error.name !== 'NotReadableError') {
+                    throw error;
+                }
+
+                cameraStatus.textContent =
+                    'Kamera belum siap. Mencoba menghubungkan kembali...';
+
+                await new Promise(function (resolve) {
+                    window.setTimeout(resolve, 750);
+                });
+
+                activeStream = await navigator.mediaDevices.getUserMedia(
+                    cameraConstraints
+                );
+            }
 
             video.srcObject = activeStream;
             cameraFacing = facingMode;
@@ -1047,7 +1068,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 message = 'Kamera tidak ditemukan pada perangkat ini.';
             } else if (error.name === 'NotReadableError') {
                 message =
-                    'Browser atau Windows tidak dapat membuka kamera. Tutup dan buka kembali browser, lalu coba lagi.';
+                    'Webcam sedang dipakai aplikasi lain atau belum siap. Tutup aplikasi Kamera, Zoom, atau Teams, lalu tekan Tutup dan buka Ambil Foto lagi. Pastikan izin kamera Chrome dan Windows (Pengaturan > Privasi & keamanan > Kamera) aktif.';
             } else if (error.name === 'OverconstrainedError') {
                 message =
                     'Kamera tidak mendukung pengaturan yang diminta. Periksa perangkat kamera lalu coba lagi.';
