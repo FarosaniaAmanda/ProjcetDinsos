@@ -191,11 +191,6 @@
         background: #292d8f;
     }
 
-    .part5-foto-action-gallery {
-        color: #292d8f;
-        background: white;
-    }
-
     @media (max-width: 700px) {
         .part5-foto-card > div:last-child {
             padding-top: 0;
@@ -321,141 +316,6 @@
     .part5-foto-submit:hover {
         color: #fff;
         background: #1d216d;
-    }
-
-    /* =========================
-       MODAL PILIH SUMBER FOTO
-    ========================= */
-    .foto-choice-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 999998;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 18px;
-        background: rgba(23, 29, 52, .55);
-        backdrop-filter: blur(3px);
-    }
-
-    .foto-choice-overlay.active {
-        display: flex;
-    }
-
-    .foto-choice-dialog {
-        position: relative;
-        width: 100%;
-        max-width: 390px;
-        padding: 25px;
-        background: #fff;
-        border: 1px solid #e8eaf2;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(14, 23, 55, .2);
-        animation: fotoModalIn .18s ease-out;
-    }
-
-    @keyframes fotoModalIn {
-        from {
-            opacity: 0;
-            transform: translateY(7px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .foto-choice-close {
-        position: absolute;
-        top: 13px;
-        right: 13px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 30px;
-        height: 30px;
-        color: #70778a;
-        background: #f2f4f8;
-        border: none;
-        border-radius: 8px;
-        font-size: 20px;
-        cursor: pointer;
-    }
-
-    .foto-choice-heading {
-        margin: 0 32px 6px 0;
-        color: #252A86;
-        font-size: 17px;
-        font-weight: 750;
-    }
-
-    .foto-choice-description {
-        margin: 0 0 20px;
-        color: #7b8292;
-        font-size: 12px;
-        line-height: 1.7;
-    }
-
-    .foto-choice-options {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-    }
-
-    .foto-choice-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        min-height: 120px;
-        padding: 15px 10px;
-        color: #30364b;
-        background: #fafbff;
-        border: 1px solid #e3e7f2;
-        border-radius: 11px;
-        cursor: pointer;
-        transition: background .2s, border-color .2s;
-    }
-
-    .foto-choice-option:hover {
-        color: #252A86;
-        background: #f1f3ff;
-        border-color: #bfc8eb;
-    }
-
-    .foto-choice-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 46px;
-        height: 46px;
-        color: #394b9a;
-        background: #e9edff;
-        border-radius: 13px;
-        font-size: 25px;
-    }
-
-    .foto-choice-option-label {
-        font-size: 12px;
-        font-weight: 750;
-    }
-
-    .foto-choice-cancel {
-        width: 100%;
-        margin-top: 12px;
-        padding: 10px;
-        color: #737b8c;
-        background: transparent;
-        border: none;
-        border-radius: 7px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .foto-choice-cancel:hover {
-        background: #f4f5f8;
     }
 
     /* =========================
@@ -692,9 +552,6 @@
             padding: 12px;
         }
 
-        .foto-choice-dialog {
-            padding: 20px;
-        }
     }
 
     .part5-draft-btn {
@@ -779,15 +636,6 @@
                         <div class="part5-foto-upload-actions">
                             <button
                                 type="button"
-                                class="part5-foto-action-btn part5-foto-action-gallery"
-                                data-foto-gallery="tampak_depan"
-                            >
-                                <i class="far fa-images"></i>
-                                Pilih dari Galeri/File
-                            </button>
-
-                            <button
-                                type="button"
                                 class="part5-foto-action-btn part5-foto-action-camera"
                                 data-foto-camera="tampak_depan"
                             >
@@ -839,19 +687,11 @@
                         name="ruang_tamu"
                         class="part5-foto-input"
                         accept="image/jpeg,image/png,image/jpg"
+                        hidden
                     >
 
                     <div class="part5-foto-upload">
                         <div class="part5-foto-upload-actions">
-                            <button
-                                type="button"
-                                class="part5-foto-action-btn part5-foto-action-gallery"
-                                data-foto-gallery="ruang_tamu"
-                            >
-                                <i class="far fa-images"></i>
-                                Pilih dari Galeri/File
-                            </button>
-
                             <button
                                 type="button"
                                 class="part5-foto-action-btn part5-foto-action-camera"
@@ -905,19 +745,11 @@
                         name="kamar_mandi"
                         class="part5-foto-input"
                         accept="image/jpeg,image/png,image/jpg"
+                        hidden
                     >
 
                     <div class="part5-foto-upload">
                         <div class="part5-foto-upload-actions">
-                            <button
-                                type="button"
-                                class="part5-foto-action-btn part5-foto-action-gallery"
-                                data-foto-gallery="kamar_mandi"
-                            >
-                                <i class="far fa-images"></i>
-                                Pilih dari Galeri/File
-                            </button>
-
                             <button
                                 type="button"
                                 class="part5-foto-action-btn part5-foto-action-camera"
@@ -980,65 +812,6 @@
             </div>
         </div>
     </form>
-</div>
-
-{{-- MODAL PILIH SUMBER FOTO --}}
-<div
-    id="foto-choice-overlay"
-    class="foto-choice-overlay"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="foto-choice-heading"
->
-    <div class="foto-choice-dialog">
-        <button
-            type="button"
-            id="foto-choice-close"
-            class="foto-choice-close"
-            aria-label="Tutup"
-        >&times;</button>
-
-        <h3 id="foto-choice-heading" class="foto-choice-heading">
-            Tambahkan Foto
-        </h3>
-
-        <p class="foto-choice-description">
-            Pilih cara untuk menambahkan dokumentasi foto rumah.
-        </p>
-
-        <div class="foto-choice-options">
-            <button type="button" id="foto-choice-camera" class="foto-choice-option">
-                
-            <span class="foto-choice-icon">
-                <svg viewBox="0 0 24 24" width="30" height="30"
-                    fill="none" stroke="currentColor" stroke-width="1.8"
-                    stroke-linecap="round" stroke-linejoin="round"
-                    aria-hidden="true">
-                    <path d="M14 4H10L8 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4l-2-3Z"/>
-                    <circle cx="12" cy="13" r="4"/>
-                </svg>
-            </span>
-
-                <span class="foto-choice-option-label">Gunakan Kamera</span>
-            </button>
-
-            <button type="button" id="foto-choice-gallery" class="foto-choice-option">
-                
-                <span class="foto-choice-icon">
-                    <svg viewBox="0 0 24 24" width="30" height="30"
-                        fill="none" stroke="currentColor" stroke-width="1.8"
-                        stroke-linecap="round" stroke-linejoin="round"
-                        aria-hidden="true">
-                        <rect x="3" y="3" width="18" height="18" rx="3"/>
-                        <circle cx="8.5" cy="8.5" r="1.5"/>
-                        <path d="m21 15-5-5L5 21"/>
-                    </svg>
-                </span>
-
-                <span class="foto-choice-option-label">Galeri / File</span>
-            </button>
-        </div>
-    </div>
 </div>
 
 {{-- MODAL KAMERA --}}
@@ -1109,11 +882,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('form-foto-rumah');
-    const choiceOverlay = document.getElementById('foto-choice-overlay');
-    const choiceHeading = document.getElementById('foto-choice-heading');
-    const choiceCamera = document.getElementById('foto-choice-camera');
-    const choiceGallery = document.getElementById('foto-choice-gallery');
-    const choiceClose = document.getElementById('foto-choice-close');
 
     const cameraOverlay = document.getElementById('kamera-overlay');
     const video = document.getElementById('kamera-video');
@@ -1135,12 +903,18 @@ document.addEventListener('DOMContentLoaded', function () {
         kamar_mandi: 'Kamar Mandi'
     };
 
+    const isMobileDevice =
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
     let activeStream = null;
+    let availableCameras = [];
+    let activeCameraDeviceId = null;
     let activeInput = null;
     let activeThumbnail = null;
     let activeFilename = null;
     let selectedField = null;
-    let cameraFacing = 'environment';
+    let cameraFacing = isMobileDevice ? 'environment' : 'user';
     let cameraBusy = false;
     let previousBodyOverflow = '';
     const uploadRequests = new Map();
@@ -1149,7 +923,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function lockPage() {
         if (
-            !choiceOverlay.classList.contains('active') &&
             !cameraOverlay.classList.contains('active') &&
             !viewerOverlay.classList.contains('active')
         ) {
@@ -1161,7 +934,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function restorePageScroll() {
         if (
-            !choiceOverlay.classList.contains('active') &&
             !cameraOverlay.classList.contains('active') &&
             !viewerOverlay.classList.contains('active')
         ) {
@@ -1186,23 +958,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
-    function openChoice(fieldName) {
-        if (!setActiveField(fieldName)) {
-            return;
-        }
-
-        choiceHeading.textContent =
-            'Tambah Foto — ' + (labels[fieldName] || 'Rumah');
-
-        choiceOverlay.classList.add('active');
-        lockPage();
-    }
-
-    function closeChoice() {
-        choiceOverlay.classList.remove('active');
-        restorePageScroll();
-    }
-
     function stopCamera() {
         if (activeStream) {
             activeStream.getTracks().forEach(function (track) {
@@ -1220,10 +975,11 @@ document.addEventListener('DOMContentLoaded', function () {
         cameraOverlay.classList.remove('active');
         cameraBusy = false;
         captureButton.disabled = false;
+        switchButton.disabled = false;
         restorePageScroll();
     }
 
-    async function startCamera(facingMode) {
+    async function startCamera(facingMode, deviceId = null) {
         if (
             !navigator.mediaDevices ||
             !navigator.mediaDevices.getUserMedia
@@ -1239,26 +995,45 @@ document.addEventListener('DOMContentLoaded', function () {
         stopCamera();
         cameraStatus.textContent = 'Menghubungkan kamera...';
         captureButton.disabled = true;
+        switchButton.disabled = true;
 
         try {
+            const videoConstraints = {
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            };
+
+            if (deviceId) {
+                videoConstraints.deviceId = { exact: deviceId };
+            } else if (isMobileDevice) {
+                videoConstraints.facingMode = { ideal: facingMode };
+            }
+
             activeStream = await navigator.mediaDevices.getUserMedia({
                 audio: false,
-                video: {
-                    facingMode: { ideal: facingMode },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
+                video: videoConstraints
             });
 
             video.srcObject = activeStream;
             cameraFacing = facingMode;
+            activeCameraDeviceId = activeStream
+                .getVideoTracks()[0]
+                .getSettings()
+                .deviceId || null;
 
             await video.play();
+
+            availableCameras = (await navigator.mediaDevices.enumerateDevices())
+                .filter(function (device) {
+                    return device.kind === 'videoinput';
+                });
 
             cameraStatus.textContent =
                 'Pastikan objek terlihat jelas, kemudian tekan Ambil Foto.';
 
             captureButton.disabled = false;
+            switchButton.disabled =
+                availableCameras.length < 2 && !isMobileDevice;
         } catch (error) {
             stopCamera();
 
@@ -1272,18 +1047,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 message = 'Kamera tidak ditemukan pada perangkat ini.';
             } else if (error.name === 'NotReadableError') {
                 message =
-                    'Kamera sedang digunakan aplikasi lain. Tutup aplikasi tersebut lalu coba kembali.';
+                    'Browser atau Windows tidak dapat membuka kamera. Tutup dan buka kembali browser, lalu coba lagi.';
+            } else if (error.name === 'OverconstrainedError') {
+                message =
+                    'Kamera tidak mendukung pengaturan yang diminta. Periksa perangkat kamera lalu coba lagi.';
+            } else if (error.name === 'AbortError') {
+                message =
+                    'Proses membuka kamera dihentikan oleh browser atau perangkat. Muat ulang halaman lalu coba kembali.';
+            } else if (error.name) {
+                message =
+                    'Kamera gagal dibuka (' + error.name + '). Periksa aplikasi Kamera Windows dan izin kamera Chrome.';
             }
 
+            console.error('Kamera gagal dibuka:', error);
             cameraStatus.textContent = message;
             alert(message);
             captureButton.disabled = true;
+            switchButton.disabled = false;
         }
     }
 
     async function openCamera() {
-        closeChoice();
-
         if (!activeInput || !activeThumbnail) {
             return;
         }
@@ -1291,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cameraTitle.textContent =
             'Ambil Foto — ' + (labels[selectedField] || 'Rumah');
 
-        cameraFacing = 'environment';
+        cameraFacing = isMobileDevice ? 'environment' : 'user';
         cameraOverlay.classList.add('active');
         lockPage();
 
@@ -1402,7 +1186,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })();
     });
 
-    /* Pilih kamera secara langsung */
+    /* Buka kamera untuk mengambil foto */
     document.querySelectorAll('[data-foto-camera]').forEach(function (button) {
         button.addEventListener('click', function () {
             if (setActiveField(button.dataset.fotoCamera)) {
@@ -1410,16 +1194,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-
-    /* Pilih galeri/file secara langsung */
-    document.querySelectorAll('[data-foto-gallery]').forEach(function (button) {
-        button.addEventListener('click', function () {
-            if (setActiveField(button.dataset.fotoGallery) && activeInput) {
-                activeInput.click();
-            }
-        });
-    });
-
 
     /* Ambil foto dari kamera */
     captureButton.addEventListener('click', function () {
@@ -1492,6 +1266,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* Beralih kamera depan dan belakang */
     switchButton.addEventListener('click', async function () {
+        if (availableCameras.length > 1) {
+            const activeCameraIndex = availableCameras.findIndex(function (device) {
+                return device.deviceId === activeCameraDeviceId;
+            });
+            const nextCameraIndex =
+                (activeCameraIndex + 1) % availableCameras.length;
+
+            await startCamera(
+                cameraFacing,
+                availableCameras[nextCameraIndex].deviceId
+            );
+
+            return;
+        }
+
+        if (!isMobileDevice) {
+            cameraStatus.textContent =
+                'Kamera lain tidak ditemukan. Periksa sambungan webcam ke komputer.';
+            return;
+        }
+
         const nextFacing =
             cameraFacing === 'environment' ? 'user' : 'environment';
 
@@ -1504,35 +1299,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (event.target === cameraOverlay) {
             closeCamera();
         }
-    });
-
-    /* Pratinjau gambar yang dipilih dari galeri/file */
-    document.querySelectorAll('.part5-foto-input').forEach(function (input) {
-        input.addEventListener('change', function () {
-            if (!input.files || !input.files[0]) {
-                return;
-            }
-
-            const file = input.files[0];
-
-            // Validasi ukuran maksimal 4 MB
-            const maxSize = 4 * 1024 * 1024;
-
-            if (file.size > maxSize) {
-                alert('Ukuran foto maksimal 4 MB. Silakan pilih foto dengan ukuran lebih kecil.');
-                input.value = '';
-                return;
-            }
-
-            if (!file.type.startsWith('image/')) {
-                alert('File harus berupa gambar.');
-                input.value = '';
-                return;
-            }
-
-            setActiveField(input.name);
-            displayThumbnail(file, input.name);
-        });
     });
 
     /* Klik foto untuk melihat ukuran lebih besar */
@@ -1575,8 +1341,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (cameraOverlay.classList.contains('active')) {
             closeCamera();
-        } else if (choiceOverlay.classList.contains('active')) {
-            closeChoice();
         } else if (viewerOverlay.classList.contains('active')) {
             closeViewer();
         }
