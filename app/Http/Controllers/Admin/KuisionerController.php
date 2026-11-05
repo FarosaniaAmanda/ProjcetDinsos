@@ -172,10 +172,7 @@ class KuisionerController extends Controller
                 $kodeKeluarga = $this->familyCodeForQuestionnaire(
                     $draft->keluarga_periode_kode
                 );
-                $anggota = KeluargaAnggota::where(
-                    'keluarga_kode',
-                    $kodeKeluarga
-                )->get();
+                $anggota = $this->anggotaPart5($kodeKeluarga);
 
                 $kodeAnggota = $anggota->pluck('kode');
 
@@ -199,8 +196,7 @@ class KuisionerController extends Controller
                     }
                 )->count();
 
-                $semuaAnggotaLengkap = $jumlahAnggota > 0
-                    && $jumlahAnggotaLengkap === $jumlahAnggota;
+                $semuaAnggotaLengkap = $jumlahAnggotaLengkap === $jumlahAnggota;
 
                 /*
                 |--------------------------------------------------------------------------
@@ -2510,12 +2506,7 @@ class KuisionerController extends Controller
         $kodeKeluarga = $this->familyCodeForQuestionnaire(
             $draft->keluarga_periode_kode
         );
-        $anggota = KeluargaAnggota::where(
-            'keluarga_kode',
-            $kodeKeluarga
-        )
-            ->orderBy('id')
-            ->get();
+        $anggota = $this->anggotaPart5($kodeKeluarga);
 
         /*
         |--------------------------------------------------------------------------
@@ -2637,6 +2628,8 @@ class KuisionerController extends Controller
             )
             ->first();
 
+        $anggota ??= $this->kepalaKeluargaPart5ForCode($kodeKeluarga, $kode);
+
         if (! $anggota) {
 
             return redirect()
@@ -2728,6 +2721,8 @@ class KuisionerController extends Controller
                 $kode
             )
             ->first();
+
+        $anggota ??= $this->kepalaKeluargaPart5ForCode($kodeKeluarga, $kode);
 
         if (! $anggota) {
 
@@ -3197,10 +3192,7 @@ class KuisionerController extends Controller
         $kodeKeluarga = $this->familyCodeForQuestionnaire(
             $draft->keluarga_periode_kode
         );
-        $anggotaList = KeluargaAnggota::where(
-            'keluarga_kode',
-            $kodeKeluarga
-        )->orderBy('id')->get();
+        $anggotaList = $this->anggotaPart5($kodeKeluarga);
 
         $dataPart5 = KeluargaPart5::where(
             'keluarga_periode_kode',
@@ -3400,6 +3392,56 @@ class KuisionerController extends Controller
             ->with('missing_questions', $missingQuestions);
     }
 
+    private function anggotaPart5(string $kodeKeluarga): EloquentCollection
+    {
+        $anggota = KeluargaAnggota::where('keluarga_kode', $kodeKeluarga)
+            ->orderBy('id')
+            ->get();
+
+        if ($anggota->contains(
+            fn (KeluargaAnggota $item): bool => $this->isKepalaKeluarga($item->status_keluarga)
+        )) {
+            return $anggota;
+        }
+
+        $kepalaKeluarga = $this->kepalaKeluargaPart5ForCode($kodeKeluarga, $kodeKeluarga);
+
+        if ($kepalaKeluarga) {
+            $anggota->prepend($kepalaKeluarga);
+        }
+
+        return $anggota;
+    }
+
+    private function kepalaKeluargaPart5ForCode(
+        string $kodeKeluarga,
+        string $kodeAnggota
+    ): ?KeluargaAnggota {
+        if ($kodeAnggota !== $kodeKeluarga) {
+            return null;
+        }
+
+        $keluarga = Keluarga::where('kode', $kodeKeluarga)->first();
+
+        if (! $keluarga) {
+            return null;
+        }
+
+        return new KeluargaAnggota([
+            'kode' => $keluarga->kode,
+            'keluarga_kode' => $keluarga->kode,
+            'nik' => $keluarga->nik,
+            'nama_lengkap' => $keluarga->nama_lengkap,
+            'status_keluarga' => 'Kepala Keluarga',
+        ]);
+    }
+
+    private function isKepalaKeluarga(mixed $statusKeluarga): bool
+    {
+        return str_replace('_', ' ', strtolower(trim((string) $statusKeluarga)))
+            === 'kepala keluarga';
+    }
+
     private function part5DataLengkap($data): bool
     {
         if (! $data) {
@@ -3533,7 +3575,7 @@ class KuisionerController extends Controller
     */
 
     public function storePart5Foto(Request $request)
-    {    
+    {
         $action = $request->input('action', 'final');
         $isDraft = $action === 'draft';
         $isAutosave = $action === 'upload';
@@ -3606,15 +3648,9 @@ class KuisionerController extends Controller
         $kodeKeluarga = $this->familyCodeForQuestionnaire(
             $draft->keluarga_periode_kode
         );
-        $jumlahAnggota = KeluargaAnggota::where(
-            'keluarga_kode',
-            $kodeKeluarga
-        )->count();
-
-        $kodeAnggota = KeluargaAnggota::where(
-            'keluarga_kode',
-            $kodeKeluarga
-        )->pluck('kode');
+        $anggota = $this->anggotaPart5($kodeKeluarga);
+        $jumlahAnggota = $anggota->count();
+        $kodeAnggota = $anggota->pluck('kode');
 
         $dataPart5 = KeluargaPart5::where(
             'keluarga_periode_kode',
@@ -3624,10 +3660,7 @@ class KuisionerController extends Controller
             ->get()
             ->keyBy('keluarga_anggota_kode');
 
-        $jumlahAnggotaSelesai = KeluargaAnggota::where(
-            'keluarga_kode',
-            $kodeKeluarga
-        )->get()->filter(function ($item) use ($dataPart5) {
+        $jumlahAnggotaSelesai = $anggota->filter(function ($item) use ($dataPart5) {
             $data = $dataPart5->get($item->kode);
 
             return $data && $this->part5DataLengkap($data);
@@ -3999,15 +4032,9 @@ class KuisionerController extends Controller
         $kodeKeluarga = $this->familyCodeForQuestionnaire(
             $draft->keluarga_periode_kode
         );
-        $jumlahAnggota = KeluargaAnggota::where(
-            'keluarga_kode',
-            $kodeKeluarga
-        )->count();
-
-        $kodeAnggota = KeluargaAnggota::where(
-            'keluarga_kode',
-            $kodeKeluarga
-        )->pluck('kode');
+        $anggota = $this->anggotaPart5($kodeKeluarga);
+        $jumlahAnggota = $anggota->count();
+        $kodeAnggota = $anggota->pluck('kode');
 
         $jumlahAnggotaTerdata = KeluargaPart5::where(
             'keluarga_periode_kode',

@@ -343,6 +343,9 @@ class KuisionerControllerTest extends TestCase
                 false
             )
             ->assertSee(asset('storage/'.$secondPath), false)
+            ->assertSee('Ambil dari Kamera')
+            ->assertDontSee('Pilih dari Galeri/File')
+            ->assertDontSee('Galeri / File')
             ->assertDontSee('Foto berhasil disimpan.')
             ->assertDontSee('Foto sudah tersimpan di server.');
 
@@ -351,6 +354,39 @@ class KuisionerControllerTest extends TestCase
         ])->assertRedirect(route('kuisioner.index'))
             ->assertSessionHas('success', 'Foto rumah berhasil disimpan sebagai draft.');
         $this->assertDatabaseCount('part5_foto_rumahs', 3);
+    }
+
+    public function test_part5_lists_all_family_members_and_includes_heads_in_progress(): void
+    {
+        $this->preparePart5Questionnaire();
+
+        $this->withoutVite()
+            ->get(route('kuisioner.part5'))
+            ->assertSee('Nama Anggota')
+            ->assertSee('Nama Kepala')
+            ->assertSee('Kepala Keluarga')
+            ->assertSee('0 / 2 anggota selesai');
+    }
+
+    public function test_head_of_household_can_open_part5_questions(): void
+    {
+        $this->preparePart5Questionnaire();
+
+        $this->withoutVite()
+            ->get(route('kuisioner.part5.anggota', 'KLG-PART5-001'))
+            ->assertOk()
+            ->assertSee('Nama Kepala')
+            ->assertSee('Dimana keberadaan Nama Kepala sekarang?');
+    }
+
+    public function test_head_of_household_can_submit_part5_answers(): void
+    {
+        $this->preparePart5Questionnaire();
+
+        $this->post(route('kuisioner.part5.anggota.store', 'KLG-PART5-001'))
+            ->assertSessionHasErrors('keberadaan');
+
+        $this->assertDatabaseCount('part5_anggota_keluargas', 0);
     }
 
     public function test_completed_questionnaire_displays_legacy_encrypted_identifiers_as_plain_text(): void
@@ -421,6 +457,57 @@ class KuisionerControllerTest extends TestCase
             ->assertDontSee($noKkCiphertext)
             ->assertDontSee($nikCiphertext)
             ->assertDontSee($memberNikCiphertext);
+    }
+
+    private function preparePart5Questionnaire(): void
+    {
+        Schema::dropIfExists('keluarga_anggotas');
+        Schema::dropIfExists('part5_anggota_keluargas');
+
+        Schema::create('keluarga_anggotas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('kode');
+            $table->string('keluarga_kode');
+            $table->string('nik')->nullable();
+            $table->string('nama_lengkap')->nullable();
+            $table->string('status_keluarga')->nullable();
+        });
+
+        Schema::create('part5_anggota_keluargas', function (Blueprint $table): void {
+            $table->id();
+            $table->string('keluarga_periode_kode');
+            $table->string('keluarga_anggota_kode');
+        });
+
+        $this->linkFamily('KLG-PART5-001', 'KLP-PART5-001');
+
+        DB::table('keluargas')->insert([
+            'kode' => 'KLG-PART5-001',
+            'nik' => '3575020101010002',
+            'nama_lengkap' => 'Nama Kepala',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $questionnaireId = DB::table('part1_keluarga')->insertGetId([
+            'keluarga_periode_kode' => 'KLP-PART5-001',
+            'status' => 'draft',
+            'current_part' => 5,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('keluarga_anggotas')->insert([
+            'kode' => 'ANG-MEMBER',
+            'keluarga_kode' => 'KLG-PART5-001',
+            'nama_lengkap' => 'Nama Anggota',
+            'status_keluarga' => 'Anak',
+        ]);
+
+        $this->withSession([
+            'draft_keluarga_id' => $questionnaireId,
+            'selected_keluarga_kode' => 'KLP-PART5-001',
+        ]);
     }
 
     private function linkFamily(string $familyCode, string $relationCode): void
