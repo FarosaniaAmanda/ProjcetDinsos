@@ -1047,9 +1047,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 message = 'Kamera tidak ditemukan pada perangkat ini.';
             } else if (error.name === 'NotReadableError') {
                 message =
-                    'Kamera sedang digunakan aplikasi lain. Tutup aplikasi tersebut lalu coba kembali.';
+                    'Browser atau Windows tidak dapat membuka kamera. Tutup dan buka kembali browser, lalu coba lagi.';
+            } else if (error.name === 'OverconstrainedError') {
+                message =
+                    'Kamera tidak mendukung pengaturan yang diminta. Periksa perangkat kamera lalu coba lagi.';
+            } else if (error.name === 'AbortError') {
+                message =
+                    'Proses membuka kamera dihentikan oleh browser atau perangkat. Muat ulang halaman lalu coba kembali.';
+            } else if (error.name) {
+                message =
+                    'Kamera gagal dibuka (' + error.name + '). Periksa aplikasi Kamera Windows dan izin kamera Chrome.';
             }
 
+            console.error('Kamera gagal dibuka:', error);
             cameraStatus.textContent = message;
             alert(message);
             captureButton.disabled = true;
