@@ -990,14 +990,69 @@ document.addEventListener('DOMContentLoaded', function () {
         captureButton.disabled = true;
 
         try {
-            activeStream = await navigator.mediaDevices.getUserMedia({
-                audio: false,
-                video: {
-                    facingMode: { ideal: facingMode },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
+            try {
+                activeStream = await navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: {
+                        facingMode: { ideal: facingMode },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+            } catch (preferredError) {
+                if (
+                    preferredError.name === 'NotAllowedError' ||
+                    preferredError.name === 'NotFoundError'
+                ) {
+                    throw preferredError;
                 }
-            });
+
+                console.warn(
+                    'Kamera gagal dibuka dengan pengaturan pilihan; mencoba pengaturan umum.',
+                    preferredError
+                );
+
+                try {
+                    activeStream = await navigator.mediaDevices.getUserMedia({
+                        audio: false,
+                        video: true
+                    });
+                } catch (genericError) {
+                    if (genericError.name === 'NotAllowedError') {
+                        throw genericError;
+                    }
+
+                    const cameras = (await navigator.mediaDevices.enumerateDevices())
+                        .filter(function (device) {
+                            return device.kind === 'videoinput' && device.deviceId;
+                        });
+
+                    let lastCameraError = genericError;
+
+                    for (const camera of cameras) {
+                        try {
+                            activeStream = await navigator.mediaDevices.getUserMedia({
+                                audio: false,
+                                video: {
+                                    deviceId: { exact: camera.deviceId }
+                                }
+                            });
+
+                            break;
+                        } catch (cameraError) {
+                            if (cameraError.name === 'NotAllowedError') {
+                                throw cameraError;
+                            }
+
+                            lastCameraError = cameraError;
+                        }
+                    }
+
+                    if (!activeStream) {
+                        throw lastCameraError;
+                    }
+                }
+            }
 
             video.srcObject = activeStream;
             cameraFacing = facingMode;
@@ -1021,9 +1076,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 message = 'Kamera tidak ditemukan pada perangkat ini.';
             } else if (error.name === 'NotReadableError') {
                 message =
-                    'Kamera sedang digunakan aplikasi lain. Tutup aplikasi tersebut lalu coba kembali.';
+                    'Browser atau Windows tidak dapat membuka kamera. Tutup dan buka kembali browser, lalu coba lagi.';
+            } else if (error.name === 'OverconstrainedError') {
+                message =
+                    'Kamera tidak mendukung pengaturan yang diminta. Periksa perangkat kamera lalu coba lagi.';
+            } else if (error.name === 'AbortError') {
+                message =
+                    'Proses membuka kamera dihentikan oleh browser atau perangkat. Muat ulang halaman lalu coba kembali.';
+            } else if (error.name) {
+                message =
+                    'Kamera gagal dibuka (' + error.name + '). Periksa aplikasi Kamera Windows dan izin kamera Chrome.';
             }
 
+            console.error('Kamera gagal dibuka:', error);
             cameraStatus.textContent = message;
             alert(message);
             captureButton.disabled = true;
