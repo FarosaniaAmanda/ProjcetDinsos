@@ -699,7 +699,10 @@ class VerifikasiControllerTest extends TestCase
                 'keberadaan',
                 'no_hp',
                 'jenis_kelamin',
+                'ijazah_tertinggi',
+                'ijazah_lainnya',
                 'pekerjaan_utama',
+                'pekerjaan_lainnya',
                 'status_pekerjaan',
             ] as $column) {
                 $table->string($column)->nullable();
@@ -758,11 +761,27 @@ class VerifikasiControllerTest extends TestCase
         DB::table('part5_anggota_keluargas')->insert([
             [
                 'keluarga_periode_kode' => 'KP-PDF',
+                'keluarga_anggota_kode' => 'KELUARGA-PDF',
+                'keberadaan' => 'Ada - Rumah',
+                'no_hp' => '0800000000',
+                'jenis_kelamin' => 'Laki-laki',
+                'ijazah_tertinggi' => 'Lainnya',
+                'ijazah_lainnya' => 'Pendidikan Kepala',
+                'pekerjaan_utama' => 'Lainnya',
+                'pekerjaan_lainnya' => 'Pekerjaan Kepala',
+                'status_pekerjaan' => 'Bekerja',
+                'keluhan_kesehatan' => 'Sehat',
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-PDF',
                 'keluarga_anggota_kode' => 'ANGGOTA-PDF-1',
                 'keberadaan' => 'Ada - Rumah',
                 'no_hp' => '0811111111',
                 'jenis_kelamin' => 'Laki-laki',
+                'ijazah_tertinggi' => null,
+                'ijazah_lainnya' => null,
                 'pekerjaan_utama' => 'Pelajar',
+                'pekerjaan_lainnya' => null,
                 'status_pekerjaan' => 'Tidak Bekerja',
                 'keluhan_kesehatan' => 'Asma',
             ],
@@ -772,7 +791,10 @@ class VerifikasiControllerTest extends TestCase
                 'keberadaan' => 'Ada - Rumah',
                 'no_hp' => '0822222222',
                 'jenis_kelamin' => 'Perempuan',
+                'ijazah_tertinggi' => null,
+                'ijazah_lainnya' => null,
                 'pekerjaan_utama' => 'Guru',
+                'pekerjaan_lainnya' => null,
                 'status_pekerjaan' => 'Pegawai',
                 'keluhan_kesehatan' => 'Migrain',
             ],
@@ -783,15 +805,64 @@ class VerifikasiControllerTest extends TestCase
             ->firstWhere('uuid', 'f77b4a1e-2e5a-4bdb-97cf-9f8c3935d10d');
         $html = view('admin.laporan.pdf', ['item' => $item])->render();
         $controller = new TestableLaporanController;
-        $detailResponse = $controller->showDetail($item['uuid']);
-        $pdfResponse = $controller->pdf($item['uuid']);
+        $detailResponse = $controller->showDetail($item['id']);
+        $pdfUuid = substr(
+            hash_hmac(
+                'sha256',
+                'laporan-pdf:'.$item['id'],
+                (string) config('app.key')
+            ),
+            0,
+            32
+        );
+        $pdfUuid[12] = '5';
+        $pdfUuid[16] = dechex((hexdec($pdfUuid[16]) & 0x03) | 0x08);
+        $pdfUuid = sprintf(
+            '%s-%s-%s-%s-%s',
+            substr($pdfUuid, 0, 8),
+            substr($pdfUuid, 8, 4),
+            substr($pdfUuid, 12, 4),
+            substr($pdfUuid, 16, 4),
+            substr($pdfUuid, 20, 12)
+        );
+        $pdfResponse = $controller->pdf($pdfUuid);
+        $monitoringItem = collect((new TestableMonitoringController)
+            ->monitoringData())
+            ->firstWhere('id', $questionnaireId);
+        $part5Members = collect($item['kuisioner'])
+            ->firstWhere('part', 5)['members'];
+        $detailPart5Members = collect($detailResponse->getData(true)['data']['kuisioner'])
+            ->firstWhere('part', 5)['members'];
+        $monitoringPart5Members = collect($monitoringItem['kuisioner'])
+            ->firstWhere('part', 5)['members'];
 
         $this->assertSame($questionnaireId, $detailResponse->getData(true)['data']['id']);
         $this->assertSame($questionnaireId, $item['id']);
         $this->assertSame(
-            route('laporan.pdf', ['uuid' => $item['uuid']]),
-            url('/laporan/'.$item['uuid'].'/pdf')
+            ['Kepala Keluarga PDF', 'Anggota PDF Satu', 'Anggota PDF Dua'],
+            collect($part5Members)->pluck('nama')->all()
         );
+        $this->assertSame(
+            collect($part5Members)->pluck('nama')->all(),
+            collect($detailPart5Members)->pluck('nama')->all()
+        );
+        $this->assertSame(
+            collect($part5Members)->pluck('questions')->all(),
+            collect($detailPart5Members)->pluck('questions')->all()
+        );
+        $this->assertSame(
+            collect($part5Members)->pluck('questions')->all(),
+            collect($monitoringPart5Members)->pluck('questions')->all()
+        );
+        $this->assertSame(
+            route('laporan.pdf', ['uuid' => $pdfUuid]),
+            url('/laporan/'.$pdfUuid.'/pdf')
+        );
+        $this->assertStringContainsString('Kepala Keluarga PDF', $html);
+        $this->assertStringContainsString('NIK-KEPALA-PDF', $html);
+        $this->assertStringContainsString('0800000000', $html);
+        $this->assertStringContainsString('Pendidikan Kepala', $html);
+        $this->assertStringContainsString('Pekerjaan Kepala', $html);
         $this->assertStringContainsString('Anggota PDF Satu', $html);
         $this->assertStringContainsString('NIK-ANGGOTA-PDF-1', $html);
         $this->assertStringContainsString('0811111111', $html);
@@ -806,6 +877,166 @@ class VerifikasiControllerTest extends TestCase
         $this->assertStringContainsString('Migrain', $html);
         $this->assertSame('application/pdf', $pdfResponse->headers->get('Content-Type'));
         $this->assertStringStartsWith('%PDF-', $pdfResponse->getContent());
+    }
+
+    public function test_part5_answers_are_matched_to_the_head_and_members_for_the_same_family_period(): void
+    {
+        Schema::table('part5_anggota_keluargas', function (Blueprint $table): void {
+            foreach ([
+                'keberadaan',
+                'ijazah_lainnya',
+                'pekerjaan_lainnya',
+            ] as $column) {
+                $table->string($column)->nullable();
+            }
+        });
+
+        DB::table('keluargas')->insert([
+            'kode' => 'KELUARGA-PART5',
+            'nik' => 'NIK-KEPALA-PART5',
+            'nama_lengkap' => 'Kepala Part 5',
+        ]);
+        DB::table('keluarga_anggotas')->insert([
+            [
+                'kode' => 'ANGGOTA-PART5-1',
+                'keluarga_kode' => 'KELUARGA-PART5',
+                'nik' => 'NIK-ANGGOTA-PART5-1',
+                'nama_lengkap' => 'Anggota Part 5 Satu',
+                'status_keluarga' => 'Anak',
+            ],
+            [
+                'kode' => 'ANGGOTA-PART5-2',
+                'keluarga_kode' => 'KELUARGA-PART5',
+                'nik' => 'NIK-ANGGOTA-PART5-2',
+                'nama_lengkap' => 'Anggota Part 5 Dua',
+                'status_keluarga' => 'Istri',
+            ],
+        ]);
+        DB::table('part5_anggota_keluargas')->insert([
+            [
+                'keluarga_periode_kode' => 'KP-PART5',
+                'keluarga_anggota_kode' => 'KELUARGA-PART5',
+                'keberadaan' => 'Jawaban Kepala',
+                'ijazah_lainnya' => 'Ijazah Kepala',
+                'pekerjaan_lainnya' => 'Pekerjaan Kepala',
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-PART5',
+                'keluarga_anggota_kode' => 'ANGGOTA-PART5-1',
+                'keberadaan' => 'Jawaban Anggota Satu',
+                'ijazah_lainnya' => null,
+                'pekerjaan_lainnya' => null,
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-PART5',
+                'keluarga_anggota_kode' => 'ANGGOTA-PART5-2',
+                'keberadaan' => 'Jawaban Anggota Dua',
+                'ijazah_lainnya' => null,
+                'pekerjaan_lainnya' => null,
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-PART5-LAMA',
+                'keluarga_anggota_kode' => 'KELUARGA-PART5',
+                'keberadaan' => 'Jawaban Periode Lama',
+                'ijazah_lainnya' => null,
+                'pekerjaan_lainnya' => null,
+            ],
+        ]);
+
+        $family = Keluarga::query()
+            ->where('kode', 'KELUARGA-PART5')
+            ->firstOrFail();
+        $members = (new TestableVerifikasiController)
+            ->part5MemberData($family, 'KP-PART5');
+        $head = $members[0];
+        $headAnswers = collect($head['questions'])->keyBy('text');
+        $memberAnswers = collect($members)
+            ->skip(1)
+            ->mapWithKeys(function (array $member): array {
+                return [
+                    $member['kode'] => collect($member['questions'])
+                        ->firstWhere('text', 'Keberadaan')['answer'],
+                ];
+            });
+
+        $this->assertCount(3, $members);
+        $this->assertSame('Kepala Part 5', $head['nama']);
+        $this->assertSame('Kepala Keluarga', $head['status_keluarga']);
+        $this->assertSame('Jawaban Kepala', $headAnswers['Keberadaan']['answer']);
+        $this->assertSame('Ijazah Kepala', $headAnswers['Keterangan Ijazah Lainnya']['answer']);
+        $this->assertSame('Pekerjaan Kepala', $headAnswers['Pekerjaan Lainnya']['answer']);
+        $this->assertSame(
+            [
+                'ANGGOTA-PART5-1' => 'Jawaban Anggota Satu',
+                'ANGGOTA-PART5-2' => 'Jawaban Anggota Dua',
+            ],
+            $memberAnswers->all()
+        );
+
+        $questionnaire = (new TestableVerifikasiController)
+            ->completeQuestionnaireData(
+                new KeluargaPart1([
+                    'keluarga_periode_kode' => 'KP-PART5',
+                    'jml_keluarga' => '3',
+                ]),
+                $family
+            );
+        $questionnairePart5Members = collect($questionnaire)
+            ->firstWhere('part', 5)['members'];
+
+        $this->assertSame($members, $questionnairePart5Members);
+    }
+
+    public function test_part5_uses_an_existing_head_member_code_without_adding_a_duplicate_head(): void
+    {
+        Schema::table('part5_anggota_keluargas', function (Blueprint $table): void {
+            $table->string('keberadaan')->nullable();
+        });
+
+        DB::table('keluargas')->insert([
+            'kode' => 'KELUARGA-PART5-EXISTING-HEAD',
+            'nama_lengkap' => 'Kepala dari Keluarga',
+        ]);
+        DB::table('keluarga_anggotas')->insert([
+            [
+                'kode' => 'HEAD-MEMBER-CODE',
+                'keluarga_kode' => 'KELUARGA-PART5-EXISTING-HEAD',
+                'nama_lengkap' => 'Kepala dari Anggota',
+                'status_keluarga' => 'Kepala_Keluarga',
+            ],
+            [
+                'kode' => 'CHILD-MEMBER-CODE',
+                'keluarga_kode' => 'KELUARGA-PART5-EXISTING-HEAD',
+                'nama_lengkap' => 'Anak',
+                'status_keluarga' => 'Anak',
+            ],
+        ]);
+        DB::table('part5_anggota_keluargas')->insert([
+            [
+                'keluarga_periode_kode' => 'KP-EXISTING-HEAD',
+                'keluarga_anggota_kode' => 'HEAD-MEMBER-CODE',
+                'keberadaan' => 'Jawaban Kepala Tersimpan',
+            ],
+            [
+                'keluarga_periode_kode' => 'KP-EXISTING-HEAD',
+                'keluarga_anggota_kode' => 'CHILD-MEMBER-CODE',
+                'keberadaan' => 'Jawaban Anak Tersimpan',
+            ],
+        ]);
+
+        $family = Keluarga::query()
+            ->where('kode', 'KELUARGA-PART5-EXISTING-HEAD')
+            ->firstOrFail();
+        $members = (new TestableVerifikasiController)
+            ->part5MemberData($family, 'KP-EXISTING-HEAD');
+
+        $this->assertCount(2, $members);
+        $this->assertSame('Kepala dari Anggota', $members[0]['nama']);
+        $this->assertSame('HEAD-MEMBER-CODE', $members[0]['kode']);
+        $this->assertSame(
+            'Jawaban Kepala Tersimpan',
+            collect($members[0]['questions'])->firstWhere('text', 'Keberadaan')['answer']
+        );
     }
 
     public function test_new_questionnaires_receive_a_uuid(): void
@@ -857,6 +1088,16 @@ class TestableVerifikasiController extends VerifikasiController
     public function housePhotoUrl(string $path): string
     {
         return $this->makeHousePhotoUrl($path);
+    }
+
+    public function part5MemberData(Keluarga $keluarga, string $keluargaPeriodeKode): array
+    {
+        return $this->buildPart5Members($keluarga, $keluargaPeriodeKode);
+    }
+
+    public function completeQuestionnaireData(KeluargaPart1 $item, ?Keluarga $keluarga): array
+    {
+        return parent::buildQuestionnaire($item, $keluarga);
     }
 
     public function completedVerificationData(string $status = 'all'): array

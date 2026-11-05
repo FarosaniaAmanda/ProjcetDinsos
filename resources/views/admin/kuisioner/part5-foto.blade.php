@@ -903,12 +903,18 @@ document.addEventListener('DOMContentLoaded', function () {
         kamar_mandi: 'Kamar Mandi'
     };
 
+    const isMobileDevice =
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
     let activeStream = null;
+    let availableCameras = [];
+    let activeCameraDeviceId = null;
     let activeInput = null;
     let activeThumbnail = null;
     let activeFilename = null;
     let selectedField = null;
-    let cameraFacing = 'environment';
+    let cameraFacing = isMobileDevice ? 'environment' : 'user';
     let cameraBusy = false;
     let previousBodyOverflow = '';
     const uploadRequests = new Map();
@@ -969,10 +975,11 @@ document.addEventListener('DOMContentLoaded', function () {
         cameraOverlay.classList.remove('active');
         cameraBusy = false;
         captureButton.disabled = false;
+        switchButton.disabled = false;
         restorePageScroll();
     }
 
-    async function startCamera(facingMode) {
+    async function startCamera(facingMode, deviceId = null) {
         if (
             !navigator.mediaDevices ||
             !navigator.mediaDevices.getUserMedia
@@ -988,26 +995,45 @@ document.addEventListener('DOMContentLoaded', function () {
         stopCamera();
         cameraStatus.textContent = 'Menghubungkan kamera...';
         captureButton.disabled = true;
+        switchButton.disabled = true;
 
         try {
+            const videoConstraints = {
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            };
+
+            if (deviceId) {
+                videoConstraints.deviceId = { exact: deviceId };
+            } else if (isMobileDevice) {
+                videoConstraints.facingMode = { ideal: facingMode };
+            }
+
             activeStream = await navigator.mediaDevices.getUserMedia({
                 audio: false,
-                video: {
-                    facingMode: { ideal: facingMode },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
+                video: videoConstraints
             });
 
             video.srcObject = activeStream;
             cameraFacing = facingMode;
+            activeCameraDeviceId = activeStream
+                .getVideoTracks()[0]
+                .getSettings()
+                .deviceId || null;
 
             await video.play();
+
+            availableCameras = (await navigator.mediaDevices.enumerateDevices())
+                .filter(function (device) {
+                    return device.kind === 'videoinput';
+                });
 
             cameraStatus.textContent =
                 'Pastikan objek terlihat jelas, kemudian tekan Ambil Foto.';
 
             captureButton.disabled = false;
+            switchButton.disabled =
+                availableCameras.length < 2 && !isMobileDevice;
         } catch (error) {
             stopCamera();
 
@@ -1027,6 +1053,7 @@ document.addEventListener('DOMContentLoaded', function () {
             cameraStatus.textContent = message;
             alert(message);
             captureButton.disabled = true;
+            switchButton.disabled = false;
         }
     }
 
@@ -1038,7 +1065,7 @@ document.addEventListener('DOMContentLoaded', function () {
         cameraTitle.textContent =
             'Ambil Foto — ' + (labels[selectedField] || 'Rumah');
 
-        cameraFacing = 'environment';
+        cameraFacing = isMobileDevice ? 'environment' : 'user';
         cameraOverlay.classList.add('active');
         lockPage();
 
@@ -1229,6 +1256,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* Beralih kamera depan dan belakang */
     switchButton.addEventListener('click', async function () {
+        if (availableCameras.length > 1) {
+            const activeCameraIndex = availableCameras.findIndex(function (device) {
+                return device.deviceId === activeCameraDeviceId;
+            });
+            const nextCameraIndex =
+                (activeCameraIndex + 1) % availableCameras.length;
+
+            await startCamera(
+                cameraFacing,
+                availableCameras[nextCameraIndex].deviceId
+            );
+
+            return;
+        }
+
+        if (!isMobileDevice) {
+            cameraStatus.textContent =
+                'Kamera lain tidak ditemukan. Periksa sambungan webcam ke komputer.';
+            return;
+        }
+
         const nextFacing =
             cameraFacing === 'environment' ? 'user' : 'environment';
 

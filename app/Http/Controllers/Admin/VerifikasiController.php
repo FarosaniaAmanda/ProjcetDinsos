@@ -2529,163 +2529,10 @@ class VerifikasiController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $part5Members = [];
-        $members = collect();
-        $part5Rows = collect();
-
-        if (
-            $kode &&
-            $keluarga &&
-            $keluarga->kode
-        ) {
-
-            /*
-            |--------------------------------------------------------------------------
-            | AMBIL ANGGOTA LANGSUNG DARI DATABASE
-            |--------------------------------------------------------------------------
-            */
-
-            $members =
-                KeluargaAnggota::query()
-                    ->where(
-                        'keluarga_kode',
-                        $keluarga->kode
-                    )
-                    ->orderBy('id')
-                    ->get();
-
-            /*
-            |--------------------------------------------------------------------------
-            | KEPALA KELUARGA TIDAK DITAMPILKAN
-            | SEBAGAI DETAIL PART 5
-            |--------------------------------------------------------------------------
-            */
-
-            $members =
-                $members->reject(
-                    function ($member) {
-
-                        return strtolower(
-                            trim(
-                                (string) (
-                                    $member->status_keluarga
-                                    ?? ''
-                                )
-                            )
-                        ) === 'kepala keluarga';
-                    }
-                );
-
-            /*
-            |--------------------------------------------------------------------------
-            | DATA PART 5
-            |--------------------------------------------------------------------------
-            */
-
-            $part5Rows = KeluargaPart5::query()
-                ->where('keluarga_periode_kode', $kode)
-                ->get();
-
-            /*
-             * Index data Part 5 dengan kode anggota yang dinormalisasi.
-             * Ini menghindari data tidak ditemukan hanya karena perbedaan
-             * tipe nilai/spasi pada kode anggota saat collection di-keyBy.
-             */
-            $part5Data = $part5Rows->keyBy(
-                fn ($row) => trim((string) $row->keluarga_anggota_kode)
-            );
-
-            /*
-            |--------------------------------------------------------------------------
-            | BUILD SETIAP ANGGOTA
-            |--------------------------------------------------------------------------
-            */
-
-            foreach (
-                $members as $member
-            ) {
-
-                $memberCode = trim((string) ($member->kode ?? ''));
-
-                // Cari berdasarkan kode anggota + periode yang sedang ditampilkan.
-                $part5 = $memberCode !== ''
-                    ? $part5Data->get($memberCode)
-                    : null;
-
-                // Fallback query langsung jika indeks collection tidak menemukan row.
-                if (! $part5 && $memberCode !== '') {
-                    $part5 = KeluargaPart5::query()
-                        ->where('keluarga_periode_kode', $kode)
-                        ->where('keluarga_anggota_kode', $memberCode)
-                        ->first();
-                }
-
-                $part5Members[] = $this->buildFamilyMemberQuestionnaire(
-                    $member,
-                    $part5
-                );
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | HUBUNGKAN JAWABAN PART 5 LAMA KE ANGGOTA AKTIF
-        |--------------------------------------------------------------------------
-        | Perbarui card anggota yang sudah dibuat, bukan menambahkan card baru.
-        |--------------------------------------------------------------------------
-        */
-
-        $kodeAnggotaAktif = $members
-            ->pluck('kode')
-            ->map(fn ($value) => trim((string) $value))
-            ->filter()
-            ->values();
-
-        $part5Lama = $part5Rows
-            ->filter(function ($row) use ($kodeAnggotaAktif) {
-                $kodeLama = trim((string) $row->keluarga_anggota_kode);
-
-                return $kodeLama !== ''
-                    && ! $kodeAnggotaAktif->contains($kodeLama);
-            })
-            ->sortBy('id')
-            ->values();
-
-        $anggotaTanpaJawaban = $members
-            ->filter(function ($member) use ($part5Rows) {
-                $kode = trim((string) $member->kode);
-
-                return ! $part5Rows->contains(
-                    fn ($row) => trim((string) $row->keluarga_anggota_kode) === $kode
-                );
-            })
-            ->values();
-
-        if (
-            $part5Lama->isNotEmpty()
-            && $part5Lama->count() === $anggotaTanpaJawaban->count()
-        ) {
-            foreach ($anggotaTanpaJawaban as $index => $member) {
-                $rowLama = $part5Lama->get($index);
-
-                // Cari card anggota yang sudah dibuat sebelumnya.
-                foreach ($part5Members as $key => $existingMember) {
-                    if (
-                        trim((string) ($existingMember['kode'] ?? ''))
-                        === trim((string) $member->kode)
-                    ) {
-                        // Perbarui jawaban pada card tersebut, tanpa menambah card.
-                        $part5Members[$key] =
-                            $this->buildFamilyMemberQuestionnaire(
-                                $member,
-                                $rowLama
-                            );
-
-                        break;
-                    }
-                }
-            }
-        }
+        $part5Members = $this->buildPart5Members(
+            $keluarga,
+            $kode
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -2946,8 +2793,18 @@ class VerifikasiController extends Controller
                     ),
 
                     $this->question(
+                        'Keterangan Ijazah Lainnya',
+                        $part5->ijazah_lainnya
+                    ),
+
+                    $this->question(
                         'Pekerjaan Utama',
                         $part5->pekerjaan_utama
+                    ),
+
+                    $this->question(
+                        'Pekerjaan Lainnya',
+                        $part5->pekerjaan_lainnya
                     ),
 
                     $this->question(
@@ -3027,6 +2884,76 @@ class VerifikasiController extends Controller
 
             'questions' => $questions,
         ];
+    }
+
+    /**
+     * @return array<int, array{
+     *     kode: string|null,
+     *     nik: string,
+     *     nama: string,
+     *     status_keluarga: string,
+     *     questions: array<int, array<string, mixed>>
+     * }>
+     */
+    protected function buildPart5Members(
+        ?Keluarga $keluarga,
+        ?string $keluargaPeriodeKode
+    ): array {
+        if (! $keluarga || ! $keluarga->kode || ! $keluargaPeriodeKode) {
+            return [];
+        }
+
+        $familyMembers = KeluargaAnggota::query()
+            ->where('keluarga_kode', $keluarga->kode)
+            ->orderBy('id')
+            ->get();
+
+        $headOfFamily = $familyMembers->first(
+            fn (KeluargaAnggota $member): bool => str_replace(
+                '_',
+                ' ',
+                strtolower(trim((string) $member->status_keluarga))
+            ) === 'kepala keluarga'
+        );
+
+        $otherMembers = $familyMembers
+            ->reject(
+                fn (KeluargaAnggota $member): bool => str_replace(
+                    '_',
+                    ' ',
+                    strtolower(trim((string) $member->status_keluarga))
+                ) === 'kepala keluarga'
+            )
+            ->values();
+
+        $headOfFamily ??= new KeluargaAnggota([
+            'kode' => $keluarga->kode,
+            'keluarga_kode' => $keluarga->kode,
+            'nik' => $keluarga->nik,
+            'nama_lengkap' => $keluarga->nama_lengkap,
+            'status_keluarga' => 'Kepala Keluarga',
+        ]);
+
+        $members = $otherMembers->prepend($headOfFamily);
+        $part5ByMemberCode = KeluargaPart5::query()
+            ->where('keluarga_periode_kode', $keluargaPeriodeKode)
+            ->get()
+            ->keyBy(
+                fn (KeluargaPart5 $answer): string => trim(
+                    (string) $answer->keluarga_anggota_kode
+                )
+            );
+
+        return $members
+            ->map(function (KeluargaAnggota $member) use ($part5ByMemberCode): array {
+                $memberCode = trim((string) $member->kode);
+
+                return $this->buildFamilyMemberQuestionnaire(
+                    $member,
+                    $part5ByMemberCode->get($memberCode)
+                );
+            })
+            ->all();
     }
 
     /*
